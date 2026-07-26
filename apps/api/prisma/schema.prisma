@@ -1,0 +1,9 @@
+generator client { provider = "prisma-client-js" }
+datasource db { provider = "postgresql" url = env("DATABASE_URL") }
+enum TransactionType { BET WIN BONUS REFUND ADMIN_ADJUSTMENT }
+enum GameCode { DRUNKARD_GATE DICE COINFLIP ROULETTE MINES }
+enum GameSessionStatus { CREATED FINISHED CANCELLED FAILED }
+model User { id String @id @default(uuid()) telegramId BigInt @unique username String? firstName String? lastName String? photoUrl String? balance BigInt @default(1000000) createdAt DateTime @default(now()) updatedAt DateTime @updatedAt transactions WalletTransaction[] gameSessions GameSession[] dailyBonuses DailyBonus[] }
+model WalletTransaction { id String @id @default(uuid()) userId String user User @relation(fields:[userId], references:[id]) type TransactionType amount BigInt balanceBefore BigInt balanceAfter BigInt source String? metadata Json? createdAt DateTime @default(now()) @@index([userId, createdAt]) }
+model GameSession { id String @id @default(uuid()) requestId String? @unique userId String user User @relation(fields:[userId], references:[id]) gameCode GameCode status GameSessionStatus @default(CREATED) betAmount BigInt winAmount BigInt @default(0) multiplier Float @default(0) result Json? createdAt DateTime @default(now()) finishedAt DateTime? @@index([userId, gameCode, createdAt]) }
+model DailyBonus { id String @id @default(uuid()) userId String user User @relation(fields:[userId], references:[id]) amount BigInt claimedAt DateTime @default(now()) @@index([userId, claimedAt]) }

@@ -1,0 +1,33 @@
+import { z } from 'zod';
+import { prisma } from '../db.js';
+import { getAuthUser } from '../auth/getUser.js';
+import { applyBalanceChange } from '../wallet/wallet.js';
+import { playCoinflip } from '../games/coinflip.js';
+import { playDice } from '../games/dice.js';
+import { playRoulette } from '../games/roulette.js';
+import { playDrunkardGate } from '../games/drunkardGate.js';
+const schema = z.object({ betAmount: z.number().int().positive().max(100000), requestId: z.string().optional(), payload: z.any().optional() });
+export async function gameRoutes(app) { app.post('/:gameCode/bet', { preHandler: [app.authenticate] }, async (req, rep) => { const u = await getAuthUser(req); const { gameCode } = req.params; const body = schema.parse(req.body); if (body.requestId) {
+    const existing = await prisma.gameSession.findUnique({ where: { requestId: body.requestId } });
+    if (existing)
+        return { balance: Number((await prisma.user.findUniqueOrThrow({ where: { id: u.id } })).balance), result: existing.result };
+} try {
+    return await prisma.$transaction(async (tx) => { const fresh = await tx.user.findUniqueOrThrow({ where: { id: u.id } }); const bet = BigInt(body.betAmount); if (fresh.balance < bet)
+        throw new Error('Insufficient balance'); await applyBalanceChange({ tx, userId: u.id, amount: -bet, type: 'BET', source: gameCode, metadata: body.payload }); const result = playGame(gameCode, { betAmount: body.betAmount, payload: body.payload }); let final = await tx.user.findUniqueOrThrow({ where: { id: u.id } }); if (result.winAmount > 0)
+        final = await applyBalanceChange({ tx, userId: u.id, amount: BigInt(result.winAmount), type: 'WIN', source: gameCode, metadata: result }); await tx.gameSession.create({ data: { requestId: body.requestId, userId: u.id, gameCode: mapGameCode(gameCode), status: 'FINISHED', betAmount: bet, winAmount: BigInt(result.winAmount), multiplier: result.multiplier, result, finishedAt: new Date() } }); return { balance: Number(final.balance), result }; });
+}
+catch (e) {
+    if (e.message === 'Insufficient balance')
+        return rep.code(400).send({ error: 'Insufficient balance' });
+    throw e;
+} }); }
+function playGame(code, p) { if (code === 'coinflip')
+    return playCoinflip(p); if (code === 'dice')
+    return playDice(p); if (code === 'roulette')
+    return playRoulette(p); if (code === 'drunkard-gate')
+    return playDrunkardGate(p); throw new Error('Unknown game'); }
+function mapGameCode(code) { if (code === 'coinflip')
+    return 'COINFLIP'; if (code === 'dice')
+    return 'DICE'; if (code === 'roulette')
+    return 'ROULETTE'; if (code === 'drunkard-gate')
+    return 'DRUNKARD_GATE'; throw new Error('Unknown game'); }

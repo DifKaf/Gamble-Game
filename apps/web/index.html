@@ -3325,22 +3325,21 @@ updateUI();
   var minesCountCtl = buildChipRow('minesCountChips', [3,5,8], 5, function(){});
   var minesBetCtl = buildChipRow('minesBetChips', [10,20,50,100,250], 20, function(){});
   var minesState = null;
-  document.getElementById('minesStartBtn').addEventListener('click', function(){
+  document.getElementById('minesStartBtn').addEventListener('click', async function(){
     var bet = minesBetCtl.get();
-    if(me().balance < bet){ showToast('Недостаточно Gamble Coin!','error'); haptic('error'); return; }
+    if(backendReady && backendBalance < bet){ showToast('Недостаточно Gamble Coin!','error'); haptic('error'); return; }
     var mineCount = minesCountCtl.get();
-    placeBet(bet); renderBalances(); bumpBalanceChip();
-    var totalTiles = 25;
-    var minePositions = new Set();
-    while(minePositions.size < mineCount){ minePositions.add(Math.floor(Math.random()*totalTiles)); }
-    var stepMap = {3:0.15, 5:0.28, 8:0.5};
-    minesState = { bet:bet, mineCount:mineCount, minePositions:minePositions, revealed:0, multiplier:1, step: stepMap[mineCount] };
-    document.getElementById('minesSetupPanel').classList.add('hidden');
-    document.getElementById('minesGamePanel').classList.remove('hidden');
-    document.getElementById('minesCashoutBtn').disabled = true;
-    document.getElementById('minesMult').textContent = 'x1.00';
-    document.getElementById('minesPayout').textContent = '0';
-    renderMinesGrid();
+    try{
+      var data = await apiRequest('/games/mines/start', { method:'POST', body:JSON.stringify({ betAmount:bet, mineCount:mineCount }) });
+      backendBalance = data.balance; applyBackendBalanceToUI(); bumpBalanceChip();
+      minesState = { sessionId:data.sessionId, bet:bet, mineCount:mineCount, revealed:0, multiplier:1, openedCells:[] };
+      document.getElementById('minesSetupPanel').classList.add('hidden');
+      document.getElementById('minesGamePanel').classList.remove('hidden');
+      document.getElementById('minesCashoutBtn').disabled = true;
+      document.getElementById('minesMult').textContent = 'x1.00';
+      document.getElementById('minesPayout').textContent = '0';
+      renderMinesGrid();
+    }catch(e){ showToast(e.message || 'Ошибка старта Mines','error'); haptic('error'); }
   });
 
   function renderMinesGrid(){
@@ -3351,48 +3350,42 @@ updateUI();
       btn.className = 'mine-tile';
       btn.textContent = '❔';
       btn.dataset.idx = i;
-      btn.addEventListener('click', function(){
-        onMineTileClick(this);
-      });
+      btn.addEventListener('click', function(){ onMineTileClick(this); });
       grid.appendChild(btn);
     }
   }
 
-  function onMineTileClick(tile){
-    if(!minesState || minesState.ended) return;
-    if(tile.disabled) return;
+  async function onMineTileClick(tile){
+    if(!minesState || minesState.ended || tile.disabled) return;
     var idx = parseInt(tile.dataset.idx,10);
     tile.disabled = true;
-    if(minesState.minePositions.has(idx)){
-      minesState.ended = true;
-      tile.classList.add('boom');
-      tile.textContent = '💣';
-      haptic('error');
-      revealAllMines();
-      addHistory(me(),'loss', minesState.bet, 'Мины: подрыв');
-      setTimeout(function(){ endMinesRound(); }, 900);
-    } else {
-      tile.classList.add('safe');
-      tile.textContent = '💎';
-      minesState.revealed++;
-      minesState.multiplier = Math.round((1 + minesState.revealed*minesState.step)*100)/100;
-      document.getElementById('minesMult').textContent = 'x'+minesState.multiplier.toFixed(2);
-      var payout = Math.round(minesState.bet*minesState.multiplier);
-      document.getElementById('minesPayout').textContent = fmt(payout);
-      document.getElementById('minesCashoutBtn').disabled = false;
-      haptic('light');
-    }
+    try{
+      var data = await apiRequest('/games/mines/open', { method:'POST', body:JSON.stringify({ sessionId:minesState.sessionId, cellIndex:idx }) });
+      backendBalance = data.balance; applyBackendBalanceToUI();
+      if(data.hitMine){
+        minesState.ended = true;
+        tile.classList.add('boom'); tile.textContent = '💣'; haptic('error');
+        revealServerMines(data.mines || []);
+        addHistory(me(),'loss', minesState.bet, 'Мины: подрыв');
+        setTimeout(function(){ endMinesRound(); }, 900);
+      } else {
+        tile.classList.add('safe'); tile.textContent = '💎';
+        minesState.openedCells = data.openedCells || [];
+        minesState.revealed = minesState.openedCells.length;
+        minesState.multiplier = data.multiplier || 1;
+        document.getElementById('minesMult').textContent = 'x'+minesState.multiplier.toFixed(2);
+        document.getElementById('minesPayout').textContent = fmt(data.payout || 0);
+        document.getElementById('minesCashoutBtn').disabled = false;
+        haptic('light');
+      }
+    }catch(e){ tile.disabled = false; showToast(e.message || 'Ошибка клетки','error'); haptic('error'); }
   }
 
-  function revealAllMines(){
+  function revealServerMines(mines){
     var grid = document.getElementById('minesGrid');
-    minesState.minePositions.forEach(function(idx){
+    mines.forEach(function(idx){
       var tile = grid.querySelector('[data-idx="'+idx+'"]');
-      if(tile && !tile.classList.contains('boom')){
-        tile.textContent = '💣';
-        tile.style.opacity = '0.6';
-        tile.disabled = true;
-      }
+      if(tile && !tile.classList.contains('boom')){ tile.textContent = '💣'; tile.style.opacity = '0.6'; tile.disabled = true; }
     });
   }
 
@@ -3403,15 +3396,16 @@ updateUI();
     renderAll();
   }
 
-  document.getElementById('minesCashoutBtn').addEventListener('click', function(){
+  document.getElementById('minesCashoutBtn').addEventListener('click', async function(){
     if(!minesState || minesState.ended) return;
     minesState.ended = true;
-    var payout = Math.round(minesState.bet*minesState.multiplier);
-    registerWin(payout);
-    addHistory(me(),'win', payout, 'Мины: забрал x'+minesState.multiplier.toFixed(2));
-    showWinOverlay(payout);
-    revealAllMines();
-    setTimeout(function(){ endMinesRound(); }, 600);
+    try{
+      var data = await apiRequest('/games/mines/cashout', { method:'POST', body:JSON.stringify({ sessionId:minesState.sessionId }) });
+      backendBalance = data.balance; applyBackendBalanceToUI();
+      addHistory(me(),'win', data.payout, 'Мины: забрал x'+Number(data.multiplier||1).toFixed(2));
+      showWinOverlay(data.payout); haptic('success');
+      setTimeout(function(){ endMinesRound(); }, 600);
+    }catch(e){ minesState.ended = false; showToast(e.message || 'Ошибка cashout','error'); haptic('error'); }
   });
 
   /* ================= WALLET ================= */

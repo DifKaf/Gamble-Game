@@ -2612,6 +2612,93 @@ updateUI();
   }
   if(tg){ try{ tg.ready(); tg.expand(); if(tg.setHeaderColor) tg.setHeaderColor('#2A1454'); }catch(e){} }
 
+
+  /* ================= Backend API / Telegram auth ================= */
+  var API_URL = 'https://gamble-game-production.up.railway.app';
+  var backendToken = localStorage.getItem('gg_backend_token');
+  var backendUser = null;
+  var backendBalance = 0;
+  var backendReady = false;
+
+  async function apiRequest(path, options){
+    options = options || {};
+    var headers = Object.assign({ 'Content-Type':'application/json' }, options.headers || {});
+    if(backendToken) headers.Authorization = 'Bearer ' + backendToken;
+    var res = await fetch(API_URL + path, Object.assign({}, options, { headers: headers }));
+    var data = await res.json().catch(function(){ return {}; });
+    if(!res.ok) throw new Error(data.error || 'API error');
+    return data;
+  }
+
+  function formatBackendBalance(value){ return Math.round(Number(value)||0).toLocaleString('ru-RU'); }
+
+  function applyBackendBalanceToState(){
+    if(!backendReady) return;
+    var p = me();
+    p.balance = Math.max(0, Math.round(Number(backendBalance)||0));
+    if(backendUser){
+      p.name = backendUser.firstName || backendUser.username || 'Игрок';
+      p.avatar = '👤';
+    }
+  }
+
+  function applyBackendBalanceToUI(){
+    if(!backendReady) return;
+    applyBackendBalanceToState();
+    var plain = formatBackendBalance(backendBalance);
+    var full = plain + ' GC';
+    var idsFull = ['heroBalance','walletBalance','profileBalance'];
+    idsFull.forEach(function(id){ var el=document.getElementById(id); if(el) el.textContent = full; });
+    var top = document.getElementById('balanceValue'); if(top) top.textContent = plain;
+    if(backendUser){
+      var name = backendUser.firstName || backendUser.username || 'Игрок';
+      var heroName=document.getElementById('heroName'); if(heroName) heroName.textContent = name;
+      var walletName=document.getElementById('walletName'); if(walletName) walletName.textContent = name;
+      var profileName=document.getElementById('profileName'); if(profileName) profileName.textContent = name;
+    }
+  }
+
+  async function initBackendAuth(){
+    try{
+      var auth;
+      if(tg && tg.initData){
+        auth = await apiRequest('/auth/telegram', { method:'POST', body:JSON.stringify({ initData: tg.initData }) });
+      } else {
+        auth = await apiRequest('/auth/dev', { method:'POST', body:JSON.stringify({ telegramId:123456 }) });
+      }
+      backendToken = auth.token;
+      localStorage.setItem('gg_backend_token', backendToken);
+      backendUser = auth.user;
+      backendBalance = auth.user.balance;
+      backendReady = true;
+      applyBackendBalanceToUI();
+      saveState();
+      setInterval(function(){ if(backendReady) applyBackendBalanceToUI(); }, 1000);
+      console.log('Backend auth success', auth.user);
+    }catch(e){
+      console.error('Backend auth failed:', e);
+      showToast('Backend auth error: ' + e.message, 'error');
+    }
+  }
+
+  async function serverBet(gameCode, betAmount, payload){
+    if(!backendReady) await initBackendAuth();
+    var data = await apiRequest('/games/' + gameCode + '/bet', {
+      method:'POST',
+      body:JSON.stringify({
+        betAmount: Math.round(Number(betAmount)||0),
+        requestId: (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : String(Date.now()) + '_' + String(Math.random()),
+        payload: payload || {}
+      })
+    });
+    backendBalance = data.balance;
+    applyBackendBalanceToUI();
+    saveState();
+    return data.result;
+  }
+
+  window.GambleBackend = { apiRequest:apiRequest, init:initBackendAuth, serverBet:serverBet, getBalance:function(){return backendBalance;} };
+
   /* ================= State ================= */
   var STORAGE_KEY = 'gambleGameState_v3_million_fixed';
   var DEFAULT_STATE = {
@@ -3393,6 +3480,7 @@ updateUI();
     renderProfile();
     renderPlayerSwitch();
     renderTransferRecipients();
+    if(backendReady) applyBackendBalanceToUI();
   }
   function renderBalances(){
     var p = me();
@@ -3472,6 +3560,7 @@ updateUI();
     });
   }
 
+  initBackendAuth();
   renderAll();
 })();
 </script>

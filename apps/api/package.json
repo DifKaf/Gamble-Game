@@ -8,22 +8,21 @@
     "start": "node dist/server.js",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
-    "prisma:deploy": "prisma migrate deploy",
     "prisma:studio": "prisma studio"
   },
   "dependencies": {
-    "@fastify/cors": "^9.0.0",
-    "@fastify/jwt": "^8.0.0",
-    "@fastify/rate-limit": "^9.0.0",
-    "@prisma/client": "5.22.0",
-    "dotenv": "^16.4.7",
-    "fastify": "^4.29.0",
-    "zod": "^3.24.1"
+    "@fastify/cors": "latest",
+    "@fastify/jwt": "latest",
+    "@fastify/rate-limit": "latest",
+    "@prisma/client": "latest",
+    "dotenv": "latest",
+    "fastify": "latest",
+    "zod": "latest"
   },
   "devDependencies": {
-    "@types/node": "^20.17.10",
-    "prisma": "5.22.0",
-    "tsx": "^4.19.2",
-    "typescript": "^5.7.2"
+    "@types/node": "latest",
+    "prisma": "latest",
+    "tsx": "latest",
+    "typescript": "latest"
   }
 }

@@ -2739,19 +2739,37 @@ updateUI();
   function saveState(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
   function me(){ return state.players[state.currentPlayerId]; }
   window.GambleSharedBalance = {
-    get:function(){ ensureMillionBalance(); saveState(); return me().balance; },
+    get:function(){
+      if(backendReady) return backendBalance;
+      ensureMillionBalance(); saveState(); return me().balance;
+    },
     set:function(value){
-      var p = me();
-      p.balance = Math.max(0, Math.round(Number(value)||0));
-      if(p.balance <= 0) p.balance = 1000000;
-      saveState();
-      renderAll();
-      return p.balance;
+      var next = Math.max(0, Math.round(Number(value)||0));
+      var current = backendReady ? backendBalance : me().balance;
+      var diff = next - current;
+      return this.add(diff);
     },
     add:function(delta){
+      delta = Math.round(Number(delta)||0);
+      if(backendReady){
+        backendBalance = Math.max(0, Math.round((backendBalance + delta)*100)/100);
+        applyBackendBalanceToUI();
+        apiRequest('/wallet/game-adjust', {
+          method:'POST',
+          body:JSON.stringify({ amount:delta, source:'drunkard-gate', metadata:{ legacyIframe:true } })
+        }).then(function(data){
+          backendBalance = data.balance;
+          applyBackendBalanceToUI();
+          saveState();
+        }).catch(function(e){
+          console.error('Drunkard Gate balance sync failed', e);
+          showToast('Ошибка синхронизации баланса слота','error');
+        });
+        return backendBalance;
+      }
       ensureMillionBalance();
       var p = me();
-      p.balance = Math.max(0, Math.round((p.balance + (Number(delta)||0))*100)/100);
+      p.balance = Math.max(0, Math.round((p.balance + delta)*100)/100);
       if(p.balance <= 0) p.balance = 1000000;
       saveState();
       renderAll();

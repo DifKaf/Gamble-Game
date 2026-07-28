@@ -3214,14 +3214,13 @@ updateUI();
   var diceBetCtl = buildChipRow('diceChips', [10,20,50,100,250], 20, function(){});
   var DICE_FACES = ['','⚀','⚁','⚂','⚃','⚄','⚅'];
   var diceRolling = false;
-  document.getElementById('diceRollBtn').addEventListener('click', function(){
+  document.getElementById('diceRollBtn').addEventListener('click', async function(){
     if(diceRolling) return;
     var choice = diceOptCtl.get();
     if(!choice){ showToast('Выбери вариант ставки','error'); return; }
     var bet = diceBetCtl.get();
-    if(me().balance < bet){ showToast('Недостаточно Gamble Coin!','error'); haptic('error'); return; }
+    if(backendReady && backendBalance < bet){ showToast('Недостаточно Gamble Coin!','error'); haptic('error'); return; }
     diceRolling = true;
-    placeBet(bet); renderBalances(); bumpBalanceChip();
     document.getElementById('diceRollBtn').disabled = true;
     haptic('medium');
     var d0 = document.getElementById('die0'), d1 = document.getElementById('die1');
@@ -3230,23 +3229,27 @@ updateUI();
       d0.textContent = DICE_FACES[1+Math.floor(Math.random()*6)];
       d1.textContent = DICE_FACES[1+Math.floor(Math.random()*6)];
     }, 70);
-    setTimeout(function(){
-      clearInterval(iv);
-      d0.classList.remove('rolling'); d1.classList.remove('rolling');
-      var v0 = 1+Math.floor(Math.random()*6), v1 = 1+Math.floor(Math.random()*6);
-      d0.textContent = DICE_FACES[v0]; d1.textContent = DICE_FACES[v1];
-      var sum = v0+v1;
-      document.getElementById('diceSum').textContent = sum;
-      var win = 0;
-      if(choice==='under' && sum<7) win = Math.round(bet*1.9);
-      else if(choice==='over' && sum>7) win = Math.round(bet*1.9);
-      else if(choice==='exact' && sum===7) win = bet*5;
-      if(win>0){ registerWin(win); addHistory(me(),'win', win, 'Кости: сумма '+sum); showWinOverlay(win); }
-      else { addHistory(me(),'loss', bet, 'Кости: сумма '+sum); haptic('error'); }
-      renderAll();
-      diceRolling = false;
-      document.getElementById('diceRollBtn').disabled = false;
-    }, 750);
+    try{
+      var result = await serverBet('dice', bet, { mode: choice==='under' ? 'under' : 'over', target: choice==='exact' ? 7 : 50 });
+      setTimeout(function(){
+        clearInterval(iv);
+        d0.classList.remove('rolling'); d1.classList.remove('rolling');
+        var roll = Number(result.roll)||7;
+        var v0 = Math.max(1, Math.min(6, Math.floor(roll/2)));
+        var v1 = Math.max(1, Math.min(6, roll - v0));
+        d0.textContent = DICE_FACES[v0]; d1.textContent = DICE_FACES[v1];
+        document.getElementById('diceSum').textContent = roll;
+        if(result.winAmount>0){ addHistory(me(),'win', result.winAmount, 'Кости: сумма '+roll); showWinOverlay(result.winAmount); haptic('success'); }
+        else { addHistory(me(),'loss', bet, 'Кости: сумма '+roll); haptic('error'); }
+        renderAll();
+        diceRolling = false;
+        document.getElementById('diceRollBtn').disabled = false;
+      }, 500);
+    }catch(e){
+      clearInterval(iv); d0.classList.remove('rolling'); d1.classList.remove('rolling');
+      showToast(e.message || 'Ошибка ставки','error'); haptic('error');
+      diceRolling = false; document.getElementById('diceRollBtn').disabled = false;
+    }
   });
 
   /* ================= COIN FLIP ================= */
@@ -3254,64 +3257,68 @@ updateUI();
   var coinBetCtl = buildChipRow('coinChips', [10,20,50,100,250], 20, function(){});
   var coinFlipping = false;
   var coinRotation = 0;
-  document.getElementById('coinFlipBtn').addEventListener('click', function(){
+  document.getElementById('coinFlipBtn').addEventListener('click', async function(){
     if(coinFlipping) return;
     var choice = coinOptCtl.get();
     if(!choice){ showToast('Выбери орёл или решку','error'); return; }
     var bet = coinBetCtl.get();
-    if(me().balance < bet){ showToast('Недостаточно Gamble Coin!','error'); haptic('error'); return; }
+    if(backendReady && backendBalance < bet){ showToast('Недостаточно Gamble Coin!','error'); haptic('error'); return; }
     coinFlipping = true;
-    placeBet(bet); renderBalances(); bumpBalanceChip();
     document.getElementById('coinFlipBtn').disabled = true;
     haptic('medium');
-    var result = Math.random()<0.5 ? 'heads' : 'tails';
-    var spins = 4;
-    var target = (result==='tails') ? 180 : 0;
-    coinRotation += spins*360 + (target - (coinRotation % 360));
-    var coinEl = document.getElementById('coinEl');
-    coinEl.style.transform = 'rotateY(' + coinRotation + 'deg)';
-    setTimeout(function(){
-      var win = 0;
-      if(choice===result) win = Math.round(bet*1.9);
-      if(win>0){ registerWin(win); addHistory(me(),'win', win, 'Монетка: '+(result==='heads'?'Орёл':'Решка')); showWinOverlay(win); }
-      else { addHistory(me(),'loss', bet, 'Монетка: '+(result==='heads'?'Орёл':'Решка')); haptic('error'); }
-      renderAll();
-      coinFlipping = false;
-      document.getElementById('coinFlipBtn').disabled = false;
-    }, 1150);
+    try{
+      var result = await serverBet('coinflip', bet, { side: choice });
+      var side = result.result;
+      var spins = 4;
+      var target = (side==='tails') ? 180 : 0;
+      coinRotation += spins*360 + (target - (coinRotation % 360));
+      var coinEl = document.getElementById('coinEl');
+      coinEl.style.transform = 'rotateY(' + coinRotation + 'deg)';
+      setTimeout(function(){
+        if(result.winAmount>0){ addHistory(me(),'win', result.winAmount, 'Монетка: '+(side==='heads'?'Орёл':'Решка')); showWinOverlay(result.winAmount); haptic('success'); }
+        else { addHistory(me(),'loss', bet, 'Монетка: '+(side==='heads'?'Орёл':'Решка')); haptic('error'); }
+        renderAll();
+        coinFlipping = false;
+        document.getElementById('coinFlipBtn').disabled = false;
+      }, 1150);
+    }catch(e){
+      showToast(e.message || 'Ошибка ставки','error'); haptic('error');
+      coinFlipping = false; document.getElementById('coinFlipBtn').disabled = false;
+    }
   });
 
   /* ================= ROULETTE ================= */
   var rouletteOptCtl = buildOptionRow('rouletteOptions', function(){});
   var rouletteBetCtl = buildChipRow('rouletteChips', [10,20,50,100,250], 20, function(){});
-  var ROULETTE_TABLE = [ {c:'red',weight:18,mult:2}, {c:'black',weight:18,mult:2}, {c:'green',weight:1,mult:14} ];
   var rouletteSpinning = false;
   var wheelRotation = 0;
-  document.getElementById('rouletteSpinBtn').addEventListener('click', function(){
+  document.getElementById('rouletteSpinBtn').addEventListener('click', async function(){
     if(rouletteSpinning) return;
     var choice = rouletteOptCtl.get();
-    if(!choice){ showToast('Выбери цвет с��авки','error'); return; }
+    if(!choice){ showToast('Выбери цвет ставки','error'); return; }
     var bet = rouletteBetCtl.get();
-    if(me().balance < bet){ showToast('Недостаточно Gamble Coin!','error'); haptic('error'); return; }
+    if(backendReady && backendBalance < bet){ showToast('Недостаточно Gamble Coin!','error'); haptic('error'); return; }
     rouletteSpinning = true;
-    placeBet(bet); renderBalances(); bumpBalanceChip();
     document.getElementById('rouletteSpinBtn').disabled = true;
     document.getElementById('rouletteResult').textContent = 'Крутится...';
     haptic('medium');
     wheelRotation += 900 + Math.floor(Math.random()*360);
     document.getElementById('wheelEl').style.transform = 'rotate(' + wheelRotation + 'deg)';
-    var outcome = weightedRandom(ROULETTE_TABLE);
-    setTimeout(function(){
-      var colorNames = {red:'🔴 Красное',black:'⚫ Чёрное',green:'🟢 Зелёное'};
-      document.getElementById('rouletteResult').textContent = 'Выпало: ' + colorNames[outcome.c];
-      var win = 0;
-      if(choice===outcome.c) win = Math.round(bet*outcome.mult);
-      if(win>0){ registerWin(win); addHistory(me(),'win', win, 'Рулетка: '+colorNames[outcome.c]); showWinOverlay(win); }
-      else { addHistory(me(),'loss', bet, 'Рулетка: '+colorNames[outcome.c]); haptic('error'); }
-      renderAll();
-      rouletteSpinning = false;
-      document.getElementById('rouletteSpinBtn').disabled = false;
-    }, 2250);
+    try{
+      var result = await serverBet('roulette', bet, { color: choice });
+      setTimeout(function(){
+        var colorNames = {red:'🔴 Красное',black:'⚫ Чёрное',green:'🟢 Зелёное'};
+        document.getElementById('rouletteResult').textContent = 'Выпало: ' + colorNames[result.color];
+        if(result.winAmount>0){ addHistory(me(),'win', result.winAmount, 'Рулетка: '+colorNames[result.color]); showWinOverlay(result.winAmount); haptic('success'); }
+        else { addHistory(me(),'loss', bet, 'Рулетка: '+colorNames[result.color]); haptic('error'); }
+        renderAll();
+        rouletteSpinning = false;
+        document.getElementById('rouletteSpinBtn').disabled = false;
+      }, 1500);
+    }catch(e){
+      showToast(e.message || 'Ошибка ставки','error'); haptic('error');
+      rouletteSpinning = false; document.getElementById('rouletteSpinBtn').disabled = false;
+    }
   });
 
   /* ================= MINES ================= */

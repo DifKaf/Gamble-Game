@@ -169,6 +169,29 @@ input,select{font-family:inherit;}
 .card-coin{background:linear-gradient(150deg,var(--gold-500),#FF9D3C);}
 .card-roulette{background:linear-gradient(150deg,#FF4757,#8E1B2C);}
 .card-mines{background:linear-gradient(150deg,#2ED573,#1C9C55);}
+.card-blackjack{background:linear-gradient(150deg,#3A3A3A,#111318);}
+.bj-table{background:radial-gradient(ellipse at 50% 30%, #12633a 0%, #0b3b23 60%, #062015 100%);border:5px solid var(--gold-500);border-radius:24px;padding:16px 12px 20px;margin-bottom:14px;}
+.bj-row{margin-bottom:10px;}
+.bj-label{color:var(--gold-300);font-weight:800;font-size:13px;margin-bottom:6px;display:flex;align-items:center;gap:6px;}
+.bj-label span{color:#fff;background:rgba(0,0,0,0.35);padding:1px 8px;border-radius:8px;font-size:12px;}
+.bj-hand{display:flex;gap:8px;min-height:74px;flex-wrap:wrap;}
+.bj-card{width:50px;height:70px;border-radius:8px;background:#fff;box-shadow:0 3px 6px rgba(0,0,0,0.4);display:flex;flex-direction:column;justify-content:space-between;padding:4px;font-weight:800;font-size:13px;animation:bjCardDeal .25s ease;}
+.bj-card.red{color:#E0243D;}
+.bj-card.black{color:#1a1a1a;}
+.bj-card .suit-center{font-size:20px;text-align:center;}
+.bj-card.hidden-card{background:linear-gradient(150deg,#4a2a8a,#2a1550);border:2px solid var(--gold-500);display:flex;align-items:center;justify-content:center;font-size:26px;color:var(--gold-300);}
+@keyframes bjCardDeal{from{transform:translateY(-16px) scale(.85);opacity:0;}to{transform:translateY(0) scale(1);opacity:1;}}
+.bj-result{text-align:center;font-weight:800;font-size:15px;color:#fff;min-height:20px;margin:6px 0;}
+.bj-result.win{color:#6EE79B;}
+.bj-result.lose{color:#FF6B6B;}
+.bj-result.push{color:var(--gold-300);}
+.bj-actions{display:flex;gap:8px;}
+.bj-actions .btn{flex:1;}
+.custom-bet-row{display:flex;gap:8px;align-items:center;margin:0 0 10px 0;}
+.custom-bet-row input{flex:1;min-width:0;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.18);border-radius:10px;padding:10px 12px;color:#fff;font-weight:700;font-size:14px;outline:none;}
+.custom-bet-row input::placeholder{color:rgba(255,255,255,0.45);}
+.custom-bet-row input:focus{border-color:var(--gold-500);}
+.custom-bet-row span{color:var(--gold-300);font-weight:800;font-size:13px;white-space:nowrap;}
 
 /* ---------- Generic panel/card ---------- */
 .panel{
@@ -490,6 +513,7 @@ select.input, input.input{
         <button class="game-card card-coin" data-open="coinflip"><div class="icon">🪙</div><div><div class="title">Монетка</div><div class="sub">Орёл или решка</div></div></button>
         <button class="game-card card-roulette" data-open="roulette"><div class="icon">🎡</div><div><div class="title">Рулетка</div><div class="sub">Красное / чёрное</div></div></button>
         <button class="game-card card-mines" data-open="mines"><div class="icon">💣</div><div><div class="title">Мины</div><div class="sub">Ищи алмазы</div></div></button>
+        <button class="game-card card-blackjack" data-open="blackjack"><div class="icon">🃏</div><div><div class="title">Blackjack</div><div class="sub">Собери 21</div></div></button>
       </div>
     </section>
 
@@ -502,6 +526,7 @@ select.input, input.input{
         <button class="game-card card-coin" data-open="coinflip"><div class="icon">🪙</div><div><div class="title">Монетка</div><div class="sub">50/50 шанс х1.9</div></div></button>
         <button class="game-card card-roulette" data-open="roulette"><div class="icon">🎡</div><div><div class="title">Рулетка</div><div class="sub">Цвет и число</div></div></button>
         <button class="game-card card-mines" data-open="mines"><div class="icon">💣</div><div><div class="title">Мины</div><div class="sub">Собирай алмазы</div></div></button>
+        <button class="game-card card-blackjack" data-open="blackjack"><div class="icon">🃏</div><div><div class="title">Blackjack</div><div class="sub">Обыграй дилера</div></div></button>
       </div>
     </section>
 
@@ -2457,6 +2482,7 @@ updateUI();
         </div>
         <div class="panel-title">Сумма ставки:</div>
         <div class="chip-row" id="diceChips"></div>
+        <div class="custom-bet-row"><input type="number" inputmode="numeric" min="1" step="1" placeholder="Своя ставка" id="diceCustomBet"><span>GC</span></div>
         <button class="btn btn-blue btn-block" id="diceRollBtn">🎲 Бросить</button>
       </div>
     </section>
@@ -2473,6 +2499,7 @@ updateUI();
         </div>
         <div class="panel-title">Сумма ставки:</div>
         <div class="chip-row" id="coinChips"></div>
+        <div class="custom-bet-row"><input type="number" inputmode="numeric" min="1" step="1" placeholder="Своя ставка" id="coinCustomBet"><span>GC</span></div>
         <button class="btn btn-gold btn-block" id="coinFlipBtn">🪙 Бросить монету</button>
       </div>
     </section>
@@ -2494,6 +2521,7 @@ updateUI();
         </div>
         <div class="panel-title">Сумма ставки:</div>
         <div class="chip-row" id="rouletteChips"></div>
+        <div class="custom-bet-row"><input type="number" inputmode="numeric" min="1" step="1" placeholder="Своя ставка" id="rouletteCustomBet"><span>GC</span></div>
         <button class="btn btn-primary btn-block" id="rouletteSpinBtn">🎡 Крутить рулетку</button>
       </div>
     </section>
@@ -2506,6 +2534,7 @@ updateUI();
         <div class="chip-row" id="minesCountChips"></div>
         <div class="panel-title">Сумма ставки:</div>
         <div class="chip-row" id="minesBetChips"></div>
+        <div class="custom-bet-row"><input type="number" inputmode="numeric" min="1" step="1" placeholder="Своя ставка" id="minesCustomBet"><span>GC</span></div>
         <button class="btn btn-green btn-block" id="minesStartBtn">💎 Начать раунд</button>
       </div>
       <div class="panel hidden" id="minesGamePanel">
@@ -2513,6 +2542,42 @@ updateUI();
         <div class="mines-grid" id="minesGrid"></div>
         <button class="btn btn-gold btn-block" id="minesCashoutBtn" disabled>💰 Забрать выигрыш</button>
       </div>
+    </section>
+    <!-- BLACKJACK -->
+    <section id="screen-blackjack" class="screen">
+      <div class="game-header"><button class="back-btn" data-nav="home">←</button><h2>🃏 Blackjack</h2></div>
+      <div class="bj-table">
+        <div class="bj-row bj-dealer-row">
+          <div class="bj-label">Дилер <span id="bjDealerTotal">—</span></div>
+          <div class="bj-hand" id="bjDealerHand"></div>
+        </div>
+        <div class="bj-result" id="bjResult"></div>
+        <div class="bj-row bj-player-row">
+          <div class="bj-label">Игрок <span id="bjPlayerTotal">—</span></div>
+          <div class="bj-hand" id="bjPlayerHand"></div>
+        </div>
+      </div>
+      <div class="panel" id="bjBetPanel">
+        <div class="panel-title">Сумма ставки:</div>
+        <div class="chip-row" id="bjBetChips"></div>
+        <div class="custom-bet-row"><input type="number" inputmode="numeric" min="1" step="1" placeholder="Своя ставка" id="bjCustomBet"><span>GC</span></div>
+        <button class="btn btn-gold btn-block" id="bjDealBtn">🃏 Раздать карты</button>
+      </div>
+      <div class="panel hidden" id="bjInsurancePanel">
+        <div class="panel-title">У дилера туз. Хотите страховку?</div>
+        <div class="bj-actions">
+          <button class="btn btn-blue" id="bjInsuranceYes">Да, страховка</button>
+          <button class="btn btn-primary" id="bjInsuranceNo">Нет, играть дальше</button>
+        </div>
+      </div>
+      <div class="panel hidden" id="bjActionsPanel">
+        <div class="bj-actions">
+          <button class="btn btn-green" id="bjHitBtn">➕ Ещё карту</button>
+          <button class="btn btn-primary" id="bjStandBtn">✋ Стоп</button>
+          <button class="btn btn-blue" id="bjDoubleBtn">×2 Удвоить</button>
+        </div>
+      </div>
+      <button class="btn btn-gold btn-block hidden" id="bjRebetBtn">🔁 Играть ещё раз</button>
     </section>
 
     <!-- WALLET -->
@@ -2905,6 +2970,52 @@ updateUI();
     });
     return { get: function(){ return selected; } };
   }
+
+  function buildBetControl(containerId, customInputId, values, defaultVal, onChange){
+    var box = document.getElementById(containerId);
+    var input = document.getElementById(customInputId);
+    box.innerHTML = '';
+    var selected = defaultVal;
+
+    function selectChip(chipEl, v){
+      box.querySelectorAll('.chip').forEach(function(c){ c.classList.remove('active'); });
+      if(chipEl) chipEl.classList.add('active');
+      selected = v;
+      if(input) input.value = '';
+      onChange(v);
+    }
+
+    values.forEach(function(v){
+      var chip = document.createElement('button');
+      chip.className = 'chip' + (v===defaultVal?' active':'');
+      chip.textContent = v + ' GC';
+      chip.addEventListener('click', function(){ selectChip(chip, v); haptic('light'); });
+      box.appendChild(chip);
+    });
+
+    if(input){
+      input.addEventListener('input', function(){
+        var raw = input.value.replace(/[^0-9]/g,'');
+        if(raw !== input.value) input.value = raw;
+        var v = parseInt(raw, 10);
+        if(!isNaN(v) && v>0){
+          box.querySelectorAll('.chip').forEach(function(c){ c.classList.remove('active'); });
+          selected = v;
+          onChange(v);
+        }
+      });
+    }
+
+    return {
+      get: function(){
+        if(input && input.value !== ''){
+          var v = parseInt(input.value, 10);
+          if(!isNaN(v) && v>0) return v;
+        }
+        return selected;
+      }
+    };
+  }
   function buildOptionRow(containerId, onChange){
     var box = document.getElementById(containerId);
     var selected = null;
@@ -3229,7 +3340,7 @@ updateUI();
 
   /* ================= DICE ================= */
   var diceOptCtl = buildOptionRow('diceOptions', function(){});
-  var diceBetCtl = buildChipRow('diceChips', [10,20,50,100,250], 20, function(){});
+  var diceBetCtl = buildBetControl('diceChips', 'diceCustomBet', [10,20,50,100,250], 20, function(){});
   var DICE_FACES = ['','⚀','⚁','⚂','⚃','⚄','⚅'];
   var diceRolling = false;
   document.getElementById('diceRollBtn').addEventListener('click', async function(){
@@ -3272,7 +3383,7 @@ updateUI();
 
   /* ================= COIN FLIP ================= */
   var coinOptCtl = buildOptionRow('coinOptions', function(){});
-  var coinBetCtl = buildChipRow('coinChips', [10,20,50,100,250], 20, function(){});
+  var coinBetCtl = buildBetControl('coinChips', 'coinCustomBet', [10,20,50,100,250], 20, function(){});
   var coinFlipping = false;
   var coinRotation = 0;
   document.getElementById('coinFlipBtn').addEventListener('click', async function(){
@@ -3307,7 +3418,7 @@ updateUI();
 
   /* ================= ROULETTE ================= */
   var rouletteOptCtl = buildOptionRow('rouletteOptions', function(){});
-  var rouletteBetCtl = buildChipRow('rouletteChips', [10,20,50,100,250], 20, function(){});
+  var rouletteBetCtl = buildBetControl('rouletteChips', 'rouletteCustomBet', [10,20,50,100,250], 20, function(){});
   var rouletteSpinning = false;
   var wheelRotation = 0;
   document.getElementById('rouletteSpinBtn').addEventListener('click', async function(){
@@ -3341,7 +3452,7 @@ updateUI();
 
   /* ================= MINES ================= */
   var minesCountCtl = buildChipRow('minesCountChips', [3,5,8], 5, function(){});
-  var minesBetCtl = buildChipRow('minesBetChips', [10,20,50,100,250], 20, function(){});
+  var minesBetCtl = buildBetControl('minesBetChips', 'minesCustomBet', [10,20,50,100,250], 20, function(){});
   var minesState = null;
   document.getElementById('minesStartBtn').addEventListener('click', async function(){
     var bet = minesBetCtl.get();
@@ -3424,6 +3535,144 @@ updateUI();
       showWinOverlay(data.payout); haptic('success');
       setTimeout(function(){ endMinesRound(); }, 600);
     }catch(e){ minesState.ended = false; showToast(e.message || 'Ошибка cashout','error'); haptic('error'); }
+  });
+
+  /* ================= BLACKJACK ================= */
+  var bjBetCtl = buildBetControl('bjBetChips', 'bjCustomBet', [10,20,50,100,250], 20, function(){});
+  var bjState = null;
+
+  function bjCardEl(card){
+    var suitMap = {S:'♠',H:'♥',D:'♦',C:'♣'};
+    var red = card.suit==='H'||card.suit==='D';
+    var el = document.createElement('div');
+    el.className = 'bj-card ' + (red?'red':'black');
+    var s = suitMap[card.suit] || '';
+    el.innerHTML = '<div>'+card.rank+s+'</div><div class="suit-center">'+s+'</div><div style="align-self:flex-end;transform:rotate(180deg);">'+card.rank+s+'</div>';
+    return el;
+  }
+  function bjHiddenCardEl(){
+    var el = document.createElement('div');
+    el.className = 'bj-card hidden-card';
+    el.textContent = '🂠';
+    return el;
+  }
+  function renderBlackjackHands(data){
+    var dHand = document.getElementById('bjDealerHand');
+    var pHand = document.getElementById('bjPlayerHand');
+    dHand.innerHTML=''; pHand.innerHTML='';
+    (data.dealerCards||[]).forEach(function(c){ dHand.appendChild(bjCardEl(c)); });
+    if(data.dealerHoleHidden){ dHand.appendChild(bjHiddenCardEl()); }
+    (data.playerCards||[]).forEach(function(c){ pHand.appendChild(bjCardEl(c)); });
+    document.getElementById('bjDealerTotal').textContent = data.dealerHoleHidden ? (data.dealerTotal+' + ?') : data.dealerTotal;
+    document.getElementById('bjPlayerTotal').textContent = data.playerTotal;
+  }
+  function renderBlackjackPanels(data){
+    var betPanel = document.getElementById('bjBetPanel');
+    var insPanel = document.getElementById('bjInsurancePanel');
+    var actPanel = document.getElementById('bjActionsPanel');
+    var rebetBtn = document.getElementById('bjRebetBtn');
+    var resultEl = document.getElementById('bjResult');
+    betPanel.classList.add('hidden');
+    insPanel.classList.add('hidden');
+    actPanel.classList.add('hidden');
+    rebetBtn.classList.add('hidden');
+    resultEl.textContent=''; resultEl.className='bj-result';
+    if(data.status === 'FINISHED'){
+      rebetBtn.classList.remove('hidden');
+      var totalBet = data.doubled ? data.betAmount*2 : data.betAmount;
+      var profit = data.winAmount - totalBet;
+      if(data.outcome==='win'){ resultEl.textContent='Победа! +'+fmt(profit)+' GC'; resultEl.classList.add('win'); }
+      else if(data.outcome==='blackjack'){ resultEl.textContent='🃏 Блэкджек! +'+fmt(profit)+' GC'; resultEl.classList.add('win'); }
+      else if(data.outcome==='push'){ resultEl.textContent='Ничья, ставка возвращена'; resultEl.classList.add('push'); }
+      else { resultEl.textContent='Дилер выиграл'; resultEl.classList.add('lose'); }
+      return;
+    }
+    if(data.awaitingInsurance){ insPanel.classList.remove('hidden'); return; }
+    actPanel.classList.remove('hidden');
+    document.getElementById('bjHitBtn').disabled = !data.canHit;
+    document.getElementById('bjStandBtn').disabled = !data.canStand;
+    document.getElementById('bjDoubleBtn').disabled = !data.canDouble || (backendReady && backendBalance < data.betAmount);
+  }
+  function renderBlackjack(data){
+    bjState = { sessionId:data.sessionId, betAmount:data.betAmount, doubled:data.doubled };
+    renderBlackjackHands(data);
+    renderBlackjackPanels(data);
+    if(data.status==='FINISHED'){
+      var totalBet = data.doubled ? data.betAmount*2 : data.betAmount;
+      if(data.winAmount>totalBet){
+        addHistory(me(),'win', data.winAmount-totalBet, 'Блэкджек: '+(data.outcome==='blackjack'?'натуральный блэкджек':'победа'));
+        showWinOverlay(data.winAmount-totalBet); haptic('success');
+      } else if(data.outcome==='push'){
+        addHistory(me(),'win', 0, 'Блэкджек: ничья');
+      } else {
+        addHistory(me(),'loss', totalBet, 'Блэкджек: проигрыш');
+        haptic('error');
+      }
+    }
+  }
+
+  document.getElementById('bjDealBtn').addEventListener('click', async function(){
+    var bet = bjBetCtl.get();
+    if(backendReady && backendBalance < bet){ showToast('Недостаточно Gamble Coin!','error'); haptic('error'); return; }
+    try{
+      var data = await apiRequest('/games/blackjack/start', { method:'POST', body:JSON.stringify({ betAmount:bet }) });
+      backendBalance = data.balance; applyBackendBalanceToUI(); bumpBalanceChip();
+      renderBlackjack(data);
+    }catch(e){ showToast(e.message || 'Ошибка старта Blackjack','error'); haptic('error'); }
+  });
+
+  document.getElementById('bjInsuranceYes').addEventListener('click', async function(){
+    if(!bjState) return;
+    try{
+      var data = await apiRequest('/games/blackjack/insurance', { method:'POST', body:JSON.stringify({ sessionId:bjState.sessionId, take:true }) });
+      backendBalance = data.balance; applyBackendBalanceToUI();
+      renderBlackjack(data);
+    }catch(e){ showToast(e.message || 'Ошибка страховки','error'); haptic('error'); }
+  });
+  document.getElementById('bjInsuranceNo').addEventListener('click', async function(){
+    if(!bjState) return;
+    try{
+      var data = await apiRequest('/games/blackjack/insurance', { method:'POST', body:JSON.stringify({ sessionId:bjState.sessionId, take:false }) });
+      backendBalance = data.balance; applyBackendBalanceToUI();
+      renderBlackjack(data);
+    }catch(e){ showToast(e.message || 'Ошибка страховки','error'); haptic('error'); }
+  });
+  document.getElementById('bjHitBtn').addEventListener('click', async function(){
+    if(!bjState) return;
+    try{
+      var data = await apiRequest('/games/blackjack/hit', { method:'POST', body:JSON.stringify({ sessionId:bjState.sessionId }) });
+      backendBalance = data.balance; applyBackendBalanceToUI();
+      renderBlackjack(data);
+    }catch(e){ showToast(e.message || 'Ошибка хода','error'); haptic('error'); }
+  });
+  document.getElementById('bjStandBtn').addEventListener('click', async function(){
+    if(!bjState) return;
+    try{
+      var data = await apiRequest('/games/blackjack/stand', { method:'POST', body:JSON.stringify({ sessionId:bjState.sessionId }) });
+      backendBalance = data.balance; applyBackendBalanceToUI();
+      renderBlackjack(data);
+    }catch(e){ showToast(e.message || 'Ошибка хода','error'); haptic('error'); }
+  });
+  document.getElementById('bjDoubleBtn').addEventListener('click', async function(){
+    if(!bjState) return;
+    try{
+      var data = await apiRequest('/games/blackjack/double', { method:'POST', body:JSON.stringify({ sessionId:bjState.sessionId }) });
+      backendBalance = data.balance; applyBackendBalanceToUI();
+      renderBlackjack(data);
+    }catch(e){ showToast(e.message || 'Ошибка удвоения','error'); haptic('error'); }
+  });
+  document.getElementById('bjRebetBtn').addEventListener('click', function(){
+    bjState = null;
+    document.getElementById('bjDealerHand').innerHTML='';
+    document.getElementById('bjPlayerHand').innerHTML='';
+    document.getElementById('bjDealerTotal').textContent='—';
+    document.getElementById('bjPlayerTotal').textContent='—';
+    document.getElementById('bjResult').textContent=''; document.getElementById('bjResult').className='bj-result';
+    document.getElementById('bjRebetBtn').classList.add('hidden');
+    document.getElementById('bjActionsPanel').classList.add('hidden');
+    document.getElementById('bjInsurancePanel').classList.add('hidden');
+    document.getElementById('bjBetPanel').classList.remove('hidden');
+    renderAll();
   });
 
   /* ================= WALLET ================= */

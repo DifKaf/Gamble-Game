@@ -22,6 +22,7 @@ enum GameCode {
   COINFLIP
   ROULETTE
   MINES
+  BLACKJACK
 }
 
 enum GameSessionStatus {
@@ -45,6 +46,7 @@ model User {
   gameSessions GameSession[]
   dailyBonuses DailyBonus[]
   minesSessions MinesSession[]
+  blackjackSessions BlackjackSession[]
 }
 
 model WalletTransaction {
@@ -100,4 +102,24 @@ model DailyBonus {
   amount BigInt
   claimedAt DateTime @default(now())
   @@index([userId, claimedAt])
+}
+
+model BlackjackSession {
+  id String @id @default(uuid())
+  userId String
+  user User @relation(fields: [userId], references: [id])
+  status GameSessionStatus @default(CREATED)
+  betAmount BigInt
+  doubled Boolean @default(false)
+  insuranceBet BigInt @default(0)
+  insuranceOffered Boolean @default(false)
+  insuranceResolved Boolean @default(false)
+  playerCards Json
+  dealerCards Json
+  dealerHoleHidden Boolean @default(true)
+  outcome String?
+  winAmount BigInt @default(0)
+  createdAt DateTime @default(now())
+  finishedAt DateTime?
+  @@index([userId, status, createdAt])
 }

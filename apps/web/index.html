@@ -120,7 +120,9 @@ input,select{font-family:inherit;}
   width:52px;height:52px;border-radius:16px;background:rgba(255,255,255,0.25);
   display:flex;align-items:center;justify-content:center;font-size:28px;
   border:2px solid rgba(255,255,255,0.5);
+  overflow:hidden;background-size:cover;background-position:center;
 }
+.avatar-badge.has-photo{font-size:0;}
 .hero-greet{font-size:13px;opacity:0.9;font-weight:600;}
 .hero-name{font-size:19px;font-weight:800;}
 .hero-balance{margin-top:14px;font-size:13px;opacity:0.85;font-weight:700;}
@@ -165,6 +167,9 @@ input,select{font-family:inherit;}
 }
 .card-slot{background:linear-gradient(150deg,#FF3E9D,#B23BFF);grid-column:1/-1;min-height:100px;flex-direction:row;align-items:center;gap:12px;}
 .card-slot .icon{font-size:44px;}
+.game-card.category-card{grid-column:auto;min-height:118px;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center;width:100%;}
+.game-card.category-card .icon{font-size:32px;}
+.game-card.category-card .title,.game-card.category-card .sub{text-align:center;}
 .card-dice{background:linear-gradient(150deg,#3EC1FF,#3D6BFF);}
 .card-coin{background:linear-gradient(150deg,var(--gold-500),#FF9D3C);}
 .card-roulette{background:linear-gradient(150deg,#FF4757,#8E1B2C);}
@@ -188,6 +193,8 @@ input,select{font-family:inherit;}
 .bj-actions{display:flex;gap:8px;}
 .bj-actions .btn{flex:1;}
 .custom-bet-row{display:flex;gap:8px;align-items:center;margin:0 0 10px 0;}
+.bet-title-row{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.bet-balance{font-size:12px;color:var(--gold-300);font-weight:800;white-space:nowrap;}
 .custom-bet-row input{flex:1;min-width:0;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.18);border-radius:10px;padding:10px 12px;color:#fff;font-weight:700;font-size:14px;outline:none;}
 .custom-bet-row input::placeholder{color:rgba(255,255,255,0.45);}
 .custom-bet-row input:focus{border-color:var(--gold-500);}
@@ -360,6 +367,8 @@ select.input, input.input{
 .history-item .time{font-size:11px;opacity:0.65;font-weight:600;}
 .history-item .amt.plus{color:#6EE79B;font-weight:800;}
 .history-item .amt.minus{color:#FF8A8A;font-weight:800;}
+.game-history-box{margin-top:12px;}
+.game-history-title{font-size:13px;font-weight:800;color:var(--gold-300);margin:8px 0;}
 .empty-state{color:rgba(255,255,255,0.6);font-size:13px;text-align:center;padding:18px 0;font-weight:600;}
 
 /* ---------- Profile ---------- */
@@ -472,10 +481,6 @@ select.input, input.input{
 <body>
 <div id="app">
 
-  <header class="topbar">
-    <div class="logo"><span class="emoji">🎰</span><span>Gamble Game</span></div>
-    <div class="balance-chip" id="balanceChip"><span class="gc-icon">🪙</span><span id="balanceValue">0</span></div>
-  </header>
 
   <main class="screen-container">
 
@@ -491,37 +496,45 @@ select.input, input.input{
         </div>
         <div class="hero-balance">Главный баланс<b id="heroBalance">0 GC</b></div>
         <button class="btn btn-gold btn-block" data-nav="games">🎮 Играть сейчас</button>
-          <div style="margin-top:8px;font-size:12px;font-weight:800;opacity:.85;">Единый баланс для всех игр</div>
+        <button class="btn btn-blue btn-block" data-nav="bonuses" style="margin-top:10px;">🎁 Бонусы</button>
       </div>
-
-      <div class="section-title">🔥 Самое горячее</div>
-      <button class="game-card card-slot" data-open="slot">
-        <div class="icon">🎰</div>
-        <div>
-          <div class="title">Drunkard Gate</div>
-          <div class="sub">Новый слот из файла Drunkard Gate</div>
-        </div>
-        <div class="tag">ТОП</div>
-      </button>
 
       <div class="section-title">🏆 Лидеры по балансу</div>
       <div class="white-card" id="leaderboardBox"></div>
 
-      <div class="section-title">🎮 Все игры</div>
-      <div class="game-grid">
-        <button class="game-card card-dice" data-open="dice"><div class="icon">🎲</div><div><div class="title">Кости</div><div class="sub">Больше / меньше 7</div></div></button>
-        <button class="game-card card-coin" data-open="coinflip"><div class="icon">🪙</div><div><div class="title">Монетка</div><div class="sub">Орёл или решка</div></div></button>
-        <button class="game-card card-roulette" data-open="roulette"><div class="icon">🎡</div><div><div class="title">Рулетка</div><div class="sub">Красное / чёрное</div></div></button>
-        <button class="game-card card-mines" data-open="mines"><div class="icon">💣</div><div><div class="title">Мины</div><div class="sub">Ищи алмазы</div></div></button>
-        <button class="game-card card-blackjack" data-open="blackjack"><div class="icon">🃏</div><div><div class="title">Blackjack</div><div class="sub">Собери 21</div></div></button>
+    </section>
+
+    <!-- BONUSES -->
+    <section id="screen-bonuses" class="screen">
+      <div class="game-header"><button class="back-btn" data-nav="home">←</button><h2>🎁 Бонусы</h2></div>
+      <div class="panel">
+        <div class="panel-title">🎟️ Промокоды</div>
+        <div class="custom-bet-row"><input type="text" inputmode="text" placeholder="Введите промокод" id="promoCodeInput"><span>CODE</span></div>
+        <button class="btn btn-gold btn-block" id="promoCodeBtn">Активировать</button>
       </div>
     </section>
 
     <!-- GAMES LIST -->
     <section id="screen-games" class="screen">
-      <div class="section-title">🎮 Все игры</div>
+      <div class="section-title">🎮 Игры</div>
       <div class="game-grid">
-        <button class="game-card card-slot" data-open="slot" style="grid-column:1/-1;"><div class="icon">🎰</div><div><div class="title">Drunkard Gate</div><div class="sub">Новый слот из файла Drunkard Gate</div></div><div class="tag">ТОП</div></button>
+        <button class="game-card card-slot category-card" data-open="slots"><div class="icon">🎰</div><div><div class="title">Слоты</div><div class="sub">Игровые автоматы</div></div></button>
+        <button class="game-card card-dice category-card" data-open="minigames"><div class="icon">🎮</div><div><div class="title">Мини игры</div><div class="sub">Кости, монетка и другие</div></div></button>
+      </div>
+    </section>
+
+    <!-- SLOTS -->
+    <section id="screen-slots" class="screen">
+      <div class="game-header"><button class="back-btn" data-nav="games">←</button><h2>🎰 Слоты</h2></div>
+      <div class="game-grid">
+        <button class="game-card card-slot" data-open="slot" style="grid-column:1/-1;"><div class="icon">🎰</div><div><div class="title">Drunkard Gate</div><div class="sub">Открыть слот</div></div></button>
+      </div>
+    </section>
+
+    <!-- MINI GAMES -->
+    <section id="screen-minigames" class="screen">
+      <div class="game-header"><button class="back-btn" data-nav="games">←</button><h2>🎮 Мини игры</h2></div>
+      <div class="game-grid">
         <button class="game-card card-dice" data-open="dice"><div class="icon">🎲</div><div><div class="title">Кости</div><div class="sub">Сумма двух костей</div></div></button>
         <button class="game-card card-coin" data-open="coinflip"><div class="icon">🪙</div><div><div class="title">Монетка</div><div class="sub">50/50 шанс х1.9</div></div></button>
         <button class="game-card card-roulette" data-open="roulette"><div class="icon">🎡</div><div><div class="title">Рулетка</div><div class="sub">Цвет и число</div></div></button>
@@ -2480,10 +2493,11 @@ updateUI();
           <button class="option-btn" data-val="exact">Ровно 7<small>x5</small></button>
           <button class="option-btn" data-val="over">Больше 7<small>x1.9</small></button>
         </div>
-        <div class="panel-title">Сумма ставки:</div>
+        <div class="panel-title bet-title-row"><span>Сумма ставки:</span><span class="bet-balance">Баланс: <b class="miniGameBalance">0</b> GC</span></div>
         <div class="chip-row" id="diceChips"></div>
         <div class="custom-bet-row"><input type="number" inputmode="numeric" min="1" step="1" placeholder="Своя ставка" id="diceCustomBet"><span>GC</span></div>
         <button class="btn btn-blue btn-block" id="diceRollBtn">🎲 Бросить</button>
+        <div class="game-history-box"><div class="game-history-title">История игроков</div><div class="panel" id="diceGameHistory"></div></div>
       </div>
     </section>
 
@@ -2497,10 +2511,11 @@ updateUI();
           <button class="option-btn" data-val="heads">🦅 Орёл<small>x1.9</small></button>
           <button class="option-btn" data-val="tails">Ⓣ Решка<small>x1.9</small></button>
         </div>
-        <div class="panel-title">Сумма ставки:</div>
+        <div class="panel-title bet-title-row"><span>Сумма ставки:</span><span class="bet-balance">Баланс: <b class="miniGameBalance">0</b> GC</span></div>
         <div class="chip-row" id="coinChips"></div>
         <div class="custom-bet-row"><input type="number" inputmode="numeric" min="1" step="1" placeholder="Своя ставка" id="coinCustomBet"><span>GC</span></div>
         <button class="btn btn-gold btn-block" id="coinFlipBtn">🪙 Бросить монету</button>
+        <div class="game-history-box"><div class="game-history-title">История игроков</div><div class="panel" id="coinflipGameHistory"></div></div>
       </div>
     </section>
 
@@ -2519,10 +2534,11 @@ updateUI();
           <button class="option-btn" data-val="black">⚫ Чёрное<small>x2</small></button>
           <button class="option-btn" data-val="green">🟢 Зелёное<small>x14</small></button>
         </div>
-        <div class="panel-title">Сумма ставки:</div>
+        <div class="panel-title bet-title-row"><span>Сумма ставки:</span><span class="bet-balance">Баланс: <b class="miniGameBalance">0</b> GC</span></div>
         <div class="chip-row" id="rouletteChips"></div>
         <div class="custom-bet-row"><input type="number" inputmode="numeric" min="1" step="1" placeholder="Своя ставка" id="rouletteCustomBet"><span>GC</span></div>
         <button class="btn btn-primary btn-block" id="rouletteSpinBtn">🎡 Крутить рулетку</button>
+        <div class="game-history-box"><div class="game-history-title">История игроков</div><div class="panel" id="rouletteGameHistory"></div></div>
       </div>
     </section>
 
@@ -2532,10 +2548,11 @@ updateUI();
       <div class="panel" id="minesSetupPanel">
         <div class="panel-title">Количество мин:</div>
         <div class="chip-row" id="minesCountChips"></div>
-        <div class="panel-title">Сумма ставки:</div>
+        <div class="panel-title bet-title-row"><span>Сумма ставки:</span><span class="bet-balance">Баланс: <b class="miniGameBalance">0</b> GC</span></div>
         <div class="chip-row" id="minesBetChips"></div>
         <div class="custom-bet-row"><input type="number" inputmode="numeric" min="1" step="1" placeholder="Своя ставка" id="minesCustomBet"><span>GC</span></div>
         <button class="btn btn-green btn-block" id="minesStartBtn">💎 Начать раунд</button>
+        <div class="game-history-box"><div class="game-history-title">История игроков</div><div class="panel" id="minesGameHistory"></div></div>
       </div>
       <div class="panel hidden" id="minesGamePanel">
         <div class="mines-status"><span>Множитель: <b id="minesMult">x1.00</b></span><span>Выплата: <b id="minesPayout">0</b> GC</span></div>
@@ -2558,10 +2575,11 @@ updateUI();
         </div>
       </div>
       <div class="panel" id="bjBetPanel">
-        <div class="panel-title">Сумма ставки:</div>
+        <div class="panel-title bet-title-row"><span>Сумма ставки:</span><span class="bet-balance">Баланс: <b class="miniGameBalance">0</b> GC</span></div>
         <div class="chip-row" id="bjBetChips"></div>
         <div class="custom-bet-row"><input type="number" inputmode="numeric" min="1" step="1" placeholder="Своя ставка" id="bjCustomBet"><span>GC</span></div>
         <button class="btn btn-gold btn-block" id="bjDealBtn">🃏 Раздать карты</button>
+        <div class="game-history-box"><div class="game-history-title">История игроков</div><div class="panel" id="blackjackGameHistory"></div></div>
       </div>
       <div class="panel hidden" id="bjInsurancePanel">
         <div class="panel-title">У дилера туз. Хотите страховку?</div>
@@ -2588,7 +2606,6 @@ updateUI();
         <div class="amount" id="walletBalance">0 GC</div>
         <div class="who"><span id="walletAvatar">🧑</span><span id="walletName">Игрок</span></div>
       </div>
-      <button class="btn btn-blue btn-block" id="bonusBtn" style="margin-top:12px;">🎁 Ежедневный бонус +200 GC</button>
 
       <div class="panel" style="margin-top:16px;">
         <div class="panel-title">📤 Перевести Gamble Coin</div>
@@ -2624,10 +2641,7 @@ updateUI();
         <div class="stat-box"><div class="v" id="statBiggest">0</div><div class="l">ЛУЧШИЙ ВЫИГРЫШ</div></div>
       </div>
 
-      <div class="section-title">🔁 Сменить демо-игрока</div>
-      <div id="playerSwitchBox"></div>
 
-      <button class="btn btn-ghost btn-block" id="resetBtn" style="margin-top:8px;">♻️ Сбросить прогресс</button>
     </section>
 
   </main>
@@ -2703,7 +2717,7 @@ updateUI();
     p.balance = Math.max(0, Math.round(Number(backendBalance)||0));
     if(backendUser){
       p.name = backendUser.firstName || backendUser.username || 'Игрок';
-      p.avatar = '👤';
+      p.avatar = backendUser.photoUrl || '👤';
     }
   }
 
@@ -2717,9 +2731,13 @@ updateUI();
     var top = document.getElementById('balanceValue'); if(top) top.textContent = plain;
     if(backendUser){
       var name = backendUser.firstName || backendUser.username || 'Игрок';
+      var photoUrl = backendUser.photoUrl || '';
       var heroName=document.getElementById('heroName'); if(heroName) heroName.textContent = name;
       var walletName=document.getElementById('walletName'); if(walletName) walletName.textContent = name;
       var profileName=document.getElementById('profileName'); if(profileName) profileName.textContent = name;
+      setAvatarEl('heroAvatar', photoUrl || '👤');
+      setAvatarEl('walletAvatar', photoUrl || '👤');
+      setAvatarEl('profileAvatar', photoUrl || '👤');
     }
   }
 
@@ -2734,11 +2752,15 @@ updateUI();
       backendToken = auth.token;
       localStorage.setItem('gg_backend_token', backendToken);
       backendUser = auth.user;
+      if(backendUser && !backendUser.photoUrl && tg && tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.photo_url){
+        backendUser.photoUrl = tg.initDataUnsafe.user.photo_url;
+      }
       backendBalance = auth.user.balance;
       backendReady = true;
       applyBackendBalanceToUI();
       saveState();
       setInterval(function(){ if(backendReady) applyBackendBalanceToUI(); }, 1000);
+      refreshMiniGameHistories();
       console.log('Backend auth success', auth.user);
     }catch(e){
       console.error('Backend auth failed:', e);
@@ -3495,7 +3517,7 @@ updateUI();
         minesState.ended = true;
         tile.classList.add('boom'); tile.textContent = '💣'; haptic('error');
         revealServerMines(data.mines || []);
-        addHistory(me(),'loss', minesState.bet, 'Мины: подрыв');
+        addHistory(me(),'loss', minesState.bet, 'Мины: подрыв'); refreshMiniGameHistories();
         setTimeout(function(){ endMinesRound(); }, 900);
       } else {
         tile.classList.add('safe'); tile.textContent = '💎';
@@ -3531,7 +3553,7 @@ updateUI();
     try{
       var data = await apiRequest('/games/mines/cashout', { method:'POST', body:JSON.stringify({ sessionId:minesState.sessionId }) });
       backendBalance = data.balance; applyBackendBalanceToUI();
-      addHistory(me(),'win', data.payout, 'Мины: забрал x'+Number(data.multiplier||1).toFixed(2));
+      addHistory(me(),'win', data.payout, 'Мины: забрал x'+Number(data.multiplier||1).toFixed(2)); refreshMiniGameHistories();
       showWinOverlay(data.payout); haptic('success');
       setTimeout(function(){ endMinesRound(); }, 600);
     }catch(e){ minesState.ended = false; showToast(e.message || 'Ошибка cashout','error'); haptic('error'); }
@@ -3600,12 +3622,12 @@ updateUI();
     if(data.status==='FINISHED'){
       var totalBet = data.doubled ? data.betAmount*2 : data.betAmount;
       if(data.winAmount>totalBet){
-        addHistory(me(),'win', data.winAmount-totalBet, 'Блэкджек: '+(data.outcome==='blackjack'?'натуральный блэкджек':'победа'));
+        addHistory(me(),'win', data.winAmount-totalBet, 'Блэкджек: '+(data.outcome==='blackjack'?'натуральный блэкджек':'победа')); refreshMiniGameHistories();
         showWinOverlay(data.winAmount-totalBet); haptic('success');
       } else if(data.outcome==='push'){
-        addHistory(me(),'win', 0, 'Блэкджек: ничья');
+        addHistory(me(),'win', 0, 'Блэкджек: ничья'); refreshMiniGameHistories();
       } else {
-        addHistory(me(),'loss', totalBet, 'Блэкджек: проигрыш');
+        addHistory(me(),'loss', totalBet, 'Блэкджек: проигрыш'); refreshMiniGameHistories();
         haptic('error');
       }
     }
@@ -3676,25 +3698,6 @@ updateUI();
   });
 
   /* ================= WALLET ================= */
-  document.getElementById('bonusBtn').addEventListener('click', function(){
-    var p = me();
-    var now = Date.now();
-    var cooldown = 24*60*60*1000;
-    if(p.lastBonus && (now - p.lastBonus) < cooldown){
-      var remain = cooldown - (now - p.lastBonus);
-      var hrs = Math.floor(remain/3600000), mins = Math.floor((remain%3600000)/60000);
-      showToast('Бонус уже получен. Осталось '+hrs+'ч '+mins+'м','error');
-      return;
-    }
-    p.lastBonus = now;
-    creditBalance(200);
-    addHistory(p,'bonus', 200, 'Ежедневный бонус');
-    showToast('+200 GC начислено!','success');
-    bumpBalanceChip();
-    haptic('success');
-    renderAll();
-  });
-
   document.querySelectorAll('.quick-amounts .chip').forEach(function(chip){
     chip.addEventListener('click', function(){
       var pct = parseInt(chip.getAttribute('data-pct'),10);
@@ -3724,9 +3727,6 @@ updateUI();
   });
 
   /* ================= PROFILE ================= */
-  document.getElementById('resetBtn').addEventListener('click', function(){
-    document.getElementById('modalLayer').classList.add('show');
-  });
   document.getElementById('modalCancel').addEventListener('click', function(){
     document.getElementById('modalLayer').classList.remove('show');
   });
@@ -3746,19 +3746,40 @@ updateUI();
     renderLeaderboard();
     renderHistory();
     renderProfile();
-    renderPlayerSwitch();
     renderTransferRecipients();
     if(backendReady) applyBackendBalanceToUI();
+    if(backendReady) refreshMiniGameHistories();
+  }
+  function setAvatarEl(id, avatar){
+    var el = document.getElementById(id);
+    if(!el) return;
+    if(typeof avatar === 'string' && /^https?:\/\//.test(avatar)){
+      el.textContent = '';
+      el.style.backgroundImage = 'url("' + avatar.replace(/"/g, '%22') + '")';
+      el.classList.add('has-photo');
+    } else {
+      el.style.backgroundImage = '';
+      el.classList.remove('has-photo');
+      el.textContent = avatar || '👤';
+    }
+  }
+  function avatarHtml(avatar){
+    if(typeof avatar === 'string' && /^https?:\/\//.test(avatar)){
+      return '<span class="avatar-badge has-photo" style="width:32px;height:32px;border-radius:10px;background-image:url(&quot;'+avatar.replace(/&/g,'&amp;').replace(/"/g,'&quot;')+'&quot;);"></span>';
+    }
+    return avatar || '👤';
   }
   function renderBalances(){
     var p = me();
     if(!Number.isFinite(p.balance) || p.balance <= 0){ p.balance = 1000000; saveState(); }
-    document.getElementById('balanceValue').textContent = fmt(p.balance);
+    var balanceValueEl = document.getElementById('balanceValue');
+    if(balanceValueEl) balanceValueEl.textContent = fmt(p.balance);
     document.getElementById('heroName').textContent = p.name;
-    document.getElementById('heroAvatar').textContent = p.avatar;
+    setAvatarEl('heroAvatar', p.avatar);
     document.getElementById('heroBalance').textContent = fmt(p.balance)+' GC';
     document.getElementById('walletBalance').textContent = fmt(p.balance)+' GC';
-    document.getElementById('walletAvatar').textContent = p.avatar;
+    document.querySelectorAll('.miniGameBalance').forEach(function(el){ el.textContent = fmt(p.balance); });
+    setAvatarEl('walletAvatar', p.avatar);
     document.getElementById('walletName').textContent = p.name;
   }
   function renderLeaderboard(){
@@ -3767,7 +3788,7 @@ updateUI();
     list.sort(function(a,b){ return b.balance - a.balance; });
     var medals = ['🥇','🥈','🥉'];
     box.innerHTML = list.map(function(p, i){
-      return '<div class="leaderboard-row"><span class="medal">'+(medals[i]||'🎗️')+'</span><span class="name">'+p.avatar+' '+p.name+(p.id===state.currentPlayerId?' (вы)':'')+'</span><span class="bal">'+fmt(p.balance)+' GC</span></div>';
+      return '<div class="leaderboard-row"><span class="medal">'+(medals[i]||'🎗️')+'</span><span class="name">'+avatarHtml(p.avatar)+' '+p.name+(p.id===state.currentPlayerId?' (вы)':'')+'</span><span class="bal">'+fmt(p.balance)+' GC</span></div>';
     }).join('');
   }
   function renderHistory(){
@@ -3787,7 +3808,7 @@ updateUI();
   }
   function renderProfile(){
     var p = me();
-    document.getElementById('profileAvatar').textContent = p.avatar;
+    setAvatarEl('profileAvatar', p.avatar);
     document.getElementById('profileName').textContent = p.name;
     document.getElementById('profileBalance').textContent = fmt(p.balance)+' GC';
     document.getElementById('statWagered').textContent = fmt(p.stats.wagered);
@@ -3823,10 +3844,34 @@ updateUI();
       var p = state.players[id];
       var opt = document.createElement('option');
       opt.value = id;
-      opt.textContent = p.avatar+' '+p.name+' — '+fmt(p.balance)+' GC';
+      opt.textContent = (typeof p.avatar === 'string' && /^https?:\/\//.test(p.avatar) ? '👤' : p.avatar)+' '+p.name+' — '+fmt(p.balance)+' GC';
       sel.appendChild(opt);
     });
   }
+
+
+  var GAME_HISTORY_MAP = { dice:'diceGameHistory', coinflip:'coinflipGameHistory', roulette:'rouletteGameHistory', mines:'minesGameHistory', blackjack:'blackjackGameHistory' };
+  function gameHistoryText(gameCode, item){
+    var profit = Number(item.winAmount||0) - Number(item.betAmount||0);
+    var result = profit > 0 ? 'выигрыш +' + fmt(profit) : (profit === 0 ? 'ничья' : 'проигрыш −' + fmt(Math.abs(profit)));
+    return item.playerName + ' • ставка ' + fmt(item.betAmount) + ' GC • ' + result + ' GC';
+  }
+  async function renderGameHistory(gameCode){
+    var box = document.getElementById(GAME_HISTORY_MAP[gameCode]);
+    if(!box || !backendReady) return;
+    try{
+      var data = await apiRequest('/games/' + gameCode + '/history');
+      var items = data.items || [];
+      if(!items.length){ box.innerHTML = '<div class="empty-state">Истории пока нет</div>'; return; }
+      box.innerHTML = items.slice(0,10).map(function(item){
+        var d = new Date(item.createdAt);
+        var time = d.toLocaleDateString('ru-RU') + ' ' + d.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});
+        var plus = Number(item.winAmount||0) >= Number(item.betAmount||0);
+        return '<div class="history-item"><div><div class="desc">'+gameHistoryText(gameCode,item)+'</div><div class="time">'+time+'</div></div><div class="amt '+(plus?'plus':'minus')+'">'+fmt(item.winAmount||0)+' GC</div></div>';
+      }).join('');
+    }catch(e){ box.innerHTML = '<div class="empty-state">Не удалось загрузить историю</div>'; }
+  }
+  function refreshMiniGameHistories(){ ['dice','coinflip','roulette','mines','blackjack'].forEach(renderGameHistory); }
 
   initBackendAuth();
   renderAll();

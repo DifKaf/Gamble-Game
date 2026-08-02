@@ -2105,7 +2105,7 @@ async function doSpin(){
   if(await checkScatterTrigger()) return;
 
   let spinWin=0, cc=0;
-  // ПАДЕНИЕ (Tumble): выигрышные символы исчезают, сверху падают новые.
+  // П��ДЕНИЕ (Tumble): выигрышные символы исчезают, сверху падают новые.
   // Символы-множители падают на поле вместе с обычными. В базовой игре в конце
   // последовательности все множители на поле суммируются и умножают общий выигрыш.
   // В фриспинах множитель накапливается глобально на весь бонусный раунд.
@@ -3567,6 +3567,7 @@ updateUI();
   var bjState = null;
 
   function bjCardEl(card){
+    if(!card){ return bjHiddenCardEl(); }
     var suitMap = {S:'♠',H:'♥',D:'♦',C:'♣'};
     var red = card.suit==='H'||card.suit==='D';
     var el = document.createElement('div');
@@ -3584,12 +3585,15 @@ updateUI();
   function renderBlackjackHands(data){
     var dHand = document.getElementById('bjDealerHand');
     var pHand = document.getElementById('bjPlayerHand');
+    if(!dHand || !pHand) return;
     dHand.innerHTML=''; pHand.innerHTML='';
-    (data.dealerCards||[]).forEach(function(c){ dHand.appendChild(bjCardEl(c)); });
+    (data.dealerCards||[]).filter(Boolean).forEach(function(c){ dHand.appendChild(bjCardEl(c)); });
     if(data.dealerHoleHidden){ dHand.appendChild(bjHiddenCardEl()); }
-    (data.playerCards||[]).forEach(function(c){ pHand.appendChild(bjCardEl(c)); });
-    document.getElementById('bjDealerTotal').textContent = data.dealerHoleHidden ? (data.dealerTotal+' + ?') : data.dealerTotal;
-    document.getElementById('bjPlayerTotal').textContent = data.playerTotal;
+    (data.playerCards||[]).filter(Boolean).forEach(function(c){ pHand.appendChild(bjCardEl(c)); });
+    var dealerTotalEl = document.getElementById('bjDealerTotal');
+    var playerTotalEl = document.getElementById('bjPlayerTotal');
+    if(dealerTotalEl) dealerTotalEl.textContent = data.dealerHoleHidden ? ((data.dealerTotal||0)+' + ?') : (data.dealerTotal||0);
+    if(playerTotalEl) playerTotalEl.textContent = data.playerTotal || 0;
   }
   function renderBlackjackPanels(data){
     var betPanel = document.getElementById('bjBetPanel');
@@ -3597,6 +3601,7 @@ updateUI();
     var actPanel = document.getElementById('bjActionsPanel');
     var rebetBtn = document.getElementById('bjRebetBtn');
     var resultEl = document.getElementById('bjResult');
+    if(!betPanel || !insPanel || !actPanel || !rebetBtn || !resultEl) return;
     betPanel.classList.add('hidden');
     insPanel.classList.add('hidden');
     actPanel.classList.add('hidden');

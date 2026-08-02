@@ -459,6 +459,46 @@ select.input, input.input{
 @keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-4px);}75%{transform:translateX(4px);}}
 @keyframes confettiFall{to{transform:translateY(110vh) rotate(400deg);opacity:0.2;}}
 
+
+
+/* ---------- Modern casino refresh + performance ---------- */
+:root{--casino-bg:#090b18;--casino-panel:rgba(15,18,36,.82);--casino-panel-2:rgba(255,255,255,.08);--neon-blue:#48d8ff;--neon-pink:#ff4fd8;--neon-gold:#ffd166;}
+body{background:radial-gradient(circle at 15% 5%,rgba(72,216,255,.18),transparent 28%),radial-gradient(circle at 85% 15%,rgba(255,79,216,.16),transparent 30%),linear-gradient(180deg,#080915 0%,#11142b 58%,#080915 100%);}
+#app{max-width:480px;}
+.screen-container{padding:14px 14px 24px;}
+.hero,.panel,.white-card,.balance-card,.bj-table{backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 10px 30px rgba(0,0,0,.28);}
+.hero{background:linear-gradient(135deg,rgba(255,79,216,.92),rgba(72,216,255,.66));border:1px solid rgba(255,255,255,.28);box-shadow:0 16px 40px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.25);}
+.panel{background:var(--casino-panel);border:1px solid rgba(255,255,255,.13);border-radius:22px;color:#fff;box-shadow:0 14px 34px rgba(0,0,0,.30);}
+.white-card,.balance-card{background:rgba(255,255,255,.92);border:1px solid rgba(255,255,255,.7);box-shadow:0 12px 26px rgba(0,0,0,.18);}
+.btn,.game-card,.option-btn,.chip{will-change:transform;transform:translateZ(0);transition:transform .12s ease,filter .12s ease,box-shadow .12s ease;}
+.btn{border:0;border-radius:16px;box-shadow:0 10px 22px rgba(0,0,0,.25);}
+.btn:active,.game-card:active{transform:translate3d(0,2px,0) scale(.99);box-shadow:0 5px 12px rgba(0,0,0,.22);}
+.btn-gold{background:linear-gradient(135deg,#ffe08a,#ffb703);color:#231704;}
+.btn-blue{background:linear-gradient(135deg,#65e4ff,#367cff);}
+.btn-primary{background:linear-gradient(135deg,#ff4fd8,#7b61ff);}
+.btn-green{background:linear-gradient(135deg,#73ffa8,#21c064);}
+.game-grid{gap:10px;}
+.game-card{border:1px solid rgba(255,255,255,.18);border-radius:22px;box-shadow:0 14px 28px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.18);min-height:112px;}
+.game-card::before{content:"";position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.22),transparent 42%);pointer-events:none;}
+.game-card .title{font-size:16px;letter-spacing:.2px;}
+.game-card .sub{font-size:12px;}
+.card-slot{background:linear-gradient(135deg,#ff3ca6,#7b61ff 55%,#38d9ff);}
+.card-dice{background:linear-gradient(135deg,#23c7ff,#3152ff);}
+.card-coin{background:linear-gradient(135deg,#ffe08a,#ff8f2f);}
+.card-roulette{background:linear-gradient(135deg,#ff4b5f,#8f1025);}
+.card-mines{background:linear-gradient(135deg,#35e889,#087f4f);}
+.card-blackjack{background:linear-gradient(135deg,#2b3344,#090b12);}
+.option-btn{border-radius:16px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.15);box-shadow:none;}
+.option-btn.active{box-shadow:0 0 0 2px rgba(255,209,102,.75),0 8px 22px rgba(255,209,102,.18);}
+.chip{border:0;border-radius:14px;background:rgba(255,255,255,.10);color:#fff;box-shadow:inset 0 0 0 1px rgba(255,255,255,.14);}
+.chip.active{background:linear-gradient(135deg,#ffe08a,#ffb703);color:#231704;}
+.bj-table{border:1px solid rgba(255,209,102,.45);background:radial-gradient(ellipse at 50% 25%,#177044,#062717 70%);}
+.bj-card{box-shadow:0 8px 16px rgba(0,0,0,.32);animation:none;}
+.die,.coin,.wheel,.mine-cell{will-change:transform;transform:translateZ(0);}
+.history-item{border-bottom-color:rgba(255,255,255,.10);}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important;}}
+@media (max-width:390px){.screen-container{padding:12px 12px 22px}.game-card{min-height:104px;padding:12px}.btn{padding:12px 14px}.bj-card{width:44px;height:64px}.option-row{gap:8px}.panel{padding:12px}}
+
 /* ---------- Embedded Drunkard Gate slot ---------- */
 .olympus-embed-wrap{height:calc(100vh - 180px);min-height:620px;border-radius:26px;overflow:hidden;border:1px solid rgba(255,255,255,.14);box-shadow:0 18px 45px rgba(0,0,0,.35);background:#05020a;}
 .olympus-embed{width:100%;height:100%;border:0;display:block;background:#05020a;}
@@ -2763,7 +2803,7 @@ updateUI();
       applyBackendBalanceToUI();
       saveState();
       setInterval(function(){ if(backendReady) applyBackendBalanceToUI(); }, 1000);
-      refreshMiniGameHistories();
+      refreshMiniGameHistories(true);
       console.log('Backend auth success', auth.user);
     }catch(e){
       console.error('Backend auth failed:', e);
@@ -3763,7 +3803,6 @@ updateUI();
     renderProfile();
     renderTransferRecipients();
     if(backendReady) applyBackendBalanceToUI();
-    if(backendReady) refreshMiniGameHistories();
   }
   function setAvatarEl(id, avatar){
     var el = document.getElementById(id);
@@ -3895,7 +3934,13 @@ updateUI();
       }).join('');
     }catch(e){ box.innerHTML = '<div class="empty-state">Не удалось загрузить историю</div>'; }
   }
-  function refreshMiniGameHistories(){ ['dice','coinflip','roulette','mines','blackjack'].forEach(renderGameHistory); }
+  var lastHistoryRefresh = 0;
+  function refreshMiniGameHistories(force){
+    var now = Date.now();
+    if(!force && now - lastHistoryRefresh < 2500) return;
+    lastHistoryRefresh = now;
+    ['dice','coinflip','roulette','mines','blackjack'].forEach(renderGameHistory);
+  }
 
   initBackendAuth();
   renderAll();

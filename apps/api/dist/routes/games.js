@@ -32,4 +32,6 @@ function mapGameCode(code) { if (code === 'coinflip')
     return 'COINFLIP'; if (code === 'dice')
     return 'DICE'; if (code === 'roulette')
     return 'ROULETTE'; if (code === 'drunkard-gate')
-    return 'DRUNKARD_GATE'; throw new Error('Unknown game'); }
+    return 'DRUNKARD_GATE'; if (code === 'mines')
+    return 'MINES'; if (code === 'blackjack')
+    return 'BLACKJACK'; throw new Error('Unknown game'); }

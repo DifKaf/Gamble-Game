@@ -369,6 +369,9 @@ select.input, input.input{
 .history-item .amt.minus{color:#FF8A8A;font-weight:800;}
 .game-history-box{margin-top:12px;}
 .game-history-title{font-size:13px;font-weight:800;color:var(--gold-300);margin:8px 0;}
+.game-history-player{display:flex;align-items:center;gap:8px;}
+.game-history-avatar{width:28px;height:28px;border-radius:9px;background:rgba(255,255,255,0.22);display:inline-flex;align-items:center;justify-content:center;background-size:cover;background-position:center;flex:0 0 auto;}
+.game-history-main{display:flex;flex-direction:column;gap:2px;}
 .empty-state{color:rgba(255,255,255,0.6);font-size:13px;text-align:center;padding:18px 0;font-weight:600;}
 
 /* ---------- Profile ---------- */
@@ -495,8 +498,8 @@ select.input, input.input{
           </div>
         </div>
         <div class="hero-balance">Главный баланс<b id="heroBalance">0 GC</b></div>
-        <button class="btn btn-gold btn-block" data-nav="games">🎮 Играть сейчас</button>
-        <button class="btn btn-blue btn-block" data-nav="bonuses" style="margin-top:10px;">🎁 Бонусы</button>
+        <button class="btn btn-gold btn-block" data-nav="games">Играть сейчас</button>
+        <button class="btn btn-blue btn-block" data-nav="bonuses" style="margin-top:10px;">Бонусы</button>
       </div>
 
       <div class="section-title">🏆 Лидеры по балансу</div>
@@ -3851,10 +3854,15 @@ updateUI();
 
 
   var GAME_HISTORY_MAP = { dice:'diceGameHistory', coinflip:'coinflipGameHistory', roulette:'rouletteGameHistory', mines:'minesGameHistory', blackjack:'blackjackGameHistory' };
-  function gameHistoryText(gameCode, item){
-    var profit = Number(item.winAmount||0) - Number(item.betAmount||0);
-    var result = profit > 0 ? 'выигрыш +' + fmt(profit) : (profit === 0 ? 'ничья' : 'проигрыш −' + fmt(Math.abs(profit)));
-    return item.playerName + ' • ставка ' + fmt(item.betAmount) + ' GC • ' + result + ' GC';
+  function escapeHtml(text){
+    return String(text == null ? '' : text).replace(/[&<>"']/g, function(ch){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]); });
+  }
+  function gameHistoryAvatar(item){
+    var photo = item.playerPhotoUrl || '';
+    if(/^https?:\/\//.test(photo)){
+      return '<span class="game-history-avatar" style="background-image:url(&quot;'+escapeHtml(photo)+'&quot;);"></span>';
+    }
+    return '<span class="game-history-avatar">👤</span>';
   }
   async function renderGameHistory(gameCode){
     var box = document.getElementById(GAME_HISTORY_MAP[gameCode]);
@@ -3866,8 +3874,12 @@ updateUI();
       box.innerHTML = items.slice(0,10).map(function(item){
         var d = new Date(item.createdAt);
         var time = d.toLocaleDateString('ru-RU') + ' ' + d.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});
-        var plus = Number(item.winAmount||0) >= Number(item.betAmount||0);
-        return '<div class="history-item"><div><div class="desc">'+gameHistoryText(gameCode,item)+'</div><div class="time">'+time+'</div></div><div class="amt '+(plus?'plus':'minus')+'">'+fmt(item.winAmount||0)+' GC</div></div>';
+        var bet = Number(item.betAmount||0);
+        var win = Number(item.winAmount||0);
+        var profit = win - bet;
+        var plus = profit >= 0;
+        var signed = (plus ? '+' : '−') + fmt(Math.abs(profit)) + ' GC';
+        return '<div class="history-item"><div class="game-history-player">'+gameHistoryAvatar(item)+'<div class="game-history-main"><div class="desc">'+escapeHtml(item.playerName || 'Игрок')+'</div><div class="time">Ставка: '+fmt(bet)+' GC • '+time+'</div></div></div><div class="amt '+(plus?'plus':'minus')+'">'+signed+'</div></div>';
       }).join('');
     }catch(e){ box.innerHTML = '<div class="empty-state">Не удалось загрузить историю</div>'; }
   }

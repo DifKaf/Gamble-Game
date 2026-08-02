@@ -2105,7 +2105,7 @@ async function doSpin(){
   if(await checkScatterTrigger()) return;
 
   let spinWin=0, cc=0;
-  // П��ДЕНИЕ (Tumble): выигрышные символы исчезают, сверху падают новые.
+  // П����ДЕНИЕ (Tumble): выигрышные символы исчезают, сверху падают новые.
   // Символы-множители падают на поле вместе с обычными. В базовой игре в конце
   // последовательности все множители на поле суммируются и умножают общий выигрыш.
   // В фриспинах множитель накапливается глобально на весь бонусный раунд.
@@ -2929,17 +2929,20 @@ updateUI();
   }
   function showWinOverlay(amount, label){
     var ov = document.getElementById('winOverlay');
-    document.getElementById('winOverlayText').textContent = (label||'Вы выиграли') + ' ' + fmt(amount) + ' GC';
-    ov.classList.add('show');
+    var text = document.getElementById('winOverlayText');
+    if(text) text.textContent = (label||'Вы выиграли') + ' ' + fmt(amount) + ' GC';
+    if(ov) ov.classList.add('show');
     confettiBurst(26);
     haptic('success');
   }
   document.getElementById('winOverlayClose').addEventListener('click', function(){
-    document.getElementById('winOverlay').classList.remove('show');
+    var ov = document.getElementById('winOverlay');
+    if(ov) ov.classList.remove('show');
   });
 
   function bumpBalanceChip(){
     var chip = document.getElementById('balanceChip');
+    if(!chip) return;
     chip.classList.remove('bump');
     void chip.offsetWidth;
     chip.classList.add('bump');

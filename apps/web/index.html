@@ -2960,7 +2960,7 @@ updateUI();
     document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
     var el = document.getElementById('screen-'+name);
     if(el) el.classList.add('active');
-    document.getElementById('app').classList.toggle('drunkard-standalone', name === 'slot');
+    var appEl = document.getElementById('app'); if(appEl) appEl.classList.toggle('drunkard-standalone', name === 'slot');
     if(mainTabs.indexOf(name)!==-1){
       document.querySelectorAll('.nav-btn').forEach(function(b){
         b.classList.toggle('active', b.getAttribute('data-nav')===name);
@@ -3487,8 +3487,10 @@ updateUI();
       var data = await apiRequest('/games/mines/start', { method:'POST', body:JSON.stringify({ betAmount:bet, mineCount:mineCount }) });
       backendBalance = data.balance; applyBackendBalanceToUI(); bumpBalanceChip();
       minesState = { sessionId:data.sessionId, bet:bet, mineCount:mineCount, revealed:0, multiplier:1, openedCells:[] };
-      document.getElementById('minesSetupPanel').classList.add('hidden');
-      document.getElementById('minesGamePanel').classList.remove('hidden');
+      var minesSetupPanel = document.getElementById('minesSetupPanel');
+      var minesGamePanel = document.getElementById('minesGamePanel');
+      if(minesSetupPanel) minesSetupPanel.classList.add('hidden');
+      if(minesGamePanel) minesGamePanel.classList.remove('hidden');
       document.getElementById('minesCashoutBtn').disabled = true;
       document.getElementById('minesMult').textContent = 'x1.00';
       document.getElementById('minesPayout').textContent = '0';
@@ -3545,8 +3547,10 @@ updateUI();
 
   function endMinesRound(){
     minesState = null;
-    document.getElementById('minesSetupPanel').classList.remove('hidden');
-    document.getElementById('minesGamePanel').classList.add('hidden');
+    var minesSetupPanel = document.getElementById('minesSetupPanel');
+    var minesGamePanel = document.getElementById('minesGamePanel');
+    if(minesSetupPanel) minesSetupPanel.classList.remove('hidden');
+    if(minesGamePanel) minesGamePanel.classList.add('hidden');
     renderAll();
   }
 
@@ -3697,11 +3701,11 @@ updateUI();
     document.getElementById('bjPlayerHand').innerHTML='';
     document.getElementById('bjDealerTotal').textContent='—';
     document.getElementById('bjPlayerTotal').textContent='—';
-    document.getElementById('bjResult').textContent=''; document.getElementById('bjResult').className='bj-result';
-    document.getElementById('bjRebetBtn').classList.add('hidden');
-    document.getElementById('bjActionsPanel').classList.add('hidden');
-    document.getElementById('bjInsurancePanel').classList.add('hidden');
-    document.getElementById('bjBetPanel').classList.remove('hidden');
+    var bjResultEl = document.getElementById('bjResult'); if(bjResultEl){ bjResultEl.textContent=''; bjResultEl.className='bj-result'; }
+    var bjRebetEl = document.getElementById('bjRebetBtn'); if(bjRebetEl) bjRebetEl.classList.add('hidden');
+    var bjActionsEl = document.getElementById('bjActionsPanel'); if(bjActionsEl) bjActionsEl.classList.add('hidden');
+    var bjInsuranceEl = document.getElementById('bjInsurancePanel'); if(bjInsuranceEl) bjInsuranceEl.classList.add('hidden');
+    var bjBetEl = document.getElementById('bjBetPanel'); if(bjBetEl) bjBetEl.classList.remove('hidden');
     renderAll();
   });
 
@@ -3736,12 +3740,12 @@ updateUI();
 
   /* ================= PROFILE ================= */
   document.getElementById('modalCancel').addEventListener('click', function(){
-    document.getElementById('modalLayer').classList.remove('show');
+    var modalLayerEl = document.getElementById('modalLayer'); if(modalLayerEl) modalLayerEl.classList.remove('show');
   });
   document.getElementById('modalConfirm').addEventListener('click', function(){
     state = JSON.parse(JSON.stringify(DEFAULT_STATE));
     saveState();
-    document.getElementById('modalLayer').classList.remove('show');
+    var modalLayerEl = document.getElementById('modalLayer'); if(modalLayerEl) modalLayerEl.classList.remove('show');
     showToast('Прогресс сброшен', 'success');
     renderAll();
   });

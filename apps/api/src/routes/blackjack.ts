@@ -22,9 +22,10 @@ function cardValue(rank: string): number {
 }
 
 function handTotal(cards: Card[]): { total: number; soft: boolean } {
+  const safeCards = (cards || []).filter(Boolean) as Card[]
   let total = 0
   let aces = 0
-  for (const c of cards) {
+  for (const c of safeCards) {
     total += cardValue(c.rank)
     if (c.rank === 'A') aces++
   }
@@ -36,7 +37,8 @@ function handTotal(cards: Card[]): { total: number; soft: boolean } {
 }
 
 function isBlackjack(cards: Card[]): boolean {
-  return cards.length === 2 && handTotal(cards).total === 21
+  const safeCards = (cards || []).filter(Boolean) as Card[]
+  return safeCards.length === 2 && handTotal(safeCards).total === 21
 }
 
 function dealerShouldHit(cards: Card[]): boolean {
@@ -126,14 +128,15 @@ async function settle(tx: any, session: any, userId: string) {
 }
 
 function serialize(session: any, balance: number) {
-  const playerCards = session.playerCards as Card[]
-  const dealerCards = session.dealerCards as Card[]
+  const playerCards = ((session.playerCards || []) as Card[]).filter(Boolean)
+  const dealerCards = ((session.dealerCards || []) as Card[]).filter(Boolean)
   const playerHand = handTotal(playerCards)
   const awaitingInsurance = session.insuranceOffered && !session.insuranceResolved
   const canAct = session.status === 'CREATED' && !awaitingInsurance
 
-  const visibleDealerCards = session.dealerHoleHidden ? [dealerCards[0]] : dealerCards
-  const dealerTotal = session.dealerHoleHidden ? cardValue(dealerCards[0].rank) : handTotal(dealerCards).total
+  const dealerUpCard = dealerCards[0] || null
+  const visibleDealerCards = session.dealerHoleHidden ? (dealerUpCard ? [dealerUpCard] : []) : dealerCards
+  const dealerTotal = session.dealerHoleHidden ? (dealerUpCard ? cardValue(dealerUpCard.rank) : 0) : handTotal(dealerCards).total
 
   return {
     sessionId: session.id,

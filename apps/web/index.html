@@ -388,10 +388,11 @@ select.input, input.input{
 .player-row .info{flex:1;}
 .player-row .name{font-weight:800;font-size:13px;}
 .player-row .bal{font-size:11px;opacity:0.8;font-weight:700;}
-.leaderboard-row{display:flex;align-items:center;gap:10px;padding:8px 0;color:#fff;}
+.leaderboard-row{display:flex;align-items:center;gap:10px;padding:10px 8px;color:#1b1430;border-bottom:1px solid rgba(35,16,70,.10);border-radius:12px;}
+.leaderboard-row:last-child{border-bottom:0;}
 .leaderboard-row .medal{font-size:18px;width:24px;}
-.leaderboard-row .name{flex:1;font-weight:700;font-size:13px;}
-.leaderboard-row .bal{font-weight:800;font-size:13px;color:var(--gold-300);}
+.leaderboard-row .name{flex:1;font-weight:800;font-size:13px;color:#24123f;text-shadow:none;}
+.leaderboard-row .bal{font-weight:900;font-size:13px;color:#7A5300;background:#FFF3C4;border:1px solid rgba(122,83,0,.18);border-radius:999px;padding:4px 8px;white-space:nowrap;}
 
 /* ---------- Bottom nav ---------- */
 .bottom-nav{
@@ -469,7 +470,7 @@ body{background:radial-gradient(circle at 15% 5%,rgba(72,216,255,.18),transparen
 .hero,.panel,.white-card,.balance-card,.bj-table{backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 10px 30px rgba(0,0,0,.28);}
 .hero{background:linear-gradient(135deg,rgba(255,79,216,.92),rgba(72,216,255,.66));border:1px solid rgba(255,255,255,.28);box-shadow:0 16px 40px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.25);}
 .panel{background:var(--casino-panel);border:1px solid rgba(255,255,255,.13);border-radius:22px;color:#fff;box-shadow:0 14px 34px rgba(0,0,0,.30);}
-.white-card,.balance-card{background:rgba(255,255,255,.92);border:1px solid rgba(255,255,255,.7);box-shadow:0 12px 26px rgba(0,0,0,.18);}
+.white-card,.balance-card{background:rgba(255,255,255,.96);border:1px solid rgba(255,255,255,.7);box-shadow:0 12px 26px rgba(0,0,0,.18);color:#24123f;}
 .btn,.game-card,.option-btn,.chip{will-change:transform;transform:translateZ(0);transition:transform .12s ease,filter .12s ease,box-shadow .12s ease;}
 .btn{border:0;border-radius:16px;box-shadow:0 10px 22px rgba(0,0,0,.25);}
 .btn:active,.game-card:active{transform:translate3d(0,2px,0) scale(.99);box-shadow:0 5px 12px rgba(0,0,0,.22);}
@@ -549,10 +550,10 @@ body{background:radial-gradient(circle at 15% 5%,rgba(72,216,255,.18),transparen
 
     <!-- BONUSES -->
     <section id="screen-bonuses" class="screen">
-      <div class="game-header"><button class="back-btn" data-nav="home">←</button><h2>🎁 Бонусы</h2></div>
+      <div class="game-header"><button class="back-btn" data-nav="home">←</button><h2>Бонусы</h2></div>
       <div class="panel">
         <div class="panel-title">🎟️ Промокоды</div>
-        <div class="custom-bet-row"><input type="text" inputmode="text" placeholder="Введите промокод" id="promoCodeInput"><span>CODE</span></div>
+        <div class="custom-bet-row"><input type="text" inputmode="text" placeholder="Введите промокод" id="promoCodeInput"></div>
         <button class="btn btn-gold btn-block" id="promoCodeBtn">Активировать</button>
       </div>
     </section>
@@ -2654,13 +2655,8 @@ updateUI();
         <div class="panel-title">📤 Перевести Gamble Coin</div>
         <div class="field-label">Кому:</div>
         <select class="input" id="transferRecipient"></select>
-        <div class="field-label">Сколько:</div>
+        <div class="field-label">Сумма:</div>
         <input class="input" id="transferAmount" type="number" min="1" placeholder="Например 100" />
-        <div class="quick-amounts">
-          <button class="chip" data-pct="25">25%</button>
-          <button class="chip" data-pct="50">50%</button>
-          <button class="chip" data-pct="100">MAX</button>
-        </div>
         <button class="btn btn-primary btn-block" id="transferBtn" style="margin-top:12px;">📤 Отправить</button>
       </div>
 
@@ -2929,6 +2925,18 @@ updateUI();
       p.stats.won = Math.round((p.stats.won + amount)*100)/100;
       if(amount > p.stats.biggest) p.stats.biggest = amount;
     }
+  }
+  function syncProfileStats(betAmount, winAmount){
+    var p = me();
+    var bet = Math.max(0, Number(betAmount)||0);
+    var win = Math.max(0, Number(winAmount)||0);
+    var profit = Math.max(0, win - bet);
+    p.stats.wagered = Math.round((p.stats.wagered + bet)*100)/100;
+    if(profit > 0){
+      p.stats.won = Math.round((p.stats.won + profit)*100)/100;
+      if(profit > p.stats.biggest) p.stats.biggest = profit;
+    }
+    saveState();
   }
 
   /* ================= Utilities ================= */
@@ -3565,7 +3573,7 @@ updateUI();
         minesState.ended = true;
         tile.classList.add('boom'); tile.textContent = '💣'; haptic('error');
         revealServerMines(data.mines || []);
-        addHistory(me(),'loss', minesState.bet, 'Мины: подрыв'); refreshMiniGameHistories();
+        addHistory(me(),'loss', minesState.bet, 'Мины: подрыв'); syncProfileStats(minesState.bet, 0); renderProfile(); refreshMiniGameHistories();
         setTimeout(function(){ endMinesRound(); }, 900);
       } else {
         tile.classList.add('safe'); tile.textContent = '💎';
@@ -3603,7 +3611,7 @@ updateUI();
     try{
       var data = await apiRequest('/games/mines/cashout', { method:'POST', body:JSON.stringify({ sessionId:minesState.sessionId }) });
       backendBalance = data.balance; applyBackendBalanceToUI();
-      addHistory(me(),'win', data.payout, 'Мины: забрал x'+Number(data.multiplier||1).toFixed(2)); refreshMiniGameHistories();
+      addHistory(me(),'win', data.payout, 'Мины: забрал x'+Number(data.multiplier||1).toFixed(2)); syncProfileStats(minesState.bet, data.payout); renderProfile(); refreshMiniGameHistories();
       showWinOverlay(data.payout); haptic('success');
       setTimeout(function(){ endMinesRound(); }, 600);
     }catch(e){ minesState.ended = false; showToast(e.message || 'Ошибка cashout','error'); haptic('error'); }
@@ -3674,15 +3682,16 @@ updateUI();
     bjState = { sessionId:data.sessionId, betAmount:data.betAmount, doubled:data.doubled };
     renderBlackjackHands(data);
     renderBlackjackPanels(data);
-    if(data.status==='FINISHED'){
+    if(data.status==='FINISHED' && (!bjState || bjState.settledSessionId !== data.sessionId)){
+      if(bjState) bjState.settledSessionId = data.sessionId;
       var totalBet = data.doubled ? data.betAmount*2 : data.betAmount;
       if(data.winAmount>totalBet){
-        addHistory(me(),'win', data.winAmount-totalBet, 'Блэкджек: '+(data.outcome==='blackjack'?'натуральный блэкджек':'победа')); refreshMiniGameHistories();
+        addHistory(me(),'win', data.winAmount-totalBet, 'Блэкджек: '+(data.outcome==='blackjack'?'натуральный блэкджек':'победа')); syncProfileStats(totalBet, data.winAmount); renderProfile(); refreshMiniGameHistories();
         showWinOverlay(data.winAmount-totalBet); haptic('success');
       } else if(data.outcome==='push'){
-        addHistory(me(),'win', 0, 'Блэкджек: ничья'); refreshMiniGameHistories();
+        addHistory(me(),'win', 0, 'Блэкджек: ничья'); syncProfileStats(totalBet, data.winAmount); renderProfile(); refreshMiniGameHistories();
       } else {
-        addHistory(me(),'loss', totalBet, 'Блэкджек: проигрыш'); refreshMiniGameHistories();
+        addHistory(me(),'loss', totalBet, 'Блэкджек: проигрыш'); syncProfileStats(totalBet, data.winAmount || 0); renderProfile(); refreshMiniGameHistories();
         haptic('error');
       }
     }
@@ -3753,14 +3762,6 @@ updateUI();
   });
 
   /* ================= WALLET ================= */
-  document.querySelectorAll('.quick-amounts .chip').forEach(function(chip){
-    chip.addEventListener('click', function(){
-      var pct = parseInt(chip.getAttribute('data-pct'),10);
-      var amount = Math.floor(me().balance * pct/100);
-      document.getElementById('transferAmount').value = amount;
-      haptic('light');
-    });
-  });
   document.getElementById('transferBtn').addEventListener('click', function(){
     var recipientId = document.getElementById('transferRecipient').value;
     var amount = parseInt(document.getElementById('transferAmount').value, 10);
@@ -3848,12 +3849,13 @@ updateUI();
   function renderHistory(){
     var box = document.getElementById('historyBox');
     var p = me();
-    if(!p.history || p.history.length===0){
-      box.innerHTML = '<div class="empty-state">Пока нет операций. Сыграй или сделай перевод!</div>';
+    var transfers = (p.history || []).filter(function(h){ return h.type==='transfer_in' || h.type==='transfer_out'; });
+    if(transfers.length===0){
+      box.innerHTML = '<div class="empty-state">Пока нет переводов.</div>';
       return;
     }
-    box.innerHTML = p.history.map(function(h){
-      var isPlus = (h.type==='win' || h.type==='bonus' || h.type==='transfer_in');
+    box.innerHTML = transfers.map(function(h){
+      var isPlus = h.type==='transfer_in';
       var sign = isPlus ? '+' : '−';
       var d = new Date(h.ts);
       var time = d.toLocaleDateString('ru-RU') + ' ' + d.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});

@@ -3632,8 +3632,21 @@ updateUI();
     var amount = rouletteBetCtl.get();
     if(backendReady && backendBalance < amount){ showToast('Недостаточно Gamble Coin!','error'); haptic('error'); return; }
     var payload = roulettePayloadFromSelection(); if(!payload){ showToast('Выбери поле ставки','error'); return; }
-    var chip=document.createElement('span'); chip.className='roulette-chip-on-board'; chip.textContent=fmt(amount); btn.appendChild(chip); btn.classList.add('active');
-    roulettePendingBets.push({amount:amount,payload:payload}); haptic('light'); startRouletteCountdownIfNeeded();
+    var key = JSON.stringify(payload);
+    var existing = roulettePendingBets.find(function(b){ return b.key === key; });
+    if(existing){
+      existing.amount += amount;
+      var oldChip = btn.querySelector('.roulette-chip-on-board');
+      if(oldChip) oldChip.textContent = fmt(existing.amount);
+      else {
+        var chip=document.createElement('span'); chip.className='roulette-chip-on-board'; chip.textContent=fmt(existing.amount); btn.appendChild(chip);
+      }
+      btn.classList.add('active');
+    } else {
+      var chip=document.createElement('span'); chip.className='roulette-chip-on-board'; chip.textContent=fmt(amount); btn.appendChild(chip); btn.classList.add('active');
+      roulettePendingBets.push({amount:amount,payload:payload,key:key});
+    }
+    haptic('light'); startRouletteCountdownIfNeeded();
   }
   function startRouletteCountdownIfNeeded(){
     if(rouletteCountdownActive) return; rouletteCountdownActive=true; rouletteBetsClosed=false; var left=15;
@@ -3651,7 +3664,8 @@ updateUI();
     var resultEl=document.getElementById('rouletteResult'); if(resultEl) resultEl.textContent='Шарик крутится...';
     try{
       var first=roulettePendingBets[0];
-      var result=await serverBet('roulette', first.amount, first.payload);
+      var totalBetAmount = roulettePendingBets.reduce(function(sum,b){ return sum + Number(b.amount||0); }, 0);
+      var result=await serverBet('roulette', totalBetAmount, { bets: roulettePendingBets.map(function(b){ return { amount:b.amount, payload:b.payload }; }) });
       var idx=Math.max(0, ROULETTE_NUMBERS.indexOf(Number(result.number))); var step=360/ROULETTE_NUMBERS.length; var targetAngle=idx*step;
       wheelRotation=0; var finalBallAngle=targetAngle; ballRotation += 360*9 + ((finalBallAngle - (ballRotation % 360) + 360) % 360);
       var wheelWrap=document.querySelector('#screen-roulette .roulette-wheel-wrap'), wheelEl=document.getElementById('wheelEl'), ballTrack=document.getElementById('rouletteBallTrack');
@@ -3659,7 +3673,7 @@ updateUI();
       setTimeout(function(){
         if(wheelWrap) wheelWrap.classList.remove('spinning'); var colorNames={red:'Красное',black:'Чёрное',green:'Зелёное'};
         if(resultEl) resultEl.innerHTML='Выпало: '+colorNames[result.color]+' <span class="roulette-result-number '+result.color+'">'+result.number+'</span>';
-        if(result.winAmount>0){ addHistory(me(),'win', result.winAmount, 'Рулетка'); showWinOverlay(result.winAmount); haptic('success'); } else { addHistory(me(),'loss', first.amount, 'Рулетка'); haptic('error'); }
+        if(result.winAmount>0){ addHistory(me(),'win', result.winAmount, 'Рулетка'); showWinOverlay(result.winAmount); haptic('success'); } else { addHistory(me(),'loss', totalBetAmount, 'Рулетка'); haptic('error'); }
         roulettePendingBets=[]; setRouletteBoardDisabled(false); document.querySelectorAll('.roulette-chip-on-board').forEach(function(chip){ chip.remove(); }); document.querySelectorAll('.roulette-num-btn,.roulette-outside-btn').forEach(function(b){ b.classList.remove('active'); });
         rouletteSelectedNumber=null; rouletteSelectedOutside=null; renderAll(); rouletteSpinning=false; rouletteCountdownActive=false; rouletteBetsClosed=false; var btn=document.getElementById('rouletteSpinBtn'); if(btn) btn.textContent='Ожидание ставки';
       },3800);

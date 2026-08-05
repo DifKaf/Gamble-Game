@@ -4,7 +4,7 @@ import { prisma } from '../db.js'
 import { getAuthUser } from '../auth/getUser.js'
 import { applyBalanceChange } from '../wallet/wallet.js'
 
-const startSchema = z.object({ betAmount:z.number().int().positive().max(100000), mineCount:z.number().int().min(3).max(8) })
+const startSchema = z.object({ betAmount:z.number().int().positive().max(1000000), mineCount:z.number().int().min(3).max(8) })
 const openSchema = z.object({ sessionId:z.string(), cellIndex:z.number().int().min(0).max(24) })
 const cashoutSchema = z.object({ sessionId:z.string() })
 const stepMap:Record<number,number> = {3:0.15,5:0.28,8:0.5}

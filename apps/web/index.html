@@ -325,14 +325,31 @@ footer,.slot-controls{margin-top:6px;}
 
 /* ---------- Roulette ---------- */
 .roulette-stage{display:flex;flex-direction:column;align-items:center;margin:14px 0;}
-.wheel-ptr{font-size:22px;margin-bottom:-6px;}
+.roulette-wheel-wrap{position:relative;width:380px;height:380px;max-width:100%;display:flex;align-items:center;justify-content:center;filter:drop-shadow(0 20px 32px rgba(0,0,0,.42));}
+.roulette-ball-track{position:absolute;inset:18px;border-radius:50%;z-index:6;pointer-events:none;transition:transform 3.2s cubic-bezier(.12,.78,.08,1);}
+.roulette-ball{position:absolute;left:50%;top:0;width:16px;height:16px;margin-left:-8px;margin-top:-8px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff 0 25%,#dbeafe 45%,#94a3b8 100%);box-shadow:0 2px 5px rgba(0,0,0,.55),0 0 8px rgba(255,255,255,.65);}
+.roulette-wheel-wrap.spinning .roulette-ball{animation:rouletteBallBounce .18s linear infinite;}
+@keyframes rouletteBallBounce{0%,100%{transform:scale(1)}50%{transform:scale(.88)}}
 .wheel{
-  width:190px;height:190px;border-radius:50%;border:6px solid var(--gold-500);
-  background:conic-gradient(#B0222E 0 8.3%, #17092E 8.3% 16.6%, #B0222E 16.6% 25%, #17092E 25% 33.3%, #B0222E 33.3% 41.6%, #17092E 41.6% 50%, #B0222E 50% 58.3%, #17092E 58.3% 66.6%, #B0222E 66.6% 75%, #17092E 75% 83.3%, #B0222E 83.3% 91.6%, #2ED573 91.6% 100%);
-  box-shadow:0 8px 0 rgba(0,0,0,0.3);position:relative;transition:transform 2.2s cubic-bezier(.15,.9,.1,1);
+  width:360px;height:360px;max-width:100%;max-height:100%;border-radius:50%;border:10px solid #d6a93e;
+  background:conic-gradient(from -4.865deg,#0aa36d 0deg 9.73deg,#b91c2d 9.73deg 19.46deg,#111827 19.46deg 29.19deg,#b91c2d 29.19deg 38.92deg,#111827 38.92deg 48.65deg,#b91c2d 48.65deg 58.38deg,#111827 58.38deg 68.11deg,#b91c2d 68.11deg 77.84deg,#111827 77.84deg 87.57deg,#b91c2d 87.57deg 97.30deg,#111827 97.30deg 107.03deg,#b91c2d 107.03deg 116.76deg,#111827 116.76deg 126.49deg,#b91c2d 126.49deg 136.22deg,#111827 136.22deg 145.95deg,#b91c2d 145.95deg 155.68deg,#111827 155.68deg 165.41deg,#b91c2d 165.41deg 175.14deg,#111827 175.14deg 184.87deg,#b91c2d 184.87deg 194.60deg,#111827 194.60deg 204.33deg,#b91c2d 204.33deg 214.06deg,#111827 214.06deg 223.79deg,#b91c2d 223.79deg 233.52deg,#111827 233.52deg 243.25deg,#b91c2d 243.25deg 252.98deg,#111827 252.98deg 262.71deg,#b91c2d 262.71deg 272.44deg,#111827 272.44deg 282.17deg,#b91c2d 282.17deg 291.90deg,#111827 291.90deg 301.63deg,#b91c2d 301.63deg 311.36deg,#111827 311.36deg 321.09deg,#b91c2d 321.09deg 330.82deg,#111827 330.82deg 340.55deg,#b91c2d 340.55deg 350.28deg,#111827 350.28deg 360deg);
+  box-shadow:inset 0 0 0 5px rgba(255,255,255,.08), inset 0 0 0 34px rgba(0,0,0,.18), 0 10px 0 rgba(0,0,0,0.35);position:relative;transition:transform 3.2s cubic-bezier(.12,.78,.08,1);
 }
-.wheel::after{content:"";position:absolute;inset:34%;background:#231046;border-radius:50%;border:4px solid var(--gold-300);}
+.wheel::after{content:"";position:absolute;inset:35%;background:radial-gradient(circle,#ffd166 0 25%,#3b235f 27% 100%);border-radius:50%;border:5px solid #ffd166;box-shadow:0 0 18px rgba(0,0,0,.45);}
+.roulette-number{position:absolute;left:50%;top:50%;width:26px;height:26px;margin:-13px 0 0 -13px;color:#fff;font-size:11px;font-weight:900;text-align:center;line-height:26px;text-shadow:0 1px 2px #000;transform:rotate(var(--a)) translateY(-157px) rotate(calc(-1 * var(--a)));z-index:2;}
+.roulette-number.zero{color:#d7ffe9;}
 .roulette-result{text-align:center;color:#fff;font-weight:800;margin-top:12px;font-size:15px;min-height:22px;}
+.roulette-result-number{display:inline-flex;align-items:center;justify-content:center;min-width:34px;height:34px;border-radius:50%;margin-left:6px;font-size:16px;border:2px solid rgba(255,255,255,.45);}
+.roulette-result-number.red{background:#b91c2d}.roulette-result-number.black{background:#111827}.roulette-result-number.green{background:#0aa36d}
+.roulette-bet-board{display:grid;grid-template-columns:34px repeat(12,minmax(0,1fr)) 32px;gap:1px;margin:18px auto 14px;background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.28);border-radius:10px;padding:2px;overflow:hidden;width:100%;max-width:100%;}
+.roulette-num-btn,.roulette-outside-btn{min-width:0;min-height:34px;border:0;color:#fff;font-weight:900;font-size:clamp(10px,2.8vw,15px);background:#111827;box-shadow:inset 0 0 0 1px rgba(255,255,255,.24);padding:0;}
+.roulette-num-btn.red,.roulette-outside-btn.red{background:#b91c2d}.roulette-num-btn.black,.roulette-outside-btn.black{background:#111827}.roulette-num-btn.green{background:#0a7a41;color:#2fffc0;font-size:clamp(15px,4vw,22px);}
+.roulette-num-btn.zero{grid-row:1/4;grid-column:1;min-height:106px;border-radius:7px 0 0 7px;}
+.roulette-outside-btn{font-size:clamp(8px,2.2vw,13px);min-height:30px;background:rgba(8,10,20,.82);white-space:nowrap;}
+.roulette-outside-btn.doz{grid-column:span 4}.roulette-outside-btn.wide{grid-column:span 2}.roulette-outside-btn.twoone{grid-column:14;font-size:clamp(8px,2vw,12px);} 
+.roulette-outside-btn[data-outside="first12"]{grid-row:4;grid-column:2/6}.roulette-outside-btn[data-outside="second12"]{grid-row:4;grid-column:6/10}.roulette-outside-btn[data-outside="third12"]{grid-row:4;grid-column:10/14}
+.roulette-outside-btn[data-outside="low"]{grid-row:5;grid-column:2/4}.roulette-outside-btn[data-outside="even"]{grid-row:5;grid-column:4/6}.roulette-outside-btn[data-outside="red"]{grid-row:5;grid-column:6/8}.roulette-outside-btn[data-outside="black"]{grid-row:5;grid-column:8/10}.roulette-outside-btn[data-outside="odd"]{grid-row:5;grid-column:10/12}.roulette-outside-btn[data-outside="high"]{grid-row:5;grid-column:12/14}
+.roulette-num-btn.active,.roulette-outside-btn.active{outline:2px solid #35d7ff;outline-offset:-2px;box-shadow:0 0 18px rgba(53,215,255,.45),inset 0 0 0 1px rgba(255,255,255,.35);filter:brightness(1.18);}
 
 /* ---------- Mines ---------- */
 .mines-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin:14px 0;}
@@ -499,8 +516,43 @@ body{background:radial-gradient(circle at 15% 5%,rgba(72,216,255,.18),transparen
 .bj-card{box-shadow:0 8px 16px rgba(0,0,0,.32);animation:none;}
 .die,.coin,.wheel,.mine-cell{will-change:transform;transform:translateZ(0);}
 .history-item{border-bottom-color:rgba(255,255,255,.10);}
+@media (max-width:390px){.roulette-wheel-wrap{width:340px;height:340px}.roulette-ball-track{inset:16px}.wheel{width:322px;height:322px}.roulette-number{transform:rotate(var(--a)) translateY(-139px) rotate(calc(-1 * var(--a)));font-size:10px}.roulette-bet-board{grid-template-columns:30px repeat(12,minmax(0,1fr)) 28px;gap:1px;padding:1px;margin-top:18px}.roulette-num-btn{min-height:30px}.roulette-num-btn.zero{min-height:94px}.roulette-outside-btn{min-height:28px}.roulette-outside-btn.wide,.roulette-outside-btn.doz{font-size:8px}}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important;}}
 @media (max-width:390px){.screen-container{padding:12px 12px 22px}.game-card{min-height:104px;padding:12px}.btn{padding:12px 14px}.bj-card{width:44px;height:64px}.option-row{gap:8px}.panel{padding:12px}}
+
+
+
+
+
+
+
+/* ---------- Desktop responsive layout ---------- */
+@media (min-width: 900px){
+  #app{max-width:min(1180px, calc(100vw - 48px));}
+  .screen-container{padding:28px 28px 110px;}
+  .bottom-nav,.navbar{max-width:min(1180px, calc(100vw - 48px));border-radius:22px 22px 0 0;}
+  .hero{padding:28px;}
+  .hero-balance b{font-size:42px;}
+  .game-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;}
+  .card-slot{grid-column:auto;}
+  .game-card{min-height:150px;padding:20px;}
+  .game-card .icon{font-size:42px;}.game-card .title{font-size:18px}.game-card .sub{font-size:13px;}
+  .panel,.white-card,.balance-card{padding:22px;}
+  #screen-home.active{display:block;max-width:760px;margin:0 auto;}
+  #screen-home .hero{width:100%;}
+  #screen-home .section-title{margin-top:22px;}
+  #screen-games.active,#screen-minigames.active,#screen-slots.active{max-width:980px;margin:0 auto;}
+  #screen-dice.active,#screen-coinflip.active,#screen-roulette.active,#screen-mines.active,#screen-blackjack.active,#screen-wallet.active,#screen-profile.active,#screen-bonuses.active{max-width:900px;margin:0 auto;}
+  .roulette-wheel-wrap{width:440px;height:440px}.roulette-ball-track{inset:20px}.wheel{width:420px;height:420px}.roulette-number{transform:rotate(var(--a)) translateY(-184px) rotate(calc(-1 * var(--a)));font-size:12px;}
+  .roulette-bet-board{max-width:820px;}
+  .stat-grid{grid-template-columns:repeat(3,1fr);}
+}
+@media (min-width: 1200px){
+  #app{max-width:1320px;}
+  .game-grid{grid-template-columns:repeat(4,minmax(0,1fr));}
+  #screen-dice.active,#screen-coinflip.active,#screen-roulette.active,#screen-mines.active,#screen-blackjack.active{max-width:1040px;}
+  .roulette-wheel-wrap{width:500px;height:500px}.roulette-ball-track{inset:22px}.wheel{width:476px;height:476px}.roulette-number{transform:rotate(var(--a)) translateY(-210px) rotate(calc(-1 * var(--a)));font-size:13px;}
+}
 
 /* ---------- Embedded Drunkard Gate slot ---------- */
 .olympus-embed-wrap{height:calc(100vh - 180px);min-height:620px;border-radius:26px;overflow:hidden;border:1px solid rgba(255,255,255,.14);box-shadow:0 18px 45px rgba(0,0,0,.35);background:#05020a;}
@@ -1153,7 +1205,7 @@ body.pay-info-open #autoBtn{display:none!important;pointer-events:none!important
 &lt;div id=&quot;bonusStart&quot;&gt;
   &lt;div class=&quot;bs-frame&quot;&gt;
     &lt;div class=&quot;bs-gem&quot;&gt;◆&lt;/div&gt;
-    &lt;div class=&quot;bs-title&quot;&gt;ПОЗДРАВЛЯЕМ!&lt;/div&gt;
+    &lt;div class=&quot;bs-title&quot;&gt;ПОЗДР��ВЛЯЕМ!&lt;/div&gt;
     &lt;div class=&quot;bs-sub&quot; id=&quot;bsSub&quot;&gt;ВЫ ВЫИГРАЛИ&lt;/div&gt;
     &lt;div class=&quot;bs-count&quot; id=&quot;bsCount&quot;&gt;15&lt;/div&gt;
     &lt;div class=&quot;bs-label&quot; id=&quot;bsLabel&quot;&gt;БЕСПЛАТНЫХ ВРАЩЕНИЙ&lt;/div&gt;
@@ -2570,16 +2622,14 @@ updateUI();
       <div class="game-header"><button class="back-btn" data-nav="home">←</button><h2>🎡 Рулетка</h2></div>
       <div class="panel">
         <div class="roulette-stage">
-          <div class="wheel-ptr">🔻</div>
-          <div class="wheel" id="wheelEl"></div>
+          <div class="roulette-wheel-wrap">
+            <div class="roulette-ball-track" id="rouletteBallTrack"><div class="roulette-ball"></div></div>
+            <div class="wheel" id="wheelEl"></div>
+          </div>
           <div class="roulette-result" id="rouletteResult">Сделай ставку и крути!</div>
         </div>
-        <div class="panel-title">Ставка на цвет:</div>
-        <div class="option-row" id="rouletteOptions">
-          <button class="option-btn" data-val="red">🔴 Красное<small>x2</small></button>
-          <button class="option-btn" data-val="black">⚫ Чёрное<small>x2</small></button>
-          <button class="option-btn" data-val="green">🟢 Зелёное<small>x14</small></button>
-        </div>
+        <div class="panel-title">Поле ставок:</div>
+        <div class="roulette-bet-board" id="rouletteNumberGrid"></div>
         <div class="panel-title bet-title-row"><span>Сумма ставки:</span><span class="bet-balance">Баланс: <b class="miniGameBalance">0</b> GC</span></div>
         <div class="chip-row" id="rouletteChips"></div>
         <div class="custom-bet-row"><input type="number" inputmode="numeric" min="1" step="1" placeholder="Своя ставка" id="rouletteCustomBet"><span>GC</span></div>
@@ -2708,7 +2758,7 @@ updateUI();
     <div class="modal-card">
       <div style="font-size:30px;">♻️</div>
       <h3>Сбросить прогресс?</h3>
-      <p>Все балансы, ист��рия и статистика демо-игроков будут сброшены к начальным значениям.</p>
+      <p>Все балансы, ист����рия и статистика демо-игроков будут сброшены к начальным значениям.</p>
       <div class="modal-actions">
         <button class="btn btn-ghost" id="modalCancel">Отмена</button>
         <button class="btn btn-primary" id="modalConfirm">Сбросить</button>
@@ -2894,7 +2944,7 @@ updateUI();
           saveState();
         }).catch(function(e){
           console.error('Drunkard Gate balance sync failed', e);
-          showToast('Ошибка синхронизации баланса слота','error');
+          showToast('Ошибка синхронизации бал��нса слота','error');
         });
         return backendBalance;
       }
@@ -3125,7 +3175,7 @@ updateUI();
   var BONUS_MULT = 2;
 
   var SLOT_SYMBOLS = [
-    {sym:'⚓',weight:26,pay3:1,pay4:2,pay5:5},
+    {sym:'���',weight:26,pay3:1,pay4:2,pay5:5},
     {sym:'🦜',weight:21,pay3:1.5,pay4:3,pay5:7},
     {sym:'🗝️',weight:17,pay3:2,pay4:4,pay5:10},
     {sym:'💰',weight:13,pay3:3,pay4:6,pay5:15},
@@ -3433,12 +3483,12 @@ updateUI();
   function renderDie(el, value){
     if(!el) return;
     var spots = DICE_PIPS[value] || DICE_PIPS[1];
-    el.innerHTML = spots.map(function(pos){ return '<span class="pip" style="grid-area:'+posToGrid(pos)+'"></span>'; }).join('');
+    el.innerHTML = spots.map(function(pos){ return '<span class="pip" style="'+posToGrid(pos)+'"></span>'; }).join('');
   }
   function posToGrid(pos){
     var row = Math.ceil(pos/3);
     var col = ((pos-1)%3)+1;
-    return row + ' / ' + col;
+    return 'grid-row:' + row + ';grid-column:' + col + ';';
   }
   var diceRolling = false;
   renderDie(document.getElementById('die0'), 1);
@@ -3517,35 +3567,77 @@ updateUI();
   });
 
   /* ================= ROULETTE ================= */
-  var rouletteOptCtl = buildOptionRow('rouletteOptions', function(){});
+  var rouletteSelectedNumber = null;
+  var rouletteSelectedOutside = null;
+  var rouletteOptCtl = { get:function(){ return null; }, set:function(){} };
+  function buildRouletteNumberGrid(){
+    var grid = document.getElementById('rouletteNumberGrid'); if(!grid || grid.dataset.ready) return; grid.dataset.ready='1';
+    var rows = [[3,6,9,12,15,18,21,24,27,30,33,36],[2,5,8,11,14,17,20,23,26,29,32,35],[1,4,7,10,13,16,19,22,25,28,31,34]];
+    var html = '<button class="roulette-num-btn green zero" data-num="0">0</button>';
+    rows.forEach(function(row, r){ row.forEach(function(n){ html += '<button class="roulette-num-btn '+rouletteColorByNumber(n)+'" data-num="'+n+'">'+n+'</button>'; }); html += '<button class="roulette-outside-btn twoone" data-outside="row'+(r+1)+'">2:1</button>'; });
+    html += '<button class="roulette-outside-btn doz" data-outside="first12">1-я 12</button><button class="roulette-outside-btn doz" data-outside="second12">2-я 12</button><button class="roulette-outside-btn doz" data-outside="third12">3-я 12</button>';
+    html += '<button class="roulette-outside-btn wide" data-outside="low">1-18</button><button class="roulette-outside-btn wide" data-outside="even">ЧЁТ</button><button class="roulette-outside-btn wide red" data-outside="red"></button><button class="roulette-outside-btn wide black" data-outside="black"></button><button class="roulette-outside-btn wide" data-outside="odd">НЕЧЕТ</button><button class="roulette-outside-btn wide" data-outside="high">19-36</button>';
+    grid.innerHTML = html;
+    function clearBoard(){ grid.querySelectorAll('.roulette-num-btn,.roulette-outside-btn').forEach(function(b){ b.classList.remove('active'); }); }
+    grid.querySelectorAll('.roulette-num-btn').forEach(function(btn){ btn.addEventListener('click', function(){ rouletteSelectedNumber = parseInt(btn.getAttribute('data-num'),10); rouletteSelectedOutside = null; rouletteOptCtl.set(null); clearBoard(); btn.classList.add('active'); haptic('light'); }); });
+    grid.querySelectorAll('.roulette-outside-btn').forEach(function(btn){ btn.addEventListener('click', function(){ rouletteSelectedNumber = null; rouletteSelectedOutside = btn.getAttribute('data-outside'); rouletteOptCtl.set(null); clearBoard(); btn.classList.add('active'); haptic('light'); }); });
+  }
   var rouletteBetCtl = buildBetControl('rouletteChips', 'rouletteCustomBet', [10,20,50,100,250], 20, function(){});
   var rouletteSpinning = false;
   var wheelRotation = 0;
+  var ballRotation = 0;
+  var ROULETTE_NUMBERS = [0,32,15,19,4,21,2,25,17,34,6,27,13,36,11,30,8,23,10,5,24,16,33,1,20,14,31,9,22,18,29,7,28,12,35,3,26];
+  function rouletteColorByNumber(n){ if(n===0) return 'green'; return n % 2 === 0 ? 'black' : 'red'; }
+  function buildRouletteWheel(){
+    var wheel = document.getElementById('wheelEl'); if(!wheel || wheel.dataset.ready) return;
+    wheel.dataset.ready = '1';
+    var step = 360 / ROULETTE_NUMBERS.length;
+    wheel.innerHTML = ROULETTE_NUMBERS.map(function(n,i){ return '<span class="roulette-number '+(n===0?'zero':'')+'" style="--a:'+(i*step)+'deg">'+n+'</span>'; }).join('');
+  }
+  buildRouletteWheel();
+  buildRouletteNumberGrid();
   document.getElementById('rouletteSpinBtn').addEventListener('click', async function(){
     if(rouletteSpinning) return;
     var choice = rouletteOptCtl.get();
-    if(!choice){ showToast('Выбери цвет ставки','error'); return; }
+    if(!choice && rouletteSelectedNumber === null && !rouletteSelectedOutside){ showToast('Выбери поле ставки','error'); return; }
     var bet = rouletteBetCtl.get();
     if(backendReady && backendBalance < bet){ showToast('Недостаточно Gamble Coin!','error'); haptic('error'); return; }
     rouletteSpinning = true;
     document.getElementById('rouletteSpinBtn').disabled = true;
     document.getElementById('rouletteResult').textContent = 'Крутится...';
     haptic('medium');
-    wheelRotation += 900 + Math.floor(Math.random()*360);
-    document.getElementById('wheelEl').style.transform = 'rotate(' + wheelRotation + 'deg)';
     try{
-      var result = await serverBet('roulette', bet, { color: choice });
+      var payload = rouletteSelectedNumber !== null ? { number: rouletteSelectedNumber } : (rouletteSelectedOutside ? (rouletteSelectedOutside==='red'||rouletteSelectedOutside==='black' ? { color: rouletteSelectedOutside } : { outside: rouletteSelectedOutside }) : { color: choice });
+      var result = await serverBet('roulette', bet, payload);
+      var idx = Math.max(0, ROULETTE_NUMBERS.indexOf(Number(result.number)));
+      var step = 360 / ROULETTE_NUMBERS.length;
+      var targetAngle = idx * step;
+      // Колесо крутится как декорация, а шарик останавливается ровно над выпавшим числом.
+      wheelRotation += 360*4 + Math.floor(Math.random()*360);
+      var finalBallAngle = (wheelRotation % 360) + targetAngle;
+      ballRotation += 360*7 + ((finalBallAngle - (ballRotation % 360) + 360) % 360);
+      var wheelWrap = document.querySelector('#screen-roulette .roulette-wheel-wrap');
+      var wheelEl = document.getElementById('wheelEl');
+      var ballTrack = document.getElementById('rouletteBallTrack');
+      if(wheelWrap) wheelWrap.classList.add('spinning');
+      if(wheelEl) wheelEl.style.transform = 'rotate(' + wheelRotation + 'deg)';
+      if(ballTrack) ballTrack.style.transform = 'rotate(' + ballRotation + 'deg)';
       setTimeout(function(){
-        var colorNames = {red:'🔴 Красное',black:'⚫ Чёрное',green:'🟢 Зелёное'};
-        document.getElementById('rouletteResult').textContent = 'Выпало: ' + colorNames[result.color];
-        if(result.winAmount>0){ addHistory(me(),'win', result.winAmount, 'Рулетка: '+colorNames[result.color]); showWinOverlay(result.winAmount); haptic('success'); }
-        else { addHistory(me(),'loss', bet, 'Рулетка: '+colorNames[result.color]); haptic('error'); }
+        if(wheelWrap) wheelWrap.classList.remove('spinning');
+        var colorNames = {red:'Красное',black:'Чёрное',green:'Зелёное'};
+        var resultEl = document.getElementById('rouletteResult');
+        resultEl.innerHTML = 'Выпало: ' + colorNames[result.color] + ' <span class="roulette-result-number '+result.color+'">'+result.number+'</span>';
+        var outsideNames={first12:'1-я 12',second12:'2-я 12',third12:'3-я 12',low:'1-18',high:'19-36',even:'чётное',odd:'нечётное',row1:'верхний ряд',row2:'средний ряд',row3:'нижний ряд'};
+        var betLabel = result.selectedType==='number' ? ('число '+result.selected) : (result.selectedType==='outside' ? outsideNames[result.selected] : colorNames[result.color]);
+        if(result.winAmount>0){ addHistory(me(),'win', result.winAmount, 'Рулетка: '+betLabel); showWinOverlay(result.winAmount); haptic('success'); }
+        else { addHistory(me(),'loss', bet, 'Рулетка: '+betLabel); haptic('error'); }
         renderAll();
         rouletteSpinning = false;
         document.getElementById('rouletteSpinBtn').disabled = false;
       }, 1500);
     }catch(e){
       showToast(e.message || 'Ошибка ставки','error'); haptic('error');
+      var wheelWrap = document.querySelector('#screen-roulette .roulette-wheel-wrap'); if(wheelWrap) wheelWrap.classList.remove('spinning');
       rouletteSpinning = false; document.getElementById('rouletteSpinBtn').disabled = false;
     }
   });
@@ -3875,7 +3967,7 @@ updateUI();
     var p = me();
     var transfers = (p.history || []).filter(function(h){ return h.type==='transfer_in' || h.type==='transfer_out'; });
     if(transfers.length===0){
-      box.innerHTML = '<div class="empty-state">Пока нет переводов.</div>';
+      box.innerHTML = '<div class="empty-state">Пока нет пере��одов.</div>';
       return;
     }
     box.innerHTML = transfers.map(function(h){

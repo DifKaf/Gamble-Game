@@ -326,7 +326,7 @@ footer,.slot-controls{margin-top:6px;}
 /* ---------- Roulette ---------- */
 .roulette-stage{display:flex;flex-direction:column;align-items:center;margin:14px 0;}
 .roulette-wheel-wrap{position:relative;width:380px;height:380px;max-width:100%;display:flex;align-items:center;justify-content:center;filter:drop-shadow(0 20px 32px rgba(0,0,0,.42));}
-.roulette-ball-track{position:absolute;inset:18px;border-radius:50%;z-index:6;pointer-events:none;transition:transform 3.2s cubic-bezier(.12,.78,.08,1);}
+.roulette-ball-track{position:absolute;inset:18px;border-radius:50%;z-index:6;pointer-events:none;transition:transform 3.8s cubic-bezier(.12,.78,.08,1);}
 .roulette-ball{position:absolute;left:50%;top:0;width:16px;height:16px;margin-left:-8px;margin-top:-8px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff 0 25%,#dbeafe 45%,#94a3b8 100%);box-shadow:0 2px 5px rgba(0,0,0,.55),0 0 8px rgba(255,255,255,.65);}
 .roulette-wheel-wrap.spinning .roulette-ball{animation:rouletteBallBounce .18s linear infinite;}
 @keyframes rouletteBallBounce{0%,100%{transform:scale(1)}50%{transform:scale(.88)}}
@@ -349,7 +349,10 @@ footer,.slot-controls{margin-top:6px;}
 .roulette-outside-btn.doz{grid-column:span 4}.roulette-outside-btn.wide{grid-column:span 2}.roulette-outside-btn.twoone{grid-column:14;font-size:clamp(8px,2vw,12px);} 
 .roulette-outside-btn[data-outside="first12"]{grid-row:4;grid-column:2/6}.roulette-outside-btn[data-outside="second12"]{grid-row:4;grid-column:6/10}.roulette-outside-btn[data-outside="third12"]{grid-row:4;grid-column:10/14}
 .roulette-outside-btn[data-outside="low"]{grid-row:5;grid-column:2/4}.roulette-outside-btn[data-outside="even"]{grid-row:5;grid-column:4/6}.roulette-outside-btn[data-outside="red"]{grid-row:5;grid-column:6/8}.roulette-outside-btn[data-outside="black"]{grid-row:5;grid-column:8/10}.roulette-outside-btn[data-outside="odd"]{grid-row:5;grid-column:10/12}.roulette-outside-btn[data-outside="high"]{grid-row:5;grid-column:12/14}
-.roulette-num-btn.active,.roulette-outside-btn.active{outline:2px solid #35d7ff;outline-offset:-2px;box-shadow:0 0 18px rgba(53,215,255,.45),inset 0 0 0 1px rgba(255,255,255,.35);filter:brightness(1.18);}
+.roulette-num-btn.active,.roulette-outside-btn.active{outline:2px solid #35d7ff;outline-offset:-2px;box-shadow:0 0 18px rgba(53,215,255,.45),inset 0 0 0 1px rgba(255,255,255,.35);filter:brightness(1.18);position:relative;}
+.roulette-chip-on-board{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);min-width:24px;height:24px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff7b0 0 18%,#facc15 22% 58%,#b45309 62% 100%);border:2px solid #fff3c4;color:#4a2500;font-size:8px;font-weight:900;display:flex;align-items:center;justify-content:center;z-index:8;box-shadow:0 3px 8px rgba(0,0,0,.45);pointer-events:none;}
+.roulette-countdown{margin:10px auto 0;display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:rgba(0,0,0,.28);color:#fff;font-weight:900;border:1px solid rgba(255,255,255,.18);}
+.roulette-countdown b{color:var(--gold-300);font-size:18px;}
 
 /* ---------- Mines ---------- */
 .mines-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin:14px 0;}
@@ -3578,9 +3581,10 @@ updateUI();
     html += '<button class="roulette-outside-btn doz" data-outside="first12">1-я 12</button><button class="roulette-outside-btn doz" data-outside="second12">2-я 12</button><button class="roulette-outside-btn doz" data-outside="third12">3-я 12</button>';
     html += '<button class="roulette-outside-btn wide" data-outside="low">1-18</button><button class="roulette-outside-btn wide" data-outside="even">ЧЁТ</button><button class="roulette-outside-btn wide red" data-outside="red"></button><button class="roulette-outside-btn wide black" data-outside="black"></button><button class="roulette-outside-btn wide" data-outside="odd">НЕЧЕТ</button><button class="roulette-outside-btn wide" data-outside="high">19-36</button>';
     grid.innerHTML = html;
-    function clearBoard(){ grid.querySelectorAll('.roulette-num-btn,.roulette-outside-btn').forEach(function(b){ b.classList.remove('active'); }); }
-    grid.querySelectorAll('.roulette-num-btn').forEach(function(btn){ btn.addEventListener('click', function(){ rouletteSelectedNumber = parseInt(btn.getAttribute('data-num'),10); rouletteSelectedOutside = null; rouletteOptCtl.set(null); clearBoard(); btn.classList.add('active'); haptic('light'); }); });
-    grid.querySelectorAll('.roulette-outside-btn').forEach(function(btn){ btn.addEventListener('click', function(){ rouletteSelectedNumber = null; rouletteSelectedOutside = btn.getAttribute('data-outside'); rouletteOptCtl.set(null); clearBoard(); btn.classList.add('active'); haptic('light'); }); });
+    function clearBoard(){ grid.querySelectorAll('.roulette-num-btn,.roulette-outside-btn').forEach(function(b){ b.classList.remove('active'); var old=b.querySelector('.roulette-chip-on-board'); if(old) old.remove(); }); }
+    function putRouletteChip(btn){ var amount = rouletteBetCtl ? rouletteBetCtl.get() : 0; var chip=document.createElement('span'); chip.className='roulette-chip-on-board'; chip.textContent=fmt(amount); btn.appendChild(chip); }
+    grid.querySelectorAll('.roulette-num-btn').forEach(function(btn){ btn.addEventListener('click', function(){ rouletteSelectedNumber = parseInt(btn.getAttribute('data-num'),10); rouletteSelectedOutside = null; rouletteOptCtl.set(null); clearBoard(); btn.classList.add('active'); putRouletteChip(btn); haptic('light'); }); });
+    grid.querySelectorAll('.roulette-outside-btn').forEach(function(btn){ btn.addEventListener('click', function(){ rouletteSelectedNumber = null; rouletteSelectedOutside = btn.getAttribute('data-outside'); rouletteOptCtl.set(null); clearBoard(); btn.classList.add('active'); putRouletteChip(btn); haptic('light'); }); });
   }
   var rouletteBetCtl = buildBetControl('rouletteChips', 'rouletteCustomBet', [10,20,50,100,250], 20, function(){});
   var rouletteSpinning = false;
@@ -3596,6 +3600,21 @@ updateUI();
   }
   buildRouletteWheel();
   buildRouletteNumberGrid();
+  function startRouletteCountdown(seconds){
+    return new Promise(function(resolve){
+      var left = seconds;
+      var resultEl = document.getElementById('rouletteResult');
+      var btn = document.getElementById('rouletteSpinBtn');
+      function tick(){
+        if(resultEl) resultEl.innerHTML = '<span class="roulette-countdown">Запуск через <b>'+left+'</b> сек.</span>';
+        if(btn) btn.textContent = 'Ставки приняты: ' + left + ' сек.';
+        if(left <= 0){ if(btn) btn.textContent = '🎡 Крутить рулетку'; resolve(); return; }
+        left -= 1;
+        setTimeout(tick, 1000);
+      }
+      tick();
+    });
+  }
   document.getElementById('rouletteSpinBtn').addEventListener('click', async function(){
     if(rouletteSpinning) return;
     var choice = rouletteOptCtl.get();
@@ -3604,23 +3623,24 @@ updateUI();
     if(backendReady && backendBalance < bet){ showToast('Недостаточно Gamble Coin!','error'); haptic('error'); return; }
     rouletteSpinning = true;
     document.getElementById('rouletteSpinBtn').disabled = true;
-    document.getElementById('rouletteResult').textContent = 'Крутится...';
     haptic('medium');
+    await startRouletteCountdown(15);
+    document.getElementById('rouletteResult').textContent = 'Шарик крутится...';
     try{
       var payload = rouletteSelectedNumber !== null ? { number: rouletteSelectedNumber } : (rouletteSelectedOutside ? (rouletteSelectedOutside==='red'||rouletteSelectedOutside==='black' ? { color: rouletteSelectedOutside } : { outside: rouletteSelectedOutside }) : { color: choice });
       var result = await serverBet('roulette', bet, payload);
       var idx = Math.max(0, ROULETTE_NUMBERS.indexOf(Number(result.number)));
       var step = 360 / ROULETTE_NUMBERS.length;
       var targetAngle = idx * step;
-      // Колесо крутится как декорация, а шарик останавливается ровно над выпавшим числом.
-      wheelRotation += 360*4 + Math.floor(Math.random()*360);
-      var finalBallAngle = (wheelRotation % 360) + targetAngle;
-      ballRotation += 360*7 + ((finalBallAngle - (ballRotation % 360) + 360) % 360);
+      // Рулетка статична: результат определяет шарик, он останавливается над выпавшим числом.
+      wheelRotation = 0;
+      var finalBallAngle = targetAngle;
+      ballRotation += 360*9 + ((finalBallAngle - (ballRotation % 360) + 360) % 360);
       var wheelWrap = document.querySelector('#screen-roulette .roulette-wheel-wrap');
       var wheelEl = document.getElementById('wheelEl');
       var ballTrack = document.getElementById('rouletteBallTrack');
       if(wheelWrap) wheelWrap.classList.add('spinning');
-      if(wheelEl) wheelEl.style.transform = 'rotate(' + wheelRotation + 'deg)';
+      if(wheelEl) wheelEl.style.transform = 'rotate(0deg)';
       if(ballTrack) ballTrack.style.transform = 'rotate(' + ballRotation + 'deg)';
       setTimeout(function(){
         if(wheelWrap) wheelWrap.classList.remove('spinning');
@@ -3634,7 +3654,7 @@ updateUI();
         renderAll();
         rouletteSpinning = false;
         document.getElementById('rouletteSpinBtn').disabled = false;
-      }, 1500);
+      }, 3800);
     }catch(e){
       showToast(e.message || 'Ошибка ставки','error'); haptic('error');
       var wheelWrap = document.querySelector('#screen-roulette .roulette-wheel-wrap'); if(wheelWrap) wheelWrap.classList.remove('spinning');

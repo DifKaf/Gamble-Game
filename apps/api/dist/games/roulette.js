@@ -32,7 +32,8 @@ function evalRouletteBet(bet, number, color) {
 }
 export function playRoulette(p) {
     const number = Math.floor(Math.random() * 37);
-    const color = number === 0 ? 'green' : number % 2 === 0 ? 'black' : 'red';
+    const redNumbers = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36];
+    const color = number === 0 ? 'green' : redNumbers.includes(number) ? 'red' : 'black';
     const bets = Array.isArray(p.payload?.bets) && p.payload.bets.length ? p.payload.bets : [{ amount: p.betAmount, payload: p.payload || { color: 'red' } }];
     const results = bets.map(b => evalRouletteBet(b, number, color));
     const winAmount = Math.floor(results.reduce((s, b) => s + b.winAmount, 0));

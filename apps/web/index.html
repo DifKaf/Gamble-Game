@@ -2866,22 +2866,26 @@ updateUI();
 
   async function serverBet(gameCode, betAmount, payload){
     if(!backendReady) await initBackendAuth();
-    var data = await apiRequest('/games/' + gameCode + '/bet', {
-      method:'POST',
-      body:JSON.stringify({
-        betAmount: Math.round(Number(betAmount)||0),
-        requestId: (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : String(Date.now()) + '_' + String(Math.random()),
-        payload: payload || {}
-      })
-    });
-    backendBalance = data.balance;
-    applyBackendBalanceToUI();
-    if(data.result) syncProfileStats(betAmount, data.result.winAmount || 0);
-    renderProfile();
-    saveState();
-    setTimeout(function(){ refreshMiniGameHistories(true); }, 300);
-    return data.result;
+    var optimisticBet = Math.round(Number(betAmount)||0);
+    var prevBackendBalance = backendBalance;
+    if(backendReady && optimisticBet > 0){ backendBalance = Math.max(0, backendBalance - optimisticBet); applyBackendBalanceToUI(); }
+    try{
+      var data = await apiRequest('/games/' + gameCode + '/bet', {
+        method:'POST',
+        body:JSON.stringify({
+          betAmount: optimisticBet,
+          requestId: (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : String(Date.now()) + '_' + String(Math.random()),
+          payload: payload || {}
+        })
+      });
+      backendBalance = data.balance;
+      applyBackendBalanceToUI();
+      if(data.result) syncProfileStats(betAmount, data.result.winAmount || 0);
+      renderProfile(); saveState(); setTimeout(function(){ refreshMiniGameHistories(true); }, 300);
+      return data.result;
+    }catch(e){ backendBalance = prevBackendBalance; applyBackendBalanceToUI(); throw e; }
   }
+
 
   window.GambleBackend = { apiRequest:apiRequest, init:initBackendAuth, serverBet:serverBet, getBalance:function(){return backendBalance;} };
 
@@ -3583,7 +3587,7 @@ updateUI();
     var rows = [[3,6,9,12,15,18,21,24,27,30,33,36],[2,5,8,11,14,17,20,23,26,29,32,35],[1,4,7,10,13,16,19,22,25,28,31,34]];
     var html = '<button class="roulette-num-btn green zero" data-num="0">0</button>';
     rows.forEach(function(row, r){ row.forEach(function(n){ html += '<button class="roulette-num-btn '+rouletteColorByNumber(n)+'" data-num="'+n+'">'+n+'</button>'; }); html += '<button class="roulette-outside-btn twoone" data-outside="row'+(r+1)+'">2:1</button>'; });
-    html += '<button class="roulette-outside-btn doz" data-outside="first12">1-я 12</button><button class="roulette-outside-btn doz" data-outside="second12">2-я 12</button><button class="roulette-outside-btn doz" data-outside="third12">3-я 12</button>';
+    html += '<button class="roulette-outside-btn doz" data-outside="first12">1-12</button><button class="roulette-outside-btn doz" data-outside="second12">13-24</button><button class="roulette-outside-btn doz" data-outside="third12">25-36</button>';
     html += '<button class="roulette-outside-btn wide" data-outside="low">1-18</button><button class="roulette-outside-btn wide" data-outside="even">ЧЁТ</button><button class="roulette-outside-btn wide red" data-outside="red"></button><button class="roulette-outside-btn wide black" data-outside="black"></button><button class="roulette-outside-btn wide" data-outside="odd">НЕЧЕТ</button><button class="roulette-outside-btn wide" data-outside="high">19-36</button>';
     grid.innerHTML = html;
     function clearBoard(){ grid.querySelectorAll('.roulette-num-btn,.roulette-outside-btn').forEach(function(b){ b.classList.remove('active'); var old=b.querySelector('.roulette-chip-on-board'); if(old) old.remove(); }); }
@@ -3599,7 +3603,7 @@ updateUI();
   var wheelRotation = 0;
   var ballRotation = 0;
   var ROULETTE_NUMBERS = [0,32,15,19,4,21,2,25,17,34,6,27,13,36,11,30,8,23,10,5,24,16,33,1,20,14,31,9,22,18,29,7,28,12,35,3,26];
-  function rouletteColorByNumber(n){ if(n===0) return 'green'; return n % 2 === 0 ? 'black' : 'red'; }
+  function rouletteColorByNumber(n){ var reds=[1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]; if(n===0) return 'green'; return reds.indexOf(Number(n))!==-1 ? 'red' : 'black'; }
   function buildRouletteWheel(){
     var wheel = document.getElementById('wheelEl'); if(!wheel || wheel.dataset.ready) return;
     wheel.dataset.ready = '1';
@@ -3631,6 +3635,7 @@ updateUI();
     if(rouletteBetsClosed || rouletteSpinning){ showToast('Ставки уже закрыты','error'); return; }
     var amount = rouletteBetCtl.get();
     if(backendReady && backendBalance < amount){ showToast('Недостаточно Gamble Coin!','error'); haptic('error'); return; }
+    if(backendReady){ backendBalance=Math.max(0,backendBalance-amount); applyBackendBalanceToUI(); }
     var payload = roulettePayloadFromSelection(); if(!payload){ showToast('Выбери поле ставки','error'); return; }
     var key = JSON.stringify(payload);
     var existing = roulettePendingBets.find(function(b){ return b.key === key; });
@@ -3652,7 +3657,7 @@ updateUI();
     if(rouletteCountdownActive) return; rouletteCountdownActive=true; rouletteBetsClosed=false; var left=15;
     var resultEl=document.getElementById('rouletteResult'), btn=document.getElementById('rouletteSpinBtn');
     function tick(){
-      if(resultEl) resultEl.innerHTML='<span class="roulette-countdown">До запуска <b>'+left+'</b> сек. • ставок: '+roulettePendingBets.length+'</span>';
+      if(resultEl) resultEl.innerHTML='<span class="roulette-countdown">До запуска <b>'+left+'</b> сек.</span>';
       if(btn) btn.textContent='Ставки открыты: '+left+' сек.';
       if(left<=0){ rouletteBetsClosed=true; setRouletteBoardDisabled(true); if(btn) btn.textContent='Шарик крутится...'; runRouletteRound(); return; }
       left--; setTimeout(tick,1000);
@@ -3665,6 +3670,7 @@ updateUI();
     try{
       var first=roulettePendingBets[0];
       var totalBetAmount = roulettePendingBets.reduce(function(sum,b){ return sum + Number(b.amount||0); }, 0);
+      if(backendReady){ backendBalance += totalBetAmount; }
       var result=await serverBet('roulette', totalBetAmount, { bets: roulettePendingBets.map(function(b){ return { amount:b.amount, payload:b.payload }; }) });
       var idx=Math.max(0, ROULETTE_NUMBERS.indexOf(Number(result.number))); var step=360/ROULETTE_NUMBERS.length; var targetAngle=idx*step;
       wheelRotation=0; var finalBallAngle=targetAngle; ballRotation += 360*9 + ((finalBallAngle - (ballRotation % 360) + 360) % 360);
@@ -3713,7 +3719,7 @@ updateUI();
         var colorNames = {red:'Красное',black:'Чёрное',green:'Зелёное'};
         var resultEl = document.getElementById('rouletteResult');
         resultEl.innerHTML = 'Выпало: ' + colorNames[result.color] + ' <span class="roulette-result-number '+result.color+'">'+result.number+'</span>';
-        var outsideNames={first12:'1-я 12',second12:'2-я 12',third12:'3-я 12',low:'1-18',high:'19-36',even:'чётное',odd:'нечётное',row1:'верхний ряд',row2:'средний ряд',row3:'нижний ряд'};
+        var outsideNames={first12:'1-12',second12:'13-24',third12:'25-36',low:'1-18',high:'19-36',even:'чётное',odd:'нечётное',row1:'верхний ряд',row2:'средний ряд',row3:'нижний ряд'};
         var betLabel = result.selectedType==='number' ? ('число '+result.selected) : (result.selectedType==='outside' ? outsideNames[result.selected] : colorNames[result.color]);
         if(result.winAmount>0){ addHistory(me(),'win', result.winAmount, 'Рулетка: '+betLabel); showWinOverlay(result.winAmount); haptic('success'); }
         else { addHistory(me(),'loss', bet, 'Рулетка: '+betLabel); haptic('error'); }

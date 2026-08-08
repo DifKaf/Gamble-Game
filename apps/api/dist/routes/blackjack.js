@@ -346,13 +346,13 @@ export async function blackjackRoutes(app) {
                     return reply.code(400).send({ error: 'Double not available' });
                 }
                 const fresh = await tx.user.findUniqueOrThrow({ where: { id: user.id } });
-                if (fresh.balance < session.betAmount) {
+                if (fresh.balance < BigInt(session.betAmount)) {
                     throw new Error('Insufficient balance');
                 }
                 await applyBalanceChange({
                     tx,
                     userId: user.id,
-                    amount: -session.betAmount,
+                    amount: -BigInt(session.betAmount),
                     type: 'BET',
                     source: 'blackjack-double'
                 });

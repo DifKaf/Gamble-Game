@@ -328,7 +328,7 @@ footer,.slot-controls{margin-top:6px;}
 /* ---------- Roulette ---------- */
 .roulette-stage{display:flex;flex-direction:column;align-items:center;margin:14px 0;}
 .roulette-wheel-wrap{position:relative;width:380px;height:380px;max-width:100%;display:flex;align-items:center;justify-content:center;filter:drop-shadow(0 20px 32px rgba(0,0,0,.42));}
-.roulette-ball-track{position:absolute;inset:18px;border-radius:50%;z-index:6;pointer-events:none;transition:transform 3.8s cubic-bezier(.12,.78,.08,1);}
+.roulette-ball-track{position:absolute;inset:18px;border-radius:50%;z-index:6;pointer-events:none;transition:transform .9s cubic-bezier(.12,.78,.08,1);}
 .roulette-ball{position:absolute;left:50%;top:0;width:16px;height:16px;margin-left:-8px;margin-top:-8px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff 0 25%,#dbeafe 45%,#94a3b8 100%);box-shadow:0 2px 5px rgba(0,0,0,.55),0 0 8px rgba(255,255,255,.65);}
 .roulette-wheel-wrap.spinning .roulette-ball{animation:rouletteBallBounce .18s linear infinite;}
 @keyframes rouletteBallBounce{0%,100%{transform:scale(1)}50%{transform:scale(.88)}}
@@ -1183,7 +1183,7 @@ body.pay-info-open #autoBtn{display:none!important;pointer-events:none!important
   &lt;div class=&quot;msec&quot;&gt;&amp;#9881; Механика&lt;/div&gt;
   &lt;div class=&quot;mech&quot;&gt;&lt;div class=&quot;mico&quot;&gt;&amp;#128203;&lt;/div&gt;&lt;div class=&quot;mtxt&quot;&gt;&lt;b&gt;6×5, Pay Anywhere.&lt;/b&gt; Кластер от &lt;b&gt;8+ одинаковых символов&lt;/b&gt; в любом месте поля (горизонталь + вертикаль).&lt;/div&gt;&lt;/div&gt;
   &lt;div class=&quot;mech&quot;&gt;&lt;div class=&quot;mico&quot;&gt;&amp;#128175;&lt;/div&gt;&lt;div class=&quot;mtxt&quot;&gt;&lt;b&gt;Падение (Tumble).&lt;/b&gt; После ка��дого спина выигрышные символы исчезают, сверху падают новые. Падение продолжается, пока есть выигрыши (без ограничений).&lt;/div&gt;&lt;/div&gt;
-  &lt;div class=&quot;mech&quot;&gt;&lt;div class=&quot;mico&quot;&gt;&amp;#127384;&lt;/div&gt;&lt;div class=&quot;mtxt&quot;&gt;&lt;b&gt;Символы-множители.&lt;/b&gt; Падают на поле &lt;b&gt;как символы&lt;/b&gt; (×2 — ×1000) во время вращений и падений — как в основной игре, так и в фриспинах. В конце последовательности все множители на поле &lt;b&gt;суммируются&lt;/b&gt; и умножают общий выигрыш. В фриспинах множитель &lt;b&gt;накапливается глобально&lt;/b&gt;.&lt;/div&gt;&lt;/div&gt;
+  &lt;div class=&quot;mech&quot;&gt;&lt;div class=&quot;mico&quot;&gt;&amp;#127384;&lt;/div&gt;&lt;div class=&quot;mtxt&quot;&gt;&lt;b&gt;Символы-множители.&lt;/b&gt; Падают на ��оле &lt;b&gt;как символы&lt;/b&gt; (×2 — ×1000) во время вращений и падений — как в основной игре, так и в фриспинах. В конце последовательности все множители на поле &lt;b&gt;суммируются&lt;/b&gt; и умножают общий выигрыш. В фриспинах множитель &lt;b&gt;накапливается глобально&lt;/b&gt;.&lt;/div&gt;&lt;/div&gt;
   &lt;div class=&quot;mech&quot;&gt;&lt;div class=&quot;mico&quot;&gt;&amp;#129347;&lt;/div&gt;&lt;div class=&quot;mtxt&quot;&gt;&lt;b&gt;Scatter (Стакан).&lt;/b&gt; 4+ = &lt;b&gt;15 фриспинов&lt;/b&gt;. В FS: 3+ Scatter = &lt;b&gt;+5 спинов&lt;/b&gt;.&lt;/div&gt;&lt;/div&gt;
   &lt;div class=&quot;mech&quot;&gt;&lt;div class=&quot;mico&quot;&gt;&amp;#128176;&lt;/div&gt;&lt;div class=&quot;mtxt&quot;&gt;&lt;b&gt;Ante Bet&lt;/b&gt; +25% к ставке — повышает шанс Scatter.&lt;/div&gt;&lt;/div&gt;
   &lt;div class=&quot;mech&quot;&gt;&lt;div class=&quot;mico&quot;&gt;&amp;#128722;&lt;/div&gt;&lt;div class=&quot;mtxt&quot;&gt;&lt;b&gt;Купить бонус&lt;/b&gt; — мгновенные 15 фриспинов за &lt;b&gt;100× ставки&lt;/b&gt;.&lt;/div&gt;&lt;/div&gt;
@@ -1451,15 +1451,15 @@ const SCATTER_ID = 0;
 const WILD_ID = -1;
 const SYMS = [
   {id:0,name:&#x27;Стакан&#x27;,   w:1.4,pays:[0,0,0,0,0],   isScatter:true, color:&#x27;#7dd3fc&#x27;},
-  {id:1,name:&#x27;Пиво&#x27;,      w:4.5,  pays:[1,1,2.5,2.5,7.5],       color:&#x27;#f59e0b&#x27;},
-  {id:2,name:&#x27;Сигарета&#x27;,  w:5,  pays:[0.75,0.75,1,1,6],   color:&#x27;#e5e7eb&#x27;},
-  {id:3,name:&#x27;Зажигалка&#x27;, w:6.5,  pays:[0.5,0.5,0.75,0.75,5],   color:&#x27;#60a5fa&#x27;},
-  {id:4,name:&#x27;10 руб&#x27;, w:8,  pays:[0.4,0.4,0.6,0.6,4], color:&#x27;#e879f9&#x27;},
-  {id:5,name:&#x27;5 руб&#x27;,  w:10,  pays:[0.25,0.25,0.5,0.5,2.5],     color:&#x27;#7dd3fc&#x27;},
-  {id:6,name:&#x27;2 руб&#x27;, w:11.5, pays:[0.2,0.2,0.45,0.45,2], color:&#x27;#86efac&#x27;},
-  {id:7,name:&#x27;1 руб&#x27;, w:15, pays:[0.125,0.125,0.375,0.375,1], color:&#x27;#fbbf24&#x27;},
-  {id:8,name:&#x27;Бутылка водки&#x27;, w:3, pays:[1.25,1.25,5,5,12.5], color:&#x27;#bae6fd&#x27;},
-  {id:9,name:&#x27;Пьяница&#x27;,       w:1.5, pays:[5,5,12.5,12.5,25],   color:&#x27;#f87171&#x27;},
+  {id:1,name:&#x27;Пиво&#x27;,      w:4.5,  pays:[2,2,5,5,15],       color:&#x27;#f59e0b&#x27;},
+  {id:2,name:&#x27;Сигарета&#x27;,  w:5,  pays:[1.5,1.5,2,2,12],   color:&#x27;#e5e7eb&#x27;},
+  {id:3,name:&#x27;Зажигалка&#x27;, w:6.5,  pays:[1,1,1.5,1.5,10],   color:&#x27;#60a5fa&#x27;},
+  {id:4,name:&#x27;10 руб&#x27;, w:8,  pays:[0.8,0.8,1.2,1.2,8], color:&#x27;#e879f9&#x27;},
+  {id:5,name:&#x27;5 руб&#x27;,  w:10,  pays:[0.5,0.5,1,1,5],     color:&#x27;#7dd3fc&#x27;},
+  {id:6,name:&#x27;2 руб&#x27;, w:11.5, pays:[0.4,0.4,0.9,0.9,4], color:&#x27;#86efac&#x27;},
+  {id:7,name:&#x27;1 руб&#x27;, w:15, pays:[0.25,0.25,0.75,0.75,2], color:&#x27;#fbbf24&#x27;},
+  {id:8,name:&#x27;Бутылка водки&#x27;, w:3, pays:[2.5,2.5,10,10,25], color:&#x27;#bae6fd&#x27;},
+  {id:9,name:&#x27;Пьяница&#x27;,       w:1.5, pays:[10,10,25,25,50],   color:&#x27;#f87171&#x27;},
 ];
 const TW = SYMS.reduce((s,x)=&gt;s+x.w,0);
 function rSym(anteBet){
@@ -2282,7 +2282,7 @@ async function doSpin(){
   }
 
   // Report result
-  if(!spinWin &amp;&amp; !inFreeSpin){ sfx(&#x27;lose&#x27;); setMsg(&#x27;НЕ ПОВЕЗЛО...&#x27;,&#x27;sc&#x27;); }
+  if(!spinWin &amp;&amp; !inFreeSpin){ sfx(&#x27;lose&#x27;); setMsg(&#x27;НЕ ПОВЕЗ��О...&#x27;,&#x27;sc&#x27;); }
   else if(spinWin&gt;0){
     const rt=totalWin/stake;
     if(rt&gt;=80){ setMsg(`🌟 МЕГА ДЖЕКПОТ! +${totalWin}`,&#x27;mg&#x27;); doConfetti(120); }
@@ -2882,7 +2882,7 @@ updateUI();
       applyBackendBalanceToUI();
       renderBalances();
       if(data.result) syncProfileStats(betAmount, data.result.winAmount || 0);
-      renderProfile(); saveState(); setTimeout(function(){ refreshMiniGameHistories(true); }, 300);
+      renderProfile(); saveState(); refreshMiniGameHistories(true);
       return data.result;
     }catch(e){ backendBalance = prevBackendBalance; applyBackendBalanceToUI(); renderBalances(); throw e; }
   }
@@ -3332,7 +3332,7 @@ updateUI();
       })(c);
     }
 
-    var stopTimes = [500, 750, 1000, 1250, 1500];
+    var stopTimes = [120, 180, 240, 300, 360];
     for(var c=0;c<SLOT_COLS;c++){
       (function(c){
         setTimeout(function(){
@@ -3454,7 +3454,7 @@ updateUI();
 
     if(slotBonus.active && slotBonus.remaining>0){
       document.getElementById('slotSpinBtn').disabled = true;
-      setTimeout(function(){ spinSlot(true); }, 1300);
+      setTimeout(function(){ spinSlot(true); }, 250);
       return;
     } else if(slotBonus.active && slotBonus.remaining<=0){
       var bonusTotal = slotBonus.totalWin;
@@ -3472,7 +3472,7 @@ updateUI();
       document.getElementById('slotAutoLeft').textContent = Math.max(slotAuto.remaining,0);
       if(slotAuto.remaining>0 && me().balance>=slotBetCtl.get() && !slotBonus.active){
         document.getElementById('slotSpinBtn').disabled = true;
-        setTimeout(function(){ spinSlot(false); }, 900);
+        setTimeout(function(){ spinSlot(false); }, 200);
       } else {
         stopAutoplay();
       }
@@ -3521,7 +3521,7 @@ updateUI();
     var iv = setInterval(function(){
       renderDie(d0, 1+Math.floor(Math.random()*6));
       renderDie(d1, 1+Math.floor(Math.random()*6));
-    }, 70);
+    }, 45);
     try{
       var result = await serverBet('dice', bet, { mode: choice==='under' ? 'under' : 'over', target: choice==='exact' ? 7 : 50 });
       setTimeout(function(){
@@ -3678,7 +3678,7 @@ updateUI();
       if(backendReady){ backendBalance += totalBetAmount; }
       var result=await serverBet('roulette', totalBetAmount, { bets: roulettePendingBets.map(function(b){ return { amount:b.amount, payload:b.payload }; }) });
       var idx=Math.max(0, ROULETTE_NUMBERS.indexOf(Number(result.number))); var step=360/ROULETTE_NUMBERS.length; var targetAngle=idx*step;
-      wheelRotation=0; var finalBallAngle=targetAngle; ballRotation += 360*9 + ((finalBallAngle - (ballRotation % 360) + 360) % 360);
+      wheelRotation=0; var finalBallAngle=targetAngle; ballRotation += 360*3 + ((finalBallAngle - (ballRotation % 360) + 360) % 360);
       var wheelWrap=document.querySelector('#screen-roulette .roulette-wheel-wrap'), wheelEl=document.getElementById('wheelEl'), ballTrack=document.getElementById('rouletteBallTrack');
       if(wheelWrap) wheelWrap.classList.add('spinning'); if(wheelEl) wheelEl.style.transform='rotate(0deg)'; if(ballTrack) ballTrack.style.transform='rotate('+ballRotation+'deg)';
       setTimeout(function(){
@@ -3687,7 +3687,7 @@ updateUI();
         if(result.winAmount>0){ addHistory(me(),'win', result.winAmount, 'Рулетка'); showWinOverlay(result.winAmount); haptic('success'); } else { addHistory(me(),'loss', totalBetAmount, 'Рулетка'); haptic('error'); }
         roulettePendingBets=[]; setRouletteBoardDisabled(false); document.querySelectorAll('.roulette-chip-on-board').forEach(function(chip){ chip.remove(); }); document.querySelectorAll('.roulette-num-btn,.roulette-outside-btn').forEach(function(b){ b.classList.remove('active'); });
         rouletteSelectedNumber=null; rouletteSelectedOutside=null; renderAll(); rouletteSpinning=false; rouletteCountdownActive=false; rouletteBetsClosed=false; var btn=document.getElementById('rouletteSpinBtn'); if(btn) btn.textContent='Ожидание ставки';
-      },3800);
+      },900);
     }catch(e){ showToast(e.message || 'Ошибка ставки','error'); rouletteSpinning=false; rouletteCountdownActive=false; rouletteBetsClosed=false; setRouletteBoardDisabled(false); }
   }
   document.getElementById('rouletteSpinBtn').addEventListener('click', function(){ showToast('Нажми на поле ставок — игра начнётся автоматически','info'); });
@@ -3743,7 +3743,7 @@ updateUI();
         tile.classList.add('boom'); tile.textContent = '💣'; haptic('error');
         revealServerMines(data.mines || []);
         addHistory(me(),'loss', minesState.bet, 'Мины: подрыв'); syncProfileStats(minesState.bet, 0); renderProfile(); refreshMiniGameHistories();
-        setTimeout(function(){ endMinesRound(); }, 900);
+        setTimeout(function(){ endMinesRound(); }, 250);
       } else {
         tile.classList.add('safe'); tile.textContent = '💎';
         minesState.openedCells = data.openedCells || [];
@@ -3782,7 +3782,7 @@ updateUI();
       backendBalance = data.balance; applyBackendBalanceToUI();
       addHistory(me(),'win', data.payout, 'Мины: забрал x'+Number(data.multiplier||1).toFixed(2)); syncProfileStats(minesState.bet, data.payout); renderProfile(); refreshMiniGameHistories();
       showWinOverlay(data.payout); haptic('success');
-      setTimeout(function(){ endMinesRound(); }, 600);
+      setTimeout(function(){ endMinesRound(); }, 200);
     }catch(e){ minesState.ended = false; showToast(e.message || 'Ошибка cashout','error'); haptic('error'); }
   });
 

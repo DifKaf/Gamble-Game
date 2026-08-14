@@ -819,6 +819,16 @@ body{background:#000!important;}
   #leaderboardBox .leaderboard-row .bal{color:#fff!important;background:#2b2b2b!important;border-color:#3a3a3a!important;}
 }
 
+
+
+/* ---------- Baccarat + final fixes ---------- */
+.card-baccarat{background:#191919!important;}
+.game-card .icon,.category-card .icon,.service-card .icon{background:transparent!important;color:#fff!important;border-radius:0!important;}
+#leaderboardBox .leaderboard-row .bal{background:#f2f2f2!important;color:#050505!important;border:1px solid #555!important;font-weight:950!important;}
+.baccarat-table{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center;margin:12px 0 18px;}
+.baccarat-side{background:#111;border:1px solid #2a2a2a;border-radius:18px;padding:16px;text-align:center;min-height:150px;}
+.baccarat-label{font-size:18px;font-weight:900;color:#fff;margin-bottom:12px;}.baccarat-cards{display:flex;gap:8px;justify-content:center;min-height:56px}.bac-card{width:40px;height:56px;border-radius:8px;background:#f4f4f5;color:#111;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:18px}.baccarat-score{margin-top:10px;font-size:30px;font-weight:950;color:#0b9dff}.baccarat-vs{font-weight:950;color:#858585}
+
 </style>
 </head>
 <body>
@@ -885,6 +895,7 @@ body{background:#000!important;}
         <button class="game-card card-roulette" data-open="roulette"><div class="icon">🎡</div><div><div class="title">Рулетка</div><div class="sub">Цвет и число</div></div></button>
         <button class="game-card card-mines" data-open="mines"><div class="icon">💣</div><div><div class="title">Мины</div><div class="sub">Собирай алмазы</div></div></button>
         <button class="game-card card-blackjack" data-open="blackjack"><div class="icon">🃏</div><div><div class="title">Blackjack</div><div class="sub">Обыграй дилера</div></div></button>
+        <button class="game-card card-baccarat" data-open="baccarat"><div class="icon">♠</div><div><div class="title">Speed Baccarat</div><div class="sub">Игрок • Банкир • Ничья</div></div></button>
       </div>
     </section>
 
@@ -2215,7 +2226,7 @@ let balance=1000000, bet=100, anteBetOn=false, turboOn=false, autoSpinOn=false;
 function syncSharedBalanceFromParent(){
   try{
     if(window.parent && window.parent !== window && window.parent.GambleSharedBalance){
-      balance = window.parent.GambleSharedBalance.get(); if(!isFinite(balance) || balance <= 0) balance = window.parent.GambleSharedBalance.set(1000000);
+      balance = window.parent.GambleSharedBalance.get(); if(!isFinite(balance)) balance = window.parent.GambleSharedBalance.set(0);
     }
   }catch(e){}
 }
@@ -2547,7 +2558,7 @@ async function doSpin(){
     }
   }
 
-  if(balance&lt;=0){ setTimeout(()=&gt;{ addSharedBalance(1000000); setMsg(&#x27;🎁 БОНУС: +1000000&#x27;,&#x27;w&#x27;); updateUI(); },1200); }
+  
   }catch(e){console.error(&#x27;Spin error:&#x27;,e);}finally{
     spinning=false;
     document.getElementById(&#x27;spBtn&#x27;).disabled=false;
@@ -2800,7 +2811,7 @@ updateUI();
           <div class="bulb"></div><div class="bulb"></div><div class="bulb"></div><div class="bulb"></div><div class="bulb"></div><div class="bulb"></div><div class="bulb"></div>
         </div>
         <div class="bonus-banner" id="slotBonusBanner">
-          <span>🎁 Бесплатные спины</span><span id="slotBonusRemaining">0</span><span>× <span id="slotBonusMult">2</span></span>
+          <span>🎁 ��есплатные спины</span><span id="slotBonusRemaining">0</span><span>× <span id="slotBonusMult">2</span></span>
         </div>
         <div class="reels5" id="slotGrid"></div>
         <div class="slot-lines-feed" id="slotLinesFeed"></div>
@@ -2821,7 +2832,7 @@ updateUI();
           <div class="paytable-row"><span>🗝️🗝️🗝️ Ключ</span><span>x2 / x4 / x10</span></div>
           <div class="paytable-row"><span>🦜🦜🦜 Попугай</span><span>x1.5 / x3 / x7</span></div>
           <div class="paytable-row"><span>⚓⚓⚓ Якорь</span><span>x1 / x2 / x5</span></div>
-          <div class="paytable-note">5 игровых линий (3 прямые + 2 зигзага) · совпадения считаются слева-направо от 1-го барабана · 3+ 🗺️ дают 8 бесплатных спинов ×2 (с ре-триггером) · 5 🏆 на любой линии = весь джекпот!</div>
+          <div class="paytable-note">5 игровых линий (3 прямые + 2 зигзага) · совпадения считаются слева-направо от 1-го барабана · 3+ 🗺️ дают 8 бесплатных спинов ×2 (с ре-триггер��м) · 5 🏆 на любой линии = весь джекпот!</div>
         </div>
       </div>
     </section>
@@ -2940,6 +2951,31 @@ updateUI();
       <button class="btn btn-gold btn-block hidden" id="bjRebetBtn">🔁 Играть ещё раз</button>
     </section>
 
+
+    <!-- BACCARAT -->
+    <section id="screen-baccarat" class="screen">
+      <div class="game-header"><button class="back-btn" data-nav="minigames">←</button><h2>Speed Baccarat</h2></div>
+      <div class="panel baccarat-panel">
+        <div class="baccarat-table">
+          <div class="baccarat-side"><div class="baccarat-label">Игрок</div><div class="baccarat-cards" id="bacPlayerCards">—</div><div class="baccarat-score" id="bacPlayerScore">0</div></div>
+          <div class="baccarat-vs">VS</div>
+          <div class="baccarat-side"><div class="baccarat-label">Банкир</div><div class="baccarat-cards" id="bacBankerCards">—</div><div class="baccarat-score" id="bacBankerScore">0</div></div>
+        </div>
+        <div class="panel-title">Ставка на:</div>
+        <div class="option-row" id="baccaratOptions">
+          <button class="option-btn" data-val="player">Игрок<small>x2</small></button>
+          <button class="option-btn" data-val="banker">Банкир<small>x1.95</small></button>
+          <button class="option-btn" data-val="tie">Ничья<small>x8</small></button>
+        </div>
+        <div class="panel-title bet-title-row"><span>Сумма ставки:</span><span class="bet-balance">Баланс: <b class="miniGameBalance">0</b> GC</span></div>
+        <div class="chip-row" id="baccaratChips"></div>
+        <div class="custom-bet-row"><input type="number" inputmode="numeric" min="1" step="1" placeholder="Своя ставка" id="baccaratCustomBet"><span>GC</span></div>
+        <button class="btn btn-blue btn-block" id="baccaratDealBtn">Раздать</button>
+        <div class="roulette-result" id="baccaratResult">Выбери сторону и сделай ставку</div>
+        <div class="game-history-box"><div class="game-history-title">История игроков</div><div class="panel" id="baccaratGameHistory"></div></div>
+      </div>
+    </section>
+ 
     <!-- WALLET -->
     <section id="screen-wallet" class="screen">
       <div class="section-title">💸 Кошелёк</div>
@@ -2952,7 +2988,7 @@ updateUI();
       <div class="panel" style="margin-top:16px;">
         <div class="panel-title">📤 Перевести Gamble Coin</div>
         <div class="field-label">Кому:</div>
-        <select class="input" id="transferRecipient"></select>
+        <input class="input" id="transferRecipient" type="text" placeholder="username Telegram, например username или @username">
         <div class="field-label">Сумма:</div>
         <input class="input" id="transferAmount" type="number" min="1" placeholder="Например 100" />
         <button class="btn btn-primary btn-block" id="transferBtn" style="margin-top:12px;">📤 Отправить</button>
@@ -3147,7 +3183,7 @@ updateUI();
     if(!state || !state.players) return;
     Object.keys(state.players).forEach(function(id){
       var p = state.players[id];
-      if(p && (typeof p.balance !== 'number' || !isFinite(p.balance) || p.balance <= 0)) p.balance = 1000000;
+      if(p && (typeof p.balance !== 'number' || !isFinite(p.balance))) p.balance = 0;
     });
     if(!state.currentPlayerId || !state.players[state.currentPlayerId]) state.currentPlayerId = 'p1';
   }
@@ -3161,8 +3197,8 @@ updateUI();
       if(!parsed.players || !parsed.currentPlayerId) return JSON.parse(JSON.stringify(DEFAULT_STATE));
       if(typeof parsed.jackpot !== 'number') parsed.jackpot = DEFAULT_STATE.jackpot;
       Object.keys(parsed.players || {}).forEach(function(id){
-        if(parsed.players[id] && (!Number.isFinite(parsed.players[id].balance) || parsed.players[id].balance <= 0)){
-          parsed.players[id].balance = 1000000;
+        if(parsed.players[id] && !Number.isFinite(parsed.players[id].balance)){
+          parsed.players[id].balance = 0;
         }
       });
       return parsed;
@@ -3202,7 +3238,7 @@ updateUI();
       ensureMillionBalance();
       var p = me();
       p.balance = Math.max(0, Math.round((p.balance + delta)*100)/100);
-      if(p.balance <= 0) p.balance = 1000000;
+      
       saveState();
       renderAll();
       return p.balance;
@@ -3311,6 +3347,26 @@ updateUI();
     var src = frame.getAttribute('srcdoc');
     frame.setAttribute('srcdoc', src || '');
   }
+  var lastBalanceRouteRefresh = 0;
+  async function refreshBackendBalanceForScreen(){
+    if(!backendReady) return;
+    var now = Date.now();
+    if(now - lastBalanceRouteRefresh < 350) { renderBalances(); return; }
+    lastBalanceRouteRefresh = now;
+    try{
+      var data = await apiRequest('/me');
+      if(data && typeof data.balance !== 'undefined'){
+        backendBalance = Number(data.balance) || 0;
+        applyBackendBalanceToUI();
+        renderBalances();
+        saveState();
+      }
+    }catch(e){
+      console.warn('Balance refresh failed', e);
+      applyBackendBalanceToUI();
+      renderBalances();
+    }
+  }
   function showScreen(name){
     var wasSlot = document.getElementById('screen-slot') && document.getElementById('screen-slot').classList.contains('active');
     if(wasSlot && name !== 'slot') stopDrunkardGateAudio();
@@ -3323,6 +3379,7 @@ updateUI();
         b.classList.toggle('active', b.getAttribute('data-nav')===name);
       });
     }
+    refreshBackendBalanceForScreen();
     window.scrollTo(0,0);
   }
   document.querySelectorAll('[data-nav]').forEach(function(btn){
@@ -3764,12 +3821,12 @@ updateUI();
       renderDie(d1, 1+Math.floor(Math.random()*6));
     }, 45);
     try{
-      var result = await serverBet('dice', bet, { mode: choice==='under' ? 'under' : 'over', target: choice==='exact' ? 7 : 50 });
+      var result = await serverBet('dice', bet, { mode: choice==='exact' ? 'exact' : (choice==='under' ? 'under' : 'over'), target: 7 });
       setTimeout(function(){
         clearInterval(iv);
         d0.classList.remove('rolling'); d1.classList.remove('rolling');
         var roll = Number(result.roll)||7;
-        var diceVals = diceValuesFromSum(roll);
+        var diceVals = Array.isArray(result.dice) && result.dice.length>=2 ? [Number(result.dice[0])||1, Number(result.dice[1])||1] : (Number(result.d1) && Number(result.d2) ? [Number(result.d1), Number(result.d2)] : diceValuesFromSum(roll));
         renderDie(d0, diceVals[0]); renderDie(d1, diceVals[1]);
         var diceSumEl=document.getElementById('diceSum'); if(diceSumEl) diceSumEl.textContent = roll;
         if(result.winAmount>0){ addHistory(me(),'win', result.winAmount, 'Кости: сумма '+roll); showWinOverlay(result.winAmount); haptic('success'); }
@@ -4176,25 +4233,50 @@ updateUI();
     renderAll();
   });
 
+
+  /* ================= BACCARAT ================= */
+  var baccaratOptCtl = buildOptionRow('baccaratOptions', function(){});
+  var baccaratBetCtl = buildBetControl('baccaratChips', 'baccaratCustomBet', [100,500,1000,5000,10000], 100, function(){});
+  function bacCardName(n){ var names={1:'A',11:'J',12:'Q',13:'K'}; return names[n] || String(n); }
+  function renderBaccarat(result){
+    var pc=document.getElementById('bacPlayerCards'), bc=document.getElementById('bacBankerCards');
+    if(pc) pc.innerHTML=(result.player||[]).map(function(c){return '<span class="bac-card">'+bacCardName(c)+'</span>';}).join('');
+    if(bc) bc.innerHTML=(result.banker||[]).map(function(c){return '<span class="bac-card">'+bacCardName(c)+'</span>';}).join('');
+    var ps=document.getElementById('bacPlayerScore'); if(ps) ps.textContent=result.playerTotal;
+    var bs=document.getElementById('bacBankerScore'); if(bs) bs.textContent=result.bankerTotal;
+  }
+  document.getElementById('baccaratDealBtn').addEventListener('click', async function(){
+    var side=baccaratOptCtl.get(); if(!side){ showToast('Выбери сторону','error'); return; }
+    var bet=baccaratBetCtl.get(); if(backendReady && backendBalance < bet){ showToast('Недостаточно Gamble Coin!','error'); return; }
+    try{
+      var result=await serverBet('baccarat', bet, {side:side});
+      renderBaccarat(result);
+      var names={player:'Игрок',banker:'Банкир',tie:'Ничья'};
+      var res=document.getElementById('baccaratResult'); if(res) res.textContent='Победил: '+names[result.winner]+' • '+(result.win?('+'+fmt(result.winAmount)+' GC'):'проигрыш');
+      if(result.winAmount>0){ addHistory(me(),'win', result.winAmount, 'Baccarat: '+names[result.winner]); showWinOverlay(result.winAmount); haptic('success'); } else { addHistory(me(),'loss', bet, 'Baccarat: '+names[result.winner]); haptic('error'); }
+      renderAll();
+    }catch(e){ showToast(e.message || 'Ошибка Baccarat','error'); haptic('error'); }
+  });
+
   /* ================= WALLET ================= */
-  document.getElementById('transferBtn').addEventListener('click', function(){
-    var recipientId = document.getElementById('transferRecipient').value;
+  document.getElementById('transferBtn').addEventListener('click', async function(){
+    var username = (document.getElementById('transferRecipient').value || '').trim().replace(/^@/,'');
     var amount = parseInt(document.getElementById('transferAmount').value, 10);
-    if(!recipientId){ showToast('Выбери получателя','error'); return; }
+    if(!username){ showToast('Введи username Telegram','error'); return; }
     if(!amount || amount<=0){ showToast('Введи сумму перевода','error'); return; }
-    var sender = me();
-    if(sender.balance < amount){ showToast('Недостаточно Gamble Coin!','error'); haptic('error'); return; }
-    var recipient = state.players[recipientId];
-    if(!recipient){ showToast('Игрок не найден','error'); return; }
-    sender.balance -= amount;
-    recipient.balance += amount;
-    addHistory(sender, 'transfer_out', amount, 'Перевод → '+recipient.name);
-    addHistory(recipient, 'transfer_in', amount, 'Перевод ← '+sender.name);
-    document.getElementById('transferAmount').value = '';
-    showToast('Отправлено '+fmt(amount)+' GC игроку '+recipient.name, 'success');
-    bumpBalanceChip();
-    haptic('success');
-    renderAll();
+    if(backendReady && backendBalance < amount){ showToast('Недостаточно Gamble Coin!','error'); haptic('error'); return; }
+    try{
+      if(backendReady){
+        var data = await apiRequest('/wallet/transfer', {method:'POST', body:JSON.stringify({username:username, amount:amount})});
+        backendBalance = data.balance; applyBackendBalanceToUI(); renderBalances();
+        document.getElementById('transferAmount').value = '';
+        document.getElementById('transferRecipient').value = '';
+        showToast('Отправлено '+fmt(amount)+' GC игроку @'+username, 'success');
+      } else {
+        showToast('Переводы по username работают после Telegram-авторизации','error');
+      }
+      bumpBalanceChip(); haptic('success'); renderAll();
+    }catch(e){ showToast(e.message || 'Ошибка перевода','error'); haptic('error'); }
   });
 
   /* ================= PROFILE ================= */
@@ -4241,7 +4323,7 @@ updateUI();
   }
   function renderBalances(){
     var p = me();
-    if(!Number.isFinite(p.balance) || p.balance <= 0){ p.balance = 1000000; saveState(); }
+    if(!Number.isFinite(p.balance)){ p.balance = 0; saveState(); }
     var balanceValueEl = document.getElementById('balanceValue');
     if(balanceValueEl) balanceValueEl.textContent = fmt(p.balance);
     var heroNameEl=document.getElementById('heroName'); if(heroNameEl) heroNameEl.textContent = p.name;
@@ -4309,19 +4391,11 @@ updateUI();
   }
   function renderTransferRecipients(){
     var sel = document.getElementById('transferRecipient');
-    sel.innerHTML = '';
-    Object.keys(state.players).forEach(function(id){
-      if(id===state.currentPlayerId) return;
-      var p = state.players[id];
-      var opt = document.createElement('option');
-      opt.value = id;
-      opt.textContent = (typeof p.avatar === 'string' && /^https?:\/\//.test(p.avatar) ? '👤' : p.avatar)+' '+p.name+' — '+fmt(p.balance)+' GC';
-      sel.appendChild(opt);
-    });
+    if(sel && !sel.value) sel.placeholder = 'username Telegram, например username или @username';
   }
 
 
-  var GAME_HISTORY_MAP = { dice:'diceGameHistory', coinflip:'coinflipGameHistory', roulette:'rouletteGameHistory', mines:'minesGameHistory', blackjack:'blackjackGameHistory' };
+  var GAME_HISTORY_MAP = { dice:'diceGameHistory', coinflip:'coinflipGameHistory', roulette:'rouletteGameHistory', mines:'minesGameHistory', blackjack:'blackjackGameHistory', baccarat:'baccaratGameHistory' };
   function escapeHtml(text){
     return String(text == null ? '' : text).replace(/[&<>"']/g, function(ch){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]); });
   }
@@ -4355,7 +4429,7 @@ updateUI();
     var now = Date.now();
     if(!force && now - lastHistoryRefresh < 2500) return;
     lastHistoryRefresh = now;
-    ['dice','coinflip','roulette','mines','blackjack'].forEach(renderGameHistory);
+    ['dice','coinflip','roulette','mines','blackjack','baccarat'].forEach(renderGameHistory);
   }
 
   initBackendAuth();

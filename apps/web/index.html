@@ -829,6 +829,23 @@ body{background:#000!important;}
 .baccarat-side{background:#111;border:1px solid #2a2a2a;border-radius:18px;padding:16px;text-align:center;min-height:150px;}
 .baccarat-label{font-size:18px;font-weight:900;color:#fff;margin-bottom:12px;}.baccarat-cards{display:flex;gap:8px;justify-content:center;min-height:56px}.bac-card{width:40px;height:56px;border-radius:8px;background:#f4f4f5;color:#111;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:18px}.baccarat-score{margin-top:10px;font-size:30px;font-weight:950;color:#0b9dff}.baccarat-vs{font-weight:950;color:#858585}
 
+/* ---------- Speed Baccarat live table polish + promo creator ---------- */
+.baccarat-panel{background:linear-gradient(180deg,#111 0%,#070707 100%)!important;border-color:#2a2a2a!important;}
+.bac-live-stage{position:relative;border-radius:22px;overflow:hidden;background:radial-gradient(circle at 50% 0%,#26302b 0%,#111 58%,#050505 100%);border:1px solid #2b2b2b;margin-bottom:14px;min-height:210px;display:flex;align-items:center;justify-content:center;}
+.bac-dealer{position:absolute;top:14px;left:50%;transform:translateX(-50%);width:86px;height:86px;border-radius:50%;background:linear-gradient(180deg,#2f2f2f,#111);border:2px solid #555;display:flex;align-items:center;justify-content:center;font-size:38px;box-shadow:0 10px 30px rgba(0,0,0,.45);}
+.bac-table-arc{position:absolute;left:50%;bottom:-92px;transform:translateX(-50%);width:min(760px,115vw);height:260px;border-radius:50% 50% 0 0;background:radial-gradient(ellipse at 50% 20%,#0d6b44 0%,#07402a 62%,#032318 100%);border:6px solid #d5a84c;box-shadow:0 -12px 40px rgba(0,0,0,.4),inset 0 0 38px rgba(255,255,255,.08);}
+.bac-table-text{position:absolute;bottom:92px;left:50%;transform:translateX(-50%);font-weight:950;color:rgba(255,255,255,.18);font-size:28px;letter-spacing:2px;white-space:nowrap;}
+.baccarat-table{position:relative;z-index:2;margin-top:94px!important;grid-template-columns:1fr 88px 1fr!important;}
+.baccarat-side{background:rgba(0,0,0,.38)!important;border:1px solid rgba(255,255,255,.15)!important;box-shadow:inset 0 0 18px rgba(255,255,255,.04);}
+.baccarat-score{color:#ffd166!important}.bac-card{box-shadow:0 5px 12px rgba(0,0,0,.35)}
+.bac-betting-layout{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:12px 0;}
+.bac-bet-zone{min-height:78px;border-radius:16px;border:1px solid #333;background:#151515;color:#fff;font-weight:950;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;}
+.bac-bet-zone small{color:#aaa}.bac-bet-zone.active{background:#0b84d8;border-color:#28a8ff;box-shadow:0 0 0 2px rgba(11,132,216,.22)}
+.bac-roadmap{display:grid;grid-template-columns:repeat(12,1fr);gap:3px;background:#0d0d0d;border:1px solid #252525;border-radius:14px;padding:8px;margin-top:10px;}
+.bac-road-cell{aspect-ratio:1;border-radius:50%;background:#1f1f1f;border:1px solid #333}.bac-road-cell.player{background:#1266ff}.bac-road-cell.banker{background:#e53935}.bac-road-cell.tie{background:#14a06f}
+.promo-create-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.promo-create-grid .input{width:100%}.promo-created-box{margin-top:10px;padding:10px;border-radius:12px;background:#111;border:1px solid #333;color:#fff;font-weight:800;min-height:20px}
+@media(max-width:560px){.baccarat-table{grid-template-columns:1fr!important;margin-top:88px!important}.baccarat-vs{display:none}.bac-betting-layout{grid-template-columns:1fr}.promo-create-grid{grid-template-columns:1fr}}
+
 </style>
 </head>
 <body>
@@ -2956,17 +2973,23 @@ updateUI();
     <section id="screen-baccarat" class="screen">
       <div class="game-header"><button class="back-btn" data-nav="minigames">←</button><h2>Speed Baccarat</h2></div>
       <div class="panel baccarat-panel">
-        <div class="baccarat-table">
-          <div class="baccarat-side"><div class="baccarat-label">Игрок</div><div class="baccarat-cards" id="bacPlayerCards">—</div><div class="baccarat-score" id="bacPlayerScore">0</div></div>
-          <div class="baccarat-vs">VS</div>
-          <div class="baccarat-side"><div class="baccarat-label">Банкир</div><div class="baccarat-cards" id="bacBankerCards">—</div><div class="baccarat-score" id="bacBankerScore">0</div></div>
+        <div class="bac-live-stage">
+          <div class="bac-dealer">🎩</div>
+          <div class="bac-table-arc"></div>
+          <div class="bac-table-text">SPEED BACCARAT</div>
+          <div class="baccarat-table">
+            <div class="baccarat-side"><div class="baccarat-label">PLAYER</div><div class="baccarat-cards" id="bacPlayerCards">—</div><div class="baccarat-score" id="bacPlayerScore">0</div></div>
+            <div class="baccarat-vs">VS</div>
+            <div class="baccarat-side"><div class="baccarat-label">BANKER</div><div class="baccarat-cards" id="bacBankerCards">—</div><div class="baccarat-score" id="bacBankerScore">0</div></div>
+          </div>
         </div>
-        <div class="panel-title">Ставка на:</div>
-        <div class="option-row" id="baccaratOptions">
-          <button class="option-btn" data-val="player">Игрок<small>x2</small></button>
-          <button class="option-btn" data-val="banker">Банкир<small>x1.95</small></button>
-          <button class="option-btn" data-val="tie">Ничья<small>x8</small></button>
+        <div class="panel-title">Поле ставок:</div>
+        <div class="bac-betting-layout" id="baccaratOptions">
+          <button class="bac-bet-zone" data-val="player">PLAYER<small>1:1</small></button>
+          <button class="bac-bet-zone" data-val="tie">TIE<small>8:1</small></button>
+          <button class="bac-bet-zone" data-val="banker">BANKER<small>0.95:1</small></button>
         </div>
+        <div class="bac-roadmap" id="baccaratRoadmap"></div>
         <div class="panel-title bet-title-row"><span>Сумма ставки:</span><span class="bet-balance">Баланс: <b class="miniGameBalance">0</b> GC</span></div>
         <div class="chip-row" id="baccaratChips"></div>
         <div class="custom-bet-row"><input type="number" inputmode="numeric" min="1" step="1" placeholder="Своя ставка" id="baccaratCustomBet"><span>GC</span></div>
@@ -2990,7 +3013,7 @@ updateUI();
         <div class="field-label">Кому:</div>
         <input class="input" id="transferRecipient" type="text" placeholder="@username">
         <div class="field-label">Сумма:</div>
-        <input class="input" id="transferAmount" type="number" min="1" placeholder="Например 100" />
+        <input class="input" id="transferAmount" type="number" min="1" placeholder="Введите сумму" />
         <button class="btn btn-primary btn-block" id="transferBtn" style="margin-top:12px;">📤 Отправить</button>
       </div>
 
@@ -3013,7 +3036,15 @@ updateUI();
         <div class="stat-box"><div class="v" id="statWon">0</div><div class="l">ВСЕГО ВЫИГРАНО</div></div>
         <div class="stat-box"><div class="v" id="statBiggest">0</div><div class="l">ЛУЧШИЙ ВЫИГРЫШ</div></div>
       </div>
-
+      <div class="panel" style="margin-top:16px;">
+        <div class="panel-title">🎟️ Создать промокод</div>
+        <div class="promo-create-grid">
+          <input class="input" id="createPromoCode" type="text" placeholder="Код промокода">
+          <input class="input" id="createPromoAmount" type="number" min="1" placeholder="Сумма GC">
+        </div>
+        <button class="btn btn-blue btn-block" id="createPromoBtn" style="margin-top:10px;">Создать промокод</button>
+        <div class="promo-created-box" id="createdPromoInfo">Созданный промокод смогут активировать другие игроки.</div>
+      </div>
 
     </section>
 
@@ -4238,12 +4269,16 @@ updateUI();
   var baccaratOptCtl = buildOptionRow('baccaratOptions', function(){});
   var baccaratBetCtl = buildBetControl('baccaratChips', 'baccaratCustomBet', [100,500,1000,5000,10000], 100, function(){});
   function bacCardName(n){ var names={1:'A',11:'J',12:'Q',13:'K'}; return names[n] || String(n); }
+  var baccaratRoad=[];
+  function renderBaccaratRoad(){ var box=document.getElementById('baccaratRoadmap'); if(!box) return; var arr=baccaratRoad.slice(-24); while(arr.length<24) arr.unshift(''); box.innerHTML=arr.map(function(x){return '<span class="bac-road-cell '+(x||'')+'"></span>';}).join(''); }
+  renderBaccaratRoad();
   function renderBaccarat(result){
     var pc=document.getElementById('bacPlayerCards'), bc=document.getElementById('bacBankerCards');
     if(pc) pc.innerHTML=(result.player||[]).map(function(c){return '<span class="bac-card">'+bacCardName(c)+'</span>';}).join('');
     if(bc) bc.innerHTML=(result.banker||[]).map(function(c){return '<span class="bac-card">'+bacCardName(c)+'</span>';}).join('');
     var ps=document.getElementById('bacPlayerScore'); if(ps) ps.textContent=result.playerTotal;
     var bs=document.getElementById('bacBankerScore'); if(bs) bs.textContent=result.bankerTotal;
+    if(result.winner){ baccaratRoad.push(result.winner); renderBaccaratRoad(); }
   }
   document.getElementById('baccaratDealBtn').addEventListener('click', async function(){
     var side=baccaratOptCtl.get(); if(!side){ showToast('Выбери сторону','error'); return; }
@@ -4256,6 +4291,45 @@ updateUI();
       if(result.winAmount>0){ addHistory(me(),'win', result.winAmount, 'Baccarat: '+names[result.winner]); showWinOverlay(result.winAmount); haptic('success'); } else { addHistory(me(),'loss', bet, 'Baccarat: '+names[result.winner]); haptic('error'); }
       renderAll();
     }catch(e){ showToast(e.message || 'Ошибка Baccarat','error'); haptic('error'); }
+  });
+
+
+  /* ================= PROMOCODES ================= */
+  var localPromos = JSON.parse(localStorage.getItem('gg_promos') || '{}');
+  function saveLocalPromos(){ localStorage.setItem('gg_promos', JSON.stringify(localPromos)); }
+  var createPromoBtn=document.getElementById('createPromoBtn');
+  if(createPromoBtn) createPromoBtn.addEventListener('click', async function(){
+    var code=(document.getElementById('createPromoCode').value||'').trim().toUpperCase();
+    var amount=parseInt(document.getElementById('createPromoAmount').value,10);
+    if(!code){ showToast('Введи код промокода','error'); return; }
+    if(!amount || amount<=0){ showToast('Введи сумму промокода','error'); return; }
+    try{
+      if(backendReady){
+        var data=await apiRequest('/bonus/promocode/create',{method:'POST',body:JSON.stringify({code:code,amount:amount})});
+        var info=document.getElementById('createdPromoInfo'); if(info) info.textContent='Промокод '+data.code+' создан на '+fmt(data.amount)+' GC';
+      }else{
+        localPromos[code]={amount:amount,createdAt:Date.now(),usedBy:[]}; saveLocalPromos();
+        var info2=document.getElementById('createdPromoInfo'); if(info2) info2.textContent='Промокод '+code+' создан на '+fmt(amount)+' GC';
+      }
+      showToast('Промокод создан','success');
+    }catch(e){ showToast(e.message || 'Ошибка создания промокода','error'); }
+  });
+  var promoCodeBtn=document.getElementById('promoCodeBtn');
+  if(promoCodeBtn) promoCodeBtn.addEventListener('click', async function(){
+    var code=(document.getElementById('promoCodeInput').value||'').trim().toUpperCase();
+    if(!code){ showToast('Введи промокод','error'); return; }
+    try{
+      if(backendReady){
+        var data=await apiRequest('/bonus/promocode/redeem',{method:'POST',body:JSON.stringify({code:code})});
+        backendBalance=data.balance; applyBackendBalanceToUI(); renderBalances(); saveState();
+        showToast('Промокод активирован: +'+fmt(data.amount)+' GC','success');
+      }else{
+        var promo=localPromos[code]; if(!promo) throw new Error('Промокод не найден');
+        var p=me(); promo.usedBy=promo.usedBy||[]; if(promo.usedBy.indexOf(p.id)>=0) throw new Error('Ты уже активировал этот промокод');
+        p.balance+=promo.amount; promo.usedBy.push(p.id); saveLocalPromos(); saveState(); renderAll();
+        showToast('Промокод активирован: +'+fmt(promo.amount)+' GC','success');
+      }
+    }catch(e){ showToast(e.message || 'Ошибка промокода','error'); }
   });
 
   /* ================= WALLET ================= */

@@ -3010,7 +3010,7 @@ updateUI();
       <div class="panel" style="margin-top:16px;">
         <div class="panel-title">📤 Перевести Gamble Coin</div>
         <div class="field-label">Кому:</div>
-        <input class="input" id="transferRecipient" type="text" placeholder="@username">
+        <input class="input" id="transferRecipient" type="text" placeholder="@username" list="transferUserSuggestions"><datalist id="transferUserSuggestions"></datalist>
         <div class="field-label">Сумма:</div>
         <input class="input" id="transferAmount" type="number" min="1" placeholder="Введите сумму" />
         <button class="btn btn-primary btn-block" id="transferBtn" style="margin-top:12px;">📤 Отправить</button>
@@ -3047,6 +3047,23 @@ updateUI();
         <div class="promo-created-box" id="createdPromoInfo">Созданный промокод смогут активировать другие игроки.</div>
       </div>
 
+    </section>
+
+    <!-- PROMO CREATE -->
+    <section id="screen-promo-create" class="screen">
+      <div class="game-header"><button class="back-btn" data-nav="profile">←</button><h2>Создать промокод</h2></div>
+      <div class="panel">
+        <div class="panel-title">🎟️ Новый промокод</div>
+        <div class="promo-create-grid">
+          <input class="input" id="createPromoCode2" type="text" placeholder="Название промокода">
+          <input class="input" id="createPromoAmount2" type="number" min="1" placeholder="Сумма GC">
+          <input class="input" id="createPromoUses2" type="number" min="1" placeholder="Количество активаций">
+        </div>
+        <button class="btn btn-blue btn-block" id="createPromoBtn2" style="margin-top:10px;">Создать промокод</button>
+        <div class="promo-created-box" id="createdPromoInfo2">Промокод создаётся за счёт твоего баланса.</div>
+      </div>
+      <div class="section-title">Созданные промокоды</div>
+      <div class="panel" id="createdPromosList"><div class="empty-state">Пока нет созданных промокодов.</div></div>
     </section>
 
   </main>
@@ -3410,6 +3427,8 @@ updateUI();
       });
     }
     refreshBackendBalanceForScreen();
+    if(name==='home') loadLeaderboardFromBackend();
+    if(name==='promo-create') loadCreatedPromos();
     window.scrollTo(0,0);
   }
   document.querySelectorAll('[data-nav]').forEach(function(btn){
@@ -4297,26 +4316,47 @@ updateUI();
   });
 
 
+
+  async function loadLeaderboardFromBackend(){
+    if(!backendReady) return false;
+    try{ var data=await apiRequest('/me/leaderboard'); backendLeaderboardUsers=data.users||[]; renderLeaderboard(); return true; }catch(e){ console.warn('Leaderboard load failed',e); return false; }
+  }
+  var backendLeaderboardUsers=[];
+  var transferSearchTimer=null;
+  var transferInput=document.getElementById('transferRecipient');
+  if(transferInput) transferInput.addEventListener('input', function(){
+    clearTimeout(transferSearchTimer);
+    transferSearchTimer=setTimeout(async function(){
+      if(!backendReady) return; var q=(transferInput.value||'').replace(/^@/,'').trim(); if(!q) return;
+      try{ var data=await apiRequest('/me/users/search?q='+encodeURIComponent(q)); var dl=document.getElementById('transferUserSuggestions'); if(dl) dl.innerHTML=(data.users||[]).map(function(u){ var label=(u.firstName||u.username||'Игрок')+(u.username?' @'+u.username:''); return '<option value="@'+escapeHtml(u.username||'')+'" label="'+escapeHtml(label)+'"></option>'; }).join(''); }catch(e){}
+    },220);
+  });
+  async function loadCreatedPromos(){
+    var box=document.getElementById('createdPromosList'); if(!box) return;
+    if(!backendReady){ box.innerHTML=Object.keys(localPromos).map(function(code){ var p=localPromos[code]; var used=(p.usedBy||[]).length; var left=Math.max(0,(p.maxUses||1)-used); return '<div class="promo-row"><div><div class="promo-code-name">'+escapeHtml(code)+'</div><div>'+fmt(p.amount)+' GC</div></div><div class="promo-remain">Осталось '+left+'/'+(p.maxUses||1)+'</div></div>'; }).join('') || '<div class="empty-state">Пока нет созданных промокодов.</div>'; return; }
+    try{ var data=await apiRequest('/bonus/promocode/list'); box.innerHTML=(data.items||[]).map(function(p){ return '<div class="promo-row"><div><div class="promo-code-name">'+escapeHtml(p.code)+'</div><div>'+fmt(p.amount)+' GC</div></div><div class="promo-remain">Осталось '+p.remaining+'/'+p.maxUses+'</div></div>'; }).join('') || '<div class="empty-state">Пока нет созданных промокодов.</div>'; }catch(e){ box.innerHTML='<div class="empty-state">Ошибка загрузки промокодов</div>'; }
+  }
+
   /* ================= PROMOCODES ================= */
   var localPromos = JSON.parse(localStorage.getItem('gg_promos') || '{}');
   function saveLocalPromos(){ localStorage.setItem('gg_promos', JSON.stringify(localPromos)); }
   var togglePromoCreator=document.getElementById('togglePromoCreator');
-  if(togglePromoCreator) togglePromoCreator.addEventListener('click', function(){ var p=document.getElementById('promoCreatorPanel'); if(p) p.classList.toggle('hidden'); });
-  var createPromoBtn=document.getElementById('createPromoBtn');
+  if(togglePromoCreator) togglePromoCreator.addEventListener('click', function(){ showScreen('promo-create'); loadCreatedPromos(); });
+  var createPromoBtn=document.getElementById('createPromoBtn2') || document.getElementById('createPromoBtn');
   if(createPromoBtn) createPromoBtn.addEventListener('click', async function(){
-    var code=(document.getElementById('createPromoCode').value||'').trim().toUpperCase();
-    var amount=parseInt(document.getElementById('createPromoAmount').value,10);
-    var maxUses=parseInt(document.getElementById('createPromoUses').value,10);
+    var code=((document.getElementById('createPromoCode2')||document.getElementById('createPromoCode')).value||'').trim().toUpperCase();
+    var amount=parseInt(((document.getElementById('createPromoAmount2')||document.getElementById('createPromoAmount')).value),10);
+    var maxUses=parseInt(((document.getElementById('createPromoUses2')||document.getElementById('createPromoUses')).value),10);
     if(!code){ showToast('Введи название промокода','error'); return; }
     if(!amount || amount<=0){ showToast('Введи сумму промокода','error'); return; }
     if(!maxUses || maxUses<=0){ showToast('Введи количество активаций','error'); return; }
     try{
       if(backendReady){
         var data=await apiRequest('/bonus/promocode/create',{method:'POST',body:JSON.stringify({code:code,amount:amount,maxUses:maxUses})});
-        var info=document.getElementById('createdPromoInfo'); if(info) info.textContent='Промокод '+data.code+' создан на '+fmt(data.amount)+' GC × '+data.maxUses+' активаций';
+        var info=document.getElementById('createdPromoInfo2')||document.getElementById('createdPromoInfo'); if(info) info.textContent='Промокод '+data.code+' создан на '+fmt(data.amount)+' GC × '+data.maxUses+' активаций'; backendBalance=data.balance||backendBalance; applyBackendBalanceToUI(); loadCreatedPromos();
       }else{
         localPromos[code]={amount:amount,maxUses:maxUses,createdAt:Date.now(),usedBy:[]}; saveLocalPromos();
-        var info2=document.getElementById('createdPromoInfo'); if(info2) info2.textContent='Промокод '+code+' создан на '+fmt(amount)+' GC × '+maxUses+' активаций';
+        var info2=document.getElementById('createdPromoInfo2')||document.getElementById('createdPromoInfo'); if(info2) info2.textContent='Промокод '+code+' создан на '+fmt(amount)+' GC × '+maxUses+' активаций'; loadCreatedPromos();
       }
       showToast('Промокод создан','success');
     }catch(e){ showToast(e.message || 'Ошибка создания промокода','error'); }
@@ -4417,7 +4457,7 @@ updateUI();
   }
   function renderLeaderboard(){
     var box = document.getElementById('leaderboardBox');
-    var list = Object.keys(state.players).map(function(id){ return state.players[id]; }).filter(function(p){ return p && p.name !== 'Аня' && p.name !== 'Максим'; });
+    var list = (backendLeaderboardUsers && backendLeaderboardUsers.length) ? backendLeaderboardUsers.map(function(u){return {id:u.id,name:u.firstName || u.username || 'Игрок',avatar:u.photoUrl || '👤',balance:u.balance};}) : Object.keys(state.players).map(function(id){ return state.players[id]; }).filter(function(p){ return p && p.name !== 'Аня' && p.name !== 'Максим'; });
     list.sort(function(a,b){ return b.balance - a.balance; });
     var medals = ['🥇','🥈','🥉'];
     box.innerHTML = list.map(function(p, i){
@@ -4527,3 +4567,12 @@ updateUI();
 #leaderboardBox .leaderboard-row .bal{margin-left:auto!important;}
 .bac-dealer{display:none!important;}
 </style>
+
+<style>
+#leaderboardBox .avatar-badge{width:22px!important;height:22px!important;min-width:22px!important;border-radius:50%!important;font-size:13px!important;}
+#leaderboardBox .leaderboard-row .name{gap:6px!important;}
+#createdPromosList .promo-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px;border-bottom:1px solid #2a2a2a;}
+#createdPromosList .promo-row:last-child{border-bottom:0}.promo-code-name{font-weight:950}.promo-remain{font-weight:900;color:#0b9dff}
+</style>
+
+<style>#screen-home .avatar-badge.has-photo{background-color:transparent!important;background-size:cover!important;background-position:center!important;}#screen-home .avatar-badge:not(.has-photo){background:var(--card-tint)!important;}</style>

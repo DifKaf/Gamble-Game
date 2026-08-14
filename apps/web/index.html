@@ -3039,7 +3039,7 @@ updateUI();
       <div class="panel hidden" id="promoCreatorPanel" style="margin-top:12px;">
         <div class="panel-title">🎟️ Создать промокод</div>
         <div class="promo-create-grid">
-          <input class="input" id="createPromoCode" type="text" placeholder="Название промокода">
+          <input class="input" id="createPromoCode" type="text" placeholder="Назван������е промокода">
           <input class="input" id="createPromoAmount" type="number" min="1" placeholder="Сумма GC">
           <input class="input" id="createPromoUses" type="number" min="1" placeholder="Количество активаций">
         </div>
@@ -3476,7 +3476,7 @@ updateUI();
     values.forEach(function(v){
       var chip = document.createElement('button');
       chip.className = 'chip' + (v===defaultVal?' active':'');
-      chip.textContent = v + ' GC';
+      chip.textContent = (v==='allin' ? 'ALL IN' : (v>=1000 ? (v/1000)+'к' : v+' GC'));
       chip.addEventListener('click', function(){ selectChip(chip, v); haptic('light'); });
       box.appendChild(chip);
     });
@@ -3500,6 +3500,7 @@ updateUI();
           var v = parseInt(input.value, 10);
           if(!isNaN(v) && v>0) return v;
         }
+        if(selected==='allin') return Math.max(1, Math.floor((backendReady ? backendBalance : me().balance) || 0));
         return selected;
       }
     };
@@ -3828,7 +3829,7 @@ updateUI();
 
   /* ================= DICE ================= */
   var diceOptCtl = buildOptionRow('diceOptions', function(){});
-  var diceBetCtl = buildBetControl('diceChips', 'diceCustomBet', [10,20,50,100,250], 20, function(){});
+  var diceBetCtl = buildBetControl('diceChips', 'diceCustomBet', [1000,25000,50000,100000,'allin'], 1000, function(){});
   var DICE_PIPS = {
     1:[5],
     2:[1,9],
@@ -3893,7 +3894,7 @@ updateUI();
 
   /* ================= COIN FLIP ================= */
   var coinOptCtl = buildOptionRow('coinOptions', function(){});
-  var coinBetCtl = buildBetControl('coinChips', 'coinCustomBet', [10,20,50,100,250], 20, function(){});
+  var coinBetCtl = buildBetControl('coinChips', 'coinCustomBet', [1000,25000,50000,100000,'allin'], 1000, function(){});
   var coinFlipping = false;
   var coinRotation = 0;
   document.getElementById('coinFlipBtn').addEventListener('click', async function(){
@@ -3943,7 +3944,7 @@ updateUI();
     grid.querySelectorAll('.roulette-num-btn').forEach(function(btn){ btn.addEventListener('click', function(){ rouletteSelectedNumber = parseInt(btn.getAttribute('data-num'),10); rouletteSelectedOutside = null; rouletteOptCtl.set(null); placeRouletteBetFromBoard(btn); }); });
     grid.querySelectorAll('.roulette-outside-btn').forEach(function(btn){ btn.addEventListener('click', function(){ rouletteSelectedNumber = null; rouletteSelectedOutside = btn.getAttribute('data-outside'); rouletteOptCtl.set(null); placeRouletteBetFromBoard(btn); }); });
   }
-  var rouletteBetCtl = { get:function(){ var el=document.getElementById('rouletteCustomBet'); return Math.max(1, Math.floor(Number(el && el.value)||20)); } };
+  var rouletteBetCtl = { get:function(){ var el=document.getElementById('rouletteCustomBet'); var v=Math.floor(Number(el && el.value)||1000); return v>0?v:1000; } };
   var rouletteSpinning = false;
   var rouletteCountdownActive = false;
   var rouletteBetsClosed = false;
@@ -4042,7 +4043,7 @@ updateUI();
 
   /* ================= MINES ================= */
   var minesCountCtl = buildChipRow('minesCountChips', [3,5,8], 5, function(){});
-  var minesBetCtl = buildBetControl('minesBetChips', 'minesCustomBet', [10,20,50,100,250], 20, function(){});
+  var minesBetCtl = buildBetControl('minesBetChips', 'minesCustomBet', [1000,25000,50000,100000,'allin'], 1000, function(){});
   var minesState = null;
   document.getElementById('minesStartBtn').addEventListener('click', async function(){
     var bet = minesBetCtl.get();
@@ -4134,7 +4135,7 @@ updateUI();
   });
 
   /* ================= BLACKJACK ================= */
-  var bjBetCtl = buildBetControl('bjBetChips', 'bjCustomBet', [10,20,50,100,250], 20, function(){});
+  var bjBetCtl = buildBetControl('bjBetChips', 'bjCustomBet', [1000,25000,50000,100000,'allin'], 1000, function(){});
   var bjState = null;
 
   function bjCardEl(card){
@@ -4289,17 +4290,25 @@ updateUI();
   document.querySelectorAll('#baccaratOptions [data-val]').forEach(function(b){ b.addEventListener('click', function(){ setBaccaratSide(b.getAttribute('data-val')); haptic('light'); }); });
   setBaccaratSide('player');
   var baccaratOptCtl = { get:function(){ return baccaratSelected; } };
-  var baccaratBetCtl = buildBetControl('baccaratChips', 'baccaratCustomBet', [100,500,1000,5000,10000], 100, function(){});
+  var baccaratBetCtl = buildBetControl('baccaratChips', 'baccaratCustomBet', [1000,25000,50000,100000,'allin'], 1000, function(){});
   function bacCardName(n){ var names={1:'A',11:'J',12:'Q',13:'K'}; return names[n] || String(n); }
   var baccaratRoad=[];
   function renderBaccaratRoad(){ var box=document.getElementById('baccaratRoadmap'); if(!box) return; var arr=baccaratRoad.slice(-24); while(arr.length<24) arr.unshift(''); box.innerHTML=arr.map(function(x){return '<span class="bac-road-cell '+(x||'')+'"></span>';}).join(''); }
   renderBaccaratRoad();
-  function renderBaccarat(result){
+  async function renderBaccarat(result){
     var pc=document.getElementById('bacPlayerCards'), bc=document.getElementById('bacBankerCards');
-    if(pc) pc.innerHTML=(result.player||[]).map(function(c){return '<span class="bac-card">'+bacCardName(c)+'</span>';}).join('');
-    if(bc) bc.innerHTML=(result.banker||[]).map(function(c){return '<span class="bac-card">'+bacCardName(c)+'</span>';}).join('');
-    var ps=document.getElementById('bacPlayerScore'); if(ps) ps.textContent=result.playerTotal;
-    var bs=document.getElementById('bacBankerScore'); if(bs) bs.textContent=result.bankerTotal;
+    var ps=document.getElementById('bacPlayerScore'), bs=document.getElementById('bacBankerScore');
+    if(pc) pc.innerHTML=''; if(bc) bc.innerHTML=''; if(ps) ps.textContent=''; if(bs) bs.textContent='';
+    var player=result.player||[], banker=result.banker||[];
+    var max=Math.max(player.length, banker.length);
+    for(var i=0;i<max;i++){
+      if(player[i] && pc){ pc.insertAdjacentHTML('beforeend','<span class="bac-card">'+bacCardName(player[i])+'</span>'); }
+      await new Promise(function(r){setTimeout(r,180);});
+      if(banker[i] && bc){ bc.insertAdjacentHTML('beforeend','<span class="bac-card">'+bacCardName(banker[i])+'</span>'); }
+      await new Promise(function(r){setTimeout(r,180);});
+    }
+    if(ps) ps.textContent=result.playerTotal;
+    if(bs) bs.textContent=result.bankerTotal;
     if(result.winner){ baccaratRoad.push(result.winner); renderBaccaratRoad(); }
   }
   document.getElementById('baccaratDealBtn').addEventListener('click', async function(){
@@ -4307,7 +4316,7 @@ updateUI();
     var bet=baccaratBetCtl.get(); if(backendReady && backendBalance < bet){ showToast('Недостаточно Gamble Coin!','error'); return; }
     try{
       var result=await serverBet('baccarat', bet, {side:side});
-      renderBaccarat(result);
+      await renderBaccarat(result);
       var names={player:'Игрок',banker:'Банкир',tie:'Ничья'};
       var res=document.getElementById('baccaratResult'); if(res) res.textContent='Победил: '+names[result.winner]+' • '+(result.win?('+'+fmt(result.winAmount)+' GC'):'проигрыш');
       if(result.winAmount>0){ addHistory(me(),'win', result.winAmount, 'Baccarat: '+names[result.winner]); showWinOverlay(result.winAmount); haptic('success'); } else { addHistory(me(),'loss', bet, 'Baccarat: '+names[result.winner]); haptic('error'); }
@@ -4469,7 +4478,7 @@ updateUI();
     var p = me();
     var transfers = (p.history || []).filter(function(h){ return h.type==='transfer_in' || h.type==='transfer_out'; });
     if(transfers.length===0){
-      box.innerHTML = '<div class="empty-state">Пока нет переводов.</div>';
+      box.innerHTML = '<div class="empty-state">Пока нет перевод��в.</div>';
       return;
     }
     box.innerHTML = transfers.map(function(h){
@@ -4576,3 +4585,21 @@ updateUI();
 </style>
 
 <style>#screen-home .avatar-badge.has-photo{background-color:transparent!important;background-size:cover!important;background-position:center!important;}#screen-home .avatar-badge:not(.has-photo){background:var(--card-tint)!important;}</style>
+
+<style>
+/* latest mini-games bets + live card animations */
+.bj-table{text-align:center!important;padding:24px 16px 28px!important;}
+.bj-row{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;text-align:center!important;}
+.bj-label{text-align:center!important;width:100%!important;margin-bottom:10px!important;font-weight:950!important;}
+.bj-hand{justify-content:center!important;align-items:center!important;width:100%!important;min-height:86px!important;}
+.bj-card{opacity:0;transform:translateY(-18px) scale(.92);animation:liveDealCard .34s ease forwards!important;}
+.bj-card:nth-child(1){animation-delay:.05s!important}.bj-card:nth-child(2){animation-delay:.28s!important}.bj-card:nth-child(3){animation-delay:.52s!important}.bj-card:nth-child(4){animation-delay:.76s!important}.bj-card:nth-child(5){animation-delay:1s!important}
+@keyframes liveDealCard{0%{opacity:0;transform:translateY(-30px) scale(.86) rotate(-4deg)}70%{opacity:1;transform:translateY(4px) scale(1.03)}100%{opacity:1;transform:translateY(0) scale(1) rotate(0)}}
+.bac-live-stage{min-height:300px!important;}
+.bac-table-arc{width:min(980px,135vw)!important;height:340px!important;bottom:-128px!important;background:radial-gradient(ellipse at 50% 18%,#11945c 0%,#08613d 54%,#032719 100%)!important;}
+.baccarat-table{grid-template-columns:minmax(0,1fr) minmax(46px,70px) minmax(0,1fr)!important;margin-top:118px!important;width:100%!important;}
+.baccarat-side{min-height:170px!important;display:flex!important;flex-direction:column!important;justify-content:center!important;}
+.bac-card{opacity:0;transform:translateY(-18px) scale(.92);animation:liveDealCard .34s ease forwards!important;}
+.baccarat-cards .bac-card:nth-child(1){animation-delay:.08s!important}.baccarat-cards .bac-card:nth-child(2){animation-delay:.36s!important}.baccarat-cards .bac-card:nth-child(3){animation-delay:.64s!important}
+@media(max-width:560px){.baccarat-table{grid-template-columns:minmax(0,1fr) 34px minmax(0,1fr)!important;margin-top:118px!important}.baccarat-vs{display:flex!important;align-items:center!important;justify-content:center!important;font-size:12px}.baccarat-side{padding:10px!important}.bac-card{width:34px!important;height:50px!important}}
+</style>

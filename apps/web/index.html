@@ -832,7 +832,7 @@ body{background:#000!important;}
 /* ---------- Speed Baccarat live table polish + promo creator ---------- */
 .baccarat-panel{background:linear-gradient(180deg,#111 0%,#070707 100%)!important;border-color:#2a2a2a!important;}
 .bac-live-stage{position:relative;border-radius:22px;overflow:hidden;background:radial-gradient(circle at 50% 0%,#26302b 0%,#111 58%,#050505 100%);border:1px solid #2b2b2b;margin-bottom:14px;min-height:210px;display:flex;align-items:center;justify-content:center;}
-.bac-dealer{position:absolute;top:14px;left:50%;transform:translateX(-50%);width:86px;height:86px;border-radius:50%;background:linear-gradient(180deg,#2f2f2f,#111);border:2px solid #555;display:flex;align-items:center;justify-content:center;font-size:38px;box-shadow:0 10px 30px rgba(0,0,0,.45);}
+.bac-dealer{display:none!important;}
 .bac-table-arc{position:absolute;left:50%;bottom:-92px;transform:translateX(-50%);width:min(760px,115vw);height:260px;border-radius:50% 50% 0 0;background:radial-gradient(ellipse at 50% 20%,#0d6b44 0%,#07402a 62%,#032318 100%);border:6px solid #d5a84c;box-shadow:0 -12px 40px rgba(0,0,0,.4),inset 0 0 38px rgba(255,255,255,.08);}
 .bac-table-text{position:absolute;bottom:92px;left:50%;transform:translateX(-50%);font-weight:950;color:rgba(255,255,255,.18);font-size:28px;letter-spacing:2px;white-space:nowrap;}
 .baccarat-table{position:relative;z-index:2;margin-top:94px!important;grid-template-columns:1fr 88px 1fr!important;}
@@ -2974,13 +2974,12 @@ updateUI();
       <div class="game-header"><button class="back-btn" data-nav="minigames">←</button><h2>Baccarat</h2></div>
       <div class="panel baccarat-panel">
         <div class="bac-live-stage">
-          <div class="bac-dealer">🎩</div>
           <div class="bac-table-arc"></div>
           <div class="bac-table-text">BACCARAT</div>
           <div class="baccarat-table">
-            <div class="baccarat-side"><div class="baccarat-label">PLAYER</div><div class="baccarat-cards" id="bacPlayerCards">—</div><div class="baccarat-score" id="bacPlayerScore">0</div></div>
+            <div class="baccarat-side"><div class="baccarat-label">PLAYER</div><div class="baccarat-cards" id="bacPlayerCards"></div><div class="baccarat-score" id="bacPlayerScore"></div></div>
             <div class="baccarat-vs">VS</div>
-            <div class="baccarat-side"><div class="baccarat-label">BANKER</div><div class="baccarat-cards" id="bacBankerCards">—</div><div class="baccarat-score" id="bacBankerScore">0</div></div>
+            <div class="baccarat-side"><div class="baccarat-label">BANKER</div><div class="baccarat-cards" id="bacBankerCards"></div><div class="baccarat-score" id="bacBankerScore"></div></div>
           </div>
         </div>
         <div class="panel-title">Поле ставок:</div>
@@ -3206,9 +3205,7 @@ updateUI();
     currentPlayerId:'p1',
     jackpot:5000,
     players:{
-      p1:{id:'p1',name:'Вы',avatar:'🧑',balance:1000000,stats:{wagered:0,won:0,biggest:0},history:[],lastBonus:0},
-      p2:{id:'p2',name:'Аня',avatar:'👩',balance:1000000,stats:{wagered:0,won:0,biggest:0},history:[],lastBonus:0},
-      p3:{id:'p3',name:'Максим',avatar:'🧔',balance:1000000,stats:{wagered:0,won:0,biggest:0},history:[],lastBonus:0}
+      p1:{id:'p1',name:'Вы',avatar:'🧑',balance:1000000,stats:{wagered:0,won:0,biggest:0},history:[],lastBonus:0}
     }
   };
   var state = loadState();
@@ -4420,11 +4417,11 @@ updateUI();
   }
   function renderLeaderboard(){
     var box = document.getElementById('leaderboardBox');
-    var list = Object.keys(state.players).map(function(id){ return state.players[id]; });
+    var list = Object.keys(state.players).map(function(id){ return state.players[id]; }).filter(function(p){ return p && p.name !== 'Аня' && p.name !== 'Максим'; });
     list.sort(function(a,b){ return b.balance - a.balance; });
     var medals = ['🥇','🥈','🥉'];
     box.innerHTML = list.map(function(p, i){
-      return '<div class="leaderboard-row"><span class="medal">'+(medals[i]||'🎗️')+'</span><span class="name">'+avatarHtml(p.avatar)+' '+p.name+(p.id===state.currentPlayerId?' (вы)':'')+'</span><span class="bal">'+fmt(p.balance)+' GC</span></div>';
+      return '<div class="leaderboard-row"><span class="medal">'+(medals[i]||'🎗️')+'</span><span class="name">'+avatarHtml(p.avatar)+'<span>'+escapeHtml(p.name)+(p.id===state.currentPlayerId?' (вы)':'')+'</span></span><span class="bal">'+fmt(p.balance)+' GC</span></div>';
     }).join('');
   }
   function renderHistory(){
@@ -4522,3 +4519,11 @@ updateUI();
 </script>
 </body>
 </html>
+
+<style>
+#leaderboardBox .leaderboard-row{display:flex!important;align-items:center!important;gap:10px!important;}
+#leaderboardBox .leaderboard-row .name{display:inline-flex!important;align-items:center!important;gap:8px!important;white-space:nowrap!important;min-width:0!important;}
+#leaderboardBox .leaderboard-row .name .game-history-avatar,#leaderboardBox .leaderboard-row .name .avatar-badge{flex:0 0 auto!important;}
+#leaderboardBox .leaderboard-row .bal{margin-left:auto!important;}
+.bac-dealer{display:none!important;}
+</style>

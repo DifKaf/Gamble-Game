@@ -23,7 +23,6 @@ enum GameCode {
   ROULETTE
   MINES
   BLACKJACK
-  BACCARAT
 }
 
 enum GameSessionStatus {

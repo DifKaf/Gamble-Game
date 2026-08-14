@@ -1434,8 +1434,8 @@ body.pay-info-open #autoBtn{display:none!important;pointer-events:none!important
   &lt;div id=&quot;mSpec&quot;&gt;&lt;/div&gt;
   &lt;div class=&quot;msec&quot;&gt;&amp;#9881; Механика&lt;/div&gt;
   &lt;div class=&quot;mech&quot;&gt;&lt;div class=&quot;mico&quot;&gt;&amp;#128203;&lt;/div&gt;&lt;div class=&quot;mtxt&quot;&gt;&lt;b&gt;6×5, Pay Anywhere.&lt;/b&gt; Кластер от &lt;b&gt;8+ одинаковых символов&lt;/b&gt; в любом месте поля (горизонталь + вертикаль).&lt;/div&gt;&lt;/div&gt;
-  &lt;div class=&quot;mech&quot;&gt;&lt;div class=&quot;mico&quot;&gt;&amp;#128175;&lt;/div&gt;&lt;div class=&quot;mtxt&quot;&gt;&lt;b&gt;Падение (Tumble).&lt;/b&gt; После ка��дого спина выигрышные символы исчезают, сверху падают новые. Падение продолжается, пока есть выигрыши (без ограничений).&lt;/div&gt;&lt;/div&gt;
-  &lt;div class=&quot;mech&quot;&gt;&lt;div class=&quot;mico&quot;&gt;&amp;#127384;&lt;/div&gt;&lt;div class=&quot;mtxt&quot;&gt;&lt;b&gt;Символы-множители.&lt;/b&gt; Падают на ��оле &lt;b&gt;как символы&lt;/b&gt; (×2 — ×1000) во время вращений и падений — как в основной игре, так и в фриспинах. В конце последовательности все множители на поле &lt;b&gt;суммируются&lt;/b&gt; и умножают общий выигрыш. В фриспинах множитель &lt;b&gt;накапливается глобально&lt;/b&gt;.&lt;/div&gt;&lt;/div&gt;
+  &lt;div class=&quot;mech&quot;&gt;&lt;div class=&quot;mico&quot;&gt;&amp;#128175;&lt;/div&gt;&lt;div class=&quot;mtxt&quot;&gt;&lt;b&gt;Падение (Tumble).&lt;/b&gt; После каждого спина выигрышные символы исчезают, сверху падают новые. Падение продолжается, пока есть выигрыши (без ограничений).&lt;/div&gt;&lt;/div&gt;
+  &lt;div class=&quot;mech&quot;&gt;&lt;div class=&quot;mico&quot;&gt;&amp;#127384;&lt;/div&gt;&lt;div class=&quot;mtxt&quot;&gt;&lt;b&gt;Символы-множители.&lt;/b&gt; Падают на поле &lt;b&gt;как символы&lt;/b&gt; (×2 — ×1000) во время вращений и падений — как в основной игре, так и в фриспинах. В конце последовательности все множители на поле &lt;b&gt;суммируются&lt;/b&gt; и умножают общий выигрыш. В фриспинах множитель &lt;b&gt;накапливается глобально&lt;/b&gt;.&lt;/div&gt;&lt;/div&gt;
   &lt;div class=&quot;mech&quot;&gt;&lt;div class=&quot;mico&quot;&gt;&amp;#129347;&lt;/div&gt;&lt;div class=&quot;mtxt&quot;&gt;&lt;b&gt;Scatter (Стакан).&lt;/b&gt; 4+ = &lt;b&gt;15 фриспинов&lt;/b&gt;. В FS: 3+ Scatter = &lt;b&gt;+5 спинов&lt;/b&gt;.&lt;/div&gt;&lt;/div&gt;
   &lt;div class=&quot;mech&quot;&gt;&lt;div class=&quot;mico&quot;&gt;&amp;#128176;&lt;/div&gt;&lt;div class=&quot;mtxt&quot;&gt;&lt;b&gt;Ante Bet&lt;/b&gt; +25% к ставке — повышает шанс Scatter.&lt;/div&gt;&lt;/div&gt;
   &lt;div class=&quot;mech&quot;&gt;&lt;div class=&quot;mico&quot;&gt;&amp;#128722;&lt;/div&gt;&lt;div class=&quot;mtxt&quot;&gt;&lt;b&gt;Купить бонус&lt;/b&gt; — мгновенные 15 фриспинов за &lt;b&gt;100× ставки&lt;/b&gt;.&lt;/div&gt;&lt;/div&gt;
@@ -1463,7 +1463,7 @@ body.pay-info-open #autoBtn{display:none!important;pointer-events:none!important
 &lt;div id=&quot;bonusStart&quot;&gt;
   &lt;div class=&quot;bs-frame&quot;&gt;
     &lt;div class=&quot;bs-gem&quot;&gt;◆&lt;/div&gt;
-    &lt;div class=&quot;bs-title&quot;&gt;ПОЗДР��ВЛЯЕМ!&lt;/div&gt;
+    &lt;div class=&quot;bs-title&quot;&gt;ПОЗДРАВЛЯЕМ!&lt;/div&gt;
     &lt;div class=&quot;bs-sub&quot; id=&quot;bsSub&quot;&gt;ВЫ ВЫИГРАЛИ&lt;/div&gt;
     &lt;div class=&quot;bs-count&quot; id=&quot;bsCount&quot;&gt;15&lt;/div&gt;
     &lt;div class=&quot;bs-label&quot; id=&quot;bsLabel&quot;&gt;БЕСПЛАТНЫХ ВРАЩЕНИЙ&lt;/div&gt;
@@ -2458,7 +2458,7 @@ async function doSpin(){
   if(await checkScatterTrigger()) return;
 
   let spinWin=0, cc=0;
-  // П����ДЕНИЕ (Tumble): выигрышные символы исчезают, сверху падают новые.
+  // ПАДЕНИЕ (Tumble): выигрышные символы исчезают, сверху падают новые.
   // Символы-множители падают на поле вместе с обычными. В базовой игре в конце
   // последовательности все множители на поле суммируются и умножают общий выигрыш.
   // В фриспинах множитель накапливается глобально на весь бонусный раунд.
@@ -2534,7 +2534,7 @@ async function doSpin(){
   }
 
   // Report result
-  if(!spinWin &amp;&amp; !inFreeSpin){ sfx(&#x27;lose&#x27;); setMsg(&#x27;НЕ ПОВЕЗ��О...&#x27;,&#x27;sc&#x27;); }
+  if(!spinWin &amp;&amp; !inFreeSpin){ sfx(&#x27;lose&#x27;); setMsg(&#x27;НЕ ПОВЕЗЛО...&#x27;,&#x27;sc&#x27;); }
   else if(spinWin&gt;0){
     const rt=totalWin/stake;
     if(rt&gt;=80){ setMsg(`🌟 МЕГА ДЖЕКПОТ! +${totalWin}`,&#x27;mg&#x27;); doConfetti(120); }
@@ -2811,7 +2811,7 @@ updateUI();
           <div class="bulb"></div><div class="bulb"></div><div class="bulb"></div><div class="bulb"></div><div class="bulb"></div><div class="bulb"></div><div class="bulb"></div>
         </div>
         <div class="bonus-banner" id="slotBonusBanner">
-          <span>🎁 ��есплатные спины</span><span id="slotBonusRemaining">0</span><span>× <span id="slotBonusMult">2</span></span>
+          <span>🎁 Бесплатные спины</span><span id="slotBonusRemaining">0</span><span>× <span id="slotBonusMult">2</span></span>
         </div>
         <div class="reels5" id="slotGrid"></div>
         <div class="slot-lines-feed" id="slotLinesFeed"></div>
@@ -2832,7 +2832,7 @@ updateUI();
           <div class="paytable-row"><span>🗝️🗝️🗝️ Ключ</span><span>x2 / x4 / x10</span></div>
           <div class="paytable-row"><span>🦜🦜🦜 Попугай</span><span>x1.5 / x3 / x7</span></div>
           <div class="paytable-row"><span>⚓⚓⚓ Якорь</span><span>x1 / x2 / x5</span></div>
-          <div class="paytable-note">5 игровых линий (3 прямые + 2 зигзага) · совпадения считаются слева-направо от 1-го барабана · 3+ 🗺️ дают 8 бесплатных спинов ×2 (с ре-триггер��м) · 5 🏆 на любой линии = весь джекпот!</div>
+          <div class="paytable-note">5 игровых линий (3 прямые + 2 зигзага) · совпадения считаются слева-направо от 1-го барабана · 3+ 🗺️ дают 8 бесплатных спинов ×2 (с ре-триггером) · 5 🏆 на любой линии = весь джекпот!</div>
         </div>
       </div>
     </section>
@@ -2988,7 +2988,7 @@ updateUI();
       <div class="panel" style="margin-top:16px;">
         <div class="panel-title">📤 Перевести Gamble Coin</div>
         <div class="field-label">Кому:</div>
-        <input class="input" id="transferRecipient" type="text" placeholder="username Telegram, например username или @username">
+        <input class="input" id="transferRecipient" type="text" placeholder="@username">
         <div class="field-label">Сумма:</div>
         <input class="input" id="transferAmount" type="number" min="1" placeholder="Например 100" />
         <button class="btn btn-primary btn-block" id="transferBtn" style="margin-top:12px;">📤 Отправить</button>
@@ -3040,7 +3040,7 @@ updateUI();
     <div class="modal-card">
       <div style="font-size:30px;">♻️</div>
       <h3>Сбросить прогресс?</h3>
-      <p>Все балансы, ист����рия и статистика демо-игроков будут сброшены к начальным значениям.</p>
+      <p>Все балансы, история и статистика демо-игроков будут сброшены к начальным значениям.</p>
       <div class="modal-actions">
         <button class="btn btn-ghost" id="modalCancel">Отмена</button>
         <button class="btn btn-primary" id="modalConfirm">Сбросить</button>
@@ -3231,7 +3231,7 @@ updateUI();
           saveState();
         }).catch(function(e){
           console.error('Drunkard Gate balance sync failed', e);
-          showToast('Ошибка синхронизации бал��нса слота','error');
+          showToast('Ошибка синхронизации баланса слота','error');
         });
         return backendBalance;
       }
@@ -3483,7 +3483,7 @@ updateUI();
   var BONUS_MULT = 2;
 
   var SLOT_SYMBOLS = [
-    {sym:'���',weight:26,pay3:1,pay4:2,pay5:5},
+    {sym:'⚓',weight:26,pay3:1,pay4:2,pay5:5},
     {sym:'🦜',weight:21,pay3:1.5,pay4:3,pay5:7},
     {sym:'🗝️',weight:17,pay3:2,pay4:4,pay5:10},
     {sym:'💰',weight:13,pay3:3,pay4:6,pay5:15},
@@ -4348,7 +4348,7 @@ updateUI();
     var p = me();
     var transfers = (p.history || []).filter(function(h){ return h.type==='transfer_in' || h.type==='transfer_out'; });
     if(transfers.length===0){
-      box.innerHTML = '<div class="empty-state">Пока нет пере��одов.</div>';
+      box.innerHTML = '<div class="empty-state">Пока нет переводов.</div>';
       return;
     }
     box.innerHTML = transfers.map(function(h){
@@ -4391,7 +4391,7 @@ updateUI();
   }
   function renderTransferRecipients(){
     var sel = document.getElementById('transferRecipient');
-    if(sel && !sel.value) sel.placeholder = 'username Telegram, например username или @username';
+    if(sel && !sel.value) sel.placeholder = '@username';
   }
 
 

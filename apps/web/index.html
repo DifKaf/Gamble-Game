@@ -580,6 +580,115 @@ body{background:radial-gradient(circle at 15% 5%,rgba(72,216,255,.18),transparen
 #app.drunkard-standalone #screen-slot .game-header h2{display:none!important;}
 #app.drunkard-standalone #screen-slot .back-btn{background:rgba(0,0,0,.55);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.18);color:#fff;}
 #app.drunkard-standalone .olympus-embed-wrap{height:100vh!important;min-height:100vh!important;border-radius:0!important;border:0!important;box-shadow:none!important;}
+
+
+/* ---------- xRocket inspired dark style ---------- */
+:root{
+  --bg:#000000;
+  --panel:#191919;
+  --panel-2:#202020;
+  --panel-3:#2c2c2c;
+  --text:#ffffff;
+  --muted:#858585;
+  --line:#2a2a2a;
+  --accent:#1298ff;
+  --accent-2:#00c2ff;
+  --green-500:#16c784;
+  --red-500:#ff4d5e;
+  --gold-300:#facc15;
+  --gold-500:#f59e0b;
+  --purple-700:#161616;
+  --purple-900:#000000;
+}
+html,body{background:#000!important;color:#fff!important;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif!important;}
+body:before{content:"";position:fixed;inset:0;background:#000!important;pointer-events:none;z-index:-2;}
+#app{background:#000!important;box-shadow:none!important;border-radius:0!important;max-width:min(1280px,100vw - 36px)!important;}
+.screen-container{padding:72px 22px 92px!important;}
+.topbar{background:#111!important;border-bottom:1px solid #242424!important;box-shadow:none!important;backdrop-filter:none!important;}
+.brand-title,.game-header h2,.section-title,.panel-title,.home-hero h1{color:#fff!important;text-shadow:none!important;font-weight:800!important;letter-spacing:-.02em!important;}
+.muted,.sub,.time,.small,.asset-sub,.game-history-main .time{color:#858585!important;}
+.panel,.home-hero,.wallet-card,.profile-card,.modal-card,.history-item,.leaderboard-row,.promo-box{
+  background:#191919!important;border:1px solid #242424!important;border-radius:18px!important;box-shadow:none!important;color:#fff!important;
+}
+.game-card,.category-card,.service-card,.bonus-card,.asset-row{
+  background:#191919!important;border:1px solid #242424!important;border-radius:18px!important;box-shadow:none!important;color:#fff!important;transition:background .15s ease,transform .15s ease,border-color .15s ease!important;
+}
+.game-card:hover,.category-card:hover,.service-card:hover,.asset-row:hover{background:#202020!important;border-color:#333!important;transform:translateY(-1px)!important;}
+.game-card .icon,.category-card .icon,.service-card .icon{background:#0b84d8!important;color:#fff!important;border-radius:14px!important;box-shadow:none!important;}
+.btn,.chip,.option-btn,input,select{border-radius:14px!important;box-shadow:none!important;}
+.btn{background:#2c2c2c!important;border:1px solid #333!important;color:#fff!important;font-weight:800!important;}
+.btn-primary,.btn-blue{background:#0b84d8!important;border-color:#0b84d8!important;color:#fff!important;}
+.btn-green{background:#13a66b!important;border-color:#13a66b!important;color:#fff!important;}
+.btn-gold{background:#2c2c2c!important;border-color:#3a3a3a!important;color:#fff!important;}
+.btn-red{background:#2c2c2c!important;border-color:#3a3a3a!important;color:#ff6978!important;}
+.chip,.option-btn{background:#202020!important;border:1px solid #333!important;color:#fff!important;}
+.chip.active,.option-btn.active{background:#0b84d8!important;border-color:#0b84d8!important;color:#fff!important;}
+input,select{background:#191919!important;border:1px solid #2a2a2a!important;color:#fff!important;}
+input::placeholder{color:#777!important;}
+.bottom-nav{background:#111!important;border-top:1px solid #242424!important;box-shadow:none!important;}
+.nav-btn{color:#858585!important;background:transparent!important;}
+.nav-btn.active{color:#fff!important;background:#202020!important;}
+.balance-chip,.miniGameBalance,.bet-balance b{color:#fff!important;}
+.home-actions,.quick-actions{gap:10px!important;}
+.home-actions .btn,.quick-actions .btn{background:#2c2c2c!important;min-height:56px!important;}
+.leaderboard-row .name,.leaderboard-row .bal,.asset-name{color:#fff!important;}
+.amt.plus,.plus{color:#16c784!important}.amt.minus,.minus{color:#ff4d5e!important}
+.roulette-bet-board{background:#111!important;border:1px solid #242424!important;border-radius:16px!important;padding:3px!important;}
+.roulette-num-btn,.roulette-outside-btn{border-radius:0!important;box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)!important;}
+.roulette-outside-btn{background:#191919!important;color:#fff!important;}
+.roulette-num-btn.red,.roulette-outside-btn.red{background:#d83a47!important}.roulette-num-btn.black,.roulette-outside-btn.black{background:#111!important}.roulette-num-btn.green{background:#088750!important;color:#fff!important;}
+.roulette-wheel-wrap{filter:none!important;}
+.wheel{border-color:#2c2c2c!important;box-shadow:inset 0 0 0 5px rgba(255,255,255,.06),inset 0 0 0 34px rgba(0,0,0,.35)!important;}
+.die,.coin-face,.mine-tile{box-shadow:none!important;border-color:#2a2a2a!important;}
+.mine-tile{background:#202020!important;}
+.mine-tile.safe{background:#13a66b!important}.mine-tile.boom{background:#ff4d5e!important;}
+.toast{background:#202020!important;border:1px solid #333!important;color:#fff!important;}
+@media (min-width:900px){
+  .screen-container{padding-top:84px!important;}
+  #screen-home.active{max-width:1100px!important;}
+  .home-hero{max-width:540px!important;margin-left:0!important;}
+  #screen-games.active,#screen-minigames.active,#screen-roulette.active,#screen-wallet.active,#screen-profile.active,#screen-bonuses.active{max-width:1180px!important;}
+}
+
+
+
+/* ---------- xRocket proportional home polish ---------- */
+body{background:#000!important;}
+#app{max-width:min(1180px,100vw - 32px)!important;margin:0 auto!important;}
+.screen-container{padding-left:20px!important;padding-right:20px!important;}
+#screen-home.active{display:grid!important;grid-template-columns:minmax(320px,480px) minmax(360px,1fr)!important;gap:72px!important;align-items:start!important;max-width:1100px!important;margin:0 auto!important;padding-top:128px!important;}
+#screen-home .hero{
+  width:100%!important;max-width:480px!important;margin:0!important;padding:0!important;background:transparent!important;border:0!important;box-shadow:none!important;backdrop-filter:none!important;border-radius:0!important;overflow:visible!important;
+}
+#screen-home .hero:after,#screen-home .hero::after{display:none!important;}
+#screen-home .hero-top{margin-bottom:34px!important;gap:14px!important;}
+#screen-home .avatar-badge{width:48px!important;height:48px!important;border-radius:50%!important;background:#0b84d8!important;box-shadow:none!important;border:0!important;}
+#screen-home .hero-greet{font-size:15px!important;color:#858585!important;opacity:1!important;margin-bottom:4px!important;}
+#screen-home .hero-name{font-size:24px!important;color:#fff!important;font-weight:800!important;}
+#screen-home .hero-balance{margin:0 0 24px!important;color:#858585!important;font-size:21px!important;font-weight:700!important;line-height:1.15!important;}
+#screen-home .hero-balance b{font-size:46px!important;color:#fff!important;font-weight:900!important;letter-spacing:-.04em!important;margin-top:12px!important;text-shadow:none!important;}
+#screen-home .hero .btn{width:calc(25% - 8px)!important;min-width:104px!important;height:56px!important;margin:0 8px 0 0!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;background:#2b2b2b!important;border:1px solid #343434!important;color:#fff!important;border-radius:10px!important;font-size:14px!important;vertical-align:top!important;}
+#screen-home .hero .btn:hover{background:#353535!important;}
+#screen-home .hero .btn:before{display:block!important;font-size:24px!important;line-height:1!important;margin-bottom:0!important;}
+#screen-home .hero .btn[data-nav="games"]:before{content:"↗";}
+#screen-home .hero .btn[data-nav="bonuses"]:before{content:"◇";}
+#screen-home .hero .btn[data-nav="games"],#screen-home .hero .btn[data-nav="bonuses"]{flex-direction:column!important;gap:7px!important;}
+#screen-home .section-title{font-size:28px!important;margin:0 0 18px!important;}
+#screen-home .quick-grid,#screen-home .games-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;}
+#screen-home .game-card,#screen-home .category-card,#screen-home .service-card{
+  min-height:112px!important;padding:18px!important;background:#191919!important;border:1px solid #242424!important;border-radius:16px!important;display:flex!important;align-items:flex-start!important;justify-content:space-between!important;gap:12px!important;box-shadow:none!important;
+}
+#screen-home .game-card .title,#screen-home .category-card .title,#screen-home .service-card .title{font-size:17px!important;font-weight:800!important;color:#fff!important;}
+#screen-home .game-card .sub,#screen-home .category-card .sub,#screen-home .service-card .sub{font-size:13px!important;color:#858585!important;margin-top:4px!important;}
+#screen-home .game-card .icon,#screen-home .category-card .icon,#screen-home .service-card .icon{width:34px!important;height:34px!important;min-width:34px!important;border-radius:9px!important;background:transparent!important;color:#0b9dff!important;font-size:24px!important;order:2!important;}
+#screen-home .panel,#screen-home .white-card,#screen-home .balance-card{background:#191919!important;border:1px solid #242424!important;border-radius:16px!important;box-shadow:none!important;}
+@media (max-width:899px){
+  #screen-home.active{display:block!important;padding-top:78px!important;max-width:520px!important;}
+  #screen-home .hero{background:#191919!important;border:1px solid #242424!important;border-radius:18px!important;padding:18px!important;margin-bottom:22px!important;}
+  #screen-home .hero .btn{width:calc(50% - 6px)!important;margin-top:0!important;margin-right:6px!important;}
+  #screen-home .hero-balance b{font-size:38px!important;}
+}
+
 </style>
 </head>
 <body>
@@ -3230,7 +3339,7 @@ updateUI();
   buildSlotGrid();
 
   function updateJackpotDisplay(){
-    document.getElementById('slotJackpot').textContent = fmt(state.jackpot);
+    var slotJackpotEl=document.getElementById('slotJackpot'); if(slotJackpotEl) slotJackpotEl.textContent = fmt(state.jackpot);
   }
   updateJackpotDisplay();
 
@@ -3238,17 +3347,17 @@ updateUI();
     var b = document.getElementById('slotBonusBanner');
     if(slotBonus.active){
       b.classList.add('show');
-      document.getElementById('slotBonusRemaining').textContent = slotBonus.remaining;
-      document.getElementById('slotBonusMult').textContent = slotBonus.multiplier;
+      var slotBonusRemainingEl=document.getElementById('slotBonusRemaining'); if(slotBonusRemainingEl) slotBonusRemainingEl.textContent = slotBonus.remaining;
+      var slotBonusMultEl=document.getElementById('slotBonusMult'); if(slotBonusMultEl) slotBonusMultEl.textContent = slotBonus.multiplier;
     } else {
       b.classList.remove('show');
     }
   }
 
   var slotBetCtl = buildChipRow('slotChips', [10,20,50,100,250], 20, function(v){
-    document.getElementById('slotBetLabel').textContent = v;
+    var slotBetLabelEl=document.getElementById('slotBetLabel'); if(slotBetLabelEl) slotBetLabelEl.textContent = v;
   });
-  document.getElementById('slotBetLabel').textContent = slotBetCtl.get();
+  var slotBetLabelEl=document.getElementById('slotBetLabel'); if(slotBetLabelEl) slotBetLabelEl.textContent = slotBetCtl.get();
 
   var slotSpinning = false;
   var slotBonus = {active:false, remaining:0, multiplier:BONUS_MULT, totalWin:0, triggerBet:0};
@@ -3265,7 +3374,7 @@ updateUI();
       slotAuto.remaining = n;
       document.querySelectorAll('.autoplay-row [data-auto]').forEach(function(b){ b.style.display='none'; });
       document.getElementById('slotAutoStop').style.display = 'flex';
-      document.getElementById('slotAutoLeft').textContent = slotAuto.remaining;
+      var slotAutoLeftEl=document.getElementById('slotAutoLeft'); if(slotAutoLeftEl) slotAutoLeftEl.textContent = slotAuto.remaining;
       haptic('light');
       spinSlot(false);
     });
@@ -3283,7 +3392,7 @@ updateUI();
       var cell = slotCell(c,r);
       cell.classList.remove('win-l1','win-l2','win-l3','win-l4','win-l5','win-scatter','landed');
     }
-    document.getElementById('slotLinesFeed').textContent = '';
+    var slotLinesFeedEl=document.getElementById('slotLinesFeed'); if(slotLinesFeedEl) slotLinesFeedEl.textContent = '';
   }
 
   function spinSlot(isBonusSpin){
@@ -3414,7 +3523,7 @@ updateUI();
     });
     if(result.scatterWin>0){ feedParts.push(SCATTER.sym+'×'+result.scatterCount+' = '+fmt(Math.round(result.scatterWin*multiplier))+' GC'); }
     if(result.jackpotWin>0){ feedParts.push(WILD.sym+' ДЖЕКПОТ +'+fmt(result.jackpotWin)+' GC!'); }
-    document.getElementById('slotLinesFeed').textContent = feedParts.join(' · ');
+    var slotLinesFeedEl=document.getElementById('slotLinesFeed'); if(slotLinesFeedEl) slotLinesFeedEl.textContent = feedParts.join(' · ');
 
     var startingBonus = false;
     if(!slotBonus.active && result.scatterCount>=3){
@@ -3469,7 +3578,7 @@ updateUI();
 
     if(slotAuto.active){
       slotAuto.remaining -= 1;
-      document.getElementById('slotAutoLeft').textContent = Math.max(slotAuto.remaining,0);
+      var slotAutoLeftEl=document.getElementById('slotAutoLeft'); if(slotAutoLeftEl) slotAutoLeftEl.textContent = Math.max(slotAuto.remaining,0);
       if(slotAuto.remaining>0 && me().balance>=slotBetCtl.get() && !slotBonus.active){
         document.getElementById('slotSpinBtn').disabled = true;
         setTimeout(function(){ spinSlot(false); }, 200);
@@ -3530,7 +3639,7 @@ updateUI();
         var roll = Number(result.roll)||7;
         var diceVals = diceValuesFromSum(roll);
         renderDie(d0, diceVals[0]); renderDie(d1, diceVals[1]);
-        document.getElementById('diceSum').textContent = roll;
+        var diceSumEl=document.getElementById('diceSum'); if(diceSumEl) diceSumEl.textContent = roll;
         if(result.winAmount>0){ addHistory(me(),'win', result.winAmount, 'Кости: сумма '+roll); showWinOverlay(result.winAmount); haptic('success'); }
         else { addHistory(me(),'loss', bet, 'Кости: сумма '+roll); haptic('error'); }
         renderAll();
@@ -3712,8 +3821,8 @@ updateUI();
       if(minesSetupPanel) minesSetupPanel.classList.add('hidden');
       if(minesGamePanel) minesGamePanel.classList.remove('hidden');
       document.getElementById('minesCashoutBtn').disabled = true;
-      document.getElementById('minesMult').textContent = 'x1.00';
-      document.getElementById('minesPayout').textContent = '0';
+      var minesMultEl=document.getElementById('minesMult'); if(minesMultEl) minesMultEl.textContent = 'x1.00';
+      var minesPayoutEl=document.getElementById('minesPayout'); if(minesPayoutEl) minesPayoutEl.textContent = '0';
       renderMinesGrid();
     }catch(e){ backendBalance = prevBackendBalance; applyBackendBalanceToUI(); renderBalances(); showToast(e.message || 'Ошибка старта Mines','error'); haptic('error'); }
   });
@@ -3749,8 +3858,8 @@ updateUI();
         minesState.openedCells = data.openedCells || [];
         minesState.revealed = minesState.openedCells.length;
         minesState.multiplier = data.multiplier || 1;
-        document.getElementById('minesMult').textContent = 'x'+minesState.multiplier.toFixed(2);
-        document.getElementById('minesPayout').textContent = fmt(data.payout || 0);
+        var minesMultEl=document.getElementById('minesMult'); if(minesMultEl) minesMultEl.textContent = 'x'+minesState.multiplier.toFixed(2);
+        var minesPayoutEl=document.getElementById('minesPayout'); if(minesPayoutEl) minesPayoutEl.textContent = fmt(data.payout || 0);
         document.getElementById('minesCashoutBtn').disabled = false;
         haptic('light');
       }
@@ -3923,10 +4032,10 @@ updateUI();
   });
   document.getElementById('bjRebetBtn').addEventListener('click', function(){
     bjState = null;
-    document.getElementById('bjDealerHand').innerHTML='';
-    document.getElementById('bjPlayerHand').innerHTML='';
-    document.getElementById('bjDealerTotal').textContent='—';
-    document.getElementById('bjPlayerTotal').textContent='—';
+    var bjDealerHandEl=document.getElementById('bjDealerHand'); if(bjDealerHandEl) bjDealerHandEl.innerHTML='';
+    var bjPlayerHandEl=document.getElementById('bjPlayerHand'); if(bjPlayerHandEl) bjPlayerHandEl.innerHTML='';
+    var bjDealerTotalEl=document.getElementById('bjDealerTotal'); if(bjDealerTotalEl) bjDealerTotalEl.textContent='—';
+    var bjPlayerTotalEl=document.getElementById('bjPlayerTotal'); if(bjPlayerTotalEl) bjPlayerTotalEl.textContent='—';
     var bjResultEl = document.getElementById('bjResult'); if(bjResultEl){ bjResultEl.textContent=''; bjResultEl.className='bj-result'; }
     var bjRebetEl = document.getElementById('bjRebetBtn'); if(bjRebetEl) bjRebetEl.classList.add('hidden');
     var bjActionsEl = document.getElementById('bjActionsPanel'); if(bjActionsEl) bjActionsEl.classList.add('hidden');
@@ -4003,13 +4112,13 @@ updateUI();
     if(!Number.isFinite(p.balance) || p.balance <= 0){ p.balance = 1000000; saveState(); }
     var balanceValueEl = document.getElementById('balanceValue');
     if(balanceValueEl) balanceValueEl.textContent = fmt(p.balance);
-    document.getElementById('heroName').textContent = p.name;
+    var heroNameEl=document.getElementById('heroName'); if(heroNameEl) heroNameEl.textContent = p.name;
     setAvatarEl('heroAvatar', p.avatar);
-    document.getElementById('heroBalance').textContent = fmt(p.balance)+' GC';
-    document.getElementById('walletBalance').textContent = fmt(p.balance)+' GC';
+    var heroBalanceEl=document.getElementById('heroBalance'); if(heroBalanceEl) heroBalanceEl.textContent = fmt(p.balance)+' GC';
+    var walletBalanceEl=document.getElementById('walletBalance'); if(walletBalanceEl) walletBalanceEl.textContent = fmt(p.balance)+' GC';
     document.querySelectorAll('.miniGameBalance').forEach(function(el){ el.textContent = fmt(p.balance); });
     setAvatarEl('walletAvatar', p.avatar);
-    document.getElementById('walletName').textContent = p.name;
+    var walletNameEl=document.getElementById('walletName'); if(walletNameEl) walletNameEl.textContent = p.name;
   }
   function renderLeaderboard(){
     var box = document.getElementById('leaderboardBox');
@@ -4039,11 +4148,11 @@ updateUI();
   function renderProfile(){
     var p = me();
     setAvatarEl('profileAvatar', p.avatar);
-    document.getElementById('profileName').textContent = p.name;
-    document.getElementById('profileBalance').textContent = fmt(p.balance)+' GC';
-    document.getElementById('statWagered').textContent = fmt(p.stats.wagered);
-    document.getElementById('statWon').textContent = fmt(p.stats.won);
-    document.getElementById('statBiggest').textContent = fmt(p.stats.biggest);
+    var profileNameEl=document.getElementById('profileName'); if(profileNameEl) profileNameEl.textContent = p.name;
+    var profileBalanceEl=document.getElementById('profileBalance'); if(profileBalanceEl) profileBalanceEl.textContent = fmt(p.balance)+' GC';
+    var statWageredEl=document.getElementById('statWagered'); if(statWageredEl) statWageredEl.textContent = fmt(p.stats.wagered);
+    var statWonEl=document.getElementById('statWon'); if(statWonEl) statWonEl.textContent = fmt(p.stats.won);
+    var statBiggestEl=document.getElementById('statBiggest'); if(statBiggestEl) statBiggestEl.textContent = fmt(p.stats.biggest);
   }
   function renderPlayerSwitch(){
     var box = document.getElementById('playerSwitchBox');

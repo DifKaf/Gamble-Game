@@ -3010,7 +3010,7 @@ updateUI();
       <div class="panel" style="margin-top:16px;">
         <div class="panel-title">📤 Перевести Gamble Coin</div>
         <div class="field-label">Кому:</div>
-        <input class="input" id="transferRecipient" type="text" placeholder="@username" list="transferUserSuggestions"><datalist id="transferUserSuggestions"></datalist>
+        <input class="input" id="transferRecipient" type="text" placeholder="@username" list="transferUserSuggestions"><datalist id="transferUserSuggestions"></datalist><div id="transferSuggestBox" class="transfer-suggest-box hidden"></div>
         <div class="field-label">Сумма:</div>
         <input class="input" id="transferAmount" type="number" min="1" placeholder="Введите сумму" />
         <button class="btn btn-primary btn-block" id="transferBtn" style="margin-top:12px;">📤 Отправить</button>
@@ -3027,11 +3027,11 @@ updateUI();
         <div class="avatar-badge" id="profileAvatar" style="background:var(--card-tint);">🧑</div>
         <div>
           <div style="font-weight:800;font-size:16px;" id="profileName">Игрок</div>
-          <div style="font-size:12px;color:var(--ink-soft);font-weight:700;" id="profileBalance">0 GC</div>
+          <div style="font-size:12px;color:var(--ink-soft);font-weight:700;" id="profileBalance">0 GC</div><div style="font-size:12px;color:var(--ink-soft);font-weight:800;" id="profilePlayerId">ID: 120001</div>
         </div>
       </div>
       <div class="stat-grid">
-        <div class="stat-box"><div class="v" id="statWagered">0</div><div class="l">СТАВОК СДЕЛАНО</div></div>
+        <div class="stat-box"><div class="v" id="statWagered">0</div><div class="l">СУММА СТАВОК</div></div>
         <div class="stat-box"><div class="v" id="statWon">0</div><div class="l">ВСЕГО ВЫИГРАНО</div></div>
         <div class="stat-box"><div class="v" id="statBiggest">0</div><div class="l">ЛУЧШИЙ ВЫИГРЫШ</div></div>
       </div>
@@ -3060,7 +3060,7 @@ updateUI();
           <input class="input" id="createPromoUses2" type="number" min="1" placeholder="Количество активаций">
         </div>
         <button class="btn btn-blue btn-block" id="createPromoBtn2" style="margin-top:10px;">Создать промокод</button>
-        <div class="promo-created-box" id="createdPromoInfo2">Промокод создаётся за счёт твоего баланса.</div>
+        <div class="promo-created-box" id="createdPromoInfo2"></div>
       </div>
       <div class="section-title">Созданные промокоды</div>
       <div class="panel" id="createdPromosList"><div class="empty-state">Пока нет созданных промокодов.</div></div>
@@ -4337,7 +4337,7 @@ updateUI();
     clearTimeout(transferSearchTimer);
     transferSearchTimer=setTimeout(async function(){
       if(!backendReady) return; var q=(transferInput.value||'').replace(/^@/,'').trim(); if(!q) return;
-      try{ var data=await apiRequest('/me/users/search?q='+encodeURIComponent(q)); var dl=document.getElementById('transferUserSuggestions'); if(dl) dl.innerHTML=(data.users||[]).map(function(u){ var label=(u.firstName||u.username||'Игрок')+(u.username?' @'+u.username:''); return '<option value="@'+escapeHtml(u.username||'')+'" label="'+escapeHtml(label)+'"></option>'; }).join(''); }catch(e){}
+      try{ var data=await apiRequest('/me/users/search?q='+encodeURIComponent(q)); var users=data.users||[]; var dl=document.getElementById('transferUserSuggestions'); if(dl) dl.innerHTML=users.map(function(u){ var label=(u.firstName||u.username||'Игрок')+(u.username?' @'+u.username:'')+' ID '+(u.playerId||playerPublicId(u.id)); return '<option value="@'+escapeHtml(u.username||'')+'" label="'+escapeHtml(label)+'"></option>'; }).join(''); var sb=document.getElementById('transferSuggestBox'); if(sb){ sb.classList.toggle('hidden', users.length===0); sb.innerHTML=users.map(function(u){ return '<button type="button" class="transfer-suggest-item" data-username="'+escapeHtml(u.username||'')+'">'+avatarHtml(bestAvatar(u))+'<span><b>@'+escapeHtml(u.username||'')+'</b><small>ID '+escapeHtml(u.playerId||playerPublicId(u.id))+'</small></span></button>'; }).join(''); sb.querySelectorAll('.transfer-suggest-item').forEach(function(btn){ btn.addEventListener('click',function(){ transferInput.value='@'+btn.getAttribute('data-username'); sb.classList.add('hidden'); }); }); } }catch(e){}
     },220);
   });
   async function loadCreatedPromos(){
@@ -4432,6 +4432,15 @@ updateUI();
     renderTransferRecipients();
     if(backendReady) applyBackendBalanceToUI();
   }
+
+  function playerPublicId(raw){
+    var digits=String(raw||'').replace(/\D/g,'');
+    var tail=(digits||'1').slice(-4).padStart(4,'0');
+    return '12'+tail;
+  }
+  function bestAvatar(u){ return (u && (u.photoUrl || u.avatar)) || '👤'; }
+  function userDisplayName(u){ return (u && (u.firstName || u.username || u.name)) || 'Игрок'; }
+
   function setAvatarEl(id, avatar){
     var el = document.getElementById(id);
     if(!el) return;
@@ -4447,9 +4456,9 @@ updateUI();
   }
   function avatarHtml(avatar){
     if(typeof avatar === 'string' && /^https?:\/\//.test(avatar)){
-      return '<span class="avatar-badge has-photo" style="width:32px;height:32px;border-radius:10px;background-image:url(&quot;'+avatar.replace(/&/g,'&amp;').replace(/"/g,'&quot;')+'&quot;);"></span>';
+      return '<span class="avatar-badge has-photo" style="width:32px;height:32px;border-radius:10px;background-image:url(&quot;'+avatar.replace(/&/g,'&amp;').replace(/"/g,'&quot;')+'&quot;);background-size:cover;background-position:center;"></span>';
     }
-    return avatar || '👤';
+    return '<span class="avatar-badge">'+escapeHtml(avatar || '👤')+'</span>';
   }
   function renderBalances(){
     var p = me();
@@ -4466,11 +4475,11 @@ updateUI();
   }
   function renderLeaderboard(){
     var box = document.getElementById('leaderboardBox');
-    var list = (backendLeaderboardUsers && backendLeaderboardUsers.length) ? backendLeaderboardUsers.map(function(u){return {id:u.id,name:u.firstName || u.username || 'Игрок',avatar:u.photoUrl || '👤',balance:u.balance};}) : Object.keys(state.players).map(function(id){ return state.players[id]; }).filter(function(p){ return p && p.name !== 'Аня' && p.name !== 'Максим'; });
+    var list = (backendLeaderboardUsers && backendLeaderboardUsers.length) ? backendLeaderboardUsers.map(function(u){return {id:u.id,playerId:u.playerId||playerPublicId(u.id),name:u.firstName || u.username || 'Игрок',avatar:u.photoUrl || '👤',balance:u.balance};}) : Object.keys(state.players).map(function(id){ return state.players[id]; }).filter(function(p){ return p && p.name !== 'Аня' && p.name !== 'Максим'; });
     list.sort(function(a,b){ return b.balance - a.balance; });
     var medals = ['🥇','🥈','🥉'];
     box.innerHTML = list.map(function(p, i){
-      return '<div class="leaderboard-row"><span class="medal">'+(medals[i]||'🎗️')+'</span><span class="name">'+avatarHtml(p.avatar)+'<span>'+escapeHtml(p.name)+(p.id===state.currentPlayerId?' (вы)':'')+'</span></span><span class="bal">'+fmt(p.balance)+' GC</span></div>';
+      return '<div class="leaderboard-row"><span class="medal">'+(medals[i]||'🎗️')+'</span><span class="name">'+avatarHtml(p.avatar)+'<span>'+escapeHtml(p.name)+(p.id===state.currentPlayerId?' (вы)':'')+'</span>'+(p.playerId?'<small class="leader-id">ID '+escapeHtml(p.playerId)+'</small>':'')+'</span><span class="bal">'+fmt(p.balance)+' GC</span></div>';
     }).join('');
   }
   function renderHistory(){
@@ -4494,6 +4503,7 @@ updateUI();
     setAvatarEl('profileAvatar', p.avatar);
     var profileNameEl=document.getElementById('profileName'); if(profileNameEl) profileNameEl.textContent = p.name;
     var profileBalanceEl=document.getElementById('profileBalance'); if(profileBalanceEl) profileBalanceEl.textContent = fmt(p.balance)+' GC';
+    var profilePlayerIdEl=document.getElementById('profilePlayerId'); if(profilePlayerIdEl) profilePlayerIdEl.textContent = 'ID: '+(backendUser && backendUser.playerId ? backendUser.playerId : playerPublicId(p.id));
     var statWageredEl=document.getElementById('statWagered'); if(statWageredEl) statWageredEl.textContent = fmt(p.stats.wagered);
     var statWonEl=document.getElementById('statWon'); if(statWonEl) statWonEl.textContent = fmt(p.stats.won);
     var statBiggestEl=document.getElementById('statBiggest'); if(statBiggestEl) statBiggestEl.textContent = fmt(p.stats.biggest);
@@ -4602,4 +4612,10 @@ updateUI();
 .bac-card{opacity:0;transform:translateY(-18px) scale(.92);animation:liveDealCard .34s ease forwards!important;}
 .baccarat-cards .bac-card:nth-child(1){animation-delay:.08s!important}.baccarat-cards .bac-card:nth-child(2){animation-delay:.36s!important}.baccarat-cards .bac-card:nth-child(3){animation-delay:.64s!important}
 @media(max-width:560px){.baccarat-table{grid-template-columns:minmax(0,1fr) 34px minmax(0,1fr)!important;margin-top:118px!important}.baccarat-vs{display:flex!important;align-items:center!important;justify-content:center!important;font-size:12px}.baccarat-side{padding:10px!important}.bac-card{width:34px!important;height:50px!important}}
+</style>
+
+<style>
+#heroAvatar.has-photo,#profileAvatar.has-photo,#walletAvatar.has-photo{background-size:cover!important;background-position:center!important;background-color:transparent!important;}
+#leaderboardBox .avatar-badge{display:inline-flex!important;align-items:center!important;justify-content:center!important;width:20px!important;height:20px!important;min-width:20px!important;border-radius:50%!important;font-size:12px!important;background-size:cover!important;background-position:center!important;}
+#leaderboardBox .leader-id{display:block;font-size:10px;font-weight:800;color:#9a9a9a;line-height:1.05;margin-top:1px}.transfer-suggest-box{margin-top:8px;border:1px solid #333;border-radius:14px;overflow:hidden;background:#151515}.transfer-suggest-box.hidden{display:none}.transfer-suggest-item{width:100%;display:flex;align-items:center;gap:10px;padding:9px 10px;background:transparent;border:0;color:#fff;text-align:left}.transfer-suggest-item:not(:last-child){border-bottom:1px solid #2a2a2a}.transfer-suggest-item .avatar-badge{width:28px!important;height:28px!important;min-width:28px!important;border-radius:50%!important;background-size:cover!important;background-position:center!important}.transfer-suggest-item span{display:flex;flex-direction:column;gap:2px}.transfer-suggest-item small{font-size:11px;color:#9a9a9a;font-weight:800}.promo-created-box:empty{display:none!important}
 </style>

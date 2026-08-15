@@ -3174,8 +3174,9 @@ updateUI();
       backendToken = auth.token;
       localStorage.setItem('gg_backend_token', backendToken);
       backendUser = auth.user;
-      if(backendUser && !backendUser.photoUrl && tg && tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.photo_url){
-        backendUser.photoUrl = tg.initDataUnsafe.user.photo_url;
+      if(backendUser && tg && tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.photo_url){
+        backendUser.photoUrl = backendUser.photoUrl || tg.initDataUnsafe.user.photo_url;
+        var cp = state.players[state.currentPlayerId]; if(cp){ cp.avatar = backendUser.photoUrl; }
       }
       backendBalance = auth.user.balance;
       backendReady = true;
@@ -3191,6 +3192,7 @@ updateUI();
   }
 
   async function serverBet(gameCode, betAmount, payload){
+    if(betAmount < 10 || betAmount > 5000000){ showToast('Ставка от 10 до 5 000 000 GC','error'); throw new Error('Ставка от 10 до 5 000 000 GC'); }
     if(!backendReady) await initBackendAuth();
     var optimisticBet = Math.round(Number(betAmount)||0);
     var prevBackendBalance = backendBalance;
@@ -3476,7 +3478,7 @@ updateUI();
     values.forEach(function(v){
       var chip = document.createElement('button');
       chip.className = 'chip' + (v===defaultVal?' active':'');
-      chip.textContent = (v==='allin' ? 'ALL IN' : (v>=1000 ? (v/1000)+'к' : v+' GC'));
+      chip.textContent = (v==='allin' ? 'ALL IN' : (v===10 ? '10' : (v>=1000 ? (v/1000)+'к' : v+' GC')));
       chip.addEventListener('click', function(){ selectChip(chip, v); haptic('light'); });
       box.appendChild(chip);
     });
@@ -3829,7 +3831,7 @@ updateUI();
 
   /* ================= DICE ================= */
   var diceOptCtl = buildOptionRow('diceOptions', function(){});
-  var diceBetCtl = buildBetControl('diceChips', 'diceCustomBet', [1000,25000,50000,100000,'allin'], 1000, function(){});
+  var diceBetCtl = buildBetControl('diceChips', 'diceCustomBet', [10,25000,50000,100000,'allin'], 10, function(){});
   var DICE_PIPS = {
     1:[5],
     2:[1,9],
@@ -3894,7 +3896,7 @@ updateUI();
 
   /* ================= COIN FLIP ================= */
   var coinOptCtl = buildOptionRow('coinOptions', function(){});
-  var coinBetCtl = buildBetControl('coinChips', 'coinCustomBet', [1000,25000,50000,100000,'allin'], 1000, function(){});
+  var coinBetCtl = buildBetControl('coinChips', 'coinCustomBet', [10,25000,50000,100000,'allin'], 10, function(){});
   var coinFlipping = false;
   var coinRotation = 0;
   document.getElementById('coinFlipBtn').addEventListener('click', async function(){
@@ -3944,7 +3946,7 @@ updateUI();
     grid.querySelectorAll('.roulette-num-btn').forEach(function(btn){ btn.addEventListener('click', function(){ rouletteSelectedNumber = parseInt(btn.getAttribute('data-num'),10); rouletteSelectedOutside = null; rouletteOptCtl.set(null); placeRouletteBetFromBoard(btn); }); });
     grid.querySelectorAll('.roulette-outside-btn').forEach(function(btn){ btn.addEventListener('click', function(){ rouletteSelectedNumber = null; rouletteSelectedOutside = btn.getAttribute('data-outside'); rouletteOptCtl.set(null); placeRouletteBetFromBoard(btn); }); });
   }
-  var rouletteBetCtl = { get:function(){ var el=document.getElementById('rouletteCustomBet'); var v=Math.floor(Number(el && el.value)||1000); return v>0?v:1000; } };
+  var rouletteBetCtl = { get:function(){ var el=document.getElementById('rouletteCustomBet'); var v=Math.floor(Number(el && el.value)||10); return v>0?v:10; } };
   var rouletteSpinning = false;
   var rouletteCountdownActive = false;
   var rouletteBetsClosed = false;
@@ -4043,7 +4045,7 @@ updateUI();
 
   /* ================= MINES ================= */
   var minesCountCtl = buildChipRow('minesCountChips', [3,5,8], 5, function(){});
-  var minesBetCtl = buildBetControl('minesBetChips', 'minesCustomBet', [1000,25000,50000,100000,'allin'], 1000, function(){});
+  var minesBetCtl = buildBetControl('minesBetChips', 'minesCustomBet', [10,25000,50000,100000,'allin'], 10, function(){});
   var minesState = null;
   document.getElementById('minesStartBtn').addEventListener('click', async function(){
     var bet = minesBetCtl.get();
@@ -4135,7 +4137,7 @@ updateUI();
   });
 
   /* ================= BLACKJACK ================= */
-  var bjBetCtl = buildBetControl('bjBetChips', 'bjCustomBet', [1000,25000,50000,100000,'allin'], 1000, function(){});
+  var bjBetCtl = buildBetControl('bjBetChips', 'bjCustomBet', [10,25000,50000,100000,'allin'], 10, function(){});
   var bjState = null;
 
   function bjCardEl(card){
@@ -4290,7 +4292,7 @@ updateUI();
   document.querySelectorAll('#baccaratOptions [data-val]').forEach(function(b){ b.addEventListener('click', function(){ setBaccaratSide(b.getAttribute('data-val')); haptic('light'); }); });
   setBaccaratSide('player');
   var baccaratOptCtl = { get:function(){ return baccaratSelected; } };
-  var baccaratBetCtl = buildBetControl('baccaratChips', 'baccaratCustomBet', [1000,25000,50000,100000,'allin'], 1000, function(){});
+  var baccaratBetCtl = buildBetControl('baccaratChips', 'baccaratCustomBet', [10,25000,50000,100000,'allin'], 10, function(){});
   function bacCardName(n){ var names={1:'A',11:'J',12:'Q',13:'K'}; return names[n] || String(n); }
   var baccaratRoad=[];
   function renderBaccaratRoad(){ var box=document.getElementById('baccaratRoadmap'); if(!box) return; var arr=baccaratRoad.slice(-24); while(arr.length<24) arr.unshift(''); box.innerHTML=arr.map(function(x){return '<span class="bac-road-cell '+(x||'')+'"></span>';}).join(''); }
@@ -4392,7 +4394,7 @@ updateUI();
   document.getElementById('transferBtn').addEventListener('click', async function(){
     var username = (document.getElementById('transferRecipient').value || '').trim().replace(/^@/,'');
     var amount = parseInt(document.getElementById('transferAmount').value, 10);
-    if(!username){ showToast('Введи username Telegram','error'); return; }
+    if(!username){ showToast('Введи @username или ID игрока','error'); return; }
     if(!amount || amount<=0){ showToast('Введи сумму перевода','error'); return; }
     if(backendReady && backendBalance < amount){ showToast('Недостаточно Gamble Coin!','error'); haptic('error'); return; }
     try{
@@ -4403,7 +4405,7 @@ updateUI();
         document.getElementById('transferRecipient').value = '';
         showToast('Отправлено '+fmt(amount)+' GC игроку @'+username, 'success');
       } else {
-        showToast('Переводы по username работают после Telegram-авторизации','error');
+        showToast('Переводы по @username или ID работают после Telegram-авторизации','error');
       }
       bumpBalanceChip(); haptic('success'); renderAll();
     }catch(e){ showToast(e.message || 'Ошибка перевода','error'); haptic('error'); }
@@ -4441,22 +4443,28 @@ updateUI();
   function bestAvatar(u){ return (u && (u.photoUrl || u.avatar)) || '👤'; }
   function userDisplayName(u){ return (u && (u.firstName || u.username || u.name)) || 'Игрок'; }
 
+  function isPhotoUrl(v){ return typeof v === 'string' && (/^https?:\/\//.test(v) || /^\/\//.test(v)); }
+  function normalizePhotoUrl(v){ return (typeof v === 'string' && /^\/\//.test(v)) ? ('https:'+v) : v; }
   function setAvatarEl(id, avatar){
     var el = document.getElementById(id);
     if(!el) return;
-    if(typeof avatar === 'string' && /^https?:\/\//.test(avatar)){
+    avatar = normalizePhotoUrl(avatar);
+    if(isPhotoUrl(avatar)){
       el.textContent = '';
+      el.innerHTML = '<img alt="" src="'+escapeHtml(avatar)+'" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;display:block;">';
       el.style.backgroundImage = 'url("' + avatar.replace(/"/g, '%22') + '")';
       el.classList.add('has-photo');
     } else {
+      el.innerHTML = '';
       el.style.backgroundImage = '';
       el.classList.remove('has-photo');
       el.textContent = avatar || '👤';
     }
   }
   function avatarHtml(avatar){
-    if(typeof avatar === 'string' && /^https?:\/\//.test(avatar)){
-      return '<span class="avatar-badge has-photo" style="width:32px;height:32px;border-radius:10px;background-image:url(&quot;'+avatar.replace(/&/g,'&amp;').replace(/"/g,'&quot;')+'&quot;);background-size:cover;background-position:center;"></span>';
+    avatar = normalizePhotoUrl(avatar);
+    if(isPhotoUrl(avatar)){
+      return '<span class="avatar-badge has-photo"><img alt="" src="'+escapeHtml(avatar)+'" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;display:block;"></span>';
     }
     return '<span class="avatar-badge">'+escapeHtml(avatar || '👤')+'</span>';
   }
@@ -4618,4 +4626,9 @@ updateUI();
 #heroAvatar.has-photo,#profileAvatar.has-photo,#walletAvatar.has-photo{background-size:cover!important;background-position:center!important;background-color:transparent!important;}
 #leaderboardBox .avatar-badge{display:inline-flex!important;align-items:center!important;justify-content:center!important;width:20px!important;height:20px!important;min-width:20px!important;border-radius:50%!important;font-size:12px!important;background-size:cover!important;background-position:center!important;}
 #leaderboardBox .leader-id{display:block;font-size:10px;font-weight:800;color:#9a9a9a;line-height:1.05;margin-top:1px}.transfer-suggest-box{margin-top:8px;border:1px solid #333;border-radius:14px;overflow:hidden;background:#151515}.transfer-suggest-box.hidden{display:none}.transfer-suggest-item{width:100%;display:flex;align-items:center;gap:10px;padding:9px 10px;background:transparent;border:0;color:#fff;text-align:left}.transfer-suggest-item:not(:last-child){border-bottom:1px solid #2a2a2a}.transfer-suggest-item .avatar-badge{width:28px!important;height:28px!important;min-width:28px!important;border-radius:50%!important;background-size:cover!important;background-position:center!important}.transfer-suggest-item span{display:flex;flex-direction:column;gap:2px}.transfer-suggest-item small{font-size:11px;color:#9a9a9a;font-weight:800}.promo-created-box:empty{display:none!important}
+</style>
+
+<style>
+#screen-home #heroAvatar.avatar-badge.has-photo,#leaderboardBox .avatar-badge.has-photo,#profileAvatar.has-photo,#walletAvatar.has-photo{background:#111!important;background-size:cover!important;background-position:center!important;overflow:hidden!important;}
+#screen-home #heroAvatar.avatar-badge.has-photo img,#leaderboardBox .avatar-badge.has-photo img{display:block!important;width:100%!important;height:100%!important;object-fit:cover!important;border-radius:inherit!important;}
 </style>

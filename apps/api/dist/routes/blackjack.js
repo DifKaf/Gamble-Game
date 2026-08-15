@@ -145,7 +145,7 @@ function serialize(session, balance) {
     };
 }
 const startSchema = z.object({
-    betAmount: z.number().int().positive().max(1000000)
+    betAmount: z.number().int().min(10).max(5000000)
 });
 const sessionIdSchema = z.object({
     sessionId: z.string()

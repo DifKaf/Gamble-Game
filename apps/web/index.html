@@ -2903,12 +2903,36 @@ updateUI();
           </div>
           <div class="roulette-result" id="rouletteResult">Сделай ставку и крути!</div>
         </div>
-        <div class="panel-title">Поле ставок:</div>
-        <div class="roulette-bet-board" id="rouletteNumberGrid"></div>
-        <div class="panel-title bet-title-row"><span>Сумма ставки:</span><span class="bet-balance">Баланс: <b class="miniGameBalance">0</b> GC</span></div>
-        <div class="custom-bet-row"><input type="number" inputmode="numeric" min="1" step="1" placeholder="Сумма ставки" id="rouletteCustomBet"><span>GC</span></div>
-        <button class="btn btn-primary btn-block" id="rouletteSpinBtn">Ожидание ставки</button>
-        <div class="game-history-box"><div class="game-history-title">История игроков</div><div class="panel" id="rouletteGameHistory"></div></div>
+        <div class="baccarat-live-bet-card">
+          <div class="baccarat-bet-top">
+            <div class="baccarat-bet-input-wrap">
+              <input type="number" inputmode="numeric" min="10" max="5000000" step="1" id="baccaratCustomBet" value="10">
+              <span>GC</span>
+              <div class="baccarat-bet-step"><button type="button" id="baccaratMinusBtn">−</button><button type="button" id="baccaratPlusBtn">+</button></div>
+            </div>
+            <button class="btn btn-blue" id="baccaratDealBtn">Ставка 🂡</button>
+          </div>
+          <div class="baccarat-bet-tools">
+            <button type="button" data-bac-tool="half">/2</button>
+            <button type="button" data-bac-tool="double">x2</button>
+          </div>
+          <div class="baccarat-choice-title">Выбери сторону</div>
+          <div class="bac-betting-layout" id="baccaratOptions">
+            <button class="bac-bet-zone" data-val="player">PLAYER<small>x2</small></button>
+            <button class="bac-bet-zone" data-val="tie">TIE<small>x8</small></button>
+            <button class="bac-bet-zone" data-val="banker">BANKER<small>x1.95</small></button>
+          </div>
+          <div class="bac-roadmap" id="baccaratRoadmap"></div>
+          <div class="roulette-result" id="baccaratResult">Выбери сторону и сделай ставку</div>
+        </div>
+        <div class="baccarat-live-history">
+          <div class="baccarat-live-tabs">
+            <div class="baccarat-live-title">Live Ставки</div>
+            <div class="baccarat-tab-actions"><button class="active">• Live</button><button>Мои</button><button>Топ</button></div>
+          </div>
+          <div class="baccarat-history-head"><span>Имя / Ставка GC</span><span>Множитель</span><span>Выигрыш GC</span></div>
+          <div id="baccaratGameHistory"></div>
+        </div>
       </div>
     </section>
 
@@ -4292,7 +4316,11 @@ updateUI();
   document.querySelectorAll('#baccaratOptions [data-val]').forEach(function(b){ b.addEventListener('click', function(){ setBaccaratSide(b.getAttribute('data-val')); haptic('light'); }); });
   setBaccaratSide('player');
   var baccaratOptCtl = { get:function(){ return baccaratSelected; } };
-  var baccaratBetCtl = buildBetControl('baccaratChips', 'baccaratCustomBet', [10,25000,50000,100000,'allin'], 10, function(){});
+  var baccaratBetCtl = { get:function(){ var el=document.getElementById('baccaratCustomBet'); var v=Math.floor(Number(el && el.value)||10); return Math.max(10, Math.min(5000000, v)); } };
+  function setBaccaratBetAmount(v){ var el=document.getElementById('baccaratCustomBet'); if(el) el.value=Math.max(10, Math.min(5000000, Math.floor(v||10))); }
+  document.querySelectorAll('[data-bac-tool]').forEach(function(btn){ btn.addEventListener('click', function(){ var cur=baccaratBetCtl.get(); setBaccaratBetAmount(btn.getAttribute('data-bac-tool')==='half' ? Math.floor(cur/2) : cur*2); }); });
+  var bacMinus=document.getElementById('baccaratMinusBtn'); if(bacMinus) bacMinus.addEventListener('click', function(){ setBaccaratBetAmount(baccaratBetCtl.get()-10); });
+  var bacPlus=document.getElementById('baccaratPlusBtn'); if(bacPlus) bacPlus.addEventListener('click', function(){ setBaccaratBetAmount(baccaratBetCtl.get()+10); });
   function bacCardName(n){ var names={1:'A',11:'J',12:'Q',13:'K'}; return names[n] || String(n); }
   var baccaratRoad=[];
   function renderBaccaratRoad(){ var box=document.getElementById('baccaratRoadmap'); if(!box) return; var arr=baccaratRoad.slice(-24); while(arr.length<24) arr.unshift(''); box.innerHTML=arr.map(function(x){return '<span class="bac-road-cell '+(x||'')+'"></span>';}).join(''); }
@@ -4631,4 +4659,10 @@ updateUI();
 <style>
 #screen-home #heroAvatar.avatar-badge.has-photo,#leaderboardBox .avatar-badge.has-photo,#profileAvatar.has-photo,#walletAvatar.has-photo{background:#111!important;background-size:cover!important;background-position:center!important;overflow:hidden!important;}
 #screen-home #heroAvatar.avatar-badge.has-photo img,#leaderboardBox .avatar-badge.has-photo img{display:block!important;width:100%!important;height:100%!important;object-fit:cover!important;border-radius:inherit!important;}
+</style>
+
+<style>
+/* Baccarat stake panel + live history like reference */
+.baccarat-live-bet-card{background:#101214;border:1px solid #2b2f36;border-radius:16px;padding:10px;margin-top:14px;box-shadow:0 12px 28px rgba(0,0,0,.28)}.baccarat-bet-top{display:grid;grid-template-columns:1.25fr 1fr;gap:12px;align-items:stretch}.baccarat-bet-input-wrap{position:relative;background:#30333a;border-radius:8px;display:flex;align-items:center;padding:0 72px 0 12px;min-height:48px}.baccarat-bet-input-wrap input{width:100%;background:transparent!important;border:0!important;color:#dfe9ff!important;font-weight:950;font-size:15px;outline:0}.baccarat-bet-input-wrap>span{color:#8fa1bd;font-weight:900;margin-left:4px}.baccarat-bet-step{position:absolute;right:8px;top:50%;transform:translateY(-50%);display:flex;gap:12px}.baccarat-bet-step button{background:transparent;border:0;color:#d8e2f4;font-size:18px;font-weight:950}.baccarat-bet-top .btn{margin:0!important;border-radius:8px!important;font-size:18px!important;font-weight:950!important}.baccarat-bet-tools{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:4px}.baccarat-bet-tools button{height:29px;border:0;border-radius:5px;background:#30333a;color:#aebbd0;font-weight:950}.baccarat-choice-title{font-size:12px;font-weight:900;color:#8fa1bd;margin:12px 0 6px}.baccarat-live-history{margin-top:12px;background:#202324;border:1px solid #2a2d31;border-radius:14px;overflow:hidden}.baccarat-live-tabs{display:flex;align-items:center;justify-content:space-between;padding:14px 14px 10px}.baccarat-live-title{font-size:16px;font-weight:950;color:#fff}.baccarat-tab-actions{display:flex;gap:5px}.baccarat-tab-actions button{border:0;border-radius:8px;background:#2b2f33;color:#9fb0c8;font-weight:900;padding:10px 14px}.baccarat-tab-actions button.active{background:#087cff;color:#fff}.baccarat-history-head,.baccarat-live-row{display:grid;grid-template-columns:1.5fr .7fr .8fr;align-items:center;gap:10px}.baccarat-history-head{padding:10px 14px;color:#9fb0c8;font-size:12px;border-top:1px solid rgba(255,255,255,.03);background:#1b1d1f}.baccarat-live-row{padding:11px 14px;background:#222526;border-top:1px solid rgba(255,255,255,.035)}.baccarat-live-row:nth-child(even){background:#1d2021}.baccarat-live-user{display:flex;align-items:center;gap:10px;min-width:0}.baccarat-live-user b{display:block;color:#fff;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px}.baccarat-live-user small{display:block;color:#9fb0c8;font-size:12px;font-weight:900}.baccarat-live-mult{color:#aebbd0;font-weight:950;text-align:center}.baccarat-live-win{font-weight:950;text-align:right;color:#1583ff}.baccarat-live-win.minus{color:#ff4d5e}.baccarat-live-win.plus{color:#1683ff}.baccarat-live-history .game-history-avatar{width:28px!important;height:28px!important;border-radius:50%!important;background:#f1f3f6;color:#333;font-weight:950}
+@media(max-width:560px){.baccarat-bet-top{grid-template-columns:1fr}.baccarat-history-head,.baccarat-live-row{grid-template-columns:1.45fr .55fr .75fr;font-size:12px}.baccarat-tab-actions button{padding:8px 10px}.baccarat-live-user b{max-width:120px}}
 </style>

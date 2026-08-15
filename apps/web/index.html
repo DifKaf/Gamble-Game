@@ -918,7 +918,7 @@ body{background:#000!important;}
 
     <!-- SLOT -->
     <section id="screen-slot" class="screen">
-      <div class="game-header"><button class="back-btn" data-nav="home">←</button><h2>🎰 Drunkard Gate</h2></div>
+      <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>🎰 Drunkard Gate</h2><div class="game-user-chip"><span class="avatar-badge gameHeaderAvatar">🧑</span><b class="gameHeaderBalance">0 GC</b></div></div>
       <div class="olympus-embed-wrap"><iframe class="olympus-embed" title="Drunkard Gate" srcdoc="&lt;!DOCTYPE html&gt;
 &lt;html lang=&quot;ru&quot;&gt;
 &lt;head&gt;
@@ -2820,7 +2820,7 @@ updateUI();
 &lt;/script&gt;
 &lt;/body&gt;
 &lt;/html&gt;"></iframe></div>
-      <div class="game-header"><button class="back-btn" data-nav="home">←</button><h2>🎰 Gamble Vault</h2></div>
+      <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>🎰 Gamble Vault</h2><div class="game-user-chip"><span class="avatar-badge gameHeaderAvatar">🧑</span><b class="gameHeaderBalance">0 GC</b></div></div>
       <div class="slot-cabinet" style="display:none;">
         <div class="lever-wrap" id="leverWrap"><div class="lever-arm"></div><div class="lever-knob"></div></div>
         <div class="jackpot-marquee"><span class="jp-label">🏆 ДЖекпот</span><span class="jp-value" id="slotJackpot">5 000</span><span class="jp-label">GC</span></div>
@@ -2856,7 +2856,7 @@ updateUI();
 
     <!-- DICE -->
     <section id="screen-dice" class="screen">
-      <div class="game-header"><button class="back-btn" data-nav="home">←</button><h2>🎲 Кости</h2></div>
+      <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>🎲 Кости</h2><div class="game-user-chip"><span class="avatar-badge gameHeaderAvatar">🧑</span><b class="gameHeaderBalance">0 GC</b></div></div>
       <div class="panel">
         <div class="dice-row"><div class="die" id="die0"></div><div class="die" id="die1"></div></div>
         <div class="dice-sum">Сумма: <b id="diceSum">—</b></div>
@@ -2866,7 +2866,7 @@ updateUI();
           <button class="option-btn" data-val="exact">Ровно 7<small>x5</small></button>
           <button class="option-btn" data-val="over">Больше 7<small>x1.9</small></button>
         </div>
-        <div class="panel-title bet-title-row"><span>Сумма ставки:</span><span class="bet-balance">Баланс: <b class="miniGameBalance">0</b> GC</span></div>
+        <div class="panel-title bet-title-row"><span>Сумма ставки:</span></div>
         <div class="chip-row" id="diceChips"></div>
         <div class="custom-bet-row"><input type="number" inputmode="numeric" min="1" step="1" placeholder="Своя ставка" id="diceCustomBet"><span>GC</span></div>
         <button class="btn btn-blue btn-block" id="diceRollBtn">🎲 Бросить</button>
@@ -2876,7 +2876,7 @@ updateUI();
 
     <!-- COIN FLIP -->
     <section id="screen-coinflip" class="screen">
-      <div class="game-header"><button class="back-btn" data-nav="home">←</button><h2>🪙 Монетка</h2></div>
+      <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>🪙 Монетка</h2><div class="game-user-chip"><span class="avatar-badge gameHeaderAvatar">🧑</span><b class="gameHeaderBalance">0 GC</b></div></div>
       <div class="panel">
         <div class="coin-stage"><div class="coin" id="coinEl"><div class="coin-face front">🦅</div><div class="coin-face back">Ⓣ</div></div></div>
         <div class="panel-title">Выбери сторону:</div>
@@ -2884,7 +2884,7 @@ updateUI();
           <button class="option-btn" data-val="heads">🦅 Орёл<small>x1.9</small></button>
           <button class="option-btn" data-val="tails">Ⓣ Решка<small>x1.9</small></button>
         </div>
-        <div class="panel-title bet-title-row"><span>Сумма ставки:</span><span class="bet-balance">Баланс: <b class="miniGameBalance">0</b> GC</span></div>
+        <div class="panel-title bet-title-row"><span>Сумма ставки:</span></div>
         <div class="chip-row" id="coinChips"></div>
         <div class="custom-bet-row"><input type="number" inputmode="numeric" min="1" step="1" placeholder="Своя ставка" id="coinCustomBet"><span>GC</span></div>
         <button class="btn btn-gold btn-block" id="coinFlipBtn">🪙 Бросить монету</button>
@@ -2894,7 +2894,7 @@ updateUI();
 
     <!-- ROULETTE -->
     <section id="screen-roulette" class="screen">
-      <div class="game-header"><button class="back-btn" data-nav="home">←</button><h2>🎡 Рулетка</h2></div>
+      <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>🎡 Рулетка</h2><div class="game-user-chip"><span class="avatar-badge gameHeaderAvatar">🧑</span><b class="gameHeaderBalance">0 GC</b></div></div>
       <div class="panel">
         <div class="roulette-stage">
           <div class="roulette-wheel-wrap">
@@ -2911,11 +2911,11 @@ updateUI();
 
     <!-- MINES -->
     <section id="screen-mines" class="screen">
-      <div class="game-header"><button class="back-btn" data-nav="home">←</button><h2>💣 Мины</h2></div>
+      <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>💣 Мины</h2><div class="game-user-chip"><span class="avatar-badge gameHeaderAvatar">🧑</span><b class="gameHeaderBalance">0 GC</b></div></div>
       <div class="panel" id="minesSetupPanel">
         <div class="panel-title">Количество мин:</div>
         <div class="chip-row" id="minesCountChips"></div>
-        <div class="panel-title bet-title-row"><span>Сумма ставки:</span><span class="bet-balance">Баланс: <b class="miniGameBalance">0</b> GC</span></div>
+        <div class="panel-title bet-title-row"><span>Сумма ставки:</span></div>
         <div class="chip-row" id="minesBetChips"></div>
         <div class="custom-bet-row"><input type="number" inputmode="numeric" min="1" step="1" placeholder="Своя ставка" id="minesCustomBet"><span>GC</span></div>
         <button class="btn btn-green btn-block" id="minesStartBtn">💎 Начать раунд</button>
@@ -2929,7 +2929,7 @@ updateUI();
     </section>
     <!-- BLACKJACK -->
     <section id="screen-blackjack" class="screen">
-      <div class="game-header"><button class="back-btn" data-nav="home">←</button><h2>🃏 Blackjack</h2></div>
+      <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>🃏 Blackjack</h2><div class="game-user-chip"><span class="avatar-badge gameHeaderAvatar">🧑</span><b class="gameHeaderBalance">0 GC</b></div></div>
       <div class="bj-table">
         <div class="bj-row bj-dealer-row">
           <div class="bj-label">Дилер <span id="bjDealerTotal">—</span></div>
@@ -2942,7 +2942,7 @@ updateUI();
         </div>
       </div>
       <div class="panel" id="bjBetPanel">
-        <div class="panel-title bet-title-row"><span>Сумма ставки:</span><span class="bet-balance">Баланс: <b class="miniGameBalance">0</b> GC</span></div>
+        <div class="panel-title bet-title-row"><span>Сумма ставки:</span></div>
         <div class="chip-row" id="bjBetChips"></div>
         <div class="custom-bet-row"><input type="number" inputmode="numeric" min="1" step="1" placeholder="Своя ставка" id="bjCustomBet"><span>GC</span></div>
         <button class="btn btn-gold btn-block" id="bjDealBtn">🃏 Раздать карты</button>
@@ -2968,7 +2968,7 @@ updateUI();
 
     <!-- BACCARAT -->
     <section id="screen-baccarat" class="screen">
-      <div class="game-header baccarat-game-header"><button class="back-btn" data-nav="minigames">←</button><h2>Baccarat</h2><div class="baccarat-user-chip"><span class="avatar-badge" id="baccaratHeaderAvatar">🧑</span><b id="baccaratHeaderBalance">0 GC</b></div></div>
+      <div class="game-header baccarat-game-header"><button class="back-btn" data-back="1">←</button><h2>Baccarat</h2><div class="baccarat-user-chip game-user-chip"><span class="avatar-badge gameHeaderAvatar" id="baccaratHeaderAvatar">🧑</span><b class="gameHeaderBalance" id="baccaratHeaderBalance">0 GC</b></div></div>
       <div class="panel baccarat-panel">
         <div class="bac-live-stage">
           <div class="bac-table-arc"></div>
@@ -3167,6 +3167,8 @@ updateUI();
       setAvatarEl('profileAvatar', photoUrl || '👤');
       setAvatarEl('baccaratHeaderAvatar', photoUrl || '👤');
       var baccaratHeaderBalance=document.getElementById('baccaratHeaderBalance'); if(baccaratHeaderBalance) baccaratHeaderBalance.textContent = full;
+      document.querySelectorAll('.gameHeaderAvatar').forEach(function(el){ if(!el.id) el.id='gameHeaderAvatar_'+Math.random().toString(36).slice(2); setAvatarEl(el.id, photoUrl || '👤'); });
+      document.querySelectorAll('.gameHeaderBalance').forEach(function(el){ el.textContent = full; });
     }
   }
 
@@ -3399,6 +3401,8 @@ updateUI();
 
   /* ================= Navigation ================= */
   var mainTabs = ['home','games','wallet','profile'];
+  var screenHistory = [];
+  var currentScreen = 'home';
   function stopDrunkardGateAudio(){
     var frame = document.querySelector('#screen-slot .olympus-embed');
     if(!frame) return;
@@ -3426,7 +3430,10 @@ updateUI();
       renderBalances();
     }
   }
-  function showScreen(name){
+  function showScreen(name, opts){
+    opts = opts || {};
+    if(!opts.skipHistory && currentScreen && currentScreen !== name){ screenHistory.push(currentScreen); if(screenHistory.length>30) screenHistory.shift(); }
+    currentScreen = name;
     var wasSlot = document.getElementById('screen-slot') && document.getElementById('screen-slot').classList.contains('active');
     if(wasSlot && name !== 'slot') stopDrunkardGateAudio();
     document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
@@ -3448,6 +3455,9 @@ updateUI();
   });
   document.querySelectorAll('[data-open]').forEach(function(btn){
     btn.addEventListener('click', function(){ showScreen(btn.getAttribute('data-open')); haptic('light'); });
+  });
+  document.querySelectorAll('[data-back]').forEach(function(btn){
+    btn.addEventListener('click', function(){ var prev=screenHistory.pop() || 'home'; showScreen(prev,{skipHistory:true}); haptic('light'); });
   });
 
   /* ================= Chip helpers (bet selectors) ================= */
@@ -4520,6 +4530,8 @@ updateUI();
     document.querySelectorAll('.miniGameBalance').forEach(function(el){ el.textContent = fmt(p.balance); });
     setAvatarEl('walletAvatar', p.avatar);
     var walletNameEl=document.getElementById('walletName'); if(walletNameEl) walletNameEl.textContent = p.name;
+    document.querySelectorAll('.gameHeaderAvatar').forEach(function(el){ if(!el.id) el.id='gameHeaderAvatar_'+Math.random().toString(36).slice(2); setAvatarEl(el.id, p.avatar); });
+    document.querySelectorAll('.gameHeaderBalance').forEach(function(el){ el.textContent = fmt(p.balance)+' GC'; });
     setAvatarEl('baccaratHeaderAvatar', p.avatar);
     var baccaratHeaderBalanceEl=document.getElementById('baccaratHeaderBalance'); if(baccaratHeaderBalanceEl) baccaratHeaderBalanceEl.textContent = fmt(p.balance)+' GC';
   }
@@ -4697,4 +4709,10 @@ updateUI();
 #screen-baccarat #baccaratDealBtn{display:none!important;}
 #screen-baccarat #baccaratResult:empty{display:none!important;}
 @media(max-width:420px){.baccarat-user-chip b{font-size:12px}.baccarat-user-chip{padding:5px 7px}.baccarat-user-chip .avatar-badge{width:24px!important;height:24px!important;min-width:24px!important}}
+</style>
+
+<style>
+.bet-balance,.miniGameBalance{display:none!important;}
+.game-header{display:flex!important;align-items:center!important;gap:12px!important}.game-header h2{flex:1!important}.game-user-chip{margin-left:auto;display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:999px;background:#171a1f;border:1px solid #2b3038;color:#fff;font-weight:950;white-space:nowrap}.game-user-chip .avatar-badge{width:28px!important;height:28px!important;min-width:28px!important;border-radius:50%!important;font-size:13px!important;background-size:cover!important;background-position:center!important;overflow:hidden!important}.game-user-chip .avatar-badge img{width:100%!important;height:100%!important;object-fit:cover!important;border-radius:inherit!important;display:block!important}
+@media(max-width:420px){.game-user-chip b{font-size:12px}.game-user-chip{padding:5px 7px}.game-user-chip .avatar-badge{width:24px!important;height:24px!important;min-width:24px!important}}
 </style>

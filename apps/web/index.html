@@ -4009,6 +4009,8 @@ updateUI();
   function placeRouletteBetFromBoard(btn){
     if(rouletteBetsClosed || rouletteSpinning){ showToast('Ставки уже закрыты','error'); return; }
     var amount = rouletteBetCtl.get();
+    var currentTotal = roulettePendingBets.reduce(function(sum,b){ return sum + Number(b.amount||0); }, 0);
+    if(currentTotal + amount > 5000000){ showToast('Общая ставка в рулетке максимум 5 000 000 GC','error'); haptic('error'); return; }
     if(backendReady && backendBalance < amount){ showToast('Недостаточно Gamble Coin!','error'); haptic('error'); return; }
     var payload = roulettePayloadFromSelection(); if(!payload){ showToast('Выбери поле ставки','error'); return; }
     if(backendReady){
@@ -4062,7 +4064,17 @@ updateUI();
         roulettePendingBets=[]; setRouletteBoardDisabled(false); document.querySelectorAll('.roulette-chip-on-board').forEach(function(chip){ chip.remove(); }); document.querySelectorAll('.roulette-num-btn,.roulette-outside-btn').forEach(function(b){ b.classList.remove('active'); });
         rouletteSelectedNumber=null; rouletteSelectedOutside=null; renderAll(); rouletteSpinning=false; rouletteCountdownActive=false; rouletteBetsClosed=false; var btn=document.getElementById('rouletteSpinBtn'); if(btn) btn.textContent='Ожидание ставки';
       },900);
-    }catch(e){ showToast(e.message || 'Ошибка ставки','error'); rouletteSpinning=false; rouletteCountdownActive=false; rouletteBetsClosed=false; setRouletteBoardDisabled(false); }
+    }catch(e){
+      showToast(e.message || 'Ошибка ставки','error');
+      rouletteSpinning=false; rouletteCountdownActive=false; rouletteBetsClosed=false;
+      setRouletteBoardDisabled(false);
+      var btn=document.getElementById('rouletteSpinBtn'); if(btn) btn.textContent='Ожидание ставки';
+      var resultEl2=document.getElementById('rouletteResult'); if(resultEl2) resultEl2.textContent='Ошибка ставки. Можно поставить заново.';
+      roulettePendingBets=[];
+      document.querySelectorAll('.roulette-chip-on-board').forEach(function(chip){ chip.remove(); });
+      document.querySelectorAll('.roulette-num-btn,.roulette-outside-btn').forEach(function(b){ b.classList.remove('active'); });
+      if(backendReady){ refreshBackendBalanceForScreen(); }
+    }
   }
   document.getElementById('rouletteSpinBtn').addEventListener('click', function(){ showToast('Нажми на поле ставок — игра начнётся автоматически','info'); });
 
@@ -4774,5 +4786,23 @@ updateUI();
     margin-left:calc(50% + 155px)!important;
   }
   #screen-roulette .roulette-number-grid{min-height:490px!important;}
+}
+</style>
+
+<style>
+/* Mobile roulette stable vertical board after bets */
+@media(max-width:560px){
+  #screen-roulette .roulette-bet-board{
+    transform:none!important;
+    width:100%!important;
+    min-width:0!important;
+    max-width:360px!important;
+    margin:14px auto!important;
+    grid-template-columns:44px repeat(3,minmax(42px,1fr))!important;
+    overflow:visible!important;
+  }
+  #screen-roulette .roulette-number-grid{min-height:0!important;display:block!important;overflow:visible!important;}
+  #screen-roulette .roulette-num-btn,#screen-roulette .roulette-outside-btn{min-height:34px!important;font-size:13px!important;}
+  #screen-roulette .roulette-chip-on-board{transform:translateX(-50%)!important;bottom:1px!important;font-size:8px!important;min-width:22px!important;padding:1px 4px!important;}
 }
 </style>

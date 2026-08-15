@@ -1774,6 +1774,7 @@ let ac=null,mst=null,bgG=null,sfG=null,drG=null,sndOn=true;
 const bgTm=[];
 
 function initAudio(){
+  return;
   if(ac) return;
   ac=new ACls();
   mst=ac.createGain(); mst.gain.value=0.7; mst.connect(ac.destination);
@@ -1809,6 +1810,7 @@ const BASS_B=[73.42,87.31,98,110,87.31,98,73.42,65.41];
 const BASS_FS=[146.83,174.61,196,220,174.61,196,146.83,130.81]; // FS bass octave up
 
 function schedMusic(freeSpinMode){
+  return;
   if(!ac||!sndOn) return;
   const t=ac.currentTime+.06;
   const BARS=8;
@@ -1865,6 +1867,7 @@ function stopBg(){
 }
 
 function sfx(type){
+  return;
   if(!ac||!sndOn) return;
   const t=ac.currentTime;
   if(type===&#x27;click&#x27;) mkO(660,&#x27;sine&#x27;,.28,t,.08,sfG);
@@ -2903,6 +2906,7 @@ updateUI();
           </div>
           <div class="roulette-result" id="rouletteResult">Сделай ставку и крути!</div>
         </div>
+        <div class="custom-bet-row roulette-stake-row"><input type="number" inputmode="numeric" min="10" max="5000000" step="1" value="10" placeholder="Сумма ставки" id="rouletteCustomBet"><span>GC</span></div>
         <div class="roulette-number-grid" id="rouletteNumberGrid"></div>
         <button class="btn btn-blue btn-block" id="rouletteSpinBtn">Крутить</button>
         <div class="game-history-box"><div class="game-history-title">История игроков</div><div class="panel" id="rouletteGameHistory"></div></div>
@@ -4348,11 +4352,16 @@ updateUI();
     var total=totalBaccaratBet();
     try{
       var primary=entries[0];
-      var result=await serverBet('baccarat', total, {side:primary,bets:entries.map(function(k){return {side:k,amount:baccaratPendingBets[k]};})});
+      var placed=Object.assign({}, baccaratPendingBets);
+      var result=await serverBet('baccarat', total, {side:primary,bets:entries.map(function(k){return {side:k,amount:placed[k]};})});
       await renderBaccarat(result);
       var names={player:'Игрок',banker:'Банкир',tie:'Ничья'};
-      var res=document.getElementById('baccaratResult'); if(res) res.textContent='Победил: '+names[result.winner]+' • '+(result.win?('+'+fmt(result.winAmount)+' GC'):'проигрыш');
-      if(result.winAmount>0){ showWinOverlay(result.winAmount); haptic('success'); } else { haptic('error'); }
+      var refund = result.refundAmount || 0;
+      if(result.winner==='tie' && !placed.tie){ refund = (placed.player||0) + (placed.banker||0); }
+      if(refund>0 && backendReady){ try{ var rd=await apiRequest('/wallet/game-adjust',{method:'POST',body:JSON.stringify({amount:refund,source:'baccarat-refund',metadata:{push:true}})}); backendBalance=rd.balance; applyBackendBalanceToUI(); renderBalances(); }catch(e){} }
+      var shownWin = (result.winAmount||0) + refund;
+      var res=document.getElementById('baccaratResult'); if(res) res.textContent='Победил: '+names[result.winner]+' • '+(shownWin>0?('+'+fmt(shownWin)+' GC'):'проигрыш');
+      if(shownWin>0){ showWinOverlay(shownWin); haptic('success'); } else { haptic('error'); }
       baccaratPendingBets={player:0,tie:0,banker:0}; renderBaccaratChips(); renderAll();
     }catch(e){ showToast(e.message || 'Ошибка Baccarat','error'); haptic('error'); }
     baccaratRoundActive=false;
@@ -4715,4 +4724,55 @@ updateUI();
 .bet-balance,.miniGameBalance{display:none!important;}
 .game-header{display:flex!important;align-items:center!important;gap:12px!important}.game-header h2{flex:1!important}.game-user-chip{margin-left:auto;display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:999px;background:#171a1f;border:1px solid #2b3038;color:#fff;font-weight:950;white-space:nowrap}.game-user-chip .avatar-badge{width:28px!important;height:28px!important;min-width:28px!important;border-radius:50%!important;font-size:13px!important;background-size:cover!important;background-position:center!important;overflow:hidden!important}.game-user-chip .avatar-badge img{width:100%!important;height:100%!important;object-fit:cover!important;border-radius:inherit!important;display:block!important}
 @media(max-width:420px){.game-user-chip b{font-size:12px}.game-user-chip{padding:5px 7px}.game-user-chip .avatar-badge{width:24px!important;height:24px!important;min-width:24px!important}}
+</style>
+
+<style>
+#app.drunkard-standalone #screen-slot .game-user-chip{display:none!important;}
+#app.drunkard-standalone #screen-slot .game-header{width:auto!important;right:auto!important;}
+</style>
+
+<style>
+#screen-roulette .roulette-bet-board{display:grid!important;grid-template-columns:34px repeat(12,minmax(0,1fr)) 32px!important;gap:1px!important;width:100%!important;max-width:920px!important;margin:18px auto 14px!important;overflow:visible!important;}
+#screen-roulette .roulette-num-btn,#screen-roulette .roulette-outside-btn{position:relative!important;min-width:0!important;min-height:34px!important;touch-action:manipulation!important;}
+#screen-roulette .roulette-chip-on-board{pointer-events:none!important;position:absolute!important;left:50%!important;bottom:2px!important;transform:translateX(-50%)!important;z-index:4!important;min-width:26px!important;padding:2px 5px!important;border-radius:999px!important;background:#ffd166!important;color:#1b1200!important;font-size:10px!important;font-weight:950!important;box-shadow:0 3px 8px rgba(0,0,0,.35)!important;}
+#screen-roulette .roulette-num-btn.zero{grid-row:1/4!important;grid-column:1!important;}
+#screen-roulette .roulette-stake-row{max-width:920px;margin:12px auto!important;}
+@media(max-width:430px){#screen-roulette .roulette-bet-board{grid-template-columns:28px repeat(12,minmax(0,1fr)) 24px!important;padding:1px!important}#screen-roulette .roulette-num-btn,#screen-roulette .roulette-outside-btn{min-height:30px!important;font-size:9px!important}.roulette-chip-on-board{font-size:8px!important;min-width:20px!important;padding:1px 3px!important}}
+</style>
+
+<style>
+/* Mobile roulette: rotated betting board for easier tapping */
+@media(max-width:560px){
+  #screen-roulette .roulette-bet-board{
+    transform:rotate(90deg) translateY(-100%);
+    transform-origin:top left;
+    width:78vh!important;
+    max-width:640px!important;
+    min-width:430px!important;
+    margin:12px 0 0 calc(50% + 170px)!important;
+  }
+  #screen-roulette .roulette-number-grid{
+    min-height:520px!important;
+    overflow:visible!important;
+    display:block!important;
+  }
+  #screen-roulette .roulette-num-btn,
+  #screen-roulette .roulette-outside-btn{
+    min-height:38px!important;
+    font-size:12px!important;
+  }
+  #screen-roulette .roulette-chip-on-board{
+    transform:translateX(-50%) rotate(-90deg)!important;
+    font-size:9px!important;
+  }
+  #screen-roulette .roulette-stage{margin-bottom:4px!important;}
+}
+@media(max-width:390px){
+  #screen-roulette .roulette-bet-board{
+    width:74vh!important;
+    min-width:400px!important;
+    margin-left:calc(50% + 155px)!important;
+  }
+  #screen-roulette .roulette-number-grid{min-height:490px!important;}
+}
 </style>

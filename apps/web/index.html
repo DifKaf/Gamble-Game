@@ -2968,7 +2968,7 @@ updateUI();
 
     <!-- BACCARAT -->
     <section id="screen-baccarat" class="screen">
-      <div class="game-header"><button class="back-btn" data-nav="minigames">←</button><h2>Baccarat</h2></div>
+      <div class="game-header baccarat-game-header"><button class="back-btn" data-nav="minigames">←</button><h2>Baccarat</h2><div class="baccarat-user-chip"><span class="avatar-badge" id="baccaratHeaderAvatar">🧑</span><b id="baccaratHeaderBalance">0 GC</b></div></div>
       <div class="panel baccarat-panel">
         <div class="bac-live-stage">
           <div class="bac-table-arc"></div>
@@ -2985,7 +2985,6 @@ updateUI();
               <span>GC</span>
               <div class="baccarat-bet-step"><button type="button" id="baccaratMinusBtn">−</button><button type="button" id="baccaratPlusBtn">+</button></div>
             </div>
-            <button class="btn btn-blue" id="baccaratDealBtn">Ставка 🂡</button>
           </div>
           <div class="baccarat-bet-tools">
             <button type="button" data-bac-tool="half">/2</button>
@@ -2999,7 +2998,7 @@ updateUI();
           </div>
           <div class="bac-countdown hidden" id="baccaratCountdown">Старт через 15</div>
           <div class="bac-roadmap" id="baccaratRoadmap"></div>
-          <div class="roulette-result" id="baccaratResult">Выбери сумму и нажимай на PLAYER / TIE / BANKER</div>
+          <div class="roulette-result" id="baccaratResult"></div>
         </div>
       </div>
     </section>
@@ -3010,7 +3009,6 @@ updateUI();
       <div class="balance-card">
         <div class="label">Баланс Gamble Coin</div>
         <div class="amount" id="walletBalance">0 GC</div>
-        <div class="who"><span id="walletAvatar">🧑</span><span id="walletName">Игрок</span></div>
       </div>
 
       <div class="panel" style="margin-top:16px;">
@@ -3167,6 +3165,8 @@ updateUI();
       setAvatarEl('heroAvatar', photoUrl || '👤');
       setAvatarEl('walletAvatar', photoUrl || '👤');
       setAvatarEl('profileAvatar', photoUrl || '👤');
+      setAvatarEl('baccaratHeaderAvatar', photoUrl || '👤');
+      var baccaratHeaderBalance=document.getElementById('baccaratHeaderBalance'); if(baccaratHeaderBalance) baccaratHeaderBalance.textContent = full;
     }
   }
 
@@ -4520,6 +4520,8 @@ updateUI();
     document.querySelectorAll('.miniGameBalance').forEach(function(el){ el.textContent = fmt(p.balance); });
     setAvatarEl('walletAvatar', p.avatar);
     var walletNameEl=document.getElementById('walletName'); if(walletNameEl) walletNameEl.textContent = p.name;
+    setAvatarEl('baccaratHeaderAvatar', p.avatar);
+    var baccaratHeaderBalanceEl=document.getElementById('baccaratHeaderBalance'); if(baccaratHeaderBalanceEl) baccaratHeaderBalanceEl.textContent = fmt(p.balance)+' GC';
   }
   function renderLeaderboard(){
     var box = document.getElementById('leaderboardBox');
@@ -4681,4 +4683,18 @@ updateUI();
 
 <style>
 #screen-baccarat .baccarat-vs{display:none!important}#screen-baccarat .baccarat-table{grid-template-columns:1fr 1fr!important}.bac-bet-zone{position:relative;overflow:visible}.bac-bet-zone.bac-player{background:linear-gradient(180deg,#117cff,#0757bf)!important;border-color:#3194ff!important}.bac-bet-zone.bac-tie{background:linear-gradient(180deg,#11a85f,#08713f)!important;border-color:#22cc78!important}.bac-bet-zone.bac-banker{background:linear-gradient(180deg,#e03b45,#9d1f2a)!important;border-color:#ff6370!important}.bac-chip-on-zone{display:none;position:absolute;left:50%;bottom:8px;transform:translateX(-50%);min-width:54px;padding:5px 9px;border-radius:999px;background:linear-gradient(180deg,#ffe08a,#d59a24);color:#1c1200;font-size:12px;font-weight:950;box-shadow:0 5px 12px rgba(0,0,0,.35);z-index:3}.bac-chip-on-zone.show{display:inline-flex;align-items:center;justify-content:center}.bac-countdown{margin:10px 0;padding:10px;border-radius:10px;background:#222b35;color:#fff;text-align:center;font-weight:950;border:1px solid #35465a}.bac-countdown.hidden{display:none!important}#screen-baccarat .baccarat-live-history,#screen-baccarat .game-history-box{display:none!important}
+</style>
+
+<style>
+#screen-wallet .balance-card .who{display:none!important;}
+#screen-baccarat .baccarat-game-header{display:flex!important;align-items:center!important;gap:12px!important;}
+#screen-baccarat .baccarat-game-header h2{flex:1!important;}
+.baccarat-user-chip{margin-left:auto;display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:999px;background:#171a1f;border:1px solid #2b3038;color:#fff;font-weight:950;white-space:nowrap;}
+.baccarat-user-chip .avatar-badge{width:28px!important;height:28px!important;min-width:28px!important;border-radius:50%!important;font-size:13px!important;background-size:cover!important;background-position:center!important;overflow:hidden!important;}
+.baccarat-user-chip .avatar-badge img{width:100%!important;height:100%!important;object-fit:cover!important;border-radius:inherit!important;display:block!important;}
+#screen-baccarat .baccarat-bet-top{display:block!important;}
+#screen-baccarat .baccarat-bet-input-wrap{width:100%!important;box-sizing:border-box!important;}
+#screen-baccarat #baccaratDealBtn{display:none!important;}
+#screen-baccarat #baccaratResult:empty{display:none!important;}
+@media(max-width:420px){.baccarat-user-chip b{font-size:12px}.baccarat-user-chip{padding:5px 7px}.baccarat-user-chip .avatar-badge{width:24px!important;height:24px!important;min-width:24px!important}}
 </style>

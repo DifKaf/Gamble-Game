@@ -3965,6 +3965,18 @@ updateUI();
     html += '<button class="roulette-outside-btn doz" data-outside="first12">1-12</button><button class="roulette-outside-btn doz" data-outside="second12">13-24</button><button class="roulette-outside-btn doz" data-outside="third12">25-36</button>';
     html += '<button class="roulette-outside-btn wide" data-outside="low">1-18</button><button class="roulette-outside-btn wide" data-outside="even">ЧЁТ</button><button class="roulette-outside-btn wide red" data-outside="red"></button><button class="roulette-outside-btn wide black" data-outside="black"></button><button class="roulette-outside-btn wide" data-outside="odd">НЕЧЕТ</button><button class="roulette-outside-btn wide" data-outside="high">19-36</button>';
     grid.innerHTML = html;
+    // Assign a named grid-area to every cell (n1..n36, z, t1..t3, d1..d3, o1..o6).
+    // CSS then defines two different grid-template-areas layouts (desktop table
+    // vs. mobile vertical table) so numbers always land in the correct spot on
+    // every screen size, with no JS resize logic required.
+    for(var num=1; num<=36; num++){ var c=grid.querySelector('[data-num="'+num+'"]'); if(c) c.style.gridArea = 'n'+num; }
+    var zeroCell = grid.querySelector('[data-num="0"]'); if(zeroCell) zeroCell.style.gridArea = 'z';
+    var twoOneMap = {row1:'t1', row2:'t2', row3:'t3'};
+    Object.keys(twoOneMap).forEach(function(v){ var cell=grid.querySelector('[data-outside="'+v+'"]'); if(cell) cell.style.gridArea = twoOneMap[v]; });
+    var dozenMap = {first12:'d1', second12:'d2', third12:'d3'};
+    Object.keys(dozenMap).forEach(function(v){ var cell=grid.querySelector('[data-outside="'+v+'"]'); if(cell) cell.style.gridArea = dozenMap[v]; });
+    var outsideMap = {low:'o1', even:'o2', red:'o3', black:'o4', odd:'o5', high:'o6'};
+    Object.keys(outsideMap).forEach(function(v){ var cell=grid.querySelector('[data-outside="'+v+'"]'); if(cell) cell.style.gridArea = outsideMap[v]; });
     function clearBoard(){ grid.querySelectorAll('.roulette-num-btn,.roulette-outside-btn').forEach(function(b){ b.classList.remove('active'); var old=b.querySelector('.roulette-chip-on-board'); if(old) old.remove(); }); }
     function putRouletteChip(btn){ var amount = rouletteBetCtl ? rouletteBetCtl.get() : 0; var chip=document.createElement('span'); chip.className='roulette-chip-on-board'; chip.textContent=fmt(amount); btn.appendChild(chip); }
     grid.querySelectorAll('.roulette-num-btn').forEach(function(btn){ btn.addEventListener('click', function(){ rouletteSelectedNumber = parseInt(btn.getAttribute('data-num'),10); rouletteSelectedOutside = null; rouletteOptCtl.set(null); placeRouletteBetFromBoard(btn); }); });
@@ -4054,7 +4066,7 @@ updateUI();
       if(backendReady){ backendBalance += totalBetAmount; }
       var result=await serverBet('roulette', totalBetAmount, { bets: roulettePendingBets.map(function(b){ return { amount:b.amount, payload:b.payload }; }) });
       var idx=Math.max(0, ROULETTE_NUMBERS.indexOf(Number(result.number))); var step=360/ROULETTE_NUMBERS.length; var targetAngle=idx*step;
-      wheelRotation=0; var finalBallAngle=targetAngle; ballRotation += 360*3 + ((finalBallAngle - (ballRotation % 360) + 360) % 360);
+      wheelRotation=0; var finalBallAngle=targetAngle; ballRotation += 360*6 + ((finalBallAngle - (ballRotation % 360) + 360) % 360);
       var wheelWrap=document.querySelector('#screen-roulette .roulette-wheel-wrap'), wheelEl=document.getElementById('wheelEl'), ballTrack=document.getElementById('rouletteBallTrack');
       if(wheelWrap) wheelWrap.classList.add('spinning'); if(wheelEl) wheelEl.style.transform='rotate(0deg)'; if(ballTrack) ballTrack.style.transform='rotate('+ballRotation+'deg)';
       setTimeout(function(){
@@ -4063,7 +4075,7 @@ updateUI();
         if(result.winAmount>0){ addHistory(me(),'win', result.winAmount, 'Рулетка'); showWinOverlay(result.winAmount); haptic('success'); } else { addHistory(me(),'loss', totalBetAmount, 'Рулетка'); haptic('error'); }
         roulettePendingBets=[]; setRouletteBoardDisabled(false); document.querySelectorAll('.roulette-chip-on-board').forEach(function(chip){ chip.remove(); }); document.querySelectorAll('.roulette-num-btn,.roulette-outside-btn').forEach(function(b){ b.classList.remove('active'); });
         rouletteSelectedNumber=null; rouletteSelectedOutside=null; renderAll(); rouletteSpinning=false; rouletteCountdownActive=false; rouletteBetsClosed=false; var btn=document.getElementById('rouletteSpinBtn'); if(btn) btn.textContent='Ожидание ставки';
-      },900);
+      },1800);
     }catch(e){
       showToast(e.message || 'Ошибка ставки','error');
       rouletteSpinning=false; rouletteCountdownActive=false; rouletteBetsClosed=false;
@@ -4742,67 +4754,114 @@ updateUI();
 #app.drunkard-standalone #screen-slot .game-user-chip{display:none!important;}
 #app.drunkard-standalone #screen-slot .game-header{width:auto!important;right:auto!important;}
 </style>
-
 <style>
-#screen-roulette .roulette-bet-board{display:grid!important;grid-template-columns:34px repeat(12,minmax(0,1fr)) 32px!important;gap:1px!important;width:100%!important;max-width:920px!important;margin:18px auto 14px!important;overflow:visible!important;}
-#screen-roulette .roulette-num-btn,#screen-roulette .roulette-outside-btn{position:relative!important;min-width:0!important;min-height:34px!important;touch-action:manipulation!important;}
-#screen-roulette .roulette-chip-on-board{pointer-events:none!important;position:absolute!important;left:50%!important;bottom:2px!important;transform:translateX(-50%)!important;z-index:4!important;min-width:26px!important;padding:2px 5px!important;border-radius:999px!important;background:#ffd166!important;color:#1b1200!important;font-size:10px!important;font-weight:950!important;box-shadow:0 3px 8px rgba(0,0,0,.35)!important;}
-#screen-roulette .roulette-num-btn.zero{grid-row:1/4!important;grid-column:1!important;}
+/* ================= ROULETTE TABLE: unified clean layout (replaces all previous
+   patches). Each cell gets a named grid-area in JS (n1..n36, z, t1..t3, d1..d3,
+   o1..o6); only grid-template-areas/columns/rows differ between desktop and
+   mobile, so numbers always land in the correct casino-table position. ================= */
+#screen-roulette .roulette-number-grid{width:100%;display:flex;justify-content:center;overflow:visible;}
+#screen-roulette #rouletteNumberGrid{
+  display:grid!important;
+  gap:2px!important;
+  width:100%!important;
+  max-width:920px!important;
+  margin:18px auto 14px!important;
+  overflow:visible!important;
+  grid-template-columns:34px repeat(12,minmax(0,1fr)) 32px!important;
+  grid-template-rows:repeat(3,44px) 40px 40px!important;
+  grid-template-areas:
+    "z n3 n6 n9 n12 n15 n18 n21 n24 n27 n30 n33 n36 t1"
+    "z n2 n5 n8 n11 n14 n17 n20 n23 n26 n29 n32 n35 t2"
+    "z n1 n4 n7 n10 n13 n16 n19 n22 n25 n28 n31 n34 t3"
+    ". d1 d1 d1 d1 d2 d2 d2 d2 d3 d3 d3 d3 ."
+    ". o1 o1 o2 o2 o3 o3 o4 o4 o5 o5 o6 o6 ." !important;
+}
+#screen-roulette #rouletteNumberGrid .roulette-num-btn,
+#screen-roulette #rouletteNumberGrid .roulette-outside-btn{
+  position:relative!important;
+  min-width:0!important;
+  min-height:0!important;
+  width:100%!important;
+  height:100%!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  touch-action:manipulation!important;
+  font-size:13px!important;
+  line-height:1!important;
+  padding:0!important;
+  white-space:normal!important;
+  transform:none!important;
+}
+#screen-roulette #rouletteNumberGrid .roulette-num-btn.zero{border-radius:7px 0 0 7px!important;font-size:16px!important;}
+#screen-roulette #rouletteNumberGrid .roulette-outside-btn.doz,
+#screen-roulette #rouletteNumberGrid .roulette-outside-btn.wide{font-size:10px!important;}
+#screen-roulette #rouletteNumberGrid .roulette-outside-btn.twoone{font-size:11px!important;}
+#screen-roulette #rouletteNumberGrid .roulette-chip-on-board{
+  pointer-events:none!important;
+  position:absolute!important;
+  left:50%!important;top:50%!important;bottom:auto!important;
+  transform:translate(-50%,-50%)!important;
+  z-index:8!important;
+  min-width:22px!important;
+  padding:2px 5px!important;
+  border-radius:999px!important;
+  background:#ffd166!important;
+  color:#1b1200!important;
+  font-size:10px!important;
+  font-weight:950!important;
+  box-shadow:0 3px 8px rgba(0,0,0,.35)!important;
+}
 #screen-roulette .roulette-stake-row{max-width:920px;margin:12px auto!important;}
-@media(max-width:430px){#screen-roulette .roulette-bet-board{grid-template-columns:28px repeat(12,minmax(0,1fr)) 24px!important;padding:1px!important}#screen-roulette .roulette-num-btn,#screen-roulette .roulette-outside-btn{min-height:30px!important;font-size:9px!important}.roulette-chip-on-board{font-size:8px!important;min-width:20px!important;padding:1px 3px!important}}
-</style>
 
-<style>
-/* Mobile roulette: rotated betting board for easier tapping */
+/* Mobile: transpose into a vertical table (3 number columns instead of 12),
+   dozens as a left label column, other outside bets as a right label column,
+   zero as a header bar, 2:1 buttons as a bottom row. */
 @media(max-width:560px){
-  #screen-roulette .roulette-bet-board{
-    transform:rotate(90deg) translateY(-100%);
-    transform-origin:top left;
-    width:78vh!important;
-    max-width:640px!important;
-    min-width:430px!important;
-    margin:12px 0 0 calc(50% + 170px)!important;
+  #screen-roulette #rouletteNumberGrid{
+    grid-template-columns:38px repeat(3,minmax(0,1fr)) 38px!important;
+    grid-template-rows:36px repeat(12,34px) 40px!important;
+    grid-template-areas:
+      ". z z z ."
+      "d1 n1 n2 n3 o1"
+      "d1 n4 n5 n6 o1"
+      "d1 n7 n8 n9 o2"
+      "d1 n10 n11 n12 o2"
+      "d2 n13 n14 n15 o3"
+      "d2 n16 n17 n18 o3"
+      "d2 n19 n20 n21 o4"
+      "d2 n22 n23 n24 o4"
+      "d3 n25 n26 n27 o5"
+      "d3 n28 n29 n30 o5"
+      "d3 n31 n32 n33 o6"
+      "d3 n34 n35 n36 o6"
+      ". t3 t2 t1 ." !important;
+    width:100%!important;
+    max-width:380px!important;
+    margin:10px auto 16px!important;
+    gap:2px!important;
   }
-  #screen-roulette .roulette-number-grid{
-    min-height:520px!important;
-    overflow:visible!important;
-    display:block!important;
-  }
-  #screen-roulette .roulette-num-btn,
-  #screen-roulette .roulette-outside-btn{
-    min-height:38px!important;
-    font-size:12px!important;
-  }
-  #screen-roulette .roulette-chip-on-board{
-    transform:translateX(-50%) rotate(-90deg)!important;
+  #screen-roulette #rouletteNumberGrid .roulette-num-btn,
+  #screen-roulette #rouletteNumberGrid .roulette-outside-btn{font-size:12px!important;}
+  #screen-roulette #rouletteNumberGrid .roulette-num-btn.zero{font-size:14px!important;border-radius:7px!important;}
+  #screen-roulette #rouletteNumberGrid .roulette-outside-btn.doz,
+  #screen-roulette #rouletteNumberGrid .roulette-outside-btn.wide{
     font-size:9px!important;
+    writing-mode:vertical-rl!important;
+    text-orientation:mixed!important;
   }
-  #screen-roulette .roulette-stage{margin-bottom:4px!important;}
+  #screen-roulette #rouletteNumberGrid .roulette-outside-btn.twoone{font-size:10px!important;}
+  #screen-roulette #rouletteNumberGrid .roulette-chip-on-board{
+    min-width:20px!important;height:18px!important;font-size:8px!important;padding:0 3px!important;
+  }
 }
 @media(max-width:390px){
-  #screen-roulette .roulette-bet-board{
-    width:74vh!important;
-    min-width:400px!important;
-    margin-left:calc(50% + 155px)!important;
+  #screen-roulette #rouletteNumberGrid{
+    grid-template-columns:34px repeat(3,minmax(0,1fr)) 34px!important;
+    grid-template-rows:32px repeat(12,31px) 36px!important;
+    max-width:340px!important;
   }
-  #screen-roulette .roulette-number-grid{min-height:490px!important;}
-}
-</style>
-
-<style>
-/* Mobile roulette stable vertical board after bets */
-@media(max-width:560px){
-  #screen-roulette .roulette-bet-board{
-    transform:none!important;
-    width:100%!important;
-    min-width:0!important;
-    max-width:360px!important;
-    margin:14px auto!important;
-    grid-template-columns:44px repeat(3,minmax(42px,1fr))!important;
-    overflow:visible!important;
-  }
-  #screen-roulette .roulette-number-grid{min-height:0!important;display:block!important;overflow:visible!important;}
-  #screen-roulette .roulette-num-btn,#screen-roulette .roulette-outside-btn{min-height:34px!important;font-size:13px!important;}
-  #screen-roulette .roulette-chip-on-board{transform:translateX(-50%)!important;bottom:1px!important;font-size:8px!important;min-width:22px!important;padding:1px 4px!important;}
+  #screen-roulette #rouletteNumberGrid .roulette-num-btn,
+  #screen-roulette #rouletteNumberGrid .roulette-outside-btn{font-size:11px!important;}
 }
 </style>

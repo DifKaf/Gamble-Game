@@ -2874,10 +2874,18 @@ updateUI();
           <button class="option-btn" data-val="exact">Ровно 7<small>x5</small></button>
           <button class="option-btn" data-val="over">Больше 7<small>x1.9</small></button>
         </div>
-        <div class="panel-title bet-title-row"><span>Сумма ставки:</span></div>
-        <div class="chip-row" id="diceChips"></div>
-        <div class="custom-bet-row"><input type="number" inputmode="numeric" min="10" max="5000000" step="1" placeholder="Своя ставка" id="diceCustomBet"><span>GC</span></div>
-        <button class="btn btn-gold btn-block" id="diceRollBtn">🎲 Бросить</button>
+        <div class="baccarat-bet-top">
+          <div class="baccarat-bet-input-wrap">
+            <input type="number" inputmode="numeric" min="10" max="5000000" step="1" id="diceCustomBet" value="10">
+            <span>GC</span>
+            <div class="baccarat-bet-step"><button type="button" id="diceMinusBtn">−</button><button type="button" id="dicePlusBtn">+</button></div>
+          </div>
+        </div>
+        <div class="baccarat-bet-tools">
+          <button type="button" data-bet-tool="half" data-target="dice">/2</button>
+          <button type="button" data-bet-tool="double" data-target="dice">x2</button>
+        </div>
+        <button class="btn btn-blue btn-block" id="diceRollBtn">🎲 Бросить</button>
         <div class="game-history-box"><div class="game-history-title">История игроков</div><div class="panel" id="diceGameHistory"></div></div>
       </div>
     </section>
@@ -2892,9 +2900,17 @@ updateUI();
           <button class="option-btn" data-val="heads">🦅 Орёл<small>x1.9</small></button>
           <button class="option-btn" data-val="tails">Ⓣ Решка<small>x1.9</small></button>
         </div>
-        <div class="panel-title bet-title-row"><span>Сумма ставки:</span></div>
-        <div class="chip-row" id="coinChips"></div>
-        <div class="custom-bet-row"><input type="number" inputmode="numeric" min="10" max="5000000" step="1" placeholder="Своя ставка" id="coinCustomBet"><span>GC</span></div>
+        <div class="baccarat-bet-top">
+          <div class="baccarat-bet-input-wrap">
+            <input type="number" inputmode="numeric" min="10" max="5000000" step="1" id="coinCustomBet" value="10">
+            <span>GC</span>
+            <div class="baccarat-bet-step"><button type="button" id="coinMinusBtn">−</button><button type="button" id="coinPlusBtn">+</button></div>
+          </div>
+        </div>
+        <div class="baccarat-bet-tools">
+          <button type="button" data-bet-tool="half" data-target="coin">/2</button>
+          <button type="button" data-bet-tool="double" data-target="coin">x2</button>
+        </div>
         <button class="btn btn-gold btn-block" id="coinFlipBtn">🪙 Бросить монету</button>
         <div class="game-history-box"><div class="game-history-title">История игроков</div><div class="panel" id="coinflipGameHistory"></div></div>
       </div>
@@ -2911,11 +2927,19 @@ updateUI();
           </div>
           <div class="roulette-result" id="rouletteResult">Сделай ставку и крути!</div>
         </div>
-        <div class="panel-title bet-title-row"><span>Сумма ставки:</span></div>
-        <div class="chip-row" id="rouletteChips"></div>
-        <div class="custom-bet-row roulette-stake-row"><input type="number" inputmode="numeric" min="10" max="5000000" step="1" value="10" placeholder="Сумма ставки" id="rouletteCustomBet"><span>GC</span></div>
+        <div class="baccarat-bet-top">
+          <div class="baccarat-bet-input-wrap">
+            <input type="number" inputmode="numeric" min="10" max="5000000" step="1" id="rouletteCustomBet" value="10">
+            <span>GC</span>
+            <div class="baccarat-bet-step"><button type="button" id="rouletteMinusBtn">−</button><button type="button" id="roulettePlusBtn">+</button></div>
+          </div>
+        </div>
+        <div class="baccarat-bet-tools">
+          <button type="button" data-bet-tool="half" data-target="roulette">/2</button>
+          <button type="button" data-bet-tool="double" data-target="roulette">x2</button>
+        </div>
         <div class="roulette-number-grid" id="rouletteNumberGrid"></div>
-        <button class="btn btn-gold btn-block" id="rouletteSpinBtn">Крутить</button>
+        <button class="btn btn-blue btn-block" id="rouletteSpinBtn">Крутить</button>
         <div class="game-history-box"><div class="game-history-title">История игроков</div><div class="panel" id="rouletteGameHistory"></div></div>
       </div>
     </section>
@@ -2926,10 +2950,19 @@ updateUI();
       <div class="panel" id="minesSetupPanel">
         <div class="panel-title">Количество мин:</div>
         <div class="chip-row" id="minesCountChips"></div>
-        <div class="panel-title bet-title-row"><span>Сумма ставки:</span></div>
-        <div class="chip-row" id="minesBetChips"></div>
-        <div class="custom-bet-row"><input type="number" inputmode="numeric" min="10" max="5000000" step="1" placeholder="Своя ставка" id="minesCustomBet"><span>GC</span></div>
-        <button class="btn btn-gold btn-block" id="minesStartBtn">💎 Начать раунд</button>
+        <div class="custom-bet-row"><input type="number" inputmode="numeric" min="1" max="24" step="1" placeholder="Своё количество" id="minesCountCustom"><span>мин</span></div>
+        <div class="baccarat-bet-top">
+          <div class="baccarat-bet-input-wrap">
+            <input type="number" inputmode="numeric" min="10" max="5000000" step="1" id="minesCustomBet" value="10">
+            <span>GC</span>
+            <div class="baccarat-bet-step"><button type="button" id="minesMinusBtn">−</button><button type="button" id="minesPlusBtn">+</button></div>
+          </div>
+        </div>
+        <div class="baccarat-bet-tools">
+          <button type="button" data-bet-tool="half" data-target="mines">/2</button>
+          <button type="button" data-bet-tool="double" data-target="mines">x2</button>
+        </div>
+        <button class="btn btn-green btn-block" id="minesStartBtn">💎 Начать раунд</button>
         <div class="game-history-box"><div class="game-history-title">История игроков</div><div class="panel" id="minesGameHistory"></div></div>
       </div>
       <div class="panel hidden" id="minesGamePanel">
@@ -2953,9 +2986,17 @@ updateUI();
         </div>
       </div>
       <div class="panel" id="bjBetPanel">
-        <div class="panel-title bet-title-row"><span>Сумма ставки:</span></div>
-        <div class="chip-row" id="bjBetChips"></div>
-        <div class="custom-bet-row"><input type="number" inputmode="numeric" min="10" max="5000000" step="1" placeholder="Своя ставка" id="bjCustomBet"><span>GC</span></div>
+        <div class="baccarat-bet-top">
+          <div class="baccarat-bet-input-wrap">
+            <input type="number" inputmode="numeric" min="10" max="5000000" step="1" id="bjCustomBet" value="10">
+            <span>GC</span>
+            <div class="baccarat-bet-step"><button type="button" id="bjMinusBtn">−</button><button type="button" id="bjPlusBtn">+</button></div>
+          </div>
+        </div>
+        <div class="baccarat-bet-tools">
+          <button type="button" data-bet-tool="half" data-target="blackjack">/2</button>
+          <button type="button" data-bet-tool="double" data-target="blackjack">x2</button>
+        </div>
         <button class="btn btn-gold btn-block" id="bjDealBtn">🃏 Раздать карты</button>
         <div class="game-history-box"><div class="game-history-title">История игроков</div><div class="panel" id="blackjackGameHistory"></div></div>
       </div>
@@ -3533,7 +3574,7 @@ updateUI();
           var v = parseInt(input.value, 10);
           if(!isNaN(v) && v>0) return v;
         }
-        if(selected==='allin') return Math.min(5000000, Math.max(1, Math.floor((backendReady ? backendBalance : me().balance) || 0)));
+        if(selected==='allin') return Math.max(1, Math.floor((backendReady ? backendBalance : me().balance) || 0));
         return selected;
       }
     };
@@ -3555,6 +3596,60 @@ updateUI();
       selected = val;
       btns.forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-val')===val); });
     }};
+  }
+
+  function wireBetStepTools(inputId, minusId, plusId, target, min, max){
+    var el = document.getElementById(inputId);
+    function getVal(){ var v = Math.floor(Number(el && el.value) || min); return Math.max(min, Math.min(max, v)); }
+    function setVal(v){ if(el) el.value = Math.max(min, Math.min(max, Math.floor(v||min))); }
+    var minusBtn = document.getElementById(minusId); if(minusBtn) minusBtn.addEventListener('click', function(){ setVal(getVal()-10); });
+    var plusBtn = document.getElementById(plusId); if(plusBtn) plusBtn.addEventListener('click', function(){ setVal(getVal()+10); });
+    document.querySelectorAll('[data-bet-tool][data-target="'+target+'"]').forEach(function(btn){
+      btn.addEventListener('click', function(){ var cur=getVal(); setVal(btn.getAttribute('data-bet-tool')==='half' ? Math.floor(cur/2) : cur*2); });
+    });
+    return { get:getVal, set:setVal };
+  }
+
+  function buildCustomCountControl(containerId, customInputId, values, defaultVal, min, max, onChange){
+    var box = document.getElementById(containerId);
+    var input = document.getElementById(customInputId);
+    box.innerHTML = '';
+    var selected = defaultVal;
+    values.forEach(function(v){
+      var chip = document.createElement('button');
+      chip.className = 'chip' + (v===defaultVal?' active':'');
+      chip.textContent = String(v);
+      chip.addEventListener('click', function(){
+        box.querySelectorAll('.chip').forEach(function(c){ c.classList.remove('active'); });
+        chip.classList.add('active');
+        selected = v;
+        if(input) input.value = '';
+        onChange(v);
+        haptic('light');
+      });
+      box.appendChild(chip);
+    });
+    if(input){
+      input.addEventListener('input', function(){
+        var raw = input.value.replace(/[^0-9]/g,'');
+        if(raw !== input.value) input.value = raw;
+        var v = parseInt(raw, 10);
+        if(!isNaN(v) && v>0){
+          box.querySelectorAll('.chip').forEach(function(c){ c.classList.remove('active'); });
+          selected = Math.max(min, Math.min(max, v));
+          onChange(selected);
+        }
+      });
+    }
+    return {
+      get: function(){
+        if(input && input.value !== ''){
+          var v = parseInt(input.value, 10);
+          if(!isNaN(v) && v>0) return Math.max(min, Math.min(max, v));
+        }
+        return Math.max(min, Math.min(max, selected));
+      }
+    };
   }
 
   /* ================= SLOT ================= */
@@ -3862,7 +3957,7 @@ updateUI();
 
   /* ================= DICE ================= */
   var diceOptCtl = buildOptionRow('diceOptions', function(){});
-  var diceBetCtl = buildBetControl('diceChips', 'diceCustomBet', [10,25000,50000,100000,'allin'], 10, function(){});
+  var diceBetCtl = wireBetStepTools('diceCustomBet', 'diceMinusBtn', 'dicePlusBtn', 'dice', 10, 5000000);
   var DICE_PIPS = {
     1:[5],
     2:[1,9],
@@ -3927,7 +4022,7 @@ updateUI();
 
   /* ================= COIN FLIP ================= */
   var coinOptCtl = buildOptionRow('coinOptions', function(){});
-  var coinBetCtl = buildBetControl('coinChips', 'coinCustomBet', [10,25000,50000,100000,'allin'], 10, function(){});
+  var coinBetCtl = wireBetStepTools('coinCustomBet', 'coinMinusBtn', 'coinPlusBtn', 'coin', 10, 5000000);
   var coinFlipping = false;
   var coinRotation = 0;
   document.getElementById('coinFlipBtn').addEventListener('click', async function(){
@@ -3989,8 +4084,7 @@ updateUI();
     grid.querySelectorAll('.roulette-num-btn').forEach(function(btn){ btn.addEventListener('click', function(){ rouletteSelectedNumber = parseInt(btn.getAttribute('data-num'),10); rouletteSelectedOutside = null; rouletteOptCtl.set(null); placeRouletteBetFromBoard(btn); }); });
     grid.querySelectorAll('.roulette-outside-btn').forEach(function(btn){ btn.addEventListener('click', function(){ rouletteSelectedNumber = null; rouletteSelectedOutside = btn.getAttribute('data-outside'); rouletteOptCtl.set(null); placeRouletteBetFromBoard(btn); }); });
   }
-  var rouletteBetCtl = { get:function(){ var el=document.getElementById('rouletteCustomBet'); var v=Math.floor(Number(el && el.value)||10); return v>0?v:10; } };
-  buildChipRow('rouletteChips', [10,25000,50000,100000], 10, function(v){ var el=document.getElementById('rouletteCustomBet'); if(el) el.value = v; });
+  var rouletteBetCtl = wireBetStepTools('rouletteCustomBet', 'rouletteMinusBtn', 'roulettePlusBtn', 'roulette', 10, 5000000);
   var rouletteSpinning = false;
   var rouletteCountdownActive = false;
   var rouletteBetsClosed = false;
@@ -4100,8 +4194,8 @@ updateUI();
 
 
   /* ================= MINES ================= */
-  var minesCountCtl = buildChipRow('minesCountChips', [3,5,8], 5, function(){});
-  var minesBetCtl = buildBetControl('minesBetChips', 'minesCustomBet', [10,25000,50000,100000,'allin'], 10, function(){});
+  var minesCountCtl = buildCustomCountControl('minesCountChips', 'minesCountCustom', [3,5,8], 5, 1, 24, function(){});
+  var minesBetCtl = wireBetStepTools('minesCustomBet', 'minesMinusBtn', 'minesPlusBtn', 'mines', 10, 5000000);
   var minesState = null;
   document.getElementById('minesStartBtn').addEventListener('click', async function(){
     var bet = minesBetCtl.get();
@@ -4193,7 +4287,7 @@ updateUI();
   });
 
   /* ================= BLACKJACK ================= */
-  var bjBetCtl = buildBetControl('bjBetChips', 'bjCustomBet', [10,25000,50000,100000,'allin'], 10, function(){});
+  var bjBetCtl = wireBetStepTools('bjCustomBet', 'bjMinusBtn', 'bjPlusBtn', 'blackjack', 10, 5000000);
   var bjState = null;
 
   function bjCardEl(card){
@@ -4319,7 +4413,6 @@ updateUI();
   document.getElementById('bjDoubleBtn').addEventListener('click', async function(){
     if(!bjState) return;
     var doubleBet = Number(bjState.betAmount || bjState.bet || 0);
-    if(backendReady && backendBalance < doubleBet){ showToast('Недостаточно Gamble Coin!','error'); haptic('error'); return; }
     var prevBackendBalance = backendBalance;
     if(backendReady && doubleBet > 0){ backendBalance = Math.max(0, backendBalance - doubleBet); applyBackendBalanceToUI(); renderBalances(); }
     try{
@@ -4746,8 +4839,8 @@ updateUI();
 .baccarat-user-chip{margin-left:auto;display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:999px;background:#171a1f;border:1px solid #2b3038;color:#fff;font-weight:950;white-space:nowrap;}
 .baccarat-user-chip .avatar-badge{width:28px!important;height:28px!important;min-width:28px!important;border-radius:50%!important;font-size:13px!important;background-size:cover!important;background-position:center!important;overflow:hidden!important;}
 .baccarat-user-chip .avatar-badge img{width:100%!important;height:100%!important;object-fit:cover!important;border-radius:inherit!important;display:block!important;}
-#screen-baccarat .baccarat-bet-top{display:block!important;}
-#screen-baccarat .baccarat-bet-input-wrap{width:100%!important;box-sizing:border-box!important;}
+.baccarat-bet-top{display:block!important;}
+.baccarat-bet-input-wrap{width:100%!important;box-sizing:border-box!important;}
 #screen-baccarat #baccaratDealBtn{display:none!important;}
 #screen-baccarat #baccaratResult:empty{display:none!important;}
 @media(max-width:420px){.baccarat-user-chip b{font-size:12px}.baccarat-user-chip{padding:5px 7px}.baccarat-user-chip .avatar-badge{width:24px!important;height:24px!important;min-width:24px!important}}

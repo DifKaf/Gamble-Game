@@ -2,13 +2,15 @@ import { z } from 'zod';
 import { prisma } from '../db.js';
 import { getAuthUser } from '../auth/getUser.js';
 import { applyBalanceChange } from '../wallet/wallet.js';
-const startSchema = z.object({ betAmount: z.number().int().min(10).max(5000000), mineCount: z.number().int().min(3).max(8) });
+const startSchema = z.object({ betAmount: z.number().int().min(10).max(5000000), mineCount: z.number().int().min(1).max(24) });
 const openSchema = z.object({ sessionId: z.string(), cellIndex: z.number().int().min(0).max(24) });
 const cashoutSchema = z.object({ sessionId: z.string() });
-const stepMap = { 3: 0.15, 5: 0.28, 8: 0.5 };
+const TOTAL_CELLS = 25;
+const HOUSE_EDGE = 0.03;
+function fairMultiplier(mineCount, opened) { let mult = 1; for (let i = 0; i < opened; i++) { mult *= (TOTAL_CELLS - i) / (TOTAL_CELLS - mineCount - i); } return mult; }
 function makeMines(count) { const s = new Set(); while (s.size < count)
     s.add(Math.floor(Math.random() * 25)); return Array.from(s); }
-function payoutFor(bet, opened, mineCount) { const mult = Math.round((1 + opened * (stepMap[mineCount] || 0.28)) * 100) / 100; return { multiplier: mult, payout: Math.round(bet * mult) }; }
+function payoutFor(bet, opened, mineCount) { if (opened <= 0) return { multiplier: 1, payout: bet }; const mult = Math.round(fairMultiplier(mineCount, opened) * (1 - HOUSE_EDGE) * 100) / 100; return { multiplier: mult, payout: Math.round(bet * mult) }; }
 export async function minesRoutes(app) {
     app.post('/start', { preHandler: [app.authenticate] }, async (req, rep) => { const user = await getAuthUser(req); const body = startSchema.parse(req.body); const bet = BigInt(body.betAmount); try {
         return await prisma.$transaction(async (tx) => { const fresh = await tx.user.findUniqueOrThrow({ where: { id: user.id } }); if (fresh.balance < bet)

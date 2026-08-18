@@ -50,26 +50,37 @@ export async function coinflipRoutes(app) {
         if (!parsed.success)
             return rep.code(400).send({ error: 'Invalid request' });
         const body = parsed.data;
-        return await prisma.$transaction(async (tx) => {
-            const session = await tx.coinflipSession.findUniqueOrThrow({ where: { id: body.sessionId } });
-            if (session.userId !== user.id)
-                return rep.code(403).send({ error: 'Forbidden' });
-            if (session.status !== 'CREATED' || session.streak < 1)
-                return rep.code(400).send({ error: 'Session finished' });
-            const result = flip();
-            const win = result === body.side;
-            if (!win) {
-                await tx.coinflipSession.update({ where: { id: session.id }, data: { status: 'FINISHED', finishedAt: new Date(), winAmount: 0n } });
-                await tx.gameSession.create({ data: { userId: user.id, gameCode: 'COINFLIP', status: 'FINISHED', betAmount: session.betAmount, winAmount: 0n, multiplier: 0, result: { side: body.side, result, win: false, streak: session.streak } } });
+        try {
+            return await prisma.$transaction(async (tx) => {
+                const session = await tx.coinflipSession.findUniqueOrThrow({ where: { id: body.sessionId } });
+                if (session.userId !== user.id)
+                    throw new Error('Forbidden');
+                if (session.status !== 'CREATED' || session.streak < 1)
+                    throw new Error('Session finished');
+                const result = flip();
+                const win = result === body.side;
+                if (!win) {
+                    await tx.coinflipSession.update({ where: { id: session.id }, data: { status: 'FINISHED', finishedAt: new Date(), winAmount: 0n } });
+                    await tx.gameSession.create({ data: { userId: user.id, gameCode: 'COINFLIP', status: 'FINISHED', betAmount: session.betAmount, winAmount: 0n, multiplier: 0, result: { side: body.side, result, win: false, streak: session.streak } } });
+                    const fresh = await tx.user.findUniqueOrThrow({ where: { id: user.id } });
+                    return { sessionId: session.id, result, win: false, streak: 0, multiplier: 0, payout: 0, balance: Number(fresh.balance), status: 'FINISHED' };
+                }
+                const nextStreak = session.streak + 1;
+                const calc = payoutFor(Number(session.betAmount), nextStreak);
+                await tx.coinflipSession.update({ where: { id: session.id }, data: { streak: nextStreak, multiplier: calc.multiplier } });
                 const fresh = await tx.user.findUniqueOrThrow({ where: { id: user.id } });
-                return { sessionId: session.id, result, win: false, streak: 0, multiplier: 0, payout: 0, balance: Number(fresh.balance), status: 'FINISHED' };
-            }
-            const nextStreak = session.streak + 1;
-            const calc = payoutFor(Number(session.betAmount), nextStreak);
-            await tx.coinflipSession.update({ where: { id: session.id }, data: { streak: nextStreak, multiplier: calc.multiplier } });
-            const fresh = await tx.user.findUniqueOrThrow({ where: { id: user.id } });
-            return { sessionId: session.id, result, win: true, streak: nextStreak, multiplier: calc.multiplier, payout: calc.payout, balance: Number(fresh.balance), status: 'CREATED' };
-        });
+                return { sessionId: session.id, result, win: true, streak: nextStreak, multiplier: calc.multiplier, payout: calc.payout, balance: Number(fresh.balance), status: 'CREATED' };
+            });
+        }
+        catch (e) {
+            if (e.message === 'Forbidden')
+                return rep.code(403).send({ error: 'Forbidden' });
+            if (e.message === 'Session finished')
+                return rep.code(400).send({ error: 'Session finished' });
+            if (e.code === 'P2025')
+                return rep.code(404).send({ error: 'Session not found' });
+            throw e;
+        }
     });
     app.post('/cashout', { preHandler: [app.authenticate] }, async (req, rep) => {
         const user = await getAuthUser(req);
@@ -77,19 +88,32 @@ export async function coinflipRoutes(app) {
         if (!parsed.success)
             return rep.code(400).send({ error: 'Invalid session' });
         const body = parsed.data;
-        return await prisma.$transaction(async (tx) => {
-            const session = await tx.coinflipSession.findUniqueOrThrow({ where: { id: body.sessionId } });
-            if (session.userId !== user.id)
+        try {
+            return await prisma.$transaction(async (tx) => {
+                const session = await tx.coinflipSession.findUniqueOrThrow({ where: { id: body.sessionId } });
+                if (session.userId !== user.id)
+                    throw new Error('Forbidden');
+                if (session.status !== 'CREATED')
+                    throw new Error('Session finished');
+                if (session.streak < 1)
+                    throw new Error('Flip at least once');
+                const calc = payoutFor(Number(session.betAmount), session.streak);
+                const updated = await applyBalanceChange({ tx, userId: user.id, amount: BigInt(calc.payout), type: 'WIN', source: 'coinflip', metadata: { sessionId: session.id, streak: session.streak, multiplier: calc.multiplier } });
+                await tx.coinflipSession.update({ where: { id: session.id }, data: { status: 'FINISHED', finishedAt: new Date(), winAmount: BigInt(calc.payout), multiplier: calc.multiplier } });
+                await tx.gameSession.create({ data: { userId: user.id, gameCode: 'COINFLIP', status: 'FINISHED', betAmount: session.betAmount, winAmount: BigInt(calc.payout), multiplier: calc.multiplier, result: { cashout: true, streak: session.streak, payout: calc.payout } } });
+                return { sessionId: session.id, balance: Number(updated.balance), payout: calc.payout, multiplier: calc.multiplier, status: 'FINISHED' };
+            });
+        }
+        catch (e) {
+            if (e.message === 'Forbidden')
                 return rep.code(403).send({ error: 'Forbidden' });
-            if (session.status !== 'CREATED')
+            if (e.message === 'Session finished')
                 return rep.code(400).send({ error: 'Session finished' });
-            if (session.streak < 1)
+            if (e.message === 'Flip at least once')
                 return rep.code(400).send({ error: 'Flip at least once' });
-            const calc = payoutFor(Number(session.betAmount), session.streak);
-            const updated = await applyBalanceChange({ tx, userId: user.id, amount: BigInt(calc.payout), type: 'WIN', source: 'coinflip', metadata: { sessionId: session.id, streak: session.streak, multiplier: calc.multiplier } });
-            await tx.coinflipSession.update({ where: { id: session.id }, data: { status: 'FINISHED', finishedAt: new Date(), winAmount: BigInt(calc.payout), multiplier: calc.multiplier } });
-            await tx.gameSession.create({ data: { userId: user.id, gameCode: 'COINFLIP', status: 'FINISHED', betAmount: session.betAmount, winAmount: BigInt(calc.payout), multiplier: calc.multiplier, result: { cashout: true, streak: session.streak, payout: calc.payout } } });
-            return { sessionId: session.id, balance: Number(updated.balance), payout: calc.payout, multiplier: calc.multiplier, status: 'FINISHED' };
-        });
+            if (e.code === 'P2025')
+                return rep.code(404).send({ error: 'Session not found' });
+            throw e;
+        }
     });
 }

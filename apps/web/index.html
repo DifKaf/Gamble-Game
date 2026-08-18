@@ -324,6 +324,17 @@ footer,.slot-controls{margin-top:6px;}
   box-shadow:0 6px 0 rgba(0,0,0,0.3);
 }
 .coin-face.back{transform:rotateY(180deg);}
+.coin.pre-spin{transition:none!important;}
+.coin-ladder-wrap{display:flex;align-items:center;gap:6px;margin:0 0 14px;}
+.coin-ladder{display:flex;gap:8px;overflow-x:auto;scroll-behavior:smooth;padding:2px;flex:1;scrollbar-width:none;}
+.coin-ladder::-webkit-scrollbar{display:none;}
+.coin-ladder-chip{flex:0 0 auto;min-width:62px;padding:8px 10px;border-radius:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);text-align:center;font-weight:900;font-size:13px;color:#8a8f9c;transition:all .25s ease;}
+.coin-ladder-chip .coin-ladder-icon{display:block;font-size:15px;margin-bottom:2px;opacity:.55;}
+.coin-ladder-chip.reached{background:rgba(250,204,21,.14);border-color:rgba(250,204,21,.35);color:var(--gold-300);}
+.coin-ladder-chip.reached .coin-ladder-icon{opacity:1;}
+.coin-ladder-chip.active{background:linear-gradient(135deg,var(--gold-300),var(--gold-500));color:#4a3200;border-color:#7A5300;box-shadow:0 4px 10px rgba(0,0,0,.35);transform:scale(1.08);}
+.coin-ladder-chip.active .coin-ladder-icon{opacity:1;}
+.coin-ladder-nav{flex:0 0 auto;width:30px;height:30px;border-radius:50%;border:1px solid rgba(255,255,255,.2);background:rgba(0,0,0,.35);color:#fff;font-size:16px;font-weight:900;line-height:1;}
 
 /* ---------- Roulette ---------- */
 .roulette-stage{display:flex;flex-direction:column;align-items:center;margin:14px 0;}
@@ -883,7 +894,7 @@ body{background:#000!important;}
 
     <!-- BONUSES -->
     <section id="screen-bonuses" class="screen">
-      <div class="game-header"><button class="back-btn" data-nav="home">←</button><h2>Бонусы</h2></div>
+      <div class="game-header"><button class="back-btn" data-nav="home">←</button><h2>Бону��ы</h2></div>
       <div class="panel">
         <div class="panel-title">🎟️ Промокоды</div>
         <div class="custom-bet-row"><input type="text" inputmode="text" placeholder="Введите промокод" id="promoCodeInput"></div>
@@ -902,7 +913,7 @@ body{background:#000!important;}
 
     <!-- SLOTS -->
     <section id="screen-slots" class="screen">
-      <div class="game-header"><button class="back-btn" data-nav="games">←</button><h2>���� Слоты</h2></div>
+      <div class="game-header"><button class="back-btn" data-nav="games">←</button><h2>����� Слоты</h2></div>
       <div class="game-grid">
         <button class="game-card card-slot" data-open="slot" style="grid-column:1/-1;"><div class="icon">🎰</div><div><div class="title">Drunkard Gate</div><div class="sub">Открыть слот</div></div></button>
       </div>
@@ -1434,7 +1445,7 @@ body.pay-info-open #autoBtn{display:none!important;pointer-events:none!important
   &lt;/div&gt;
 
   &lt;div class=&quot;stats&quot;&gt;
-    &lt;div class=&quot;stat&quot;&gt;&lt;div class=&quot;sl&quot;&gt;БАЛАНС&lt;/div&gt;&lt;div class=&quot;sv&quot; id=&quot;balEl&quot;&gt;1000000&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;stat&quot;&gt;&lt;div class=&quot;sl&quot;&gt;БАЛ��НС&lt;/div&gt;&lt;div class=&quot;sv&quot; id=&quot;balEl&quot;&gt;1000000&lt;/div&gt;&lt;/div&gt;
     &lt;div class=&quot;stat&quot;&gt;&lt;div class=&quot;sl&quot;&gt;ОБЩИЙ ВЫИГРЫШ&lt;/div&gt;&lt;div class=&quot;sv&quot; id=&quot;totalInfoVal&quot;&gt;0&lt;/div&gt;&lt;/div&gt;
     &lt;div class=&quot;stat&quot;&gt;&lt;div class=&quot;sl&quot;&gt;РЕЖИМ&lt;/div&gt;&lt;div class=&quot;sv&quot; id=&quot;modeEl&quot;&gt;BASE&lt;/div&gt;&lt;/div&gt;
   &lt;/div&gt;
@@ -1660,7 +1671,7 @@ const SVG = [
 &lt;!-- Highlight --&gt;
 &lt;ellipse cx=&quot;33&quot; cy=&quot;32&quot; rx=&quot;8&quot; ry=&quot;5&quot; fill=&quot;rgba(255,255,255,.3)&quot; transform=&quot;rotate(-20 33 32)&quot;/&gt;
 &lt;/svg&gt;`,
-// 8: HIGH — VODKA BOTTLE (БУТЫЛКА ВОДКИ)
+// 8: HIGH — VODKA BOTTLE (БУТЫЛКА ВОД��И)
 `&lt;svg viewBox=&quot;0 0 80 80&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot;&gt;
 &lt;defs&gt;&lt;linearGradient id=&quot;vk&quot; x1=&quot;0%&quot; y1=&quot;0%&quot; x2=&quot;0%&quot; y2=&quot;100%&quot;&gt;&lt;stop offset=&quot;0%&quot; stop-color=&quot;#f0f9ff&quot;/&gt;&lt;stop offset=&quot;100%&quot; stop-color=&quot;#7dd3fc&quot;/&gt;&lt;/linearGradient&gt;&lt;/defs&gt;
 &lt;!-- Cap --&gt;
@@ -2102,7 +2113,7 @@ async function flyMultToTotal(m){
   const rect=cellEl.getBoundingClientRect();
   const fly=document.createElement(&#x27;div&#x27;);
   fly.className=&#x27;flyMult&#x27;;
-  fly.textContent=&#x27;×&#x27;+m.mult;
+  fly.textContent=&#x27;��&#x27;+m.mult;
   fly.style.background=multBg(m.mult);
   fly.style.left=(rect.left+rect.width/2)+&#x27;px&#x27;;
   fly.style.top=(rect.top+rect.height/2)+&#x27;px&#x27;;
@@ -2127,7 +2138,7 @@ async function showMultiplyEquation(base, mult, result){
   const twEl=document.getElementById(&#x27;totalWinVal&#x27;);
   if(!bar || !twEl) return;
 
-  // Показываем умножение прямо в строке «Выигрыш за падения» —
+  // Показываем умножени�� прямо в строке «Выигрыш за падения» —
   // без отдельной всплывающей таблички, тем же цветом и размером.
   if(twInner) twInner.classList.add(&#x27;show&#x27;);
   tumbleWin=result;
@@ -2543,7 +2554,7 @@ async function doSpin(){
   }
   if(inFreeSpin &amp;&amp; spinWin&gt;0){
     // Фриспины: множители накапливаются глобально и умножают выигрыш последовательности
-    // Умножает выигрыш этого спина только если в этот спин на барабане действительно выпала x.
+    // Умножает выигрыш этого спина т��лько если в этот спин на барабане действительно выпала x.
     const add=finalMults.reduce((a,b)=&gt;a+b,0);
     if(add&gt;0){
       const prevGlobalMult=fsGlobalMult;
@@ -2896,6 +2907,10 @@ updateUI();
       <div class="panel">
         <div class="coin-stage"><div class="coin" id="coinEl"><div class="coin-face front">🦅</div><div class="coin-face back">Ⓣ</div></div></div>
         <div class="mines-status hidden" id="coinStreakStatus"><span>Множитель: <b id="coinMult">x1.00</b></span><span>Выплата: <b id="coinPayout">0</b> GC</span></div>
+        <div class="coin-ladder-wrap hidden" id="coinLadderWrap">
+          <div class="coin-ladder" id="coinLadder"></div>
+          <button type="button" class="coin-ladder-nav" id="coinLadderNext">›</button>
+        </div>
         <div id="coinBetControls">
           <div class="panel-title">Выбери сторону:</div>
           <div class="option-row" id="coinOptions">
@@ -4035,6 +4050,74 @@ updateUI();
   var coinState = null;
   var coinOptCtl = buildOptionRow('coinOptions', function(choice){ startCoinflip(choice); });
   var coinContinueOptCtl = buildOptionRow('coinContinueOptions', function(choice){ continueCoinflip(choice); });
+  var COIN_PER_FLIP_MULTIPLIER = 1.9;
+  var COIN_LADDER_STEPS = 15;
+  var coinLadderChips = [];
+  var coinPreSpinActive = false;
+
+  function coinMultiplierFor(streak){ return Math.round(Math.pow(COIN_PER_FLIP_MULTIPLIER, streak) * 100) / 100; }
+
+  function buildCoinLadder(){
+    var wrap = document.getElementById('coinLadder');
+    if(!wrap) return;
+    wrap.innerHTML = '';
+    coinLadderChips = [];
+    for(var i=1;i<=COIN_LADDER_STEPS;i++){
+      var chip = document.createElement('div');
+      chip.className = 'coin-ladder-chip';
+      chip.setAttribute('data-streak', i);
+      chip.innerHTML = '<span class="coin-ladder-icon">\u2754</span><span class="coin-ladder-val">x' + coinMultiplierFor(i).toFixed(2) + '</span>';
+      wrap.appendChild(chip);
+      coinLadderChips.push(chip);
+    }
+  }
+  function updateCoinLadder(currentStreak){
+    var streak = currentStreak || 0;
+    coinLadderChips.forEach(function(chip){
+      var s = Number(chip.getAttribute('data-streak'));
+      var icon = chip.querySelector('.coin-ladder-icon');
+      chip.classList.remove('active', 'reached');
+      if(s < streak){ chip.classList.add('reached'); if(icon) icon.textContent = '\uD83E\uDE99'; }
+      else if(s === streak){ chip.classList.add('active'); if(icon) icon.textContent = '\uD83E\uDE99'; }
+      else { if(icon) icon.textContent = '\u2754'; }
+    });
+    var activeChip = coinLadderChips[Math.max(0, streak - 1)];
+    if(activeChip && activeChip.scrollIntoView){ activeChip.scrollIntoView({ behavior:'smooth', inline:'center', block:'nearest' }); }
+  }
+  function resetCoinLadder(){
+    updateCoinLadder(0);
+    var box = document.getElementById('coinLadder'); if(box) box.scrollLeft = 0;
+  }
+  buildCoinLadder();
+  var coinLadderNextBtn = document.getElementById('coinLadderNext');
+  if(coinLadderNextBtn){
+    coinLadderNextBtn.addEventListener('click', function(){
+      var box = document.getElementById('coinLadder');
+      if(box) box.scrollBy({ left: 170, behavior:'smooth' });
+    });
+  }
+
+  function startCoinPreSpin(){
+    var coinEl = document.getElementById('coinEl');
+    if(!coinEl) return;
+    coinEl.classList.add('pre-spin');
+    coinPreSpinActive = true;
+    var lastTs = null;
+    function tick(ts){
+      if(!coinPreSpinActive) return;
+      if(lastTs==null) lastTs = ts;
+      var dt = ts - lastTs; lastTs = ts;
+      coinRotation += dt * 0.9;
+      coinEl.style.transform = 'rotateY(' + coinRotation + 'deg)';
+      requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+  function stopCoinPreSpin(){
+    coinPreSpinActive = false;
+    var coinEl = document.getElementById('coinEl');
+    if(coinEl) coinEl.classList.remove('pre-spin');
+  }
 
   function animateCoinTo(side, cb){
     var spins = 4;
@@ -4057,18 +4140,22 @@ updateUI();
     var betBox=document.getElementById('coinBetControls'); if(betBox) betBox.classList.remove('hidden');
     var streakBox=document.getElementById('coinStreakControls'); if(streakBox) streakBox.classList.add('hidden');
     var statusEl=document.getElementById('coinStreakStatus'); if(statusEl) statusEl.classList.add('hidden');
+    var ladderEl=document.getElementById('coinLadderWrap'); if(ladderEl) ladderEl.classList.add('hidden');
     coinContinueOptCtl.set(null);
     coinOptCtl.set(null);
+    resetCoinLadder();
   }
   function showCoinStreakControls(){
     var betBox=document.getElementById('coinBetControls'); if(betBox) betBox.classList.add('hidden');
     var streakBox=document.getElementById('coinStreakControls'); if(streakBox) streakBox.classList.remove('hidden');
     var statusEl=document.getElementById('coinStreakStatus'); if(statusEl) statusEl.classList.remove('hidden');
+    var ladderEl=document.getElementById('coinLadderWrap'); if(ladderEl) ladderEl.classList.remove('hidden');
   }
   function updateCoinStreakUI(){
     var m=document.getElementById('coinMult'); if(m) m.textContent = 'x'+Number(coinState ? coinState.multiplier : 1).toFixed(2);
     var p=document.getElementById('coinPayout'); if(p) p.textContent = fmt(coinState ? coinState.payout : 0);
     var amt=document.getElementById('coinCashoutAmount'); if(amt) amt.textContent = fmt(coinState ? coinState.payout : 0);
+    updateCoinLadder(coinState ? coinState.streak : 0);
   }
 
   async function startCoinflip(choice){
@@ -4078,12 +4165,14 @@ updateUI();
     coinFlipping = true;
     setCoinBetButtonsDisabled(true);
     haptic('medium');
+    startCoinPreSpin();
     var prevBackendBalance = backendBalance;
     try{
       if(!backendReady) await initBackendAuth();
       if(backendReady){ backendBalance = Math.max(0, backendBalance - bet); applyBackendBalanceToUI(); renderBalances(); }
       var data = await apiRequest('/games/coinflip/start', { method:'POST', body:JSON.stringify({ betAmount:bet, side:choice }) });
       backendBalance = data.balance; applyBackendBalanceToUI(); renderBalances();
+      stopCoinPreSpin();
       animateCoinTo(data.result, function(){
         coinFlipping = false;
         setCoinBetButtonsDisabled(false);
@@ -4101,6 +4190,7 @@ updateUI();
         }
       });
     }catch(e){
+      stopCoinPreSpin();
       backendBalance = prevBackendBalance; applyBackendBalanceToUI(); renderBalances();
       showToast(e.message || 'Ошибка ставки','error'); haptic('error');
       coinFlipping = false; setCoinBetButtonsDisabled(false); coinOptCtl.set(null);
@@ -4112,9 +4202,11 @@ updateUI();
     coinFlipping = true;
     setCoinContinueButtonsDisabled(true);
     haptic('medium');
+    startCoinPreSpin();
     try{
       var data = await apiRequest('/games/coinflip/continue', { method:'POST', body:JSON.stringify({ sessionId:coinState.sessionId, side:choice }) });
       backendBalance = data.balance; applyBackendBalanceToUI();
+      stopCoinPreSpin();
       animateCoinTo(data.result, function(){
         coinFlipping = false;
         setCoinContinueButtonsDisabled(false);
@@ -4134,6 +4226,7 @@ updateUI();
         }
       });
     }catch(e){
+      stopCoinPreSpin();
       coinFlipping = false;
       setCoinContinueButtonsDisabled(false);
       showToast(e.message || 'Ошибка ставки','error'); haptic('error');

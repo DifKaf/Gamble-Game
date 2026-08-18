@@ -2855,7 +2855,7 @@ updateUI();
           <div class="paytable-row"><span>👑👑👑 Корона</span><span>x5 / x12 / x30</span></div>
           <div class="paytable-row"><span>💰💰💰 Мешок золота</span><span>x3 / x6 / x15</span></div>
           <div class="paytable-row"><span>🗝️🗝️🗝️ Ключ</span><span>x2 / x4 / x10</span></div>
-          <div class="paytable-row"><span>🦜🦜🦜 Попугай</span><span>x1.5 / x3 / x7</span></div>
+          <div class="paytable-row"><span>🦜🦜�� Попугай</span><span>x1.5 / x3 / x7</span></div>
           <div class="paytable-row"><span>⚓⚓⚓ Якорь</span><span>x1 / x2 / x5</span></div>
           <div class="paytable-note">5 игровых линий (3 прямые + 2 зигзага) · совпадения считаются слева-направо от 1-го барабана · 3+ 🗺️ дают 8 бесплатных спинов ×2 (с ре-триггером) · 5 🏆 на любой линии = весь джекпот!</div>
         </div>
@@ -2885,7 +2885,7 @@ updateUI();
           <button type="button" data-bet-tool="half" data-target="dice">/2</button>
           <button type="button" data-bet-tool="double" data-target="dice">x2</button>
         </div>
-        <button class="btn btn-blue btn-block" id="diceRollBtn">🎲 Бросить</button>
+        <button class="btn btn-green btn-block" id="diceRollBtn" style="margin-top:14px;">Бросить</button>
         <div class="game-history-box"><div class="game-history-title">История игроков</div><div class="panel" id="diceGameHistory"></div></div>
       </div>
     </section>
@@ -2911,7 +2911,7 @@ updateUI();
           <button type="button" data-bet-tool="half" data-target="coin">/2</button>
           <button type="button" data-bet-tool="double" data-target="coin">x2</button>
         </div>
-        <button class="btn btn-gold btn-block" id="coinFlipBtn">🪙 Бросить монету</button>
+        <button class="btn btn-green btn-block" id="coinFlipBtn" style="margin-top:14px;">Бросить монету</button>
         <div class="game-history-box"><div class="game-history-title">История игроков</div><div class="panel" id="coinflipGameHistory"></div></div>
       </div>
     </section>
@@ -2939,7 +2939,6 @@ updateUI();
           <button type="button" data-bet-tool="double" data-target="roulette">x2</button>
         </div>
         <div class="roulette-number-grid" id="rouletteNumberGrid"></div>
-        <button class="btn btn-blue btn-block" id="rouletteSpinBtn">Крутить</button>
         <div class="game-history-box"><div class="game-history-title">История игроков</div><div class="panel" id="rouletteGameHistory"></div></div>
       </div>
     </section>
@@ -2962,7 +2961,7 @@ updateUI();
           <button type="button" data-bet-tool="half" data-target="mines">/2</button>
           <button type="button" data-bet-tool="double" data-target="mines">x2</button>
         </div>
-        <button class="btn btn-green btn-block" id="minesStartBtn">💎 Начать раунд</button>
+        <button class="btn btn-green btn-block" id="minesStartBtn" style="margin-top:14px;">Начать раунд</button>
         <div class="game-history-box"><div class="game-history-title">История игроков</div><div class="panel" id="minesGameHistory"></div></div>
       </div>
       <div class="panel hidden" id="minesGamePanel">
@@ -2997,7 +2996,7 @@ updateUI();
           <button type="button" data-bet-tool="half" data-target="blackjack">/2</button>
           <button type="button" data-bet-tool="double" data-target="blackjack">x2</button>
         </div>
-        <button class="btn btn-gold btn-block" id="bjDealBtn">🃏 Раздать карты</button>
+        <button class="btn btn-green btn-block" id="bjDealBtn" style="margin-top:14px;">Раздать карты</button>
         <div class="game-history-box"><div class="game-history-title">История игроков</div><div class="panel" id="blackjackGameHistory"></div></div>
       </div>
       <div class="panel hidden" id="bjInsurancePanel">
@@ -4190,7 +4189,6 @@ updateUI();
       if(backendReady){ refreshBackendBalanceForScreen(); }
     }
   }
-  document.getElementById('rouletteSpinBtn').addEventListener('click', function(){ showToast('Нажми на поле ставок — игра начнётся автоматически','info'); });
 
 
   /* ================= MINES ================= */

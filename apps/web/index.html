@@ -902,7 +902,7 @@ body{background:#000!important;}
 
     <!-- SLOTS -->
     <section id="screen-slots" class="screen">
-      <div class="game-header"><button class="back-btn" data-nav="games">←</button><h2>🎰 Слоты</h2></div>
+      <div class="game-header"><button class="back-btn" data-nav="games">←</button><h2>���� Слоты</h2></div>
       <div class="game-grid">
         <button class="game-card card-slot" data-open="slot" style="grid-column:1/-1;"><div class="icon">🎰</div><div><div class="title">Drunkard Gate</div><div class="sub">Открыть слот</div></div></button>
       </div>
@@ -1452,7 +1452,7 @@ body.pay-info-open #autoBtn{display:none!important;pointer-events:none!important
   &lt;div id=&quot;mMid&quot;&gt;&lt;/div&gt;
   &lt;div class=&quot;msec&quot;&gt;&amp;#11088; Низкие символы&lt;/div&gt;
   &lt;div id=&quot;mLow&quot;&gt;&lt;/div&gt;
-  &lt;div class=&quot;msec&quot;&gt;&amp;#9889; Специальные&lt;/div&gt;
+  &lt;div class=&quot;msec&quot;&gt;&amp;#9889; Спец��альные&lt;/div&gt;
   &lt;div id=&quot;mSpec&quot;&gt;&lt;/div&gt;
   &lt;div class=&quot;msec&quot;&gt;&amp;#9881; Механика&lt;/div&gt;
   &lt;div class=&quot;mech&quot;&gt;&lt;div class=&quot;mico&quot;&gt;&amp;#128203;&lt;/div&gt;&lt;div class=&quot;mtxt&quot;&gt;&lt;b&gt;6×5, Pay Anywhere.&lt;/b&gt; Кластер от &lt;b&gt;8+ одинаковых символов&lt;/b&gt; в любом месте поля (горизонталь + вертикаль).&lt;/div&gt;&lt;/div&gt;
@@ -2485,7 +2485,7 @@ async function doSpin(){
   let spinWin=0, cc=0;
   // ПАДЕНИЕ (Tumble): выигрышные символы исчезают, сверху падают новые.
   // Символы-множители падают на поле вместе с обычными. В базовой игре в конце
-  // последовательности все множители на поле суммируются и умножают общий выигрыш.
+  // ��оследовательности все множители на поле суммируются и умножают общий выигрыш.
   // В фриспинах множитель накапливается глобально на весь бонусный раунд.
   while(true){
     const clusters=findClusters();
@@ -2895,7 +2895,7 @@ updateUI();
       <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>🪙 Монетка</h2><div class="game-user-chip"><span class="avatar-badge gameHeaderAvatar">🧑</span><b class="gameHeaderBalance">0 GC</b></div></div>
       <div class="panel">
         <div class="coin-stage"><div class="coin" id="coinEl"><div class="coin-face front">🦅</div><div class="coin-face back">Ⓣ</div></div></div>
-        <div class="mines-status hidden" id="coinStreakStatus"><span>Серия: <b id="coinStreak">0</b></span><span>Множитель: <b id="coinMult">x1.00</b></span><span>Выплата: <b id="coinPayout">0</b> GC</span></div>
+        <div class="mines-status hidden" id="coinStreakStatus"><span>Множитель: <b id="coinMult">x1.00</b></span><span>Выплата: <b id="coinPayout">0</b> GC</span></div>
         <div id="coinBetControls">
           <div class="panel-title">Выбери сторону:</div>
           <div class="option-row" id="coinOptions">
@@ -2913,16 +2913,13 @@ updateUI();
             <button type="button" data-bet-tool="half" data-target="coin">/2</button>
             <button type="button" data-bet-tool="double" data-target="coin">x2</button>
           </div>
-          <button class="btn btn-green btn-block" id="coinFlipBtn" style="margin-top:14px;">Бросить монету</button>
         </div>
         <div id="coinStreakControls" class="hidden">
-          <div class="panel-title">Выбери сторону для продолжения:</div>
           <div class="option-row" id="coinContinueOptions">
-            <button class="option-btn" data-val="heads">🦅 Орёл</button>
-            <button class="option-btn" data-val="tails">Ⓣ Решка</button>
+            <button class="option-btn" data-val="heads">🦅 Орёл<small>x1.9</small></button>
+            <button class="option-btn" data-val="tails">Ⓣ Решка<small>x1.9</small></button>
           </div>
-          <button class="btn btn-green btn-block" id="coinContinueBtn">Подбросить ещё раз</button>
-          <button class="btn btn-gold btn-block" id="coinCashoutBtn" style="margin-top:10px;">💰 Забрать выигрыш</button>
+          <button class="btn btn-gold btn-block" id="coinCashoutBtn" style="margin-top:10px;">💰 Забрать выигрыш (<span id="coinCashoutAmount">0</span> GC)</button>
         </div>
         <div class="game-history-box"><div class="game-history-title">История игроков</div><div class="panel" id="coinflipGameHistory"></div></div>
       </div>
@@ -4032,12 +4029,12 @@ updateUI();
   });
 
   /* ================= COIN FLIP ================= */
-  var coinOptCtl = buildOptionRow('coinOptions', function(){});
-  var coinContinueOptCtl = buildOptionRow('coinContinueOptions', function(){});
   var coinBetCtl = wireBetStepTools('coinCustomBet', 'coinMinusBtn', 'coinPlusBtn', 'coin', 10, 5000000);
   var coinFlipping = false;
   var coinRotation = 0;
   var coinState = null;
+  var coinOptCtl = buildOptionRow('coinOptions', function(choice){ startCoinflip(choice); });
+  var coinContinueOptCtl = buildOptionRow('coinContinueOptions', function(choice){ continueCoinflip(choice); });
 
   function animateCoinTo(side, cb){
     var spins = 4;
@@ -4048,11 +4045,20 @@ updateUI();
     setTimeout(cb, 1150);
   }
 
+  function setCoinBetButtonsDisabled(disabled){
+    Array.prototype.slice.call(document.querySelectorAll('#coinOptions .option-btn')).forEach(function(b){ b.disabled = disabled; });
+  }
+  function setCoinContinueButtonsDisabled(disabled){
+    Array.prototype.slice.call(document.querySelectorAll('#coinContinueOptions .option-btn')).forEach(function(b){ b.disabled = disabled; });
+    var cashoutBtn = document.getElementById('coinCashoutBtn'); if(cashoutBtn) cashoutBtn.disabled = disabled;
+  }
+
   function showCoinBetControls(){
     var betBox=document.getElementById('coinBetControls'); if(betBox) betBox.classList.remove('hidden');
     var streakBox=document.getElementById('coinStreakControls'); if(streakBox) streakBox.classList.add('hidden');
     var statusEl=document.getElementById('coinStreakStatus'); if(statusEl) statusEl.classList.add('hidden');
     coinContinueOptCtl.set(null);
+    coinOptCtl.set(null);
   }
   function showCoinStreakControls(){
     var betBox=document.getElementById('coinBetControls'); if(betBox) betBox.classList.add('hidden');
@@ -4060,19 +4066,17 @@ updateUI();
     var statusEl=document.getElementById('coinStreakStatus'); if(statusEl) statusEl.classList.remove('hidden');
   }
   function updateCoinStreakUI(){
-    var s=document.getElementById('coinStreak'); if(s) s.textContent = coinState ? coinState.streak : 0;
     var m=document.getElementById('coinMult'); if(m) m.textContent = 'x'+Number(coinState ? coinState.multiplier : 1).toFixed(2);
     var p=document.getElementById('coinPayout'); if(p) p.textContent = fmt(coinState ? coinState.payout : 0);
+    var amt=document.getElementById('coinCashoutAmount'); if(amt) amt.textContent = fmt(coinState ? coinState.payout : 0);
   }
 
-  document.getElementById('coinFlipBtn').addEventListener('click', async function(){
+  async function startCoinflip(choice){
     if(coinFlipping) return;
-    var choice = coinOptCtl.get();
-    if(!choice){ showToast('Выбери орёл или решку','error'); return; }
     var bet = coinBetCtl.get();
-    if(backendReady && backendBalance < bet){ showToast('Недостаточно Gamble Coin!','error'); haptic('error'); return; }
+    if(backendReady && backendBalance < bet){ showToast('Недостаточно Gamble Coin!','error'); haptic('error'); coinOptCtl.set(null); return; }
     coinFlipping = true;
-    document.getElementById('coinFlipBtn').disabled = true;
+    setCoinBetButtonsDisabled(true);
     haptic('medium');
     var prevBackendBalance = backendBalance;
     try{
@@ -4082,7 +4086,7 @@ updateUI();
       backendBalance = data.balance; applyBackendBalanceToUI(); renderBalances();
       animateCoinTo(data.result, function(){
         coinFlipping = false;
-        document.getElementById('coinFlipBtn').disabled = false;
+        setCoinBetButtonsDisabled(false);
         if(data.win){
           coinState = { sessionId:data.sessionId, bet:bet, streak:data.streak, multiplier:data.multiplier, payout:data.payout };
           updateCoinStreakUI();
@@ -4091,6 +4095,7 @@ updateUI();
         } else {
           addHistory(me(),'loss', bet, 'Монетка: '+(choice==='heads'?'Орёл':'Решка'));
           syncProfileStats(bet, 0); renderProfile(); refreshMiniGameHistories();
+          coinOptCtl.set(null);
           renderAll();
           haptic('error');
         }
@@ -4098,32 +4103,29 @@ updateUI();
     }catch(e){
       backendBalance = prevBackendBalance; applyBackendBalanceToUI(); renderBalances();
       showToast(e.message || 'Ошибка ставки','error'); haptic('error');
-      coinFlipping = false; document.getElementById('coinFlipBtn').disabled = false;
+      coinFlipping = false; setCoinBetButtonsDisabled(false); coinOptCtl.set(null);
     }
-  });
+  }
 
-  document.getElementById('coinContinueBtn').addEventListener('click', async function(){
+  async function continueCoinflip(choice){
     if(!coinState || coinFlipping) return;
-    var choice = coinContinueOptCtl.get();
-    if(!choice){ showToast('Выбери орёл или решку','error'); return; }
     coinFlipping = true;
-    document.getElementById('coinContinueBtn').disabled = true;
-    document.getElementById('coinCashoutBtn').disabled = true;
+    setCoinContinueButtonsDisabled(true);
     haptic('medium');
     try{
       var data = await apiRequest('/games/coinflip/continue', { method:'POST', body:JSON.stringify({ sessionId:coinState.sessionId, side:choice }) });
       backendBalance = data.balance; applyBackendBalanceToUI();
       animateCoinTo(data.result, function(){
         coinFlipping = false;
-        document.getElementById('coinContinueBtn').disabled = false;
-        document.getElementById('coinCashoutBtn').disabled = false;
+        setCoinContinueButtonsDisabled(false);
         if(data.win){
           coinState.streak = data.streak; coinState.multiplier = data.multiplier; coinState.payout = data.payout;
           updateCoinStreakUI();
+          coinContinueOptCtl.set(null);
           haptic('success');
         } else {
           var lostBet = coinState.bet;
-          addHistory(me(),'loss', lostBet, 'Монетка: серия '+coinState.streak);
+          addHistory(me(),'loss', lostBet, 'Монетка: множитель x'+Number(coinState.multiplier||1).toFixed(2));
           syncProfileStats(lostBet, 0); renderProfile(); refreshMiniGameHistories();
           coinState = null;
           showCoinBetControls();
@@ -4133,16 +4135,15 @@ updateUI();
       });
     }catch(e){
       coinFlipping = false;
-      document.getElementById('coinContinueBtn').disabled = false;
-      document.getElementById('coinCashoutBtn').disabled = false;
+      setCoinContinueButtonsDisabled(false);
       showToast(e.message || 'Ошибка ставки','error'); haptic('error');
     }
-  });
+  }
 
   document.getElementById('coinCashoutBtn').addEventListener('click', async function(){
     if(!coinState || coinFlipping) return;
-    document.getElementById('coinCashoutBtn').disabled = true;
-    document.getElementById('coinContinueBtn').disabled = true;
+    coinFlipping = true;
+    setCoinContinueButtonsDisabled(true);
     try{
       var data = await apiRequest('/games/coinflip/cashout', { method:'POST', body:JSON.stringify({ sessionId:coinState.sessionId }) });
       backendBalance = data.balance; applyBackendBalanceToUI();
@@ -4153,10 +4154,10 @@ updateUI();
       showCoinBetControls();
       renderAll();
     }catch(e){
-      document.getElementById('coinCashoutBtn').disabled = false;
-      document.getElementById('coinContinueBtn').disabled = false;
       showToast(e.message || 'Ошибка cashout','error'); haptic('error');
     }
+    coinFlipping = false;
+    setCoinContinueButtonsDisabled(false);
   });
 
   /* ================= ROULETTE ================= */

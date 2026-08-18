@@ -312,7 +312,11 @@ footer,.slot-controls{margin-top:6px;}
 .dice-sum b{color:var(--gold-300);font-size:20px;}
 
 /* ---------- Coin flip ---------- */
-.coin-stage{display:flex;justify-content:center;margin:22px 0;perspective:900px;}
+.coin-stage{display:flex;justify-content:center;margin:22px 0;perspective:900px;position:relative;}
+.coin-stage::before{content:'';position:absolute;left:50%;top:50%;width:150px;height:150px;margin:-75px 0 0 -75px;border-radius:50%;z-index:0;filter:blur(20px);opacity:0;transition:opacity .35s ease,background-color .35s ease;background:transparent;}
+.coin-stage.coin-glow-win::before{opacity:1;background:rgba(34,197,94,.6);}
+.coin-stage.coin-glow-loss::before{opacity:1;background:rgba(239,68,68,.6);}
+.coin-stage .coin{position:relative;z-index:1;}
 .coin{
   width:120px;height:120px;position:relative;transform-style:preserve-3d;
   transition:transform 1.1s cubic-bezier(.2,.9,.2,1);
@@ -894,7 +898,7 @@ body{background:#000!important;}
 
     <!-- BONUSES -->
     <section id="screen-bonuses" class="screen">
-      <div class="game-header"><button class="back-btn" data-nav="home">←</button><h2>Бону��ы</h2></div>
+      <div class="game-header"><button class="back-btn" data-nav="home">←</button><h2>Бону����ы</h2></div>
       <div class="panel">
         <div class="panel-title">🎟️ Промокоды</div>
         <div class="custom-bet-row"><input type="text" inputmode="text" placeholder="Введите промокод" id="promoCodeInput"></div>
@@ -2521,7 +2525,7 @@ async function doSpin(){
     await wait(1200);
 
     spinWin+=rWin; tumbleWin=spinWin; totalWin+=rWin; addSharedBalance(rWin);
-    // Отражаем текущие множители-символы на поле в интерфейсе
+    // Отражаем текущие мн��жители-символы на поле в интерфейсе
     { const gm=gridMults(); cascMult = gm.length ? gm.reduce((a,b)=&gt;a+b,0) : 1; }
     updateUI();
 
@@ -2907,15 +2911,15 @@ updateUI();
       <div class="panel">
         <div class="coin-stage"><div class="coin" id="coinEl"><div class="coin-face front">🦅</div><div class="coin-face back">Ⓣ</div></div></div>
         <div class="mines-status hidden" id="coinStreakStatus"><span>Множитель: <b id="coinMult">x1.00</b></span><span>Выплата: <b id="coinPayout">0</b> GC</span></div>
-        <div class="coin-ladder-wrap hidden" id="coinLadderWrap">
+        <div class="coin-ladder-wrap" id="coinLadderWrap">
           <div class="coin-ladder" id="coinLadder"></div>
           <button type="button" class="coin-ladder-nav" id="coinLadderNext">›</button>
         </div>
         <div id="coinBetControls">
           <div class="panel-title">Выбери сторону:</div>
           <div class="option-row" id="coinOptions">
-            <button class="option-btn" data-val="heads">🦅 Орёл<small>x1.9</small></button>
-            <button class="option-btn" data-val="tails">Ⓣ Решка<small>x1.9</small></button>
+            <button class="option-btn" data-val="heads">🦅 Орёл</button>
+            <button class="option-btn" data-val="tails">Ⓣ Решка</button>
           </div>
           <div class="baccarat-bet-top">
             <div class="baccarat-bet-input-wrap">
@@ -2931,10 +2935,10 @@ updateUI();
         </div>
         <div id="coinStreakControls" class="hidden">
           <div class="option-row" id="coinContinueOptions">
-            <button class="option-btn" data-val="heads">🦅 Орёл<small>x1.9</small></button>
-            <button class="option-btn" data-val="tails">Ⓣ Решка<small>x1.9</small></button>
+            <button class="option-btn" data-val="heads">🦅 Орёл</button>
+            <button class="option-btn" data-val="tails">Ⓣ Решка</button>
           </div>
-          <button class="btn btn-gold btn-block" id="coinCashoutBtn" style="margin-top:10px;">💰 Забрать выигрыш (<span id="coinCashoutAmount">0</span> GC)</button>
+          <button class="btn btn-gold btn-block" id="coinCashoutBtn" style="margin-top:10px;">Забрать выигрыш (<span id="coinCashoutAmount">0</span> GC)</button>
         </div>
         <div class="game-history-box"><div class="game-history-title">История игроков</div><div class="panel" id="coinflipGameHistory"></div></div>
       </div>
@@ -4100,6 +4104,7 @@ updateUI();
   function startCoinPreSpin(){
     var coinEl = document.getElementById('coinEl');
     if(!coinEl) return;
+    setCoinGlow(null);
     coinEl.classList.add('pre-spin');
     coinPreSpinActive = true;
     var lastTs = null;
@@ -4136,11 +4141,18 @@ updateUI();
     var cashoutBtn = document.getElementById('coinCashoutBtn'); if(cashoutBtn) cashoutBtn.disabled = disabled;
   }
 
+  function setCoinGlow(state){
+    var stage = document.querySelector('.coin-stage');
+    if(!stage) return;
+    stage.classList.remove('coin-glow-win', 'coin-glow-loss');
+    if(state==='win') stage.classList.add('coin-glow-win');
+    else if(state==='loss') stage.classList.add('coin-glow-loss');
+  }
+
   function showCoinBetControls(){
     var betBox=document.getElementById('coinBetControls'); if(betBox) betBox.classList.remove('hidden');
     var streakBox=document.getElementById('coinStreakControls'); if(streakBox) streakBox.classList.add('hidden');
     var statusEl=document.getElementById('coinStreakStatus'); if(statusEl) statusEl.classList.add('hidden');
-    var ladderEl=document.getElementById('coinLadderWrap'); if(ladderEl) ladderEl.classList.add('hidden');
     coinContinueOptCtl.set(null);
     coinOptCtl.set(null);
     resetCoinLadder();
@@ -4149,7 +4161,6 @@ updateUI();
     var betBox=document.getElementById('coinBetControls'); if(betBox) betBox.classList.add('hidden');
     var streakBox=document.getElementById('coinStreakControls'); if(streakBox) streakBox.classList.remove('hidden');
     var statusEl=document.getElementById('coinStreakStatus'); if(statusEl) statusEl.classList.remove('hidden');
-    var ladderEl=document.getElementById('coinLadderWrap'); if(ladderEl) ladderEl.classList.remove('hidden');
   }
   function updateCoinStreakUI(){
     var m=document.getElementById('coinMult'); if(m) m.textContent = 'x'+Number(coinState ? coinState.multiplier : 1).toFixed(2);
@@ -4180,12 +4191,14 @@ updateUI();
           coinState = { sessionId:data.sessionId, bet:bet, streak:data.streak, multiplier:data.multiplier, payout:data.payout };
           updateCoinStreakUI();
           showCoinStreakControls();
+          setCoinGlow('win');
           haptic('success');
         } else {
           addHistory(me(),'loss', bet, 'Монетка: '+(choice==='heads'?'Орёл':'Решка'));
           syncProfileStats(bet, 0); renderProfile(); refreshMiniGameHistories();
           coinOptCtl.set(null);
           renderAll();
+          setCoinGlow('loss');
           haptic('error');
         }
       });
@@ -4214,6 +4227,7 @@ updateUI();
           coinState.streak = data.streak; coinState.multiplier = data.multiplier; coinState.payout = data.payout;
           updateCoinStreakUI();
           coinContinueOptCtl.set(null);
+          setCoinGlow('win');
           haptic('success');
         } else {
           var lostBet = coinState.bet;
@@ -4222,6 +4236,7 @@ updateUI();
           coinState = null;
           showCoinBetControls();
           renderAll();
+          setCoinGlow('loss');
           haptic('error');
         }
       });
@@ -4552,7 +4567,7 @@ updateUI();
       if(bjState) bjState.settledSessionId = data.sessionId;
       var totalBet = data.doubled ? data.betAmount*2 : data.betAmount;
       if(data.winAmount>totalBet){
-        addHistory(me(),'win', data.winAmount-totalBet, 'Блэкджек: '+(data.outcome==='blackjack'?'натуральный блэкджек':'победа')); syncProfileStats(totalBet, data.winAmount); renderProfile(); refreshMiniGameHistories();
+        addHistory(me(),'win', data.winAmount-totalBet, 'Блэкджек: '+(data.outcome==='blackjack'?'натуральны�� блэкджек':'победа')); syncProfileStats(totalBet, data.winAmount); renderProfile(); refreshMiniGameHistories();
         showWinOverlay(data.winAmount-totalBet); haptic('success');
       } else if(data.outcome==='push'){
         addHistory(me(),'win', 0, 'Блэкджек: ничья'); syncProfileStats(totalBet, data.winAmount); renderProfile(); refreshMiniGameHistories();

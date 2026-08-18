@@ -2895,23 +2895,35 @@ updateUI();
       <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>🪙 Монетка</h2><div class="game-user-chip"><span class="avatar-badge gameHeaderAvatar">🧑</span><b class="gameHeaderBalance">0 GC</b></div></div>
       <div class="panel">
         <div class="coin-stage"><div class="coin" id="coinEl"><div class="coin-face front">🦅</div><div class="coin-face back">Ⓣ</div></div></div>
-        <div class="panel-title">Выбери сторону:</div>
-        <div class="option-row" id="coinOptions">
-          <button class="option-btn" data-val="heads">🦅 Орёл<small>x1.9</small></button>
-          <button class="option-btn" data-val="tails">Ⓣ Решка<small>x1.9</small></button>
-        </div>
-        <div class="baccarat-bet-top">
-          <div class="baccarat-bet-input-wrap">
-            <input type="number" inputmode="numeric" min="10" max="5000000" step="1" id="coinCustomBet" value="10">
-            <span>GC</span>
-            <div class="baccarat-bet-step"><button type="button" id="coinMinusBtn">−</button><button type="button" id="coinPlusBtn">+</button></div>
+        <div class="mines-status hidden" id="coinStreakStatus"><span>Серия: <b id="coinStreak">0</b></span><span>Множитель: <b id="coinMult">x1.00</b></span><span>Выплата: <b id="coinPayout">0</b> GC</span></div>
+        <div id="coinBetControls">
+          <div class="panel-title">Выбери сторону:</div>
+          <div class="option-row" id="coinOptions">
+            <button class="option-btn" data-val="heads">🦅 Орёл<small>x1.9</small></button>
+            <button class="option-btn" data-val="tails">Ⓣ Решка<small>x1.9</small></button>
           </div>
+          <div class="baccarat-bet-top">
+            <div class="baccarat-bet-input-wrap">
+              <input type="number" inputmode="numeric" min="10" max="5000000" step="1" id="coinCustomBet" value="10">
+              <span>GC</span>
+              <div class="baccarat-bet-step"><button type="button" id="coinMinusBtn">−</button><button type="button" id="coinPlusBtn">+</button></div>
+            </div>
+          </div>
+          <div class="baccarat-bet-tools">
+            <button type="button" data-bet-tool="half" data-target="coin">/2</button>
+            <button type="button" data-bet-tool="double" data-target="coin">x2</button>
+          </div>
+          <button class="btn btn-green btn-block" id="coinFlipBtn" style="margin-top:14px;">Бросить монету</button>
         </div>
-        <div class="baccarat-bet-tools">
-          <button type="button" data-bet-tool="half" data-target="coin">/2</button>
-          <button type="button" data-bet-tool="double" data-target="coin">x2</button>
+        <div id="coinStreakControls" class="hidden">
+          <div class="panel-title">Выбери сторону для продолжения:</div>
+          <div class="option-row" id="coinContinueOptions">
+            <button class="option-btn" data-val="heads">🦅 Орёл</button>
+            <button class="option-btn" data-val="tails">Ⓣ Решка</button>
+          </div>
+          <button class="btn btn-green btn-block" id="coinContinueBtn">Подбросить ещё раз</button>
+          <button class="btn btn-gold btn-block" id="coinCashoutBtn" style="margin-top:10px;">💰 Забрать выигрыш</button>
         </div>
-        <button class="btn btn-green btn-block" id="coinFlipBtn" style="margin-top:14px;">Бросить монету</button>
         <div class="game-history-box"><div class="game-history-title">История игроков</div><div class="panel" id="coinflipGameHistory"></div></div>
       </div>
     </section>
@@ -4021,9 +4033,38 @@ updateUI();
 
   /* ================= COIN FLIP ================= */
   var coinOptCtl = buildOptionRow('coinOptions', function(){});
+  var coinContinueOptCtl = buildOptionRow('coinContinueOptions', function(){});
   var coinBetCtl = wireBetStepTools('coinCustomBet', 'coinMinusBtn', 'coinPlusBtn', 'coin', 10, 5000000);
   var coinFlipping = false;
   var coinRotation = 0;
+  var coinState = null;
+
+  function animateCoinTo(side, cb){
+    var spins = 4;
+    var target = (side==='tails') ? 180 : 0;
+    coinRotation += spins*360 + (target - (coinRotation % 360));
+    var coinEl = document.getElementById('coinEl');
+    coinEl.style.transform = 'rotateY(' + coinRotation + 'deg)';
+    setTimeout(cb, 1150);
+  }
+
+  function showCoinBetControls(){
+    var betBox=document.getElementById('coinBetControls'); if(betBox) betBox.classList.remove('hidden');
+    var streakBox=document.getElementById('coinStreakControls'); if(streakBox) streakBox.classList.add('hidden');
+    var statusEl=document.getElementById('coinStreakStatus'); if(statusEl) statusEl.classList.add('hidden');
+    coinContinueOptCtl.set(null);
+  }
+  function showCoinStreakControls(){
+    var betBox=document.getElementById('coinBetControls'); if(betBox) betBox.classList.add('hidden');
+    var streakBox=document.getElementById('coinStreakControls'); if(streakBox) streakBox.classList.remove('hidden');
+    var statusEl=document.getElementById('coinStreakStatus'); if(statusEl) statusEl.classList.remove('hidden');
+  }
+  function updateCoinStreakUI(){
+    var s=document.getElementById('coinStreak'); if(s) s.textContent = coinState ? coinState.streak : 0;
+    var m=document.getElementById('coinMult'); if(m) m.textContent = 'x'+Number(coinState ? coinState.multiplier : 1).toFixed(2);
+    var p=document.getElementById('coinPayout'); if(p) p.textContent = fmt(coinState ? coinState.payout : 0);
+  }
+
   document.getElementById('coinFlipBtn').addEventListener('click', async function(){
     if(coinFlipping) return;
     var choice = coinOptCtl.get();
@@ -4033,24 +4074,88 @@ updateUI();
     coinFlipping = true;
     document.getElementById('coinFlipBtn').disabled = true;
     haptic('medium');
+    var prevBackendBalance = backendBalance;
     try{
-      var result = await serverBet('coinflip', bet, { side: choice });
-      var side = result.result;
-      var spins = 4;
-      var target = (side==='tails') ? 180 : 0;
-      coinRotation += spins*360 + (target - (coinRotation % 360));
-      var coinEl = document.getElementById('coinEl');
-      coinEl.style.transform = 'rotateY(' + coinRotation + 'deg)';
-      setTimeout(function(){
-        if(result.winAmount>0){ addHistory(me(),'win', result.winAmount, 'Монетка: '+(side==='heads'?'Орёл':'Решка')); showWinOverlay(result.winAmount); haptic('success'); }
-        else { addHistory(me(),'loss', bet, 'Монетка: '+(side==='heads'?'Орёл':'Решка')); haptic('error'); }
-        renderAll();
+      if(!backendReady) await initBackendAuth();
+      if(backendReady){ backendBalance = Math.max(0, backendBalance - bet); applyBackendBalanceToUI(); renderBalances(); }
+      var data = await apiRequest('/games/coinflip/start', { method:'POST', body:JSON.stringify({ betAmount:bet, side:choice }) });
+      backendBalance = data.balance; applyBackendBalanceToUI(); renderBalances();
+      animateCoinTo(data.result, function(){
         coinFlipping = false;
         document.getElementById('coinFlipBtn').disabled = false;
-      }, 1150);
+        if(data.win){
+          coinState = { sessionId:data.sessionId, bet:bet, streak:data.streak, multiplier:data.multiplier, payout:data.payout };
+          updateCoinStreakUI();
+          showCoinStreakControls();
+          haptic('success');
+        } else {
+          addHistory(me(),'loss', bet, 'Монетка: '+(choice==='heads'?'Орёл':'Решка'));
+          syncProfileStats(bet, 0); renderProfile(); refreshMiniGameHistories();
+          renderAll();
+          haptic('error');
+        }
+      });
     }catch(e){
+      backendBalance = prevBackendBalance; applyBackendBalanceToUI(); renderBalances();
       showToast(e.message || 'Ошибка ставки','error'); haptic('error');
       coinFlipping = false; document.getElementById('coinFlipBtn').disabled = false;
+    }
+  });
+
+  document.getElementById('coinContinueBtn').addEventListener('click', async function(){
+    if(!coinState || coinFlipping) return;
+    var choice = coinContinueOptCtl.get();
+    if(!choice){ showToast('Выбери орёл или решку','error'); return; }
+    coinFlipping = true;
+    document.getElementById('coinContinueBtn').disabled = true;
+    document.getElementById('coinCashoutBtn').disabled = true;
+    haptic('medium');
+    try{
+      var data = await apiRequest('/games/coinflip/continue', { method:'POST', body:JSON.stringify({ sessionId:coinState.sessionId, side:choice }) });
+      backendBalance = data.balance; applyBackendBalanceToUI();
+      animateCoinTo(data.result, function(){
+        coinFlipping = false;
+        document.getElementById('coinContinueBtn').disabled = false;
+        document.getElementById('coinCashoutBtn').disabled = false;
+        if(data.win){
+          coinState.streak = data.streak; coinState.multiplier = data.multiplier; coinState.payout = data.payout;
+          updateCoinStreakUI();
+          haptic('success');
+        } else {
+          var lostBet = coinState.bet;
+          addHistory(me(),'loss', lostBet, 'Монетка: серия '+coinState.streak);
+          syncProfileStats(lostBet, 0); renderProfile(); refreshMiniGameHistories();
+          coinState = null;
+          showCoinBetControls();
+          renderAll();
+          haptic('error');
+        }
+      });
+    }catch(e){
+      coinFlipping = false;
+      document.getElementById('coinContinueBtn').disabled = false;
+      document.getElementById('coinCashoutBtn').disabled = false;
+      showToast(e.message || 'Ошибка ставки','error'); haptic('error');
+    }
+  });
+
+  document.getElementById('coinCashoutBtn').addEventListener('click', async function(){
+    if(!coinState || coinFlipping) return;
+    document.getElementById('coinCashoutBtn').disabled = true;
+    document.getElementById('coinContinueBtn').disabled = true;
+    try{
+      var data = await apiRequest('/games/coinflip/cashout', { method:'POST', body:JSON.stringify({ sessionId:coinState.sessionId }) });
+      backendBalance = data.balance; applyBackendBalanceToUI();
+      addHistory(me(),'win', data.payout, 'Монетка: забрал x'+Number(data.multiplier||1).toFixed(2));
+      syncProfileStats(coinState.bet, data.payout); renderProfile(); refreshMiniGameHistories();
+      showWinOverlay(data.payout); haptic('success');
+      coinState = null;
+      showCoinBetControls();
+      renderAll();
+    }catch(e){
+      document.getElementById('coinCashoutBtn').disabled = false;
+      document.getElementById('coinContinueBtn').disabled = false;
+      showToast(e.message || 'Ошибка cashout','error'); haptic('error');
     }
   });
 

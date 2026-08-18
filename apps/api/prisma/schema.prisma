@@ -47,6 +47,7 @@ model User {
   dailyBonuses DailyBonus[]
   minesSessions MinesSession[]
   blackjackSessions BlackjackSession[]
+  coinflipSessions CoinflipSession[]
 }
 
 model WalletTransaction {
@@ -88,6 +89,20 @@ model MinesSession {
   mineCount Int
   minePositions Json
   openedCells Json
+  multiplier Float @default(1)
+  winAmount BigInt @default(0)
+  createdAt DateTime @default(now())
+  finishedAt DateTime?
+  @@index([userId, status, createdAt])
+}
+
+model CoinflipSession {
+  id String @id @default(uuid())
+  userId String
+  user User @relation(fields: [userId], references: [id])
+  status GameSessionStatus @default(CREATED)
+  betAmount BigInt
+  streak Int @default(0)
   multiplier Float @default(1)
   winAmount BigInt @default(0)
   createdAt DateTime @default(now())

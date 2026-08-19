@@ -319,7 +319,7 @@ footer,.slot-controls{margin-top:6px;}
 .coin-stage .coin{position:relative;z-index:1;}
 .coin{
   width:120px;height:120px;position:relative;transform-style:preserve-3d;
-  transition:transform 1.1s cubic-bezier(.2,.9,.2,1);
+  transition:transform 2s cubic-bezier(.2,.9,.2,1);
 }
 .coin-face{
   position:absolute;inset:0;border-radius:50%;display:flex;align-items:center;justify-content:center;
@@ -1472,7 +1472,7 @@ body.pay-info-open #autoBtn{display:none!important;pointer-events:none!important
   &lt;div class=&quot;msec&quot;&gt;&amp;#9881; Механика&lt;/div&gt;
   &lt;div class=&quot;mech&quot;&gt;&lt;div class=&quot;mico&quot;&gt;&amp;#128203;&lt;/div&gt;&lt;div class=&quot;mtxt&quot;&gt;&lt;b&gt;6×5, Pay Anywhere.&lt;/b&gt; Кластер от &lt;b&gt;8+ одинаковых символов&lt;/b&gt; в любом месте поля (горизонталь + вертикаль).&lt;/div&gt;&lt;/div&gt;
   &lt;div class=&quot;mech&quot;&gt;&lt;div class=&quot;mico&quot;&gt;&amp;#128175;&lt;/div&gt;&lt;div class=&quot;mtxt&quot;&gt;&lt;b&gt;Падение (Tumble).&lt;/b&gt; После каждого спина выигрышные символы исчезают, сверху падают новые. Падение продолжается, пока есть выигрыши (без ограничений).&lt;/div&gt;&lt;/div&gt;
-  &lt;div class=&quot;mech&quot;&gt;&lt;div class=&quot;mico&quot;&gt;&amp;#127384;&lt;/div&gt;&lt;div class=&quot;mtxt&quot;&gt;&lt;b&gt;Символы-множители.&lt;/b&gt; Падают на поле &lt;b&gt;как символы&lt;/b&gt; (×2 — ×1000) во время вращений и падений — как в основной игре, так и в фриспинах. В конце последовательности все множители на поле &lt;b&gt;суммируются&lt;/b&gt; и умножают общий выигрыш. В фриспинах множитель &lt;b&gt;накапливается глобально&lt;/b&gt;.&lt;/div&gt;&lt;/div&gt;
+  &lt;div class=&quot;mech&quot;&gt;&lt;div class=&quot;mico&quot;&gt;&amp;#127384;&lt;/div&gt;&lt;div class=&quot;mtxt&quot;&gt;&lt;b&gt;Символы-мно��ители.&lt;/b&gt; Падают на поле &lt;b&gt;как символы&lt;/b&gt; (×2 — ×1000) во время вращений и падений — как в основной игре, так и в фриспинах. В конце последовательности все множители на поле &lt;b&gt;суммируются&lt;/b&gt; и умножают общий выигрыш. В фриспинах множитель &lt;b&gt;накапливается глобально&lt;/b&gt;.&lt;/div&gt;&lt;/div&gt;
   &lt;div class=&quot;mech&quot;&gt;&lt;div class=&quot;mico&quot;&gt;&amp;#129347;&lt;/div&gt;&lt;div class=&quot;mtxt&quot;&gt;&lt;b&gt;Scatter (Стакан).&lt;/b&gt; 4+ = &lt;b&gt;15 фриспинов&lt;/b&gt;. В FS: 3+ Scatter = &lt;b&gt;+5 спинов&lt;/b&gt;.&lt;/div&gt;&lt;/div&gt;
   &lt;div class=&quot;mech&quot;&gt;&lt;div class=&quot;mico&quot;&gt;&amp;#128176;&lt;/div&gt;&lt;div class=&quot;mtxt&quot;&gt;&lt;b&gt;Ante Bet&lt;/b&gt; +25% к ставке — повышает шанс Scatter.&lt;/div&gt;&lt;/div&gt;
   &lt;div class=&quot;mech&quot;&gt;&lt;div class=&quot;mico&quot;&gt;&amp;#128722;&lt;/div&gt;&lt;div class=&quot;mtxt&quot;&gt;&lt;b&gt;Купить бонус&lt;/b&gt; — мгновенные 15 фриспинов за &lt;b&gt;100× ставки&lt;/b&gt;.&lt;/div&gt;&lt;/div&gt;
@@ -2525,7 +2525,7 @@ async function doSpin(){
     await wait(1200);
 
     spinWin+=rWin; tumbleWin=spinWin; totalWin+=rWin; addSharedBalance(rWin);
-    // Отражаем текущие мн��жители-символы на поле в интерфейсе
+    // Отражаем текущие ������������н����жители-символы на поле в интерфейсе
     { const gm=gridMults(); cascMult = gm.length ? gm.reduce((a,b)=&gt;a+b,0) : 1; }
     updateUI();
 
@@ -2577,7 +2577,7 @@ async function doSpin(){
   if(!spinWin &amp;&amp; !inFreeSpin){ sfx(&#x27;lose&#x27;); setMsg(&#x27;НЕ ПОВЕЗЛО...&#x27;,&#x27;sc&#x27;); }
   else if(spinWin&gt;0){
     const rt=totalWin/stake;
-    if(rt&gt;=80){ setMsg(`🌟 МЕГА ДЖЕКПОТ! +${totalWin}`,&#x27;mg&#x27;); doConfetti(120); }
+    if(rt&gt;=80){ setMsg(`🌟 МЕГА ДЖЕКПО��! +${totalWin}`,&#x27;mg&#x27;); doConfetti(120); }
     else if(rt&gt;=15){ setMsg(`✨ БОЛЬШОЙ ВЫИГРЫШ! +${totalWin}`,&#x27;bw&#x27;); doConfetti(50); }
     else setMsg(`⚡ +${spinWin}`,&#x27;w&#x27;);
   }
@@ -2851,7 +2851,7 @@ updateUI();
           <div class="bulb"></div><div class="bulb"></div><div class="bulb"></div><div class="bulb"></div><div class="bulb"></div><div class="bulb"></div><div class="bulb"></div>
         </div>
         <div class="bonus-banner" id="slotBonusBanner">
-          <span>🎁 Бесплатные спины</span><span id="slotBonusRemaining">0</span><span>× <span id="slotBonusMult">2</span></span>
+          <span>��� Бесплатные спины</span><span id="slotBonusRemaining">0</span><span>× <span id="slotBonusMult">2</span></span>
         </div>
         <div class="reels5" id="slotGrid"></div>
         <div class="slot-lines-feed" id="slotLinesFeed"></div>
@@ -2901,7 +2901,7 @@ updateUI();
           <button type="button" data-bet-tool="double" data-target="dice">x2</button>
         </div>
         <button class="btn btn-green btn-block" id="diceRollBtn" style="margin-top:14px;">Бросить</button>
-        <div class="game-history-box"><div class="game-history-title">История игроков</div><div class="panel" id="diceGameHistory"></div></div>
+        <div class="gh-box" data-gh-game="dice"><div class="gh-tabs"><div class="gh-title">История игроков</div><div class="gh-tab-actions" data-gh-tabs="dice"><button type="button" class="active" data-scope="live">Live</button><button type="button" data-scope="mine">Мои</button></div></div><div class="gh-head"><span>Имя / Ставка</span><span>Множитель</span><span>Выигрыш</span></div><div id="diceGameHistory"></div></div>
       </div>
     </section>
 
@@ -2940,7 +2940,7 @@ updateUI();
           </div>
           <button class="btn btn-gold btn-block" id="coinCashoutBtn" style="margin-top:10px;">Забрать выигрыш (<span id="coinCashoutAmount">0</span> GC)</button>
         </div>
-        <div class="game-history-box"><div class="game-history-title">История игроков</div><div class="panel" id="coinflipGameHistory"></div></div>
+        <div class="gh-box" data-gh-game="coinflip"><div class="gh-tabs"><div class="gh-title">История игроков</div><div class="gh-tab-actions" data-gh-tabs="coinflip"><button type="button" class="active" data-scope="live">Live</button><button type="button" data-scope="mine">Мои</button></div></div><div class="gh-head"><span>Имя / Ставка</span><span>Множитель</span><span>Выигрыш</span></div><div id="coinflipGameHistory"></div></div>
       </div>
     </section>
 
@@ -2948,6 +2948,7 @@ updateUI();
     <section id="screen-roulette" class="screen">
       <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>🎡 Рулетка</h2><div class="game-user-chip"><span class="avatar-badge gameHeaderAvatar">🧑</span><b class="gameHeaderBalance">0 GC</b></div></div>
       <div class="panel">
+        <div class="gh-box" data-gh-game="roulette"><div class="gh-tabs"><div class="gh-title">История игроков</div><div class="gh-tab-actions" data-gh-tabs="roulette"><button type="button" class="active" data-scope="live">Live</button><button type="button" data-scope="mine">Мои</button></div></div><div class="gh-head"><span>Имя / Ставка</span><span>Множитель</span><span>Выигрыш</span></div><div id="rouletteGameHistory"></div></div>
         <div class="roulette-stage">
           <div class="roulette-wheel-wrap">
             <div class="roulette-ball-track" id="rouletteBallTrack"><div class="roulette-ball"></div></div>
@@ -2967,7 +2968,6 @@ updateUI();
           <button type="button" data-bet-tool="double" data-target="roulette">x2</button>
         </div>
         <div class="roulette-number-grid" id="rouletteNumberGrid"></div>
-        <div class="game-history-box"><div class="game-history-title">История игроков</div><div class="panel" id="rouletteGameHistory"></div></div>
       </div>
     </section>
 
@@ -2976,8 +2976,11 @@ updateUI();
       <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>💣 Мины</h2><div class="game-user-chip"><span class="avatar-badge gameHeaderAvatar">🧑</span><b class="gameHeaderBalance">0 GC</b></div></div>
       <div class="panel" id="minesSetupPanel">
         <div class="panel-title">Количество мин:</div>
-        <div class="chip-row" id="minesCountChips"></div>
-        <div class="custom-bet-row"><input type="number" inputmode="numeric" min="1" max="24" step="1" placeholder="Своё количество" id="minesCountCustom"><span>мин</span></div>
+        <div class="mines-stepper" id="minesCountStepper">
+          <button type="button" class="mines-stepper-arrow" id="minesCountMinus">‹</button>
+          <div class="mines-stepper-display"><div class="mines-stepper-value" id="minesCountValue">1</div><div class="mines-stepper-label">Ловушки</div></div>
+          <button type="button" class="mines-stepper-arrow" id="minesCountPlus">›</button>
+        </div>
         <div class="baccarat-bet-top">
           <div class="baccarat-bet-input-wrap">
             <input type="number" inputmode="numeric" min="10" max="5000000" step="1" id="minesCustomBet" value="10">
@@ -2990,7 +2993,7 @@ updateUI();
           <button type="button" data-bet-tool="double" data-target="mines">x2</button>
         </div>
         <button class="btn btn-green btn-block" id="minesStartBtn" style="margin-top:14px;">Начать раунд</button>
-        <div class="game-history-box"><div class="game-history-title">История игроков</div><div class="panel" id="minesGameHistory"></div></div>
+        <div class="gh-box" data-gh-game="mines"><div class="gh-tabs"><div class="gh-title">История игроков</div><div class="gh-tab-actions" data-gh-tabs="mines"><button type="button" class="active" data-scope="live">Live</button><button type="button" data-scope="mine">Мои</button></div></div><div class="gh-head"><span>Имя / Ставка</span><span>Множитель</span><span>Выигрыш</span></div><div id="minesGameHistory"></div></div>
       </div>
       <div class="panel hidden" id="minesGamePanel">
         <div class="mines-status"><span>Множитель: <b id="minesMult">x1.00</b></span><span>Выплата: <b id="minesPayout">0</b> GC</span></div>
@@ -3025,7 +3028,7 @@ updateUI();
           <button type="button" data-bet-tool="double" data-target="blackjack">x2</button>
         </div>
         <button class="btn btn-green btn-block" id="bjDealBtn" style="margin-top:14px;">Раздать карты</button>
-        <div class="game-history-box"><div class="game-history-title">История игроков</div><div class="panel" id="blackjackGameHistory"></div></div>
+        <div class="gh-box" data-gh-game="blackjack"><div class="gh-tabs"><div class="gh-title">История игроков</div><div class="gh-tab-actions" data-gh-tabs="blackjack"><button type="button" class="active" data-scope="live">Live</button><button type="button" data-scope="mine">Мои</button></div></div><div class="gh-head"><span>Имя / Ставка</span><span>Множитель</span><span>Выигрыш</span></div><div id="blackjackGameHistory"></div></div>
       </div>
       <div class="panel hidden" id="bjInsurancePanel">
         <div class="panel-title">У дилера туз. Хотите страховку?</div>
@@ -3075,10 +3078,11 @@ updateUI();
             <button class="bac-bet-zone bac-tie" data-val="tie">TIE<small>x8</small><span class="bac-chip-on-zone" id="bacChipTie"></span></button>
             <button class="bac-bet-zone bac-banker" data-val="banker">BANKER<small>x1.95</small><span class="bac-chip-on-zone" id="bacChipBanker"></span></button>
           </div>
-          <div class="bac-countdown hidden" id="baccaratCountdown">Старт через 15</div>
+          <div class="bac-countdown hidden" id="baccaratCountdown">Старт через 10</div>
           <div class="bac-roadmap" id="baccaratRoadmap"></div>
           <div class="roulette-result" id="baccaratResult"></div>
         </div>
+        <div class="gh-box" data-gh-game="baccarat"><div class="gh-tabs"><div class="gh-title">История игроков</div><div class="gh-tab-actions" data-gh-tabs="baccarat"><button type="button" class="active" data-scope="live">Live</button><button type="button" data-scope="mine">Мои</button></div></div><div class="gh-head"><span>Имя / Ставка</span><span>Множитель</span><span>Выигрыш</span></div><div id="baccaratGameHistory"></div></div>
       </div>
     </section>
  
@@ -3171,7 +3175,7 @@ updateUI();
   <div class="modal-layer" id="modalLayer">
     <div class="modal-card">
       <div style="font-size:30px;">♻️</div>
-      <h3>Сбросить прогресс?</h3>
+      <h3>Сбр��сить прогресс?</h3>
       <p>Все балансы, история и статистика демо-игроков будут сброшены к начальным значениям.</p>
       <div class="modal-actions">
         <button class="btn btn-ghost" id="modalCancel">Отмена</button>
@@ -3457,13 +3461,25 @@ updateUI();
       setTimeout(function(node){ return function(){ node.remove(); }; }(el), dur*1000+100);
     }
   }
-  function showWinOverlay(amount, label){
+  function setWinOverlayContent(icon, title, text){
     var ov = document.getElementById('winOverlay');
-    var text = document.getElementById('winOverlayText');
-    if(text) text.textContent = (label||'Вы выиграли') + ' ' + fmt(amount) + ' GC';
+    var card = ov ? ov.querySelector('.win-card') : null;
+    var bigEl = card ? card.querySelector('.big') : null;
+    var titleEl = card ? card.querySelector('h3') : null;
+    var textEl = document.getElementById('winOverlayText');
+    if(bigEl) bigEl.textContent = icon;
+    if(titleEl) titleEl.textContent = title;
+    if(textEl) textEl.textContent = text;
     if(ov) ov.classList.add('show');
+  }
+  function showWinOverlay(amount, label){
+    setWinOverlayContent('🎉', 'Победа!', (label||'Вы выиграли') + ' ' + fmt(amount) + ' GC');
     confettiBurst(26);
     haptic('success');
+  }
+  function showTieOverlay(amount, label){
+    setWinOverlayContent('🤝', 'Ничья!', (label||'Ставка возвращена') + ' ' + fmt(amount) + ' GC');
+    haptic('light');
   }
   document.getElementById('winOverlayClose').addEventListener('click', function(){
     var ov = document.getElementById('winOverlay');
@@ -4039,7 +4055,7 @@ updateUI();
         renderAll();
         diceRolling = false;
         document.getElementById('diceRollBtn').disabled = false;
-      }, 500);
+      }, 2000);
     }catch(e){
       clearInterval(iv); d0.classList.remove('rolling'); d1.classList.remove('rolling');
       showToast(e.message || 'Ошибка ставки','error'); haptic('error');
@@ -4130,7 +4146,7 @@ updateUI();
     coinRotation += spins*360 + (target - (coinRotation % 360));
     var coinEl = document.getElementById('coinEl');
     coinEl.style.transform = 'rotateY(' + coinRotation + 'deg)';
-    setTimeout(cb, 1150);
+    setTimeout(cb, 2000);
   }
 
   function setCoinBetButtonsDisabled(disabled){
@@ -4362,7 +4378,7 @@ updateUI();
     haptic('light'); startRouletteCountdownIfNeeded();
   }
   function startRouletteCountdownIfNeeded(){
-    if(rouletteCountdownActive) return; rouletteCountdownActive=true; rouletteBetsClosed=false; var left=15;
+    if(rouletteCountdownActive) return; rouletteCountdownActive=true; rouletteBetsClosed=false; var left=10;
     var resultEl=document.getElementById('rouletteResult'), btn=document.getElementById('rouletteSpinBtn');
     function tick(){
       if(resultEl) resultEl.innerHTML='<span class="roulette-countdown">До запуска <b>'+left+'</b> сек.</span>';
@@ -4374,7 +4390,7 @@ updateUI();
   }
   async function runRouletteRound(){
     if(rouletteSpinning || !roulettePendingBets.length) return; rouletteSpinning=true;
-    var resultEl=document.getElementById('rouletteResult'); if(resultEl) resultEl.textContent='Шарик крутится...';
+    var resultEl=document.getElementById('rouletteResult'); if(resultEl) resultEl.textContent='��арик крутится...';
     try{
       var first=roulettePendingBets[0];
       var totalBetAmount = roulettePendingBets.reduce(function(sum,b){ return sum + Number(b.amount||0); }, 0);
@@ -4406,7 +4422,18 @@ updateUI();
 
 
   /* ================= MINES ================= */
-  var minesCountCtl = buildCustomCountControl('minesCountChips', 'minesCountCustom', [3,5,8], 5, 1, 24, function(){});
+  var MINES_COUNT_MIN = 1, MINES_COUNT_MAX = 24;
+  var minesMineCount = 1;
+  function setMinesMineCount(v){
+    minesMineCount = Math.max(MINES_COUNT_MIN, Math.min(MINES_COUNT_MAX, Math.floor(v||1)));
+    var el=document.getElementById('minesCountValue'); if(el) el.textContent = String(minesMineCount);
+    var minusBtn=document.getElementById('minesCountMinus'); if(minusBtn) minusBtn.disabled = minesMineCount<=MINES_COUNT_MIN;
+    var plusBtn=document.getElementById('minesCountPlus'); if(plusBtn) plusBtn.disabled = minesMineCount>=MINES_COUNT_MAX;
+  }
+  var minesCountCtl = { get:function(){ return minesMineCount; }, set:setMinesMineCount };
+  setMinesMineCount(1);
+  var minesCountMinusBtn=document.getElementById('minesCountMinus'); if(minesCountMinusBtn) minesCountMinusBtn.addEventListener('click', function(){ setMinesMineCount(minesMineCount-1); haptic('light'); });
+  var minesCountPlusBtn=document.getElementById('minesCountPlus'); if(minesCountPlusBtn) minesCountPlusBtn.addEventListener('click', function(){ setMinesMineCount(minesMineCount+1); haptic('light'); });
   var minesBetCtl = wireBetStepTools('minesCustomBet', 'minesMinusBtn', 'minesPlusBtn', 'mines', 10, 5000000);
   var minesState = null;
   document.getElementById('minesStartBtn').addEventListener('click', async function(){
@@ -4567,12 +4594,13 @@ updateUI();
       if(bjState) bjState.settledSessionId = data.sessionId;
       var totalBet = data.doubled ? data.betAmount*2 : data.betAmount;
       if(data.winAmount>totalBet){
-        addHistory(me(),'win', data.winAmount-totalBet, 'Блэкджек: '+(data.outcome==='blackjack'?'натуральны�� блэкджек':'победа')); syncProfileStats(totalBet, data.winAmount); renderProfile(); refreshMiniGameHistories();
-        showWinOverlay(data.winAmount-totalBet); haptic('success');
+        addHistory(me(),'win', data.winAmount, 'Блэкджек: '+(data.outcome==='blackjack'?'натуральны�� блэкджек':'победа')); syncProfileStats(totalBet, data.winAmount); renderProfile(); refreshMiniGameHistories();
+        showWinOverlay(data.winAmount); haptic('success');
       } else if(data.outcome==='push'){
         addHistory(me(),'win', 0, 'Блэкджек: ничья'); syncProfileStats(totalBet, data.winAmount); renderProfile(); refreshMiniGameHistories();
+        showTieOverlay(totalBet); haptic('light');
       } else {
-        addHistory(me(),'loss', totalBet, 'Блэкджек: проигрыш'); syncProfileStats(totalBet, data.winAmount || 0); renderProfile(); refreshMiniGameHistories();
+        addHistory(me(),'loss', totalBet, 'Бл��кджек: проигрыш'); syncProfileStats(totalBet, data.winAmount || 0); renderProfile(); refreshMiniGameHistories();
         haptic('error');
       }
     }
@@ -4676,9 +4704,9 @@ updateUI();
     var max=Math.max(player.length, banker.length);
     for(var i=0;i<max;i++){
       if(player[i] && pc){ pc.insertAdjacentHTML('beforeend','<span class="bac-card">'+bacCardName(player[i])+'</span>'); }
-      await new Promise(function(r){setTimeout(r,180);});
+      await new Promise(function(r){setTimeout(r,540);});
       if(banker[i] && bc){ bc.insertAdjacentHTML('beforeend','<span class="bac-card">'+bacCardName(banker[i])+'</span>'); }
-      await new Promise(function(r){setTimeout(r,180);});
+      await new Promise(function(r){setTimeout(r,540);});
     }
     if(ps) ps.textContent=result.playerTotal;
     if(bs) bs.textContent=result.bankerTotal;
@@ -4693,13 +4721,14 @@ updateUI();
       var placed=Object.assign({}, baccaratPendingBets);
       var result=await serverBet('baccarat', total, {side:primary,bets:entries.map(function(k){return {side:k,amount:placed[k]};})});
       await renderBaccarat(result);
-      var names={player:'Игрок',banker:'Банкир',tie:'Ничья'};
+      var names={player:'Игрок',banker:'��анкир',tie:'Ничья'};
       var refund = result.refundAmount || 0;
-      if(result.winner==='tie' && !placed.tie){ refund = (placed.player||0) + (placed.banker||0); }
+      var isPush = result.winner==='tie' && !placed.tie;
+      if(isPush){ refund = (placed.player||0) + (placed.banker||0); }
       if(refund>0 && backendReady){ try{ var rd=await apiRequest('/wallet/game-adjust',{method:'POST',body:JSON.stringify({amount:refund,source:'baccarat-refund',metadata:{push:true}})}); backendBalance=rd.balance; applyBackendBalanceToUI(); renderBalances(); }catch(e){} }
       var shownWin = (result.winAmount||0) + refund;
       var res=document.getElementById('baccaratResult'); if(res) res.textContent='Победил: '+names[result.winner]+' • '+(shownWin>0?('+'+fmt(shownWin)+' GC'):'проигрыш');
-      if(shownWin>0){ showWinOverlay(shownWin); haptic('success'); } else { haptic('error'); }
+      if(isPush){ showTieOverlay(shownWin); haptic('light'); } else if(shownWin>0){ showWinOverlay(shownWin); haptic('success'); } else { haptic('error'); }
       baccaratPendingBets={player:0,tie:0,banker:0}; renderBaccaratChips(); renderAll();
     }catch(e){ showToast(e.message || 'Ошибка Baccarat','error'); haptic('error'); }
     baccaratRoundActive=false;
@@ -4707,7 +4736,7 @@ updateUI();
   function startBaccaratCountdown(){
     if(baccaratRoundActive) return;
     baccaratRoundActive=true;
-    var left=15, el=document.getElementById('baccaratCountdown');
+    var left=10, el=document.getElementById('baccaratCountdown');
     if(el){ el.classList.remove('hidden'); el.textContent='Старт через '+left; }
     baccaratCountdownTimer=setInterval(function(){ left--; if(el) el.textContent='Старт через '+left; if(left<=0){ clearInterval(baccaratCountdownTimer); if(el) el.classList.add('hidden'); finishBaccaratRound(); } },1000);
   }
@@ -4945,6 +4974,7 @@ updateUI();
 
 
   var GAME_HISTORY_MAP = { dice:'diceGameHistory', coinflip:'coinflipGameHistory', roulette:'rouletteGameHistory', mines:'minesGameHistory', blackjack:'blackjackGameHistory', baccarat:'baccaratGameHistory' };
+  var gameHistoryScope = { dice:'live', coinflip:'live', roulette:'live', mines:'live', blackjack:'live', baccarat:'live' };
   function escapeHtml(text){
     return String(text == null ? '' : text).replace(/[&<>"']/g, function(ch){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]); });
   }
@@ -4955,21 +4985,34 @@ updateUI();
     }
     return '<span class="game-history-avatar">👤</span>';
   }
+  document.querySelectorAll('.gh-tab-actions').forEach(function(tabs){
+    var game = tabs.getAttribute('data-gh-tabs');
+    tabs.querySelectorAll('button').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        tabs.querySelectorAll('button').forEach(function(b){ b.classList.remove('active'); });
+        btn.classList.add('active');
+        gameHistoryScope[game] = btn.getAttribute('data-scope');
+        haptic('light');
+        renderGameHistory(game);
+      });
+    });
+  });
   async function renderGameHistory(gameCode){
     var box = document.getElementById(GAME_HISTORY_MAP[gameCode]);
     if(!box || !backendReady) return;
+    var scope = gameHistoryScope[gameCode] || 'live';
     try{
-      var data = await apiRequest('/games/' + gameCode + '/history');
+      var data = await apiRequest('/games/' + gameCode + '/history' + (scope==='mine' ? '?scope=mine' : ''));
       var items = data.items || [];
-      if(!items.length){ box.innerHTML = '<div class="empty-state">Истории пока нет</div>'; return; }
+      if(!items.length){ box.innerHTML = '<div class="empty-state">'+(scope==='mine' ? 'У вас пока нет ставок' : 'Истории пока нет')+'</div>'; return; }
       box.innerHTML = items.slice(0,10).map(function(item){
-        var d = new Date(item.createdAt);
-        var time = d.toLocaleDateString('ru-RU') + ' ' + d.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});
         var bet = Number(item.betAmount||0);
         var win = Number(item.winAmount||0);
+        var mult = Number(item.multiplier||0);
         var plus = win > 0;
+        var multText = mult > 0 ? ('x'+mult.toFixed(2)) : '--';
         var signed = plus ? ('+' + fmt(win) + ' GC') : ('−' + fmt(bet) + ' GC');
-        return '<div class="history-item"><div class="game-history-player">'+gameHistoryAvatar(item)+'<div class="game-history-main"><div class="desc">'+escapeHtml(item.playerName || 'Игрок')+'</div><div class="time">Ставка: '+fmt(bet)+' GC • '+time+'</div></div></div><div class="amt '+(plus?'plus':'minus')+'">'+signed+'</div></div>';
+        return '<div class="gh-row"><div class="gh-user">'+gameHistoryAvatar(item)+'<div><b>'+escapeHtml(item.playerName || 'Игрок')+'</b><small>Ставка: '+fmt(bet)+' GC</small></div></div><div class="gh-mult">'+multText+'</div><div class="gh-win '+(plus?'plus':'minus')+'">'+signed+'</div></div>';
       }).join('');
     }catch(e){ box.innerHTML = '<div class="empty-state">Не удалось загрузить историю</div>'; }
   }
@@ -5037,11 +5080,36 @@ updateUI();
 <style>
 /* Baccarat stake panel + live history like reference */
 .baccarat-live-bet-card{background:#101214;border:1px solid #2b2f36;border-radius:16px;padding:10px;margin-top:14px;box-shadow:0 12px 28px rgba(0,0,0,.28)}.baccarat-bet-top{display:grid;grid-template-columns:1.25fr 1fr;gap:12px;align-items:stretch}.baccarat-bet-input-wrap{position:relative;background:#30333a;border-radius:8px;display:flex;align-items:center;padding:0 72px 0 12px;min-height:48px}.baccarat-bet-input-wrap input{width:100%;background:transparent!important;border:0!important;color:#dfe9ff!important;font-weight:950;font-size:15px;outline:0}.baccarat-bet-input-wrap>span{color:#8fa1bd;font-weight:900;margin-left:4px}.baccarat-bet-step{position:absolute;right:8px;top:50%;transform:translateY(-50%);display:flex;gap:12px}.baccarat-bet-step button{background:transparent;border:0;color:#d8e2f4;font-size:18px;font-weight:950}.baccarat-bet-top .btn{margin:0!important;border-radius:8px!important;font-size:18px!important;font-weight:950!important}.baccarat-bet-tools{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:4px}.baccarat-bet-tools button{height:29px;border:0;border-radius:5px;background:#30333a;color:#aebbd0;font-weight:950}.baccarat-choice-title{font-size:12px;font-weight:900;color:#8fa1bd;margin:12px 0 6px}.baccarat-live-history{margin-top:12px;background:#202324;border:1px solid #2a2d31;border-radius:14px;overflow:hidden}.baccarat-live-tabs{display:flex;align-items:center;justify-content:space-between;padding:14px 14px 10px}.baccarat-live-title{font-size:16px;font-weight:950;color:#fff}.baccarat-tab-actions{display:flex;gap:5px}.baccarat-tab-actions button{border:0;border-radius:8px;background:#2b2f33;color:#9fb0c8;font-weight:900;padding:10px 14px}.baccarat-tab-actions button.active{background:#087cff;color:#fff}.baccarat-history-head,.baccarat-live-row{display:grid;grid-template-columns:1.5fr .7fr .8fr;align-items:center;gap:10px}.baccarat-history-head{padding:10px 14px;color:#9fb0c8;font-size:12px;border-top:1px solid rgba(255,255,255,.03);background:#1b1d1f}.baccarat-live-row{padding:11px 14px;background:#222526;border-top:1px solid rgba(255,255,255,.035)}.baccarat-live-row:nth-child(even){background:#1d2021}.baccarat-live-user{display:flex;align-items:center;gap:10px;min-width:0}.baccarat-live-user b{display:block;color:#fff;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px}.baccarat-live-user small{display:block;color:#9fb0c8;font-size:12px;font-weight:900}.baccarat-live-mult{color:#aebbd0;font-weight:950;text-align:center}.baccarat-live-win{font-weight:950;text-align:right;color:#1583ff}.baccarat-live-win.minus{color:#ff4d5e}.baccarat-live-win.plus{color:#1683ff}.baccarat-live-history .game-history-avatar{width:28px!important;height:28px!important;border-radius:50%!important;background:#f1f3f6;color:#333;font-weight:950}
+.gh-box{margin-top:12px;background:#202324;border:1px solid #2a2d31;border-radius:14px;overflow:hidden;}
+.gh-tabs{display:flex;align-items:center;justify-content:space-between;padding:14px 14px 10px;}
+.gh-title{font-size:16px;font-weight:950;color:#fff;}
+.gh-tab-actions{display:flex;gap:5px;}
+.gh-tab-actions button{border:0;border-radius:8px;background:#2b2f33;color:#9fb0c8;font-weight:900;padding:10px 14px;cursor:pointer;}
+.gh-tab-actions button.active{background:#087cff;color:#fff;}
+.gh-head,.gh-row{display:grid;grid-template-columns:1.5fr .7fr .8fr;align-items:center;gap:10px;}
+.gh-head{padding:10px 14px;color:#9fb0c8;font-size:12px;border-top:1px solid rgba(255,255,255,.03);background:#1b1d1f;}
+.gh-row{padding:11px 14px;background:#222526;border-top:1px solid rgba(255,255,255,.035);}
+.gh-row:nth-child(even){background:#1d2021;}
+.gh-user{display:flex;align-items:center;gap:10px;min-width:0;}
+.gh-user b{display:block;color:#fff;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px;}
+.gh-user small{display:block;color:#9fb0c8;font-size:12px;font-weight:900;}
+.gh-mult{color:#aebbd0;font-weight:950;text-align:center;}
+.gh-win{font-weight:950;text-align:right;color:#1583ff;}
+.gh-win.minus{color:#ff4d5e;}
+.gh-win.plus{color:#1683ff;}
+.gh-box .game-history-avatar{width:28px;height:28px;border-radius:50%;background:#f1f3f6;color:#333;font-weight:950;display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;}
+@media(max-width:560px){.gh-head,.gh-row{grid-template-columns:1.45fr .55fr .75fr;font-size:12px;}.gh-tab-actions button{padding:8px 10px;}.gh-user b{max-width:120px;}}
+.mines-stepper{display:flex;align-items:center;justify-content:space-between;background:#20242a;border:1px solid #2c3138;border-radius:14px;padding:10px 18px;margin:10px 0 14px;}
+.mines-stepper-arrow{background:transparent;border:0;color:#8fa1bd;font-size:22px;font-weight:900;padding:6px 14px;cursor:pointer;}
+.mines-stepper-arrow:disabled{opacity:.35;cursor:default;}
+.mines-stepper-display{text-align:center;flex:1;}
+.mines-stepper-value{color:#fff;font-size:20px;font-weight:950;line-height:1.1;}
+.mines-stepper-label{color:#8fa1bd;font-size:12px;font-weight:800;margin-top:2px;}
 @media(max-width:560px){.baccarat-bet-top{grid-template-columns:1fr}.baccarat-history-head,.baccarat-live-row{grid-template-columns:1.45fr .55fr .75fr;font-size:12px}.baccarat-tab-actions button{padding:8px 10px}.baccarat-live-user b{max-width:120px}}
 </style>
 
 <style>
-#screen-baccarat .baccarat-vs{display:none!important}#screen-baccarat .baccarat-table{grid-template-columns:1fr 1fr!important}.bac-bet-zone{position:relative;overflow:visible}.bac-bet-zone.bac-player{background:linear-gradient(180deg,#117cff,#0757bf)!important;border-color:#3194ff!important}.bac-bet-zone.bac-tie{background:linear-gradient(180deg,#11a85f,#08713f)!important;border-color:#22cc78!important}.bac-bet-zone.bac-banker{background:linear-gradient(180deg,#e03b45,#9d1f2a)!important;border-color:#ff6370!important}.bac-chip-on-zone{display:none;position:absolute;left:50%;bottom:8px;transform:translateX(-50%);min-width:54px;padding:5px 9px;border-radius:999px;background:linear-gradient(180deg,#ffe08a,#d59a24);color:#1c1200;font-size:12px;font-weight:950;box-shadow:0 5px 12px rgba(0,0,0,.35);z-index:3}.bac-chip-on-zone.show{display:inline-flex;align-items:center;justify-content:center}.bac-countdown{margin:10px 0;padding:10px;border-radius:10px;background:#222b35;color:#fff;text-align:center;font-weight:950;border:1px solid #35465a}.bac-countdown.hidden{display:none!important}#screen-baccarat .baccarat-live-history,#screen-baccarat .game-history-box{display:none!important}
+#screen-baccarat .baccarat-vs{display:none!important}#screen-baccarat .baccarat-table{grid-template-columns:1fr 1fr!important}.bac-bet-zone{position:relative;overflow:visible}.bac-bet-zone.bac-player{background:linear-gradient(180deg,#117cff,#0757bf)!important;border-color:#3194ff!important}.bac-bet-zone.bac-tie{background:linear-gradient(180deg,#11a85f,#08713f)!important;border-color:#22cc78!important}.bac-bet-zone.bac-banker{background:linear-gradient(180deg,#e03b45,#9d1f2a)!important;border-color:#ff6370!important}.bac-chip-on-zone{display:none;position:absolute;left:50%;bottom:8px;transform:translateX(-50%);min-width:54px;padding:5px 9px;border-radius:999px;background:linear-gradient(180deg,#ffe08a,#d59a24);color:#1c1200;font-size:12px;font-weight:950;box-shadow:0 5px 12px rgba(0,0,0,.35);z-index:3}.bac-chip-on-zone.show{display:inline-flex;align-items:center;justify-content:center}.bac-countdown{margin:10px 0;padding:10px;border-radius:10px;background:#222b35;color:#fff;text-align:center;font-weight:950;border:1px solid #35465a}.bac-countdown.hidden{display:none!important}
 </style>
 
 <style>

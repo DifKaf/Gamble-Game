@@ -158,6 +158,8 @@ input,select{font-family:inherit;}
   display:flex;flex-direction:column;justify-content:space-between;
 }
 .game-card:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(0,0,0,0.25);}
+.game-card.img-card{padding:0;border:none;aspect-ratio:3/4;min-height:unset;background-size:cover;background-position:center;background-repeat:no-repeat;box-shadow:0 10px 22px rgba(0,0,0,.4);}
+.game-card.img-card:active{transform:translateY(3px) scale(.98);}
 .game-card .icon{font-size:32px;}
 .game-card .title{font-weight:800;font-size:15px;margin-top:6px;}
 .game-card .sub{font-size:11px;opacity:0.85;font-weight:600;margin-top:2px;}
@@ -976,13 +978,13 @@ body{background:#000!important;}
     <!-- MINI GAMES -->
     <section id="screen-minigames" class="screen">
       <div class="game-header"><button class="back-btn" data-nav="games">←</button><h2>🎮 Мини игры</h2></div>
-      <div class="game-grid">
-        <button class="game-card card-dice" data-open="dice"><div class="icon">🎲</div><div><div class="title">Кости</div><div class="sub">Сумма двух костей</div></div></button>
-        <button class="game-card card-coin" data-open="coinflip"><div class="icon">🪙</div><div><div class="title">Монетка</div><div class="sub">50/50 шанс х1.9</div></div></button>
-        <button class="game-card card-roulette" data-open="roulette"><div class="icon">🎡</div><div><div class="title">Рулетка</div><div class="sub">Цвет и число</div></div></button>
-        <button class="game-card card-mines" data-open="mines"><div class="icon">💣</div><div><div class="title">Мины</div><div class="sub">Собирай алмазы</div></div></button>
-        <button class="game-card card-blackjack" data-open="blackjack"><div class="icon">🃏</div><div><div class="title">Blackjack</div><div class="sub">Обыграй дилера</div></div></button>
-        <button class="game-card card-baccarat" data-open="baccarat"><div class="icon">♠</div><div><div class="title">Baccarat</div><div class="sub">Игрок • Банкир • Ничья</div></div></button>
+      <div class="game-grid img-grid">
+        <button class="game-card img-card" data-open="dice" aria-label="Dice" style="background-image:url('assets/card-dice.jpg')"></button>
+        <button class="game-card img-card" data-open="coinflip" aria-label="Coin Flip" style="background-image:url('assets/card-coinflip.jpg')"></button>
+        <button class="game-card img-card" data-open="roulette" aria-label="Roulette" style="background-image:url('assets/card-roulette.jpg')"></button>
+        <button class="game-card img-card" data-open="mines" aria-label="Mines" style="background-image:url('assets/card-mines.jpg')"></button>
+        <button class="game-card img-card" data-open="blackjack" aria-label="Blackjack" style="background-image:url('assets/card-blackjack.jpg')"></button>
+        <button class="game-card img-card" data-open="baccarat" aria-label="Baccarat" style="background-image:url('assets/card-baccarat.jpg')"></button>
       </div>
     </section>
 

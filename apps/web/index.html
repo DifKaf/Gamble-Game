@@ -220,7 +220,20 @@ input,select{font-family:inherit;}
 .game-header h2{color:#fff;font-size:19px;font-weight:800;margin:0;}
 .gg-global-bar{position:fixed;top:0;left:0;right:0;z-index:1000;background:#000;border-bottom:1px solid #242424;}
 .gg-global-bar-inner{max-width:1280px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 16px;}
-.gg-global-logo{height:56px;width:auto;object-fit:contain;cursor:pointer;border-radius:10px;display:block;}
+.gg-logo-wrap{position:relative;display:inline-flex;align-items:center;padding-bottom:6px;}
+.gg-global-logo{height:38px;width:auto;object-fit:contain;cursor:pointer;border-radius:8px;display:block;filter:drop-shadow(0 2px 8px rgba(0,0,0,.45));transition:transform .15s ease;}
+.gg-logo-wrap:hover .gg-global-logo{transform:scale(1.04);}
+.gg-logo-wrap:after{
+  content:'';
+  position:absolute;
+  left:8%;
+  right:8%;
+  bottom:0;
+  height:3px;
+  border-radius:999px;
+  background:linear-gradient(90deg,rgba(255,255,255,0) 0%,rgba(255,255,255,.95) 50%,rgba(255,255,255,0) 100%);
+  box-shadow:0 0 10px 1px rgba(255,255,255,.7),0 0 18px rgba(120,200,255,.4);
+}
 .gg-global-chip{flex-shrink:0;}
 #screen-dice .game-header,#screen-coinflip .game-header,#screen-roulette .game-header,#screen-mines .game-header,#screen-blackjack .game-header,#screen-baccarat .game-header{position:relative!important;justify-content:flex-start!important;}
 #screen-dice .game-header .back-btn,#screen-coinflip .game-header .back-btn,#screen-roulette .game-header .back-btn,#screen-mines .game-header .back-btn,#screen-blackjack .game-header .back-btn,#screen-baccarat .game-header .back-btn{position:relative!important;z-index:2!important;}
@@ -902,7 +915,9 @@ body{background:#000!important;}
 
   <div id="ggGlobalBar" class="gg-global-bar">
     <div class="gg-global-bar-inner">
-      <img src="assets/gg-logo.png" class="gg-global-logo" alt="Gamble Game" data-nav="home">
+      <div class="gg-logo-wrap" data-nav="home">
+        <img src="assets/gg-logo.png" class="gg-global-logo" alt="Gamble Game">
+      </div>
       <div class="game-user-chip gg-global-chip"><span class="avatar-badge gameHeaderAvatar">🧑</span><b class="gameHeaderBalance">0 GC</b></div>
     </div>
   </div>

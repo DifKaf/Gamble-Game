@@ -222,6 +222,9 @@ input,select{font-family:inherit;}
 .gg-global-bar-inner{max-width:1280px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 16px;}
 .gg-global-logo{height:56px;width:auto;object-fit:contain;cursor:pointer;border-radius:10px;display:block;}
 .gg-global-chip{flex-shrink:0;}
+#screen-dice .game-header,#screen-coinflip .game-header,#screen-roulette .game-header,#screen-mines .game-header,#screen-blackjack .game-header,#screen-baccarat .game-header{position:relative!important;justify-content:flex-start!important;}
+#screen-dice .game-header .back-btn,#screen-coinflip .game-header .back-btn,#screen-roulette .game-header .back-btn,#screen-mines .game-header .back-btn,#screen-blackjack .game-header .back-btn,#screen-baccarat .game-header .back-btn{position:relative!important;z-index:2!important;}
+#screen-dice .game-header h2,#screen-coinflip .game-header h2,#screen-roulette .game-header h2,#screen-mines .game-header h2,#screen-blackjack .game-header h2,#screen-baccarat .game-header h2{position:absolute!important;left:0!important;right:0!important;top:50%!important;transform:translateY(-50%)!important;margin:0!important;text-align:center!important;font-size:15px!important;z-index:1!important;pointer-events:none!important;}
 #app.drunkard-standalone .gg-global-bar{display:none!important;}
 
 /* ---------- Bet chips ---------- */
@@ -2893,7 +2896,7 @@ updateUI();
 
     <!-- DICE -->
     <section id="screen-dice" class="screen">
-      <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>🎲 Кости</h2><div class="game-user-chip"><span class="avatar-badge gameHeaderAvatar">🧑</span><b class="gameHeaderBalance">0 GC</b></div></div>
+      <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>🎲 Кости</h2></div>
       <div class="panel">
         <div class="dice-row"><div class="die" id="die0"></div><div class="die" id="die1"></div></div>
         <div class="dice-sum">Сумма: <b id="diceSum">—</b></div>
@@ -2921,7 +2924,7 @@ updateUI();
 
     <!-- COIN FLIP -->
     <section id="screen-coinflip" class="screen">
-      <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>🪙 Монетка</h2><div class="game-user-chip"><span class="avatar-badge gameHeaderAvatar">🧑</span><b class="gameHeaderBalance">0 GC</b></div></div>
+      <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>🪙 Монетка</h2></div>
       <div class="panel">
         <div class="coin-stage"><div class="coin" id="coinEl"><div class="coin-face front">🦅</div><div class="coin-face back">Ⓣ</div></div></div>
         <div class="mines-status hidden" id="coinStreakStatus"><span>Множитель: <b id="coinMult">x1.00</b></span><span>Выплата: <b id="coinPayout">0</b> GC</span></div>
@@ -2960,7 +2963,7 @@ updateUI();
 
     <!-- ROULETTE -->
     <section id="screen-roulette" class="screen">
-      <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>🎡 Рулетка</h2><div class="game-user-chip"><span class="avatar-badge gameHeaderAvatar">🧑</span><b class="gameHeaderBalance">0 GC</b></div></div>
+      <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>🎡 Рулетка</h2></div>
       <div class="panel">
         <div class="roulette-num-history" id="rouletteNumberHistory"></div>
         <div class="roulette-stage">
@@ -2988,7 +2991,7 @@ updateUI();
 
     <!-- MINES -->
     <section id="screen-mines" class="screen">
-      <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>💣 Мины</h2><div class="game-user-chip"><span class="avatar-badge gameHeaderAvatar">🧑</span><b class="gameHeaderBalance">0 GC</b></div></div>
+      <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>💣 Мины</h2></div>
       <div class="panel" id="minesSetupPanel">
         <div class="panel-title">Количество мин:</div>
         <div class="mines-stepper" id="minesCountStepper">
@@ -3018,7 +3021,7 @@ updateUI();
     </section>
     <!-- BLACKJACK -->
     <section id="screen-blackjack" class="screen">
-      <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>🃏 Blackjack</h2><div class="game-user-chip"><span class="avatar-badge gameHeaderAvatar">🧑</span><b class="gameHeaderBalance">0 GC</b></div></div>
+      <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>🃏 Blackjack</h2></div>
       <div class="bj-table">
         <div class="bj-row bj-dealer-row">
           <div class="bj-label">Дилер <span id="bjDealerTotal">—</span></div>
@@ -3065,7 +3068,7 @@ updateUI();
 
     <!-- BACCARAT -->
     <section id="screen-baccarat" class="screen">
-      <div class="game-header baccarat-game-header"><button class="back-btn" data-back="1">←</button><h2>Baccarat</h2><div class="baccarat-user-chip game-user-chip"><span class="avatar-badge gameHeaderAvatar" id="baccaratHeaderAvatar">🧑</span><b class="gameHeaderBalance" id="baccaratHeaderBalance">0 GC</b></div></div>
+      <div class="game-header baccarat-game-header"><button class="back-btn" data-back="1">←</button><h2>Baccarat</h2></div>
       <div class="panel baccarat-panel">
         <div class="bac-live-stage">
           <div class="bac-table-arc"></div>

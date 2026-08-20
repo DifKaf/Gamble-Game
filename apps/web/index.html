@@ -158,8 +158,9 @@ input,select{font-family:inherit;}
   display:flex;flex-direction:column;justify-content:space-between;
 }
 .game-card:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(0,0,0,0.25);}
-.game-card.img-card{padding:0;border:none;aspect-ratio:3/4;min-height:unset;background-size:cover;background-position:center;background-repeat:no-repeat;box-shadow:0 10px 22px rgba(0,0,0,.4);}
+.game-card.img-card{position:relative;padding:0;border:none;aspect-ratio:4/5;min-height:unset;overflow:hidden;box-shadow:0 8px 18px rgba(0,0,0,.4);width:86%;margin:0 auto;}
 .game-card.img-card:active{transform:translateY(3px) scale(.98);}
+.game-card.img-card .img-card-media{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;pointer-events:none;}
 .game-card .icon{font-size:32px;}
 .game-card .title{font-weight:800;font-size:15px;margin-top:6px;}
 .game-card .sub{font-size:11px;opacity:0.85;font-weight:600;margin-top:2px;}
@@ -979,12 +980,12 @@ body{background:#000!important;}
     <section id="screen-minigames" class="screen">
       <div class="game-header"><button class="back-btn" data-nav="games">←</button><h2>🎮 Мини игры</h2></div>
       <div class="game-grid img-grid">
-        <button class="game-card img-card" data-open="dice" aria-label="Dice" style="background-image:url('assets/card-dice.jpg')"></button>
-        <button class="game-card img-card" data-open="coinflip" aria-label="Coin Flip" style="background-image:url('assets/card-coinflip.jpg')"></button>
-        <button class="game-card img-card" data-open="roulette" aria-label="Roulette" style="background-image:url('assets/card-roulette.jpg')"></button>
-        <button class="game-card img-card" data-open="mines" aria-label="Mines" style="background-image:url('assets/card-mines.jpg')"></button>
-        <button class="game-card img-card" data-open="blackjack" aria-label="Blackjack" style="background-image:url('assets/card-blackjack.jpg')"></button>
-        <button class="game-card img-card" data-open="baccarat" aria-label="Baccarat" style="background-image:url('assets/card-baccarat.jpg')"></button>
+        <button class="game-card img-card" data-open="dice" aria-label="Dice"><img src="assets/card-dice.jpg" alt="Dice" class="img-card-media"></button>
+        <button class="game-card img-card" data-open="coinflip" aria-label="Coin Flip"><img src="assets/card-coinflip.jpg" alt="Coin Flip" class="img-card-media"></button>
+        <button class="game-card img-card" data-open="roulette" aria-label="Roulette"><img src="assets/card-roulette.jpg" alt="Roulette" class="img-card-media"></button>
+        <button class="game-card img-card" data-open="mines" aria-label="Mines"><img src="assets/card-mines.jpg" alt="Mines" class="img-card-media"></button>
+        <button class="game-card img-card" data-open="blackjack" aria-label="Blackjack"><img src="assets/card-blackjack.jpg" alt="Blackjack" class="img-card-media"></button>
+        <button class="game-card img-card" data-open="baccarat" aria-label="Baccarat"><img src="assets/card-baccarat.jpg" alt="Baccarat" class="img-card-media"></button>
       </div>
     </section>
 

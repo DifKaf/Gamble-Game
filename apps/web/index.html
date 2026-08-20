@@ -1573,7 +1573,7 @@ body.pay-info-open #autoBtn{display:none!important;pointer-events:none!important
 &lt;div id=&quot;bonusStart&quot;&gt;
   &lt;div class=&quot;bs-frame&quot;&gt;
     &lt;div class=&quot;bs-gem&quot;&gt;◆&lt;/div&gt;
-    &lt;div class=&quot;bs-title&quot;&gt;ПОЗ��РАВЛЯЕМ!&lt;/div&gt;
+    &lt;div class=&quot;bs-title&quot;&gt;ПОЗ����РАВЛЯЕМ!&lt;/div&gt;
     &lt;div class=&quot;bs-sub&quot; id=&quot;bsSub&quot;&gt;ВЫ ВЫИГРАЛИ&lt;/div&gt;
     &lt;div class=&quot;bs-count&quot; id=&quot;bsCount&quot;&gt;15&lt;/div&gt;
     &lt;div class=&quot;bs-label&quot; id=&quot;bsLabel&quot;&gt;БЕСПЛАТНЫХ ВРАЩЕНИЙ&lt;/div&gt;
@@ -2474,16 +2474,20 @@ async function doSpin(){
     }
   }
 
-  // Symbols are placed immediately (no scrolling/spin animation).
+  // Gates-of-Olympus style: symbols drop straight into place column by
+  // column with a falling animation - no cycling through random symbols.
   grid=[];
-  for(let c=0;c&lt;COLS;c++){
-    grid[c]=[];
+  for(let stopC=0;stopC&lt;COLS;stopC++){
+    grid[stopC]=[];
     for(let r=0;r&lt;ROWS;r++){
-      grid[c][r]=finalGrid[c][r];
-      setSym(c,r,grid[c][r]);
+      grid[stopC][r]=finalGrid[stopC][r];
+      setSym(stopC,r,grid[stopC][r],&#x27;drop&#x27;);
+      await wait(42);
     }
+    sfx(&#x27;land&#x27;);
+    if(stopC&lt;COLS-1) await wait(210); // pause before the next reel drops
   }
-  sfx(&#x27;land&#x27;);
+
   await wait(300);
 
   // A multiplier symbol may also land on the initial drop (falls as a symbol)
@@ -2703,7 +2707,7 @@ async function triggerFreeSpins(count){
 function showWinOverlay(amount, mult) {
   const ov = document.getElementById(&#x27;winOverlay&#x27;);
   document.getElementById(&#x27;woAmount&#x27;).textContent = amount;
-  document.getElementById(&#x27;woMult&#x27;).textContent = mult &gt; 1 ? `Макс. множитель: ×${mult}` : &#x27;&#x27;;
+  document.getElementById(&#x27;woMult&#x27;).textContent = mult &gt; 1 ? `Макс. множите��ь: ×${mult}` : &#x27;&#x27;;
   document.getElementById(&#x27;woSpins&#x27;).textContent = `Баланс: ${balance}`;
   ov.classList.add(&#x27;show&#x27;);
   doConfetti(150); sfx(&#x27;mega&#x27;);

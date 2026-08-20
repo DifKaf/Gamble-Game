@@ -1213,6 +1213,34 @@ body{
 .turbo-btn.on{background:linear-gradient(135deg,#22d3ee,#38bdf8);color:#000;box-shadow:0 4px 24px rgba(56,189,248,.65)}
 .ante-btn:hover,.buy-btn:hover,.turbo-btn:hover{transform:translateY(-1px)}
 .ante-btn:disabled,.buy-btn:disabled,.turbo-btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+/* Slot-style control panel (round buttons, WIN/Balance rows) */
+.slot-panel{width:100%;max-width:700px;display:flex;flex-direction:column;align-items:center;gap:8px;padding:10px 16px 12px;border-radius:20px;background:linear-gradient(180deg,rgba(40,20,10,.88) 0%,rgba(15,8,4,.92) 100%);border:2px solid rgba(217,164,76,.55);box-shadow:0 10px 30px rgba(0,0,0,.45),inset 0 0 22px rgba(255,180,80,.08);}
+.slot-win-row{display:flex;align-items:center;gap:8px;}
+.slot-win-lbl{font-size:.5em;letter-spacing:3px;color:#ffcf6b;font-weight:700;}
+.slot-win-val{font-size:.95em;font-weight:900;color:#fff;}
+.controls{display:flex;gap:12px;width:100%;align-items:center;justify-content:center;max-width:none;}
+.betbox{background:rgba(0,0,0,.5);border:1px solid rgba(217,164,76,.4);border-radius:999px;padding:6px 12px;display:flex;flex-direction:row;align-items:center;gap:8px;min-width:0;}
+.betcol{display:flex;flex-direction:column;align-items:center;gap:1px;min-width:44px;}
+.betlbl{font-size:.34em;letter-spacing:2px;color:rgba(255,210,140,.65);}
+.bb{width:26px;height:26px;border-radius:50%;border:1px solid rgba(217,164,76,.5);background:rgba(120,60,10,.4);color:#ffd9a0;font-size:.9em;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0;}
+.bb:hover{background:rgba(180,100,20,.55);box-shadow:0 0 10px rgba(217,164,76,.5)}
+.betv{min-width:28px;text-align:center;color:#fff;font-size:.8em;font-weight:700}
+.spinbtn{width:64px;height:64px;flex:0 0 auto;border-radius:50%;border:3px solid rgba(255,220,150,.55);background:radial-gradient(circle at 35% 30%,#ffe9b0,#f5b942 42%,#c9761a 78%,#8a4c0e 100%);color:#5a2e02;font-size:1.7em;font-weight:900;cursor:pointer;transition:all .2s;box-shadow:0 4px 18px rgba(0,0,0,.5),inset 0 2px 6px rgba(255,255,255,.5);overflow:hidden;position:relative;display:flex;align-items:center;justify-content:center;padding:0;}
+.spin-ic{display:inline-block;line-height:1;}
+.spinbtn:hover{transform:translateY(-2px) scale(1.03);box-shadow:0 8px 22px rgba(0,0,0,.55)}
+.spinbtn:active:not(:disabled){transform:translateY(1px) scale(.98)}
+.spinbtn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.slot-side-icons{display:flex;gap:8px;flex-shrink:0;}
+.ante-btn,.buy-btn,.turbo-btn{width:38px;height:38px;border-radius:50%;border:none;padding:0;display:flex;align-items:center;justify-content:center;font-size:1.05em;cursor:pointer;transition:all .2s;flex-shrink:0;white-space:normal;letter-spacing:0;}
+.ante-btn{background:linear-gradient(135deg,#b45309,#d97706);color:#fff;box-shadow:0 3px 12px rgba(180,83,9,.45)}
+.ante-btn.on{background:linear-gradient(135deg,#f59e0b,#fbbf24);color:#000;box-shadow:0 4px 16px rgba(245,158,11,.65)}
+.buy-btn{background:linear-gradient(135deg,#0e7490,#0891b2);color:#fff;box-shadow:0 3px 12px rgba(8,145,178,.45)}
+.turbo-btn{background:linear-gradient(135deg,#334155,#475569);color:#cbd5e1;box-shadow:0 3px 12px rgba(51,65,85,.45)}
+.turbo-btn.on{background:linear-gradient(135deg,#22d3ee,#38bdf8);color:#000;box-shadow:0 4px 16px rgba(56,189,248,.65)}
+.slot-bal-row{display:flex;align-items:center;gap:10px;width:100%;justify-content:center;padding-top:4px;border-top:1px solid rgba(217,164,76,.25);}
+.slot-bal-lbl{font-size:.42em;letter-spacing:2px;color:rgba(255,210,140,.6);}
+.slot-bal-val{font-size:.72em;font-weight:800;color:#ffd700;}
+.slot-mode-badge{font-size:.34em;letter-spacing:1px;color:rgba(200,160,255,.6);}
 /* Message */
 .msg{min-height:22px;text-align:center;font-size:.63em;letter-spacing:3px;
   color:rgba(190,160,255,.65);width:100%;max-width:700px;transition:color .2s}
@@ -1466,25 +1494,26 @@ body.pay-info-open #autoBtn{display:none!important;pointer-events:none!important
 
   &lt;div class=&quot;msg&quot; id=&quot;msgEl&quot;&gt;НАЖМИТЕ SPIN ✦&lt;/div&gt;
 
-  &lt;div class=&quot;controls&quot;&gt;
-    &lt;div class=&quot;betbox&quot;&gt;
-      &lt;div class=&quot;betlbl&quot;&gt;СТАВКА&lt;/div&gt;
-      &lt;div class=&quot;betrow&quot;&gt;
+  &lt;div class=&quot;slot-panel&quot;&gt;
+    &lt;div class=&quot;slot-win-row&quot;&gt;&lt;span class=&quot;slot-win-lbl&quot;&gt;ВЫИГРЫШ&lt;/span&gt;&lt;span class=&quot;slot-win-val&quot; id=&quot;totalInfoVal&quot;&gt;0&lt;/span&gt;&lt;/div&gt;
+    &lt;div class=&quot;controls&quot;&gt;
+      &lt;div class=&quot;betbox&quot;&gt;
         &lt;button class=&quot;bb&quot; id=&quot;bDn&quot;&gt;−&lt;/button&gt;
-        &lt;div class=&quot;betv&quot; id=&quot;betEl&quot;&gt;100&lt;/div&gt;
+        &lt;div class=&quot;betcol&quot;&gt;&lt;div class=&quot;betlbl&quot;&gt;СТАВКА&lt;/div&gt;&lt;div class=&quot;betv&quot; id=&quot;betEl&quot;&gt;100&lt;/div&gt;&lt;/div&gt;
         &lt;button class=&quot;bb&quot; id=&quot;bUp&quot;&gt;+&lt;/button&gt;
       &lt;/div&gt;
+      &lt;button class=&quot;spinbtn&quot; id=&quot;spBtn&quot;&gt;&lt;span class=&quot;spin-ic&quot;&gt;↻&lt;/span&gt;&lt;/button&gt;
+      &lt;div class=&quot;slot-side-icons&quot;&gt;
+        &lt;button class=&quot;ante-btn&quot; id=&quot;anteBtn&quot; title=&quot;ANTE BET +25%&quot;&gt;♦&lt;/button&gt;
+        &lt;button class=&quot;turbo-btn&quot; id=&quot;turboBtn&quot; title=&quot;Turbo Spin&quot;&gt;⚡&lt;/button&gt;
+        &lt;button class=&quot;buy-btn&quot; id=&quot;buyBtn&quot; title=&quot;Купить бонус&quot;&gt;🛒&lt;/button&gt;
+      &lt;/div&gt;
     &lt;/div&gt;
-    &lt;button class=&quot;ante-btn&quot; id=&quot;anteBtn&quot;&gt;ANTE BET&lt;br&gt;&lt;span style=&quot;font-size:.85em;opacity:.7&quot;&gt;+25%&lt;/span&gt;&lt;/button&gt;
-    &lt;button class=&quot;turbo-btn&quot; id=&quot;turboBtn&quot;&gt;TURBO&lt;br&gt;&lt;span style=&quot;font-size:.85em;opacity:.7&quot;&gt;SPIN&lt;/span&gt;&lt;/button&gt;
-    &lt;button class=&quot;spinbtn&quot; id=&quot;spBtn&quot;&gt;⚡ SPIN&lt;/button&gt;
-    &lt;button class=&quot;buy-btn&quot; id=&quot;buyBtn&quot;&gt;КУПИТЬ&lt;/button&gt;
-  &lt;/div&gt;
-
-  &lt;div class=&quot;stats&quot;&gt;
-    &lt;div class=&quot;stat&quot;&gt;&lt;div class=&quot;sl&quot;&gt;БАЛАНС&lt;/div&gt;&lt;div class=&quot;sv&quot; id=&quot;balEl&quot;&gt;1000000&lt;/div&gt;&lt;/div&gt;
-    &lt;div class=&quot;stat&quot;&gt;&lt;div class=&quot;sl&quot;&gt;ОБЩИЙ ВЫИГРЫШ&lt;/div&gt;&lt;div class=&quot;sv&quot; id=&quot;totalInfoVal&quot;&gt;0&lt;/div&gt;&lt;/div&gt;
-    &lt;div class=&quot;stat&quot;&gt;&lt;div class=&quot;sl&quot;&gt;РЕЖИМ&lt;/div&gt;&lt;div class=&quot;sv&quot; id=&quot;modeEl&quot;&gt;BASE&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;slot-bal-row&quot;&gt;
+      &lt;span class=&quot;slot-bal-lbl&quot;&gt;Баланс&lt;/span&gt;
+      &lt;span class=&quot;slot-bal-val&quot; id=&quot;balEl&quot;&gt;1000000&lt;/span&gt;
+      &lt;span class=&quot;slot-mode-badge&quot; id=&quot;modeEl&quot;&gt;BASE&lt;/span&gt;
+    &lt;/div&gt;
   &lt;/div&gt;
 
 &lt;/div&gt;

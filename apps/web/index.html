@@ -159,6 +159,7 @@ input,select{font-family:inherit;}
 }
 .game-card:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(0,0,0,0.25);}
 .game-card.img-card{position:relative;padding:0;border:none;aspect-ratio:4/5;min-height:unset;overflow:hidden;box-shadow:0 8px 18px rgba(0,0,0,.4);width:86%;margin:0 auto;}
+.game-card.img-card.slot-img-card{width:58%;}
 .game-card.img-card:active{transform:translateY(3px) scale(.98);}
 .game-card.img-card .img-card-media{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;pointer-events:none;}
 .game-card .icon{font-size:32px;}
@@ -972,7 +973,7 @@ body{background:#000!important;}
     <section id="screen-slots" class="screen">
       <div class="game-header"><button class="back-btn" data-nav="games">←</button><h2>🎰 Слоты</h2></div>
       <div class="game-grid">
-        <button class="game-card card-slot" data-open="slot" style="grid-column:1/-1;"><div class="icon">🎰</div><div><div class="title">Drunkard Gate</div><div class="sub">Открыть слот</div></div></button>
+        <button class="game-card img-card slot-img-card" data-open="slot" aria-label="Drunkard Gate" style="grid-column:1/-1;"><img src="assets/card-drunkardgate.jpg" alt="Drunkard Gate" class="img-card-media"></button>
       </div>
     </section>
 
@@ -2986,7 +2987,7 @@ updateUI();
           <button type="button" data-bet-tool="double" data-target="dice">x2</button>
         </div>
         <button class="btn btn-green btn-block" id="diceRollBtn" style="margin-top:14px;">Бросить</button>
-        <div class="gh-box" data-gh-game="dice"><div class="gh-tabs"><div class="gh-title">История игроков</div><div class="gh-tab-actions" data-gh-tabs="dice"><button type="button" class="active" data-scope="live">Live</button><button type="button" data-scope="mine">Мои</button></div></div><div class="gh-head"><span>Имя / Ставка</span><span>Множитель</span><span>Выигрыш</span></div><div id="diceGameHistory"></div></div>
+        <div class="gh-box" data-gh-game="dice"><div class="gh-tabs"><div class="gh-title">История игроков</div><div class="gh-tab-actions" data-gh-tabs="dice"><button type="button" class="active" data-scope="live">Live</button><button type="button" data-scope="mine">Мои</button></div></div><div class="gh-head"><span>Имя / Ставка</span><span>Множитель</span><span>В��игрыш</span></div><div id="diceGameHistory"></div></div>
       </div>
     </section>
 

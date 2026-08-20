@@ -218,6 +218,9 @@ input,select{font-family:inherit;}
   background:rgba(255,255,255,0.12);color:#fff;font-size:18px;display:flex;align-items:center;justify-content:center;
 }
 .game-header h2{color:#fff;font-size:19px;font-weight:800;margin:0;}
+.mg-header{position:sticky;top:0;z-index:15;background:#000;padding:10px 4px;margin:0 0 14px 0;border-bottom:1px solid #242424;}
+.mg-header-logo{height:30px;width:auto;object-fit:contain;flex-shrink:0;border-radius:6px;}
+@media (min-width:900px){.mg-header{top:62px;}}
 
 /* ---------- Bet chips ---------- */
 .chip-row{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0;}
@@ -2882,7 +2885,7 @@ updateUI();
 
     <!-- DICE -->
     <section id="screen-dice" class="screen">
-      <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>🎲 Кости</h2><div class="game-user-chip"><span class="avatar-badge gameHeaderAvatar">🧑</span><b class="gameHeaderBalance">0 GC</b></div></div>
+      <div class="game-header mg-header"><img src="assets/gg-logo.png" class="mg-header-logo" alt="Gamble Game"><button class="back-btn" data-back="1">←</button><h2>🎲 Кости</h2><div class="game-user-chip"><span class="avatar-badge gameHeaderAvatar">🧑</span><b class="gameHeaderBalance">0 GC</b></div></div>
       <div class="panel">
         <div class="dice-row"><div class="die" id="die0"></div><div class="die" id="die1"></div></div>
         <div class="dice-sum">Сумма: <b id="diceSum">—</b></div>
@@ -2910,7 +2913,7 @@ updateUI();
 
     <!-- COIN FLIP -->
     <section id="screen-coinflip" class="screen">
-      <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>🪙 Монетка</h2><div class="game-user-chip"><span class="avatar-badge gameHeaderAvatar">🧑</span><b class="gameHeaderBalance">0 GC</b></div></div>
+      <div class="game-header mg-header"><img src="assets/gg-logo.png" class="mg-header-logo" alt="Gamble Game"><button class="back-btn" data-back="1">←</button><h2>🪙 Монетка</h2><div class="game-user-chip"><span class="avatar-badge gameHeaderAvatar">🧑</span><b class="gameHeaderBalance">0 GC</b></div></div>
       <div class="panel">
         <div class="coin-stage"><div class="coin" id="coinEl"><div class="coin-face front">🦅</div><div class="coin-face back">Ⓣ</div></div></div>
         <div class="mines-status hidden" id="coinStreakStatus"><span>Множитель: <b id="coinMult">x1.00</b></span><span>Выплата: <b id="coinPayout">0</b> GC</span></div>
@@ -2949,7 +2952,7 @@ updateUI();
 
     <!-- ROULETTE -->
     <section id="screen-roulette" class="screen">
-      <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>🎡 Рулетка</h2><div class="game-user-chip"><span class="avatar-badge gameHeaderAvatar">🧑</span><b class="gameHeaderBalance">0 GC</b></div></div>
+      <div class="game-header mg-header"><img src="assets/gg-logo.png" class="mg-header-logo" alt="Gamble Game"><button class="back-btn" data-back="1">←</button><h2>🎡 Рулетка</h2><div class="game-user-chip"><span class="avatar-badge gameHeaderAvatar">🧑</span><b class="gameHeaderBalance">0 GC</b></div></div>
       <div class="panel">
         <div class="roulette-num-history" id="rouletteNumberHistory"></div>
         <div class="roulette-stage">
@@ -2977,7 +2980,7 @@ updateUI();
 
     <!-- MINES -->
     <section id="screen-mines" class="screen">
-      <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>💣 Мины</h2><div class="game-user-chip"><span class="avatar-badge gameHeaderAvatar">🧑</span><b class="gameHeaderBalance">0 GC</b></div></div>
+      <div class="game-header mg-header"><img src="assets/gg-logo.png" class="mg-header-logo" alt="Gamble Game"><button class="back-btn" data-back="1">←</button><h2>💣 Мины</h2><div class="game-user-chip"><span class="avatar-badge gameHeaderAvatar">🧑</span><b class="gameHeaderBalance">0 GC</b></div></div>
       <div class="panel" id="minesSetupPanel">
         <div class="panel-title">Количество мин:</div>
         <div class="mines-stepper" id="minesCountStepper">
@@ -3007,7 +3010,7 @@ updateUI();
     </section>
     <!-- BLACKJACK -->
     <section id="screen-blackjack" class="screen">
-      <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>🃏 Blackjack</h2><div class="game-user-chip"><span class="avatar-badge gameHeaderAvatar">🧑</span><b class="gameHeaderBalance">0 GC</b></div></div>
+      <div class="game-header mg-header"><img src="assets/gg-logo.png" class="mg-header-logo" alt="Gamble Game"><button class="back-btn" data-back="1">←</button><h2>🃏 Blackjack</h2><div class="game-user-chip"><span class="avatar-badge gameHeaderAvatar">🧑</span><b class="gameHeaderBalance">0 GC</b></div></div>
       <div class="bj-table">
         <div class="bj-row bj-dealer-row">
           <div class="bj-label">Дилер <span id="bjDealerTotal">—</span></div>
@@ -3054,7 +3057,7 @@ updateUI();
 
     <!-- BACCARAT -->
     <section id="screen-baccarat" class="screen">
-      <div class="game-header baccarat-game-header"><button class="back-btn" data-back="1">←</button><h2>Baccarat</h2><div class="baccarat-user-chip game-user-chip"><span class="avatar-badge gameHeaderAvatar" id="baccaratHeaderAvatar">🧑</span><b class="gameHeaderBalance" id="baccaratHeaderBalance">0 GC</b></div></div>
+      <div class="game-header baccarat-game-header mg-header"><img src="assets/gg-logo.png" class="mg-header-logo" alt="Gamble Game"><button class="back-btn" data-back="1">←</button><h2>Baccarat</h2><div class="baccarat-user-chip game-user-chip"><span class="avatar-badge gameHeaderAvatar" id="baccaratHeaderAvatar">🧑</span><b class="gameHeaderBalance" id="baccaratHeaderBalance">0 GC</b></div></div>
       <div class="panel baccarat-panel">
         <div class="bac-live-stage">
           <div class="bac-table-arc"></div>

@@ -1109,6 +1109,11 @@ body{
   93%{transform:translateY(-2%) scaleY(1.005) scaleX(1);filter:drop-shadow(0 5px 3px rgba(0,0,0,.28))}
   100%{transform:translateY(0) scale(1) rotate(0deg);filter:brightness(1) drop-shadow(0 5px 4px rgba(0,0,0,.28))}
 }
+.cell.vanishing svg,.cell.vanishing .cellmult{animation:symVanish .18s ease-in forwards}
+@keyframes symVanish{
+  0%{opacity:1;transform:scale(1) translateY(0);filter:blur(0)}
+  100%{opacity:0;transform:scale(.55) translateY(12%);filter:blur(3px)}
+}
 .cell.drop .csh{animation:impactFlash .6s linear}
 @keyframes impactFlash{0%,52%{opacity:0}58%{opacity:.55}100%{opacity:0}}
 .cell.scatter-glow{border-color:rgba(255,100,50,.7);animation:scGlow .8s ease infinite}
@@ -1573,7 +1578,7 @@ body.pay-info-open #autoBtn{display:none!important;pointer-events:none!important
 &lt;div id=&quot;bonusStart&quot;&gt;
   &lt;div class=&quot;bs-frame&quot;&gt;
     &lt;div class=&quot;bs-gem&quot;&gt;◆&lt;/div&gt;
-    &lt;div class=&quot;bs-title&quot;&gt;ПОЗ����РАВЛЯЕМ!&lt;/div&gt;
+    &lt;div class=&quot;bs-title&quot;&gt;ПОЗ������РАВЛЯЕМ!&lt;/div&gt;
     &lt;div class=&quot;bs-sub&quot; id=&quot;bsSub&quot;&gt;ВЫ ВЫИГРАЛИ&lt;/div&gt;
     &lt;div class=&quot;bs-count&quot; id=&quot;bsCount&quot;&gt;15&lt;/div&gt;
     &lt;div class=&quot;bs-label&quot; id=&quot;bsLabel&quot;&gt;БЕСПЛАТНЫХ ВРАЩЕНИЙ&lt;/div&gt;
@@ -2055,6 +2060,19 @@ function fillGrid(anteBet){
   }
 }
 
+// Before a new spin: make the previously-landed symbols vanish first, then
+// the new symbols fall in from above (Gates of Olympus style reveal).
+async function clearGridVanish(){
+  for(let c=0;c&lt;COLS;c++) for(let r=0;r&lt;ROWS;r++) cells[c][r].classList.add(&#x27;vanishing&#x27;);
+  await wait(160);
+  for(let c=0;c&lt;COLS;c++) for(let r=0;r&lt;ROWS;r++){
+    const el=cells[c][r];
+    el.className=&#x27;cell&#x27;;
+    const old=el.querySelector(&#x27;svg&#x27;); if(old) old.remove();
+    const oldm=el.querySelector(&#x27;.cellmult&#x27;); if(oldm) oldm.remove();
+  }
+}
+
 // Count scatter symbols on grid
 function countScatters(){
   let cnt=0;
@@ -2474,8 +2492,10 @@ async function doSpin(){
     }
   }
 
-  // Gates-of-Olympus style: symbols drop straight into place column by
-  // column with a falling animation - no cycling through random symbols.
+  // Gates-of-Olympus style: the previous symbols vanish first, then the
+  // new symbols drop straight into place column by column with a falling
+  // animation - no cycling through random symbols.
+  await clearGridVanish();
   grid=[];
   for(let stopC=0;stopC&lt;COLS;stopC++){
     grid[stopC]=[];
@@ -3182,7 +3202,7 @@ updateUI();
           <input class="input" id="createPromoAmount" type="number" min="1" placeholder="Сумма GC">
           <input class="input" id="createPromoUses" type="number" min="1" placeholder="Количество активаций">
         </div>
-        <button class="btn btn-blue btn-block" id="createPromoBtn" style="margin-top:10px;">Создать промокод</button>
+        <button class="btn btn-blue btn-block" id="createPromoBtn" style="margin-top:10px;">Создать ��ромокод</button>
         <div class="promo-created-box" id="createdPromoInfo">Созданный промокод смогут активировать другие игроки.</div>
       </div>
 
@@ -4468,7 +4488,7 @@ updateUI();
       rouletteSpinning=false; rouletteCountdownActive=false; rouletteBetsClosed=false;
       setRouletteBoardDisabled(false);
       var btn=document.getElementById('rouletteSpinBtn'); if(btn) btn.textContent='Ожидание ставки';
-      var resultEl2=document.getElementById('rouletteResult'); if(resultEl2) resultEl2.textContent='Ошибка ставки. Можно поставить заново.';
+      var resultEl2=document.getElementById('rouletteResult'); if(resultEl2) resultEl2.textContent='Ошибка ставки. Можно по��тавить заново.';
       roulettePendingBets=[];
       document.querySelectorAll('.roulette-chip-on-board').forEach(function(chip){ chip.remove(); });
       document.querySelectorAll('.roulette-num-btn,.roulette-outside-btn').forEach(function(b){ b.classList.remove('active'); });

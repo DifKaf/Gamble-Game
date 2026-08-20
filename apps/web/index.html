@@ -1241,10 +1241,10 @@ body{
 .buy-btn{background:linear-gradient(135deg,#1a7f91,#2a7fa8);color:#062a33;box-shadow:0 3px 12px rgba(30,80,100,.55)}
 .turbo-btn{background:linear-gradient(135deg,#5b4a94,#4a5aa8);color:#fff;box-shadow:0 3px 12px rgba(60,50,110,.55)}
 .turbo-btn.on{background:linear-gradient(135deg,#fde68a,#fcd34d);color:#78350f;box-shadow:0 4px 16px rgba(252,211,77,.7)}
-.slot-bal-row{display:flex;align-items:center;gap:10px;width:100%;justify-content:center;padding-top:4px;border-top:1px solid rgba(140,60,110,.35);}
-.slot-bal-lbl{font-size:.42em;letter-spacing:2px;color:rgba(190,120,165,.7);}
-.slot-bal-val{font-size:.72em;font-weight:800;color:#fde68a;}
-.slot-mode-badge{font-size:.34em;letter-spacing:1px;color:rgba(150,130,190,.75);}
+.slot-bal-row{display:flex;align-items:center;gap:10px;width:100%;justify-content:center;padding:9px 16px;margin-top:2px;border-top:1px solid rgba(140,60,110,.35);background:rgba(15,8,25,.5);border-radius:14px;box-shadow:inset 0 0 14px rgba(255,215,120,.08);}
+.slot-bal-lbl{font-size:.46em;letter-spacing:2px;color:rgba(235,190,215,.9);font-weight:700;}
+.slot-bal-val{font-size:1em;font-weight:900;color:#ffe9a8;text-shadow:0 0 10px rgba(255,215,120,.85),0 0 22px rgba(255,180,60,.55);letter-spacing:.5px;}
+.slot-mode-badge{font-size:.36em;letter-spacing:1px;color:rgba(170,150,205,.85);}
 /* Message */
 .msg{min-height:22px;text-align:center;font-size:.63em;letter-spacing:3px;
   color:rgba(150,120,190,.7);width:100%;max-width:700px;transition:color .2s}
@@ -1573,7 +1573,7 @@ body.pay-info-open #autoBtn{display:none!important;pointer-events:none!important
 &lt;div id=&quot;bonusStart&quot;&gt;
   &lt;div class=&quot;bs-frame&quot;&gt;
     &lt;div class=&quot;bs-gem&quot;&gt;◆&lt;/div&gt;
-    &lt;div class=&quot;bs-title&quot;&gt;ПОЗДРАВЛЯЕМ!&lt;/div&gt;
+    &lt;div class=&quot;bs-title&quot;&gt;ПОЗ��РАВЛЯЕМ!&lt;/div&gt;
     &lt;div class=&quot;bs-sub&quot; id=&quot;bsSub&quot;&gt;ВЫ ВЫИГРАЛИ&lt;/div&gt;
     &lt;div class=&quot;bs-count&quot; id=&quot;bsCount&quot;&gt;15&lt;/div&gt;
     &lt;div class=&quot;bs-label&quot; id=&quot;bsLabel&quot;&gt;БЕСПЛАТНЫХ ВРАЩЕНИЙ&lt;/div&gt;
@@ -2474,39 +2474,16 @@ async function doSpin(){
     }
   }
 
-  // Phase 1 + 2: continuous spin, reels STOP one-by-one (left to right).
-  // A background loop keeps spinning only the reels still in `spinningCols`.
-  // Once a reel is removed from the set it is fixed and never spins again.
-  const spinningCols = new Set();
-  for(let c=0;c&lt;COLS;c++) spinningCols.add(c);
-  let reelsRunning = true;
-  const spinLoop = (async ()=&gt;{
-    while(reelsRunning){
-      for(const c of spinningCols)
-        for(let r=0;r&lt;ROWS;r++) setSym(c,r,rSym(anteBetOn),&#x27;spinning&#x27;);
-      await wait(70);
-    }
-  })();
-
-  // Let all reels spin together briefly (build-up)
-  await wait(320);
-
-  // Stop each reel in turn: once stopped it stays put, the rest keep spinning
+  // Symbols are placed immediately (no scrolling/spin animation).
   grid=[];
-  for(let stopC=0;stopC&lt;COLS;stopC++){
-    spinningCols.delete(stopC); // this reel will no longer be animated
-    grid[stopC]=[];
+  for(let c=0;c&lt;COLS;c++){
+    grid[c]=[];
     for(let r=0;r&lt;ROWS;r++){
-      grid[stopC][r]=finalGrid[stopC][r];
-      setSym(stopC,r,grid[stopC][r],&#x27;drop&#x27;);
-      await wait(42);
+      grid[c][r]=finalGrid[c][r];
+      setSym(c,r,grid[c][r]);
     }
-    sfx(&#x27;land&#x27;);
-    if(stopC&lt;COLS-1) await wait(210); // pause before the next reel stops
   }
-
-  reelsRunning=false;
-  await spinLoop;
+  sfx(&#x27;land&#x27;);
   await wait(300);
 
   // A multiplier symbol may also land on the initial drop (falls as a symbol)
@@ -2712,7 +2689,7 @@ async function triggerFreeSpins(count){
   const fl=document.getElementById(&#x27;fsFlash&#x27;);
   fl.style.opacity=&#x27;1&#x27;; setTimeout(()=&gt;fl.style.opacity=&#x27;0&#x27;,500);
   sfx(&#x27;fsstart&#x27;); doConfetti(60);
-  // Show the &quot;ПОЗДРАВЛЯЕМ! ВЫ ВЫИГРАЛИ N БЕСПЛАТНЫХ ВРАЩЕНИЙ&quot; splash and
+  // Show the &quot;ПОЗДРАВЛЯЕМ! ВЫ В��ИГРАЛИ N БЕСПЛАТНЫХ ВРАЩЕНИЙ&quot; splash and
   // wait for the player to click before the bonus game starts spinning.
   await showBonusStart(count);
   setMsg(`✨ ${count} ФРИСПИНОВ АКТИВИРОВАНО!`,&#x27;mg&#x27;);
@@ -3549,7 +3526,7 @@ updateUI();
     haptic('success');
   }
   function showTieOverlay(amount, label){
-    setWinOverlayContent('🤝', 'Ничья!', (label||'Ставка возвращена') + ' ' + fmt(amount) + ' GC');
+    setWinOverlayContent('🤝', 'Н��чья!', (label||'Ставка возвращена') + ' ' + fmt(amount) + ' GC');
     haptic('light');
   }
   document.getElementById('winOverlayClose').addEventListener('click', function(){
@@ -4411,7 +4388,7 @@ updateUI();
       var btn = document.getElementById('rouletteSpinBtn');
       function tick(){
         if(resultEl) resultEl.innerHTML = '<span class="roulette-countdown">Запуск через <b>'+left+'</b> сек.</span>';
-        if(btn) btn.textContent = 'Ставки приняты: ' + left + ' сек.';
+        if(btn) btn.textContent = 'Ставки принят��: ' + left + ' сек.';
         if(left <= 0){ if(btn) btn.textContent = '🎡 Крутить рулетку'; resolve(); return; }
         left -= 1;
         setTimeout(tick, 1000);

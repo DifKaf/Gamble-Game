@@ -347,6 +347,16 @@ footer,.slot-controls{margin-top:6px;}
 .coin-ladder-chip.active{background:linear-gradient(135deg,var(--gold-300),var(--gold-500));color:#4a3200;border-color:#7A5300;box-shadow:0 4px 10px rgba(0,0,0,.35);transform:scale(1.08);}
 .coin-ladder-chip.active .coin-ladder-icon{opacity:1;}
 .coin-ladder-nav{flex:0 0 auto;width:30px;height:30px;border-radius:50%;border:1px solid rgba(255,255,255,.2);background:rgba(0,0,0,.35);color:#fff;font-size:16px;font-weight:900;line-height:1;}
+.mines-ladder-wrap{display:flex;align-items:center;gap:6px;margin:0 0 14px;}
+.mines-ladder{display:flex;gap:8px;overflow-x:auto;scroll-behavior:smooth;padding:2px;flex:1;scrollbar-width:none;}
+.mines-ladder::-webkit-scrollbar{display:none;}
+.mines-ladder-chip{flex:0 0 auto;min-width:62px;padding:8px 10px;border-radius:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);text-align:center;font-weight:900;font-size:13px;color:#8a8f9c;transition:all .25s ease;}
+.mines-ladder-chip .mines-ladder-icon{display:block;font-size:15px;margin-bottom:2px;opacity:.55;}
+.mines-ladder-chip.reached{background:rgba(250,204,21,.14);border-color:rgba(250,204,21,.35);color:var(--gold-300);}
+.mines-ladder-chip.reached .mines-ladder-icon{opacity:1;}
+.mines-ladder-chip.active{background:linear-gradient(135deg,var(--gold-300),var(--gold-500));color:#4a3200;border-color:#7A5300;box-shadow:0 4px 10px rgba(0,0,0,.35);transform:scale(1.08);}
+.mines-ladder-chip.active .mines-ladder-icon{opacity:1;}
+.mines-ladder-nav{flex:0 0 auto;width:30px;height:30px;border-radius:50%;border:1px solid rgba(255,255,255,.2);background:rgba(0,0,0,.35);color:#fff;font-size:16px;font-weight:900;line-height:1;}
 
 /* ---------- Roulette ---------- */
 .roulette-stage{display:flex;flex-direction:column;align-items:center;margin:14px 0;}
@@ -876,6 +886,10 @@ body{background:#000!important;}
 .bac-road-cell{aspect-ratio:1;border-radius:50%;background:#1f1f1f;border:1px solid #333}.bac-road-cell.player{background:#1266ff}.bac-road-cell.banker{background:#e53935}.bac-road-cell.tie{background:#14a06f}
 .promo-create-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}.promo-create-grid .input{width:100%}.promo-created-box{margin-top:10px;padding:10px;border-radius:12px;background:#111;border:1px solid #333;color:#fff;font-weight:800;min-height:20px}
 @media(max-width:560px){.baccarat-table{grid-template-columns:1fr!important;margin-top:88px!important}.baccarat-vs{display:none}.bac-betting-layout{grid-template-columns:repeat(3,minmax(0,1fr))!important}.bac-bet-zone{min-height:64px;font-size:12px}.promo-create-grid{grid-template-columns:1fr}}
+@media (min-width:900px){
+  .bottom-nav{top:76px!important;}
+  .screen-container{padding-top:150px!important;}
+}
 
 </style>
 </head>
@@ -915,7 +929,7 @@ body{background:#000!important;}
 
     <!-- BONUSES -->
     <section id="screen-bonuses" class="screen">
-      <div class="game-header"><button class="back-btn" data-nav="home">←</button><h2>Бону����ы</h2></div>
+      <div class="game-header"><button class="back-btn" data-nav="home">←</button><h2>Бонусы</h2></div>
       <div class="panel">
         <div class="panel-title">🎟️ Промокоды</div>
         <div class="custom-bet-row"><input type="text" inputmode="text" placeholder="Введите промокод" id="promoCodeInput"></div>
@@ -934,7 +948,7 @@ body{background:#000!important;}
 
     <!-- SLOTS -->
     <section id="screen-slots" class="screen">
-      <div class="game-header"><button class="back-btn" data-nav="games">←</button><h2>����� Слоты</h2></div>
+      <div class="game-header"><button class="back-btn" data-nav="games">←</button><h2>🎰 Слоты</h2></div>
       <div class="game-grid">
         <button class="game-card card-slot" data-open="slot" style="grid-column:1/-1;"><div class="icon">🎰</div><div><div class="title">Drunkard Gate</div><div class="sub">Открыть слот</div></div></button>
       </div>
@@ -1466,7 +1480,7 @@ body.pay-info-open #autoBtn{display:none!important;pointer-events:none!important
   &lt;/div&gt;
 
   &lt;div class=&quot;stats&quot;&gt;
-    &lt;div class=&quot;stat&quot;&gt;&lt;div class=&quot;sl&quot;&gt;БАЛ��НС&lt;/div&gt;&lt;div class=&quot;sv&quot; id=&quot;balEl&quot;&gt;1000000&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;stat&quot;&gt;&lt;div class=&quot;sl&quot;&gt;БАЛАНС&lt;/div&gt;&lt;div class=&quot;sv&quot; id=&quot;balEl&quot;&gt;1000000&lt;/div&gt;&lt;/div&gt;
     &lt;div class=&quot;stat&quot;&gt;&lt;div class=&quot;sl&quot;&gt;ОБЩИЙ ВЫИГРЫШ&lt;/div&gt;&lt;div class=&quot;sv&quot; id=&quot;totalInfoVal&quot;&gt;0&lt;/div&gt;&lt;/div&gt;
     &lt;div class=&quot;stat&quot;&gt;&lt;div class=&quot;sl&quot;&gt;РЕЖИМ&lt;/div&gt;&lt;div class=&quot;sv&quot; id=&quot;modeEl&quot;&gt;BASE&lt;/div&gt;&lt;/div&gt;
   &lt;/div&gt;
@@ -1484,12 +1498,12 @@ body.pay-info-open #autoBtn{display:none!important;pointer-events:none!important
   &lt;div id=&quot;mMid&quot;&gt;&lt;/div&gt;
   &lt;div class=&quot;msec&quot;&gt;&amp;#11088; Низкие символы&lt;/div&gt;
   &lt;div id=&quot;mLow&quot;&gt;&lt;/div&gt;
-  &lt;div class=&quot;msec&quot;&gt;&amp;#9889; Спец��альные&lt;/div&gt;
+  &lt;div class=&quot;msec&quot;&gt;&amp;#9889; Специальные&lt;/div&gt;
   &lt;div id=&quot;mSpec&quot;&gt;&lt;/div&gt;
   &lt;div class=&quot;msec&quot;&gt;&amp;#9881; Механика&lt;/div&gt;
   &lt;div class=&quot;mech&quot;&gt;&lt;div class=&quot;mico&quot;&gt;&amp;#128203;&lt;/div&gt;&lt;div class=&quot;mtxt&quot;&gt;&lt;b&gt;6×5, Pay Anywhere.&lt;/b&gt; Кластер от &lt;b&gt;8+ одинаковых символов&lt;/b&gt; в любом месте поля (горизонталь + вертикаль).&lt;/div&gt;&lt;/div&gt;
   &lt;div class=&quot;mech&quot;&gt;&lt;div class=&quot;mico&quot;&gt;&amp;#128175;&lt;/div&gt;&lt;div class=&quot;mtxt&quot;&gt;&lt;b&gt;Падение (Tumble).&lt;/b&gt; После каждого спина выигрышные символы исчезают, сверху падают новые. Падение продолжается, пока есть выигрыши (без ограничений).&lt;/div&gt;&lt;/div&gt;
-  &lt;div class=&quot;mech&quot;&gt;&lt;div class=&quot;mico&quot;&gt;&amp;#127384;&lt;/div&gt;&lt;div class=&quot;mtxt&quot;&gt;&lt;b&gt;Символы-мно��ители.&lt;/b&gt; Падают на поле &lt;b&gt;как символы&lt;/b&gt; (×2 — ×1000) во время вращений и падений — как в основной игре, так и в фриспинах. В конце последовательности все множители на поле &lt;b&gt;суммируются&lt;/b&gt; и умножают общий выигрыш. В фриспинах множитель &lt;b&gt;накапливается глобально&lt;/b&gt;.&lt;/div&gt;&lt;/div&gt;
+  &lt;div class=&quot;mech&quot;&gt;&lt;div class=&quot;mico&quot;&gt;&amp;#127384;&lt;/div&gt;&lt;div class=&quot;mtxt&quot;&gt;&lt;b&gt;Символы-множители.&lt;/b&gt; Падают на поле &lt;b&gt;как символы&lt;/b&gt; (×2 — ×1000) во время вращений и падений — как в основной игре, так и в фриспинах. В конце последовательности все множители на поле &lt;b&gt;суммируются&lt;/b&gt; и умножают общий выигрыш. В фриспинах множитель &lt;b&gt;накапливается глобально&lt;/b&gt;.&lt;/div&gt;&lt;/div&gt;
   &lt;div class=&quot;mech&quot;&gt;&lt;div class=&quot;mico&quot;&gt;&amp;#129347;&lt;/div&gt;&lt;div class=&quot;mtxt&quot;&gt;&lt;b&gt;Scatter (Стакан).&lt;/b&gt; 4+ = &lt;b&gt;15 фриспинов&lt;/b&gt;. В FS: 3+ Scatter = &lt;b&gt;+5 спинов&lt;/b&gt;.&lt;/div&gt;&lt;/div&gt;
   &lt;div class=&quot;mech&quot;&gt;&lt;div class=&quot;mico&quot;&gt;&amp;#128176;&lt;/div&gt;&lt;div class=&quot;mtxt&quot;&gt;&lt;b&gt;Ante Bet&lt;/b&gt; +25% к ставке — повышает шанс Scatter.&lt;/div&gt;&lt;/div&gt;
   &lt;div class=&quot;mech&quot;&gt;&lt;div class=&quot;mico&quot;&gt;&amp;#128722;&lt;/div&gt;&lt;div class=&quot;mtxt&quot;&gt;&lt;b&gt;Купить бонус&lt;/b&gt; — мгновенные 15 фриспинов за &lt;b&gt;100× ставки&lt;/b&gt;.&lt;/div&gt;&lt;/div&gt;
@@ -1692,7 +1706,7 @@ const SVG = [
 &lt;!-- Highlight --&gt;
 &lt;ellipse cx=&quot;33&quot; cy=&quot;32&quot; rx=&quot;8&quot; ry=&quot;5&quot; fill=&quot;rgba(255,255,255,.3)&quot; transform=&quot;rotate(-20 33 32)&quot;/&gt;
 &lt;/svg&gt;`,
-// 8: HIGH — VODKA BOTTLE (БУТЫЛКА ВОД��И)
+// 8: HIGH — VODKA BOTTLE (БУТЫЛКА ВОДКИ)
 `&lt;svg viewBox=&quot;0 0 80 80&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot;&gt;
 &lt;defs&gt;&lt;linearGradient id=&quot;vk&quot; x1=&quot;0%&quot; y1=&quot;0%&quot; x2=&quot;0%&quot; y2=&quot;100%&quot;&gt;&lt;stop offset=&quot;0%&quot; stop-color=&quot;#f0f9ff&quot;/&gt;&lt;stop offset=&quot;100%&quot; stop-color=&quot;#7dd3fc&quot;/&gt;&lt;/linearGradient&gt;&lt;/defs&gt;
 &lt;!-- Cap --&gt;
@@ -2134,7 +2148,7 @@ async function flyMultToTotal(m){
   const rect=cellEl.getBoundingClientRect();
   const fly=document.createElement(&#x27;div&#x27;);
   fly.className=&#x27;flyMult&#x27;;
-  fly.textContent=&#x27;��&#x27;+m.mult;
+  fly.textContent=&#x27;×&#x27;+m.mult;
   fly.style.background=multBg(m.mult);
   fly.style.left=(rect.left+rect.width/2)+&#x27;px&#x27;;
   fly.style.top=(rect.top+rect.height/2)+&#x27;px&#x27;;
@@ -2159,7 +2173,7 @@ async function showMultiplyEquation(base, mult, result){
   const twEl=document.getElementById(&#x27;totalWinVal&#x27;);
   if(!bar || !twEl) return;
 
-  // Показываем умножени�� прямо в строке «Выигрыш за падения» —
+  // Показываем умножение прямо в строке «Выигрыш за падения» —
   // без отдельной всплывающей таблички, тем же цветом и размером.
   if(twInner) twInner.classList.add(&#x27;show&#x27;);
   tumbleWin=result;
@@ -2517,7 +2531,7 @@ async function doSpin(){
   let spinWin=0, cc=0;
   // ПАДЕНИЕ (Tumble): выигрышные символы исчезают, сверху падают новые.
   // Символы-множители падают на поле вместе с обычными. В базовой игре в конце
-  // ��оследовательности все множители на поле суммируются и умножают общий выигрыш.
+  // Последовательности все множители на поле суммируются и умножают общий выигрыш.
   // В фриспинах множитель накапливается глобально на весь бонусный раунд.
   while(true){
     const clusters=findClusters();
@@ -2542,7 +2556,7 @@ async function doSpin(){
     await wait(1200);
 
     spinWin+=rWin; tumbleWin=spinWin; totalWin+=rWin; addSharedBalance(rWin);
-    // Отражаем текущие ������������н����жители-символы на поле в интерфейсе
+    // Отражаем текущие множители-символы на поле в интерфейсе
     { const gm=gridMults(); cascMult = gm.length ? gm.reduce((a,b)=&gt;a+b,0) : 1; }
     updateUI();
 
@@ -2575,7 +2589,7 @@ async function doSpin(){
   }
   if(inFreeSpin &amp;&amp; spinWin&gt;0){
     // Фриспины: множители накапливаются глобально и умножают выигрыш последовательности
-    // Умножает выигрыш этого спина т��лько если в этот спин на барабане действительно выпала x.
+    // Умножает выигрыш этого спина только если в этот спин на барабане действительно выпала x.
     const add=finalMults.reduce((a,b)=&gt;a+b,0);
     if(add&gt;0){
       const prevGlobalMult=fsGlobalMult;
@@ -2594,7 +2608,7 @@ async function doSpin(){
   if(!spinWin &amp;&amp; !inFreeSpin){ sfx(&#x27;lose&#x27;); setMsg(&#x27;НЕ ПОВЕЗЛО...&#x27;,&#x27;sc&#x27;); }
   else if(spinWin&gt;0){
     const rt=totalWin/stake;
-    if(rt&gt;=80){ setMsg(`🌟 МЕГА ДЖЕКПО��! +${totalWin}`,&#x27;mg&#x27;); doConfetti(120); }
+    if(rt&gt;=80){ setMsg(`🌟 МЕГА ДЖЕКПОТ! +${totalWin}`,&#x27;mg&#x27;); doConfetti(120); }
     else if(rt&gt;=15){ setMsg(`✨ БОЛЬШОЙ ВЫИГРЫШ! +${totalWin}`,&#x27;bw&#x27;); doConfetti(50); }
     else setMsg(`⚡ +${spinWin}`,&#x27;w&#x27;);
   }
@@ -2868,7 +2882,7 @@ updateUI();
           <div class="bulb"></div><div class="bulb"></div><div class="bulb"></div><div class="bulb"></div><div class="bulb"></div><div class="bulb"></div><div class="bulb"></div>
         </div>
         <div class="bonus-banner" id="slotBonusBanner">
-          <span>��� Бесплатные спины</span><span id="slotBonusRemaining">0</span><span>× <span id="slotBonusMult">2</span></span>
+          <span>🎁 Бесплатные спины</span><span id="slotBonusRemaining">0</span><span>× <span id="slotBonusMult">2</span></span>
         </div>
         <div class="reels5" id="slotGrid"></div>
         <div class="slot-lines-feed" id="slotLinesFeed"></div>
@@ -2887,7 +2901,7 @@ updateUI();
           <div class="paytable-row"><span>👑👑👑 Корона</span><span>x5 / x12 / x30</span></div>
           <div class="paytable-row"><span>💰💰💰 Мешок золота</span><span>x3 / x6 / x15</span></div>
           <div class="paytable-row"><span>🗝️🗝️🗝️ Ключ</span><span>x2 / x4 / x10</span></div>
-          <div class="paytable-row"><span>🦜🦜�� Попугай</span><span>x1.5 / x3 / x7</span></div>
+          <div class="paytable-row"><span>🦜🦜🦜 Попугай</span><span>x1.5 / x3 / x7</span></div>
           <div class="paytable-row"><span>⚓⚓⚓ Якорь</span><span>x1 / x2 / x5</span></div>
           <div class="paytable-note">5 игровых линий (3 прямые + 2 зигзага) · совпадения считаются слева-направо от 1-го барабана · 3+ 🗺️ дают 8 бесплатных спинов ×2 (с ре-триггером) · 5 🏆 на любой линии = весь джекпот!</div>
         </div>
@@ -2992,6 +3006,10 @@ updateUI();
     <!-- MINES -->
     <section id="screen-mines" class="screen">
       <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>💣 Мины</h2></div>
+      <div class="mines-ladder-wrap" id="minesLadderWrap">
+        <div class="mines-ladder" id="minesLadder"></div>
+        <button type="button" class="mines-ladder-nav" id="minesLadderNext">›</button>
+      </div>
       <div class="panel" id="minesSetupPanel">
         <div class="panel-title">Количество мин:</div>
         <div class="mines-stepper" id="minesCountStepper">
@@ -3144,7 +3162,7 @@ updateUI();
       <div class="panel hidden" id="promoCreatorPanel" style="margin-top:12px;">
         <div class="panel-title">🎟️ Создать промокод</div>
         <div class="promo-create-grid">
-          <input class="input" id="createPromoCode" type="text" placeholder="Назван������е промокода">
+          <input class="input" id="createPromoCode" type="text" placeholder="Название промокода">
           <input class="input" id="createPromoAmount" type="number" min="1" placeholder="Сумма GC">
           <input class="input" id="createPromoUses" type="number" min="1" placeholder="Количество активаций">
         </div>
@@ -3193,7 +3211,7 @@ updateUI();
   <div class="modal-layer" id="modalLayer">
     <div class="modal-card">
       <div style="font-size:30px;">♻️</div>
-      <h3>Сбр��сить прогресс?</h3>
+      <h3>Сбросить прогресс?</h3>
       <p>Все балансы, история и статистика демо-игроков будут сброшены к начальным значениям.</p>
       <div class="modal-actions">
         <button class="btn btn-ghost" id="modalCancel">Отмена</button>
@@ -4411,7 +4429,7 @@ updateUI();
   }
   async function runRouletteRound(){
     if(rouletteSpinning || !roulettePendingBets.length) return; rouletteSpinning=true;
-    var resultEl=document.getElementById('rouletteResult'); if(resultEl) resultEl.textContent='��арик крутится...';
+    var resultEl=document.getElementById('rouletteResult'); if(resultEl) resultEl.textContent='Шарик крутится...';
     try{
       var first=roulettePendingBets[0];
       var totalBetAmount = roulettePendingBets.reduce(function(sum,b){ return sum + Number(b.amount||0); }, 0);
@@ -4446,17 +4464,58 @@ updateUI();
   /* ================= MINES ================= */
   var MINES_COUNT_MIN = 1, MINES_COUNT_MAX = 24;
   var minesMineCount = 1;
+  var MINES_TOTAL_CELLS = 25, MINES_HOUSE_EDGE = 0.03;
+  var minesLadderChips = [];
+  function minesFairMultiplier(mineCount, opened){ var mult=1; for(var i=0;i<opened;i++){ mult *= (MINES_TOTAL_CELLS - i) / (MINES_TOTAL_CELLS - mineCount - i); } return mult; }
+  function minesMultiplierFor(mineCount, opened){ return Math.round(minesFairMultiplier(mineCount, opened) * (1 - MINES_HOUSE_EDGE) * 100) / 100; }
+  function buildMinesLadder(mineCount){
+    var wrap = document.getElementById('minesLadder');
+    if(!wrap) return;
+    wrap.innerHTML = '';
+    minesLadderChips = [];
+    var safeSteps = MINES_TOTAL_CELLS - mineCount;
+    for(var i=1;i<=safeSteps;i++){
+      var chip = document.createElement('div');
+      chip.className = 'mines-ladder-chip';
+      chip.setAttribute('data-step', i);
+      chip.innerHTML = '<span class="mines-ladder-icon">❔</span><span class="mines-ladder-val">x' + minesMultiplierFor(mineCount, i).toFixed(2) + '</span>';
+      wrap.appendChild(chip);
+      minesLadderChips.push(chip);
+    }
+  }
+  function updateMinesLadder(revealed){
+    var step = revealed || 0;
+    minesLadderChips.forEach(function(chip){
+      var s = Number(chip.getAttribute('data-step'));
+      var icon = chip.querySelector('.mines-ladder-icon');
+      chip.classList.remove('active', 'reached');
+      if(s < step){ chip.classList.add('reached'); if(icon) icon.textContent = '💎'; }
+      else if(s === step){ chip.classList.add('active'); if(icon) icon.textContent = '💎'; }
+      else { if(icon) icon.textContent = '❔'; }
+    });
+    var activeChip = minesLadderChips[Math.max(0, step - 1)];
+    if(activeChip && activeChip.scrollIntoView){ activeChip.scrollIntoView({ behavior:'smooth', inline:'center', block:'nearest' }); }
+  }
   function setMinesMineCount(v){
     minesMineCount = Math.max(MINES_COUNT_MIN, Math.min(MINES_COUNT_MAX, Math.floor(v||1)));
     var el=document.getElementById('minesCountValue'); if(el) el.textContent = String(minesMineCount);
     var minusBtn=document.getElementById('minesCountMinus'); if(minusBtn) minusBtn.disabled = minesMineCount<=MINES_COUNT_MIN;
     var plusBtn=document.getElementById('minesCountPlus'); if(plusBtn) plusBtn.disabled = minesMineCount>=MINES_COUNT_MAX;
+    buildMinesLadder(minesMineCount);
+    updateMinesLadder(0);
   }
   var minesCountCtl = { get:function(){ return minesMineCount; }, set:setMinesMineCount };
   setMinesMineCount(1);
   var minesCountMinusBtn=document.getElementById('minesCountMinus'); if(minesCountMinusBtn) minesCountMinusBtn.addEventListener('click', function(){ setMinesMineCount(minesMineCount-1); haptic('light'); });
   var minesCountPlusBtn=document.getElementById('minesCountPlus'); if(minesCountPlusBtn) minesCountPlusBtn.addEventListener('click', function(){ setMinesMineCount(minesMineCount+1); haptic('light'); });
   var minesBetCtl = wireBetStepTools('minesCustomBet', 'minesMinusBtn', 'minesPlusBtn', 'mines', 10, 5000000);
+  var minesLadderNextBtn = document.getElementById('minesLadderNext');
+  if(minesLadderNextBtn){
+    minesLadderNextBtn.addEventListener('click', function(){
+      var box = document.getElementById('minesLadder');
+      if(box) box.scrollBy({ left: 170, behavior:'smooth' });
+    });
+  }
   var minesState = null;
   document.getElementById('minesStartBtn').addEventListener('click', async function(){
     var bet = minesBetCtl.get();
@@ -4468,6 +4527,7 @@ updateUI();
       var data = await apiRequest('/games/mines/start', { method:'POST', body:JSON.stringify({ betAmount:bet, mineCount:mineCount }) });
       backendBalance = data.balance; applyBackendBalanceToUI(); renderBalances(); bumpBalanceChip();
       minesState = { sessionId:data.sessionId, bet:bet, mineCount:mineCount, revealed:0, multiplier:1, openedCells:[] };
+      updateMinesLadder(0);
       var minesSetupPanel = document.getElementById('minesSetupPanel');
       var minesGamePanel = document.getElementById('minesGamePanel');
       if(minesSetupPanel) minesSetupPanel.classList.add('hidden');
@@ -4510,6 +4570,7 @@ updateUI();
         minesState.openedCells = data.openedCells || [];
         minesState.revealed = minesState.openedCells.length;
         minesState.multiplier = data.multiplier || 1;
+        updateMinesLadder(minesState.revealed);
         var minesMultEl=document.getElementById('minesMult'); if(minesMultEl) minesMultEl.textContent = 'x'+minesState.multiplier.toFixed(2);
         var minesPayoutEl=document.getElementById('minesPayout'); if(minesPayoutEl) minesPayoutEl.textContent = fmt(data.payout || 0);
         document.getElementById('minesCashoutBtn').disabled = false;
@@ -4528,6 +4589,7 @@ updateUI();
 
   function endMinesRound(){
     minesState = null;
+    updateMinesLadder(0);
     var minesSetupPanel = document.getElementById('minesSetupPanel');
     var minesGamePanel = document.getElementById('minesGamePanel');
     if(minesSetupPanel) minesSetupPanel.classList.remove('hidden');
@@ -4616,13 +4678,13 @@ updateUI();
       if(bjState) bjState.settledSessionId = data.sessionId;
       var totalBet = data.doubled ? data.betAmount*2 : data.betAmount;
       if(data.winAmount>totalBet){
-        addHistory(me(),'win', data.winAmount, 'Блэкджек: '+(data.outcome==='blackjack'?'натуральны�� блэкджек':'победа')); syncProfileStats(totalBet, data.winAmount); renderProfile(); refreshMiniGameHistories();
+        addHistory(me(),'win', data.winAmount, 'Блэкджек: '+(data.outcome==='blackjack'?'натуральный блэкджек':'победа')); syncProfileStats(totalBet, data.winAmount); renderProfile(); refreshMiniGameHistories();
         showWinOverlay(data.winAmount); haptic('success');
       } else if(data.outcome==='push'){
         addHistory(me(),'win', 0, 'Блэкджек: ничья'); syncProfileStats(totalBet, data.winAmount); renderProfile(); refreshMiniGameHistories();
         showTieOverlay(totalBet); haptic('light');
       } else {
-        addHistory(me(),'loss', totalBet, 'Бл��кджек: проигрыш'); syncProfileStats(totalBet, data.winAmount || 0); renderProfile(); refreshMiniGameHistories();
+        addHistory(me(),'loss', totalBet, 'Блэкджек: проигрыш'); syncProfileStats(totalBet, data.winAmount || 0); renderProfile(); refreshMiniGameHistories();
         haptic('error');
       }
     }
@@ -4743,7 +4805,7 @@ updateUI();
       var placed=Object.assign({}, baccaratPendingBets);
       var result=await serverBet('baccarat', total, {side:primary,bets:entries.map(function(k){return {side:k,amount:placed[k]};})});
       await renderBaccarat(result);
-      var names={player:'Игрок',banker:'��анкир',tie:'Ничья'};
+      var names={player:'Игрок',banker:'Банкир',tie:'Ничья'};
       var refund = result.refundAmount || 0;
       var isPush = result.winner==='tie' && !placed.tie;
       if(isPush){ refund = (placed.player||0) + (placed.banker||0); }
@@ -4947,7 +5009,7 @@ updateUI();
     var p = me();
     var transfers = (p.history || []).filter(function(h){ return h.type==='transfer_in' || h.type==='transfer_out'; });
     if(transfers.length===0){
-      box.innerHTML = '<div class="empty-state">Пока нет перевод��в.</div>';
+      box.innerHTML = '<div class="empty-state">Пока нет переводов.</div>';
       return;
     }
     box.innerHTML = transfers.map(function(h){

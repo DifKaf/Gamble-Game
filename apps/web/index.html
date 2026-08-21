@@ -210,6 +210,14 @@ input,select{font-family:inherit;}
   border-radius:var(--radius-lg);padding:16px;margin-bottom:14px;
 }
 .panel-title{color:#fff;font-weight:800;font-size:16px;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.wheel-panel{text-align:center;}
+.wheel-wrap{position:relative;width:240px;height:240px;margin:6px auto 0;}
+.wheel-pointer{position:absolute;top:-8px;left:50%;transform:translateX(-50%);font-size:22px;color:#ffd54a;z-index:5;filter:drop-shadow(0 2px 4px rgba(0,0,0,.6));}
+.wheel-disc{position:relative;width:100%;height:100%;border-radius:50%;border:6px solid #2a2440;box-shadow:0 0 0 3px rgba(255,255,255,.10),0 14px 32px rgba(0,0,0,.5);background:conic-gradient(#ff4757 0deg 45deg,#ffa502 45deg 90deg,#2ed573 90deg 135deg,#1e90ff 135deg 180deg,#a55eea 180deg 225deg,#ff6b81 225deg 270deg,#f8b500 270deg 315deg,#26de81 315deg 360deg);transition:transform 3.6s cubic-bezier(.15,.85,.3,1.02);}
+.wheel-label{position:absolute;top:50%;left:50%;color:#fff;font-weight:800;font-size:12px;text-shadow:0 1px 3px rgba(0,0,0,.7);}
+.wheel-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:56px;height:56px;border-radius:50%;background:#1b1730;border:3px solid #ffd54a;display:flex;align-items:center;justify-content:center;color:#ffd54a;font-weight:900;font-size:12px;box-shadow:0 4px 10px rgba(0,0,0,.5);}
+.wheel-timer{margin-top:10px;font-size:13px;color:var(--ink-soft);font-weight:700;}
+#wheelSpinBtn:disabled{opacity:.5;cursor:not-allowed;}
 .white-card{
   background:var(--card);border-radius:var(--radius-md);padding:14px;
   box-shadow:0 4px 0 rgba(0,0,0,0.12);
@@ -474,7 +482,7 @@ select.input, input.input{
 /* ---------- Bottom nav ---------- */
 .bottom-nav{
   position:fixed;bottom:0;left:0;right:0;max-width:460px;margin:0 auto;
-  display:grid;grid-template-columns:repeat(4,1fr);
+  display:grid;grid-template-columns:repeat(5,1fr);
   background:rgba(35,16,70,0.75);backdrop-filter:blur(10px);
   border-top:2px solid rgba(255,255,255,0.14);padding:8px 4px calc(8px + env(safe-area-inset-bottom));
   z-index:30;
@@ -934,13 +942,12 @@ body{background:#000!important;}
         <div class="hero-top">
           <div class="avatar-badge" id="heroAvatar">🧑</div>
           <div>
-            <div class="hero-greet">Привет,</div>
+            <div class="hero-greet">Прив��т,</div>
             <div class="hero-name" id="heroName">Игрок</div>
           </div>
         </div>
         <div class="hero-balance">Главный баланс<b id="heroBalance">0 GC</b></div>
         <button class="btn btn-gold btn-block" data-nav="games">Играть сейчас</button>
-        <button class="btn btn-blue btn-block" data-nav="bonuses" style="margin-top:10px;">Бонусы</button>
       </div>
 
       <div class="home-leaderboard-wrap">
@@ -953,6 +960,25 @@ body{background:#000!important;}
     <!-- BONUSES -->
     <section id="screen-bonuses" class="screen">
       <div class="game-header"><button class="back-btn" data-nav="home">←</button><h2>Бонусы</h2></div>
+      <div class="panel wheel-panel">
+        <div class="panel-title">🎡 Колесо фортуны</div>
+        <div class="wheel-wrap">
+          <div class="wheel-pointer">▼</div>
+          <div class="wheel-disc" id="wheelDisc">
+            <span class="wheel-label" style="transform:translate(-50%,-50%) rotate(22.5deg) translateY(-88px);">500</span>
+            <span class="wheel-label" style="transform:translate(-50%,-50%) rotate(67.5deg) translateY(-88px);">1000</span>
+            <span class="wheel-label" style="transform:translate(-50%,-50%) rotate(112.5deg) translateY(-88px);">2000</span>
+            <span class="wheel-label" style="transform:translate(-50%,-50%) rotate(157.5deg) translateY(-88px);">3000</span>
+            <span class="wheel-label" style="transform:translate(-50%,-50%) rotate(202.5deg) translateY(-88px);">5000</span>
+            <span class="wheel-label" style="transform:translate(-50%,-50%) rotate(247.5deg) translateY(-88px);">7500</span>
+            <span class="wheel-label" style="transform:translate(-50%,-50%) rotate(292.5deg) translateY(-88px);">10000</span>
+            <span class="wheel-label" style="transform:translate(-50%,-50%) rotate(337.5deg) translateY(-88px);">25000</span>
+            <div class="wheel-center">SPIN</div>
+          </div>
+        </div>
+        <button class="btn btn-gold btn-block" id="wheelSpinBtn" style="margin-top:16px;">🎁 Крутить колесо</button>
+        <div class="wheel-timer" id="wheelTimer">Загрузка...</div>
+      </div>
       <div class="panel">
         <div class="panel-title">🎟️ Промокоды</div>
         <div class="custom-bet-row"><input type="text" inputmode="text" placeholder="Введите промокод" id="promoCodeInput"></div>
@@ -1534,7 +1560,7 @@ body.pay-info-open #autoBtn{display:none!important;pointer-events:none!important
     &lt;div class=&quot;controls&quot;&gt;
       &lt;div class=&quot;betbox&quot;&gt;
         &lt;button class=&quot;bb&quot; id=&quot;bDn&quot;&gt;−&lt;/button&gt;
-        &lt;div class=&quot;betcol&quot;&gt;&lt;div class=&quot;betlbl&quot;&gt;СТАВКА&lt;/div&gt;&lt;div class=&quot;betv&quot; id=&quot;betEl&quot;&gt;100&lt;/div&gt;&lt;/div&gt;
+        &lt;div class=&quot;betcol&quot;&gt;&lt;div class=&quot;betlbl&quot;&gt;СТАВК��&lt;/div&gt;&lt;div class=&quot;betv&quot; id=&quot;betEl&quot;&gt;100&lt;/div&gt;&lt;/div&gt;
         &lt;button class=&quot;bb&quot; id=&quot;bUp&quot;&gt;+&lt;/button&gt;
       &lt;/div&gt;
       &lt;button class=&quot;spinbtn&quot; id=&quot;spBtn&quot;&gt;&lt;span class=&quot;spin-ic&quot;&gt;↻&lt;/span&gt;&lt;/button&gt;
@@ -1569,7 +1595,7 @@ body.pay-info-open #autoBtn{display:none!important;pointer-events:none!important
   &lt;div class=&quot;msec&quot;&gt;&amp;#9881; Механика&lt;/div&gt;
   &lt;div class=&quot;mech&quot;&gt;&lt;div class=&quot;mico&quot;&gt;&amp;#128203;&lt;/div&gt;&lt;div class=&quot;mtxt&quot;&gt;&lt;b&gt;6×5, Pay Anywhere.&lt;/b&gt; Кластер от &lt;b&gt;8+ одинаковых символов&lt;/b&gt; в любом месте поля (горизонталь + вертикаль).&lt;/div&gt;&lt;/div&gt;
   &lt;div class=&quot;mech&quot;&gt;&lt;div class=&quot;mico&quot;&gt;&amp;#128175;&lt;/div&gt;&lt;div class=&quot;mtxt&quot;&gt;&lt;b&gt;Падение (Tumble).&lt;/b&gt; После каждого спина выигрышные символы исчезают, сверху падают новые. Падение продолжается, пока есть выигрыши (без ограничений).&lt;/div&gt;&lt;/div&gt;
-  &lt;div class=&quot;mech&quot;&gt;&lt;div class=&quot;mico&quot;&gt;&amp;#127384;&lt;/div&gt;&lt;div class=&quot;mtxt&quot;&gt;&lt;b&gt;Символы-множители.&lt;/b&gt; Падают на поле &lt;b&gt;как символы&lt;/b&gt; (×2 — ×1000) во время вращений и падений — как в основной игре, так и в фриспинах. В конце последовательности все множители на поле &lt;b&gt;суммируются&lt;/b&gt; и умножают общий выигрыш. В фриспинах множитель &lt;b&gt;накапливается глобально&lt;/b&gt;.&lt;/div&gt;&lt;/div&gt;
+  &lt;div class=&quot;mech&quot;&gt;&lt;div class=&quot;mico&quot;&gt;&amp;#127384;&lt;/div&gt;&lt;div class=&quot;mtxt&quot;&gt;&lt;b&gt;Символы-множители.&lt;/b&gt; Падают на поле &lt;b&gt;как символы&lt;/b&gt; (×2 — ×1000) во время вращений и пад��ний — как в основной игре, так и в фриспинах. В конце последовательности все множители на поле &lt;b&gt;суммируются&lt;/b&gt; и умножают общий выигрыш. В фриспинах множитель &lt;b&gt;накапливается глобально&lt;/b&gt;.&lt;/div&gt;&lt;/div&gt;
   &lt;div class=&quot;mech&quot;&gt;&lt;div class=&quot;mico&quot;&gt;&amp;#129347;&lt;/div&gt;&lt;div class=&quot;mtxt&quot;&gt;&lt;b&gt;Scatter (Стакан).&lt;/b&gt; 4+ = &lt;b&gt;15 фриспинов&lt;/b&gt;. В FS: 3+ Scatter = &lt;b&gt;+5 спинов&lt;/b&gt;.&lt;/div&gt;&lt;/div&gt;
   &lt;div class=&quot;mech&quot;&gt;&lt;div class=&quot;mico&quot;&gt;&amp;#128176;&lt;/div&gt;&lt;div class=&quot;mtxt&quot;&gt;&lt;b&gt;Ante Bet&lt;/b&gt; +25% к ставке — повышает шанс Scatter.&lt;/div&gt;&lt;/div&gt;
   &lt;div class=&quot;mech&quot;&gt;&lt;div class=&quot;mico&quot;&gt;&amp;#128722;&lt;/div&gt;&lt;div class=&quot;mtxt&quot;&gt;&lt;b&gt;Купить бонус&lt;/b&gt; — мгновенные 15 фриспинов за &lt;b&gt;100× ставки&lt;/b&gt;.&lt;/div&gt;&lt;/div&gt;
@@ -2593,7 +2619,7 @@ async function doSpin(){
   let spinWin=0, cc=0;
   // ПАДЕНИЕ (Tumble): выигрышные символы исчезают, сверху падают новые.
   // Символы-множители падают на поле вместе с обычными. В базовой игре в конце
-  // Последовательности все множители на поле суммируются и умножают общий выигрыш.
+  // Последовательности все множители на п��ле суммируются и умножают общий выигрыш.
   // В фриспинах множитель накапливается глобально на весь бонусный раунд.
   while(true){
     const clusters=findClusters();
@@ -3188,7 +3214,7 @@ updateUI();
       <div class="panel" style="margin-top:16px;">
         <div class="panel-title">📤 Перевести Gamble Coin</div>
         <div class="field-label">Кому:</div>
-        <input class="input" id="transferRecipient" type="text" placeholder="@username" list="transferUserSuggestions"><datalist id="transferUserSuggestions"></datalist><div id="transferSuggestBox" class="transfer-suggest-box hidden"></div>
+        <input class="input" id="transferRecipient" type="text" placeholder="@username или ID игрока" list="transferUserSuggestions"><datalist id="transferUserSuggestions"></datalist><div id="transferSuggestBox" class="transfer-suggest-box hidden"></div>
         <div class="field-label">Сумма:</div>
         <input class="input" id="transferAmount" type="number" min="1" placeholder="Введите сумму" />
         <button class="btn btn-primary btn-block" id="transferBtn" style="margin-top:12px;">📤 Отправить</button>
@@ -3249,6 +3275,7 @@ updateUI();
   <nav class="bottom-nav">
     <button class="nav-btn active" data-nav="home"><span class="ic">🏠</span><span>Главная</span></button>
     <button class="nav-btn" data-nav="games"><span class="ic">🎮</span><span>Игры</span></button>
+    <button class="nav-btn" data-nav="bonuses"><span class="ic">🎁</span><span>Бонусы</span></button>
     <button class="nav-btn" data-nav="wallet"><span class="ic">💸</span><span>Кошелёк</span></button>
     <button class="nav-btn" data-nav="profile"><span class="ic">👤</span><span>Профиль</span></button>
   </nav>
@@ -3267,7 +3294,7 @@ updateUI();
     <div class="modal-card">
       <div style="font-size:30px;">♻️</div>
       <h3>Сбросить прогресс?</h3>
-      <p>Все балансы, история и статистика демо-игроков будут сброшены к начальным значениям.</p>
+      <p>Все балансы, история и ст��тистика демо-игроков будут сброшены к начальным значениям.</p>
       <div class="modal-actions">
         <button class="btn btn-ghost" id="modalCancel">Отмена</button>
         <button class="btn btn-primary" id="modalConfirm">Сбросить</button>
@@ -3355,7 +3382,9 @@ updateUI();
         var meData = await apiRequest('/me');
         auth = { token: backendToken, user: meData };
       } else {
-        auth = await apiRequest('/auth/dev', { method:'POST', body:JSON.stringify({ telegramId:123456 }) });
+        var devId = localStorage.getItem('gg_dev_telegram_id');
+        if(!devId){ devId = String(100000000 + Math.floor(Math.random()*899999999)); localStorage.setItem('gg_dev_telegram_id', devId); }
+        auth = await apiRequest('/auth/dev', { method:'POST', body:JSON.stringify({ telegramId: Number(devId) }) });
       }
       backendToken = auth.token;
       localStorage.setItem('gg_backend_token', backendToken);
@@ -3370,6 +3399,7 @@ updateUI();
       saveState();
       setInterval(function(){ if(backendReady) applyBackendBalanceToUI(); }, 1000);
       refreshMiniGameHistories(true); loadLeaderboardFromBackend();
+      if(typeof checkWheelStatus==='function') checkWheelStatus();
       console.log('Backend auth success', auth.user);
     }catch(e){
       console.error('Backend auth failed:', e);
@@ -3586,7 +3616,7 @@ updateUI();
   }
 
   /* ================= Navigation ================= */
-  var mainTabs = ['home','games','wallet','profile'];
+  var mainTabs = ['home','games','bonuses','wallet','profile'];
   var screenHistory = [];
   var currentScreen = 'home';
   function stopDrunkardGateAudio(){
@@ -3634,6 +3664,7 @@ updateUI();
     refreshBackendBalanceForScreen();
     if(name==='home') loadLeaderboardFromBackend();
     if(name==='promo-create') loadCreatedPromos();
+    if(name==='bonuses' && typeof checkWheelStatus==='function') checkWheelStatus();
     window.scrollTo(0,0);
   }
   document.querySelectorAll('[data-nav]').forEach(function(btn){
@@ -4495,7 +4526,7 @@ updateUI();
       var wheelWrap=document.querySelector('#screen-roulette .roulette-wheel-wrap'), wheelEl=document.getElementById('wheelEl'), ballTrack=document.getElementById('rouletteBallTrack');
       if(wheelWrap) wheelWrap.classList.add('spinning'); if(wheelEl) wheelEl.style.transform='rotate(0deg)'; if(ballTrack) ballTrack.style.transform='rotate('+ballRotation+'deg)';
       setTimeout(function(){
-        if(wheelWrap) wheelWrap.classList.remove('spinning'); var colorNames={red:'Красное',black:'Чёрное',green:'Зелёное'};
+        if(wheelWrap) wheelWrap.classList.remove('spinning'); var colorNames={red:'К��асное',black:'Чёрное',green:'Зелёное'};
         if(resultEl) resultEl.innerHTML='Выпало: '+colorNames[result.color]+' <span class="roulette-result-number '+result.color+'">'+result.number+'</span>';
         rouletteNumberHistoryArr.unshift({number:result.number, color:result.color}); rouletteNumberHistoryArr=rouletteNumberHistoryArr.slice(0,18); renderRouletteNumberHistory();
         if(result.winAmount>0){ addHistory(me(),'win', result.winAmount, 'Рулетка'); showWinOverlay(result.winAmount); haptic('success'); } else { addHistory(me(),'loss', totalBetAmount, 'Рулетка'); haptic('error'); }
@@ -4955,6 +4986,77 @@ updateUI();
     }catch(e){ showToast(e.message || 'Ошибка промокода','error'); }
   });
 
+  /* ================= WHEEL OF FORTUNE ================= */
+  var wheelSpins = 0;
+  var wheelCountdownInterval = null;
+  var wheelNextAvailableAt = null;
+  function formatWheelCountdown(ms){
+    if(ms<0) ms=0;
+    var totalSec = Math.floor(ms/1000);
+    var h = Math.floor(totalSec/3600);
+    var m = Math.floor((totalSec%3600)/60);
+    var s = totalSec%60;
+    function pad(n){ return String(n).padStart(2,'0'); }
+    return pad(h)+':'+pad(m)+':'+pad(s);
+  }
+  function setWheelReady(ready){
+    var btn = document.getElementById('wheelSpinBtn');
+    var timerEl = document.getElementById('wheelTimer');
+    if(btn) btn.disabled = !ready;
+    if(ready && timerEl) timerEl.textContent = 'Колесо готово!';
+  }
+  function startWheelCountdown(nextAvailableAt){
+    wheelNextAvailableAt = nextAvailableAt;
+    if(wheelCountdownInterval) clearInterval(wheelCountdownInterval);
+    var timerEl = document.getElementById('wheelTimer');
+    if(!nextAvailableAt){ setWheelReady(true); return; }
+    var target = new Date(nextAvailableAt).getTime();
+    function tick(){
+      var remain = target - Date.now();
+      if(remain<=0){ setWheelReady(true); clearInterval(wheelCountdownInterval); return; }
+      setWheelReady(false);
+      if(timerEl) timerEl.textContent = 'Следующий спин через '+formatWheelCountdown(remain);
+    }
+    tick();
+    wheelCountdownInterval = setInterval(tick, 1000);
+  }
+  async function checkWheelStatus(){
+    if(!backendReady){ var t=document.getElementById('wheelTimer'); if(t) t.textContent='Доступно после авторизации'; setWheelReady(false); return; }
+    try{
+      var data = await apiRequest('/bonus/wheel/status');
+      if(data.ready) setWheelReady(true); else startWheelCountdown(data.nextAvailableAt);
+    }catch(e){ /* ignore */ }
+  }
+  function spinWheelTo(idx){
+    var disc = document.getElementById('wheelDisc');
+    if(!disc) return;
+    var seg = 360 - (idx*45 + 22.5);
+    wheelSpins += 5;
+    var total = wheelSpins*360 + seg;
+    disc.style.transform = 'rotate('+total+'deg)';
+  }
+  var wheelSpinBtn=document.getElementById('wheelSpinBtn');
+  if(wheelSpinBtn) wheelSpinBtn.addEventListener('click', async function(){
+    if(!backendReady){ showToast('Крути колесо после авторизации','error'); return; }
+    if(wheelSpinBtn.disabled) return;
+    wheelSpinBtn.disabled = true;
+    try{
+      var data = await apiRequest('/bonus/wheel', {method:'POST'});
+      spinWheelTo(data.segment);
+      haptic('light');
+      setTimeout(function(){
+        backendBalance = data.balance; applyBackendBalanceToUI(); renderBalances(); saveState();
+        showToast('Ты выиграл '+fmt(data.amount)+' GC!','success');
+        haptic('success');
+        startWheelCountdown(data.nextAvailableAt);
+      }, 3700);
+    }catch(e){
+      showToast(e.message || 'Колесо ещё не готово','error');
+      if(e.nextAvailableAt) startWheelCountdown(e.nextAvailableAt); else setWheelReady(true);
+      wheelSpinBtn.disabled = false;
+    }
+  });
+
   /* ================= WALLET ================= */
   document.getElementById('transferBtn').addEventListener('click', async function(){
     var username = (document.getElementById('transferRecipient').value || '').trim().replace(/^@/,'');
@@ -4968,7 +5070,9 @@ updateUI();
         backendBalance = data.balance; applyBackendBalanceToUI(); renderBalances();
         document.getElementById('transferAmount').value = '';
         document.getElementById('transferRecipient').value = '';
-        showToast('Отправлено '+fmt(amount)+' GC игроку @'+username, 'success');
+        var recipientLabel = (data.recipient && (data.recipient.username ? '@'+data.recipient.username : ('ID '+data.recipient.playerId))) || username;
+        showToast('Отправлено '+fmt(amount)+' GC игроку '+recipientLabel, 'success');
+        renderHistory();
       } else {
         showToast('Переводы по @username или ID работают после Telegram-авторизации','error');
       }
@@ -5061,6 +5165,26 @@ updateUI();
   }
   function renderHistory(){
     var box = document.getElementById('historyBox');
+    if(backendReady){
+      apiRequest('/wallet/transactions').then(function(data){
+        var transfers = (data.transactions || []).filter(function(t){ return t.source==='transfer-out' || t.source==='transfer-in'; });
+        if(transfers.length===0){
+          box.innerHTML = '<div class="empty-state">Пока нет переводов.</div>';
+          return;
+        }
+        box.innerHTML = transfers.map(function(t){
+          var isPlus = t.source==='transfer-in';
+          var sign = isPlus ? '+' : '−';
+          var meta = t.metadata || {};
+          var who = isPlus ? (meta.from || 'игрока') : (meta.to || 'игроку');
+          var desc = isPlus ? ('Перевод от '+who) : ('Перевод игроку '+who);
+          var d = new Date(t.createdAt);
+          var time = d.toLocaleDateString('ru-RU') + ' ' + d.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});
+          return '<div class="history-item"><div><div class="desc">'+escapeHtml(desc)+'</div><div class="time">'+time+'</div></div><div class="amt '+(isPlus?'plus':'minus')+'">'+sign+fmt(Math.abs(t.amount))+' GC</div></div>';
+        }).join('');
+      }).catch(function(){ box.innerHTML = '<div class="empty-state">Не удалось загрузить историю.</div>'; });
+      return;
+    }
     var p = me();
     var transfers = (p.history || []).filter(function(h){ return h.type==='transfer_in' || h.type==='transfer_out'; });
     if(transfers.length===0){

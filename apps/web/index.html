@@ -928,7 +928,7 @@ body{background:#000!important;}
   <div id="ggGlobalBar" class="gg-global-bar">
     <div class="gg-global-bar-inner">
       <div class="gg-logo-wrap" data-nav="home">
-        <img src="assets/gg-logo.png" class="gg-global-logo" alt="Gamble Game">
+        <img src="assets/gamble-logo.png" class="gg-global-logo" alt="Gamble">
       </div>
       <div class="game-user-chip gg-global-chip"><span class="avatar-badge gameHeaderAvatar">🧑</span><b class="gameHeaderBalance">0 GC</b></div>
     </div>
@@ -938,16 +938,38 @@ body{background:#000!important;}
 
     <!-- HOME -->
     <section id="screen-home" class="screen active">
-      <div class="hero">
-        <div class="hero-top">
-          <div class="avatar-badge" id="heroAvatar">🧑</div>
-          <div>
-            <div class="hero-greet">Прив��т,</div>
-            <div class="hero-name" id="heroName">Игрок</div>
-          </div>
+      <button class="wheel-widget" data-open="wheel">
+        <div class="wheel-widget-text">
+          <div class="wheel-widget-brand">GAMBLE <span>WHEEL</span></div>
+          <div class="wheel-widget-title">Забирайте крутые бонусы каждый день</div>
+          <div class="wheel-widget-timer-row"><span class="wheel-widget-label">Следующий спин через</span><span class="wheel-widget-timer wheelWidgetTimer">--:--:--</span></div>
         </div>
-        <div class="hero-balance">Главный баланс<b id="heroBalance">0 GC</b></div>
-        <button class="btn btn-gold btn-block" data-nav="games">Играть сейчас</button>
+        <div class="wheel-widget-disc"><span>SPIN<br>TO WIN</span></div>
+      </button>
+
+      <div class="home-rail-block" id="homeRecentBlock" style="display:none;">
+        <div class="home-rail-head"><div class="home-rail-title">🕒 Продолжить играть</div><button class="home-rail-all" data-nav="games">Все игры ›</button></div>
+        <div class="home-rail" id="homeRailRecent"></div>
+      </div>
+
+      <div class="home-rail-block">
+        <div class="home-rail-head"><div class="home-rail-title">🎰 Слоты</div><button class="home-rail-all" data-open="slots">Все игры ›</button></div>
+        <div class="home-rail" id="homeRailSlots"></div>
+      </div>
+
+      <div class="home-rail-block">
+        <div class="home-rail-head"><div class="home-rail-title">🎮 Мини игры</div><button class="home-rail-all" data-open="minigames">Все игры ›</button></div>
+        <div class="home-rail" id="homeRailMini"></div>
+      </div>
+
+      <div class="home-rail-block">
+        <div class="home-rail-head"><div class="home-rail-title">🔥 Популярные</div><button class="home-rail-all" data-nav="games">Все игры ›</button></div>
+        <div class="home-rail" id="homeRailPopular"></div>
+      </div>
+
+      <div class="home-rail-block">
+        <div class="home-rail-head"><div class="home-rail-title">🃏 Карты и столы</div><button class="home-rail-all" data-open="minigames">Все игры ›</button></div>
+        <div class="home-rail" id="homeRailCards"></div>
       </div>
 
       <div class="home-leaderboard-wrap">
@@ -960,29 +982,51 @@ body{background:#000!important;}
     <!-- BONUSES -->
     <section id="screen-bonuses" class="screen">
       <div class="game-header"><button class="back-btn" data-nav="home">←</button><h2>Бонусы</h2></div>
-      <div class="panel wheel-panel">
-        <div class="panel-title">🎡 Колесо фортуны</div>
-        <div class="wheel-wrap">
-          <div class="wheel-pointer">▼</div>
-          <div class="wheel-disc" id="wheelDisc">
-            <span class="wheel-label" style="transform:translate(-50%,-50%) rotate(22.5deg) translateY(-88px);">500</span>
-            <span class="wheel-label" style="transform:translate(-50%,-50%) rotate(67.5deg) translateY(-88px);">1000</span>
-            <span class="wheel-label" style="transform:translate(-50%,-50%) rotate(112.5deg) translateY(-88px);">2000</span>
-            <span class="wheel-label" style="transform:translate(-50%,-50%) rotate(157.5deg) translateY(-88px);">3000</span>
-            <span class="wheel-label" style="transform:translate(-50%,-50%) rotate(202.5deg) translateY(-88px);">5000</span>
-            <span class="wheel-label" style="transform:translate(-50%,-50%) rotate(247.5deg) translateY(-88px);">7500</span>
-            <span class="wheel-label" style="transform:translate(-50%,-50%) rotate(292.5deg) translateY(-88px);">10000</span>
-            <span class="wheel-label" style="transform:translate(-50%,-50%) rotate(337.5deg) translateY(-88px);">25000</span>
-            <div class="wheel-center">SPIN</div>
-          </div>
+      <button class="wheel-widget" data-open="wheel">
+        <div class="wheel-widget-text">
+          <div class="wheel-widget-brand">GAMBLE <span>WHEEL</span></div>
+          <div class="wheel-widget-title">Забирайте крутые бонусы каждый день</div>
+          <div class="wheel-widget-timer-row"><span class="wheel-widget-label">Следующий спин через</span><span class="wheel-widget-timer wheelWidgetTimer">--:--:--</span></div>
         </div>
-        <button class="btn btn-gold btn-block" id="wheelSpinBtn" style="margin-top:16px;">🎁 Крутить колесо</button>
-        <div class="wheel-timer" id="wheelTimer">Загрузка...</div>
-      </div>
+        <div class="wheel-widget-disc"><span>SPIN<br>TO WIN</span></div>
+      </button>
       <div class="panel">
         <div class="panel-title">🎟️ Промокоды</div>
         <div class="custom-bet-row"><input type="text" inputmode="text" placeholder="Введите промокод" id="promoCodeInput"></div>
         <button class="btn btn-gold btn-block" id="promoCodeBtn">Активировать</button>
+      </div>
+    </section>
+
+    <!-- WHEEL OF FORTUNE -->
+    <section id="screen-wheel" class="screen">
+      <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>🎡 Колесо фортуны</h2></div>
+      <div class="wheel-hero">
+        <div class="wheel-hero-info">
+          <div class="wheel-widget-brand">GAMBLE <span>WHEEL</span></div>
+          <div class="wheel-hero-title">Забирайте крутые бонусы каждый день</div>
+          <div class="wheel-widget-timer-row"><span class="wheel-widget-label">Следующий спин через</span><span class="wheel-widget-timer wheelWidgetTimer">--:--:--</span></div>
+        </div>
+        <div class="wheel-stage">
+          <div class="wheel-pointer">▼</div>
+          <div class="wheel-disc" id="wheelDisc">
+            <span class="wheel-label" style="transform:translate(-50%,-50%) rotate(22.5deg) translateY(-112px);">500</span>
+            <span class="wheel-label" style="transform:translate(-50%,-50%) rotate(67.5deg) translateY(-112px);">1000</span>
+            <span class="wheel-label" style="transform:translate(-50%,-50%) rotate(112.5deg) translateY(-112px);">2000</span>
+            <span class="wheel-label" style="transform:translate(-50%,-50%) rotate(157.5deg) translateY(-112px);">3000</span>
+            <span class="wheel-label" style="transform:translate(-50%,-50%) rotate(202.5deg) translateY(-112px);">5000</span>
+            <span class="wheel-label" style="transform:translate(-50%,-50%) rotate(247.5deg) translateY(-112px);">7500</span>
+            <span class="wheel-label" style="transform:translate(-50%,-50%) rotate(292.5deg) translateY(-112px);">10000</span>
+            <span class="wheel-label" style="transform:translate(-50%,-50%) rotate(337.5deg) translateY(-112px);">25000</span>
+            <div class="wheel-center"><b>SPIN</b><small>TO WIN</small></div>
+          </div>
+        </div>
+      </div>
+      <button class="btn btn-gold btn-block" id="wheelSpinBtn" style="margin-top:16px;">🎁 Крутить колесо</button>
+      <div class="wheel-timer" id="wheelTimer">Загрузка...</div>
+      <div class="wheel-prizes">
+        <div class="panel-title">Возможные призы</div>
+        <div class="wheel-prizes-grid"><span class="wheel-prize-chip">500 GC</span><span class="wheel-prize-chip">1000 GC</span><span class="wheel-prize-chip">2000 GC</span><span class="wheel-prize-chip">3000 GC</span><span class="wheel-prize-chip">5000 GC</span><span class="wheel-prize-chip">7500 GC</span><span class="wheel-prize-chip">10000 GC</span><span class="wheel-prize-chip">25000 GC</span></div>
+        <div class="wheel-prizes-note">Один бесплатный спин раз в 24 часа. Выигрыш сразу падает на баланс.</div>
       </div>
     </section>
 
@@ -3214,7 +3258,7 @@ updateUI();
       <div class="panel" style="margin-top:16px;">
         <div class="panel-title">📤 Перевести Gamble Coin</div>
         <div class="field-label">Кому:</div>
-        <input class="input" id="transferRecipient" type="text" placeholder="@username или ID игрока" list="transferUserSuggestions"><datalist id="transferUserSuggestions"></datalist><div id="transferSuggestBox" class="transfer-suggest-box hidden"></div>
+        <input class="input" id="transferRecipient" type="text" placeholder="@username или ID игрока" autocomplete="off"><div id="transferSuggestBox" class="transfer-suggest-box hidden"></div>
         <div class="field-label">Сумма:</div>
         <input class="input" id="transferAmount" type="number" min="1" placeholder="Введите сумму" />
         <button class="btn btn-primary btn-block" id="transferBtn" style="margin-top:12px;">📤 Отправить</button>
@@ -3231,7 +3275,7 @@ updateUI();
         <div class="avatar-badge" id="profileAvatar" style="background:var(--card-tint);">🧑</div>
         <div>
           <div style="font-weight:800;font-size:16px;" id="profileName">Игрок</div>
-          <div style="font-size:12px;color:var(--ink-soft);font-weight:700;" id="profileBalance">0 GC</div><div style="font-size:12px;color:var(--ink-soft);font-weight:800;" id="profilePlayerId">ID: 120001</div>
+          <div style="font-size:12px;color:var(--ink-soft);font-weight:700;" id="profileBalance">0 GC</div><div style="font-size:12px;color:var(--ink-soft);font-weight:800;" id="profilePlayerId">ID: —</div>
         </div>
       </div>
       <div class="stat-grid">
@@ -3328,7 +3372,10 @@ updateUI();
 
   async function apiRequest(path, options){
     options = options || {};
-    var headers = Object.assign({ 'Content-Type':'application/json' }, options.headers || {});
+    var headers = Object.assign({}, options.headers || {});
+    // Content-Type ставим только когда реально есть тело: иначе Fastify отвечает 400 Bad Request
+    // на POST без body (именно из-за этого не работало колесо фортуны и ежедневный бонус).
+    if(options.body && !headers['Content-Type']) headers['Content-Type'] = 'application/json';
     if(backendToken) headers.Authorization = 'Bearer ' + backendToken;
     var res = await fetch(API_URL + path, Object.assign({}, options, { headers: headers }));
     var data = await res.json().catch(function(){ return {}; });
@@ -3664,7 +3711,9 @@ updateUI();
     refreshBackendBalanceForScreen();
     if(name==='home') loadLeaderboardFromBackend();
     if(name==='promo-create') loadCreatedPromos();
-    if(name==='bonuses' && typeof checkWheelStatus==='function') checkWheelStatus();
+    if((name==='bonuses'||name==='wheel'||name==='home') && typeof checkWheelStatus==='function') checkWheelStatus();
+    if(name==='wallet' && typeof renderHistory==='function') renderHistory();
+    if(typeof trackRecentGame==='function') trackRecentGame(name);
     window.scrollTo(0,0);
   }
   document.querySelectorAll('[data-nav]').forEach(function(btn){
@@ -4931,13 +4980,34 @@ updateUI();
   var backendLeaderboardUsers=[];
   var transferSearchTimer=null;
   var transferInput=document.getElementById('transferRecipient');
+  var transferSuggestBox=document.getElementById('transferSuggestBox');
+  function hideTransferSuggest(){ if(transferSuggestBox){ transferSuggestBox.classList.add('hidden'); transferSuggestBox.innerHTML=''; } }
+  function renderTransferSuggest(users){
+    if(!transferSuggestBox) return;
+    if(!users.length){ transferSuggestBox.innerHTML='<div class="transfer-suggest-empty">Никого не нашли — проверь ID или @username</div>'; transferSuggestBox.classList.remove('hidden'); return; }
+    transferSuggestBox.innerHTML=users.map(function(u){
+      var name=escapeHtml(u.firstName||u.username||'Игрок');
+      var nick=u.username?('@'+escapeHtml(u.username)):'без username';
+      var handle=u.playerId||u.username||'';
+      return '<button type="button" class="transfer-suggest-row" data-handle="'+escapeHtml(handle)+'">'+avatarHtml(u.photoUrl||'👤')+'<span class="transfer-suggest-info"><b>'+name+'</b><small>'+nick+' · ID '+escapeHtml(u.playerId||'—')+'</small></span><span class="transfer-suggest-bal">'+fmt(u.balance||0)+' GC</span></button>';
+    }).join('');
+    transferSuggestBox.classList.remove('hidden');
+    transferSuggestBox.querySelectorAll('.transfer-suggest-row').forEach(function(row){
+      row.addEventListener('mousedown', function(ev){ ev.preventDefault(); });
+      row.addEventListener('click', function(){ if(transferInput) transferInput.value=row.getAttribute('data-handle'); hideTransferSuggest(); haptic('light'); });
+    });
+  }
   if(transferInput) transferInput.addEventListener('input', function(){
     clearTimeout(transferSearchTimer);
+    var q=(transferInput.value||'').replace(/^@/,'').trim();
+    if(!q){ hideTransferSuggest(); return; }
     transferSearchTimer=setTimeout(async function(){
-      if(!backendReady) return; var q=(transferInput.value||'').replace(/^@/,'').trim(); if(!q) return;
-      try{ var data=await apiRequest('/me/users/search?q='+encodeURIComponent(q)); var users=data.users||[]; var dl=document.getElementById('transferUserSuggestions'); if(dl) dl.innerHTML=users.map(function(u){ var label=(u.firstName||u.username||'Игрок')+(u.username?' @'+u.username:'')+' ID '+(u.playerId||playerPublicId(u.id)); return '<option value="@'+escapeHtml(u.username||'')+'" label="'+escapeHtml(label)+'"></option>'; }).join(''); var sb=document.getElementById('transferSuggestBox'); if(sb){ sb.classList.toggle('hidden', users.length===0); sb.innerHTML=users.map(function(u){ return '<button type="button" class="transfer-suggest-item" data-username="'+escapeHtml(u.username||'')+'">'+avatarHtml(bestAvatar(u))+'<span><b>@'+escapeHtml(u.username||'')+'</b><small>ID '+escapeHtml(u.playerId||playerPublicId(u.id))+'</small></span></button>'; }).join(''); sb.querySelectorAll('.transfer-suggest-item').forEach(function(btn){ btn.addEventListener('click',function(){ transferInput.value='@'+btn.getAttribute('data-username'); sb.classList.add('hidden'); }); }); } }catch(e){}
+      if(!backendReady) return;
+      try{ var data=await apiRequest('/me/users/search?q='+encodeURIComponent(q)); renderTransferSuggest(data.users||[]); }
+      catch(e){ hideTransferSuggest(); }
     },220);
   });
+  if(transferInput) transferInput.addEventListener('blur', function(){ setTimeout(hideTransferSuggest, 200); });
   async function loadCreatedPromos(){
     var box=document.getElementById('createdPromosList'); if(!box) return;
     if(!backendReady){ box.innerHTML=Object.keys(localPromos).map(function(code){ var p=localPromos[code]; var used=(p.usedBy||[]).length; var left=Math.max(0,(p.maxUses||1)-used); return '<div class="promo-row"><div><div class="promo-code-name">'+escapeHtml(code)+'</div><div>'+fmt(p.amount)+' GC</div></div><div class="promo-remain">Осталось '+left+'/'+(p.maxUses||1)+'</div></div>'; }).join('') || '<div class="empty-state">Пока нет созданных промокодов.</div>'; return; }
@@ -5004,6 +5074,7 @@ updateUI();
     var timerEl = document.getElementById('wheelTimer');
     if(btn) btn.disabled = !ready;
     if(ready && timerEl) timerEl.textContent = 'Колесо готово!';
+    if(ready) document.querySelectorAll('.wheelWidgetTimer').forEach(function(el){ el.textContent = 'Готово!'; });
   }
   function startWheelCountdown(nextAvailableAt){
     wheelNextAvailableAt = nextAvailableAt;
@@ -5016,6 +5087,7 @@ updateUI();
       if(remain<=0){ setWheelReady(true); clearInterval(wheelCountdownInterval); return; }
       setWheelReady(false);
       if(timerEl) timerEl.textContent = 'Следующий спин через '+formatWheelCountdown(remain);
+      document.querySelectorAll('.wheelWidgetTimer').forEach(function(el){ el.textContent = formatWheelCountdown(remain); });
     }
     tick();
     wheelCountdownInterval = setInterval(tick, 1000);
@@ -5166,21 +5238,26 @@ updateUI();
   function renderHistory(){
     var box = document.getElementById('historyBox');
     if(backendReady){
-      apiRequest('/wallet/transactions').then(function(data){
-        var transfers = (data.transactions || []).filter(function(t){ return t.source==='transfer-out' || t.source==='transfer-in'; });
+      apiRequest('/wallet/transfers').then(function(data){
+        var transfers = data.transfers || [];
         if(transfers.length===0){
           box.innerHTML = '<div class="empty-state">Пока нет переводов.</div>';
           return;
         }
         box.innerHTML = transfers.map(function(t){
-          var isPlus = t.source==='transfer-in';
-          var sign = isPlus ? '+' : '−';
-          var meta = t.metadata || {};
-          var who = isPlus ? (meta.from || 'игрока') : (meta.to || 'игроку');
-          var desc = isPlus ? ('Перевод от '+who) : ('Перевод игроку '+who);
+          var isPlus = t.direction === 'in';
+          var cp = t.counterparty || {};
+          var name = cp.name || 'Игрок';
+          var nick = cp.username ? ('@'+cp.username) : 'без username';
+          var pid = 'ID ' + (cp.playerId || '—');
           var d = new Date(t.createdAt);
           var time = d.toLocaleDateString('ru-RU') + ' ' + d.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});
-          return '<div class="history-item"><div><div class="desc">'+escapeHtml(desc)+'</div><div class="time">'+time+'</div></div><div class="amt '+(isPlus?'plus':'minus')+'">'+sign+fmt(Math.abs(t.amount))+' GC</div></div>';
+          return '<div class="transfer-row">'+avatarHtml(cp.photoUrl||'👤')+
+            '<div class="transfer-row-info">'+
+              '<div class="transfer-row-top"><b>'+escapeHtml(name)+'</b><span class="transfer-row-amt '+(isPlus?'plus':'minus')+'">'+(isPlus?'+':'−')+fmt(t.amount)+' GC</span></div>'+
+              '<div class="transfer-row-sub">'+escapeHtml(nick)+' · '+escapeHtml(pid)+'</div>'+
+              '<div class="transfer-row-sub muted">'+(isPlus?'Перевод вам':'Перевод игроку')+' · '+time+'</div>'+
+            '</div></div>';
         }).join('');
       }).catch(function(){ box.innerHTML = '<div class="empty-state">Не удалось загрузить историю.</div>'; });
       return;
@@ -5204,7 +5281,7 @@ updateUI();
     setAvatarEl('profileAvatar', p.avatar);
     var profileNameEl=document.getElementById('profileName'); if(profileNameEl) profileNameEl.textContent = p.name;
     var profileBalanceEl=document.getElementById('profileBalance'); if(profileBalanceEl) profileBalanceEl.textContent = fmt(p.balance)+' GC';
-    var profilePlayerIdEl=document.getElementById('profilePlayerId'); if(profilePlayerIdEl) profilePlayerIdEl.textContent = 'ID: '+(backendUser && backendUser.playerId ? backendUser.playerId : playerPublicId(p.id));
+    var profilePlayerIdEl=document.getElementById('profilePlayerId'); if(profilePlayerIdEl) profilePlayerIdEl.textContent = 'ID: '+(backendUser && backendUser.playerId ? backendUser.playerId : '—');
     var statWageredEl=document.getElementById('statWagered'); if(statWageredEl) statWageredEl.textContent = fmt(p.stats.wagered);
     var statWonEl=document.getElementById('statWon'); if(statWonEl) statWonEl.textContent = fmt(p.stats.won);
     var statBiggestEl=document.getElementById('statBiggest'); if(statBiggestEl) statBiggestEl.textContent = fmt(p.stats.biggest);
@@ -5286,6 +5363,57 @@ updateUI();
     lastHistoryRefresh = now;
     ['dice','coinflip','roulette','mines','blackjack','baccarat'].forEach(renderGameHistory);
   }
+
+  /* ================= HOME: списки игр по группам ================= */
+  var GAME_CATALOG = {
+    slot:{ title:'Drunkard Gate', tag:'Слот', img:'assets/card-drunkardgate.jpg' },
+    dice:{ title:'Dice', tag:'Мини игра', img:'assets/card-dice.jpg' },
+    coinflip:{ title:'Coin Flip', tag:'Мини игра', img:'assets/card-coinflip.jpg' },
+    roulette:{ title:'Roulette', tag:'Столы', img:'assets/card-roulette.jpg' },
+    mines:{ title:'Mines', tag:'Мини игра', img:'assets/card-mines.jpg' },
+    blackjack:{ title:'Blackjack', tag:'Карты', img:'assets/card-blackjack.jpg' },
+    baccarat:{ title:'Baccarat', tag:'Карты', img:'assets/card-baccarat.jpg' }
+  };
+  var HOME_RAILS = [
+    { id:'homeRailSlots', games:['slot'] },
+    { id:'homeRailMini', games:['dice','coinflip','mines','roulette'] },
+    { id:'homeRailPopular', games:['slot','mines','coinflip','blackjack','roulette'] },
+    { id:'homeRailCards', games:['blackjack','baccarat','roulette'] }
+  ];
+  var recentGames = [];
+  try{ recentGames = JSON.parse(localStorage.getItem('gg_recent_games') || '[]') || []; }catch(e){ recentGames = []; }
+  function trackRecentGame(name){
+    if(!GAME_CATALOG[name]) return;
+    recentGames = [name].concat(recentGames.filter(function(g){ return g!==name; })).slice(0,8);
+    try{ localStorage.setItem('gg_recent_games', JSON.stringify(recentGames)); }catch(e){}
+    renderHomeRecent();
+  }
+  function railCard(key){
+    var g = GAME_CATALOG[key]; if(!g) return null;
+    var btn = document.createElement('button');
+    btn.className = 'rail-card';
+    btn.setAttribute('aria-label', g.title);
+    btn.innerHTML = '<img class="rail-card-media" src="'+g.img+'" alt="'+escapeHtml(g.title)+'"><span class="rail-card-label"><b>'+escapeHtml(g.title)+'</b><small>'+escapeHtml(g.tag)+'</small></span>';
+    btn.addEventListener('click', function(){ showScreen(key); haptic('light'); });
+    return btn;
+  }
+  function fillRail(id, games){
+    var box = document.getElementById(id); if(!box) return;
+    box.innerHTML = '';
+    games.forEach(function(key){ var c = railCard(key); if(c) box.appendChild(c); });
+  }
+  function renderHomeRecent(){
+    var block = document.getElementById('homeRecentBlock');
+    var box = document.getElementById('homeRailRecent');
+    if(!block || !box) return;
+    var list = (recentGames||[]).filter(function(g){ return GAME_CATALOG[g]; });
+    if(!list.length){ block.style.display = 'none'; return; }
+    block.style.display = '';
+    box.innerHTML = '';
+    list.forEach(function(key){ var c = railCard(key); if(c) box.appendChild(c); });
+  }
+  HOME_RAILS.forEach(function(r){ fillRail(r.id, r.games); });
+  renderHomeRecent();
 
   initBackendAuth();
   renderAll();
@@ -5509,4 +5637,80 @@ updateUI();
   #screen-roulette #rouletteNumberGrid .roulette-num-btn,
   #screen-roulette #rouletteNumberGrid .roulette-outside-btn{font-size:11px!important;}
 }
+</style>
+
+<style>
+/* ===== Логотип ===== */
+.gg-global-logo{height:42px!important;}
+
+/* ===== Виджет колеса фортуны ===== */
+.wheel-widget{position:relative;display:flex;align-items:center;gap:12px;width:100%;margin:2px 0 20px;padding:16px 14px;border-radius:20px;border:1px solid #2b2b2b;background:linear-gradient(115deg,#141414 0%,#1d1c26 55%,#141414 100%);color:#fff;text-align:left;cursor:pointer;overflow:hidden;}
+.wheel-widget:active{transform:translateY(2px);}
+.wheel-widget-text{flex:1 1 auto;min-width:0;}
+.wheel-widget-brand{font-weight:950;font-size:13px;letter-spacing:.5px;color:#fff;}
+.wheel-widget-brand span{color:#0b9dff;}
+.wheel-widget-title{font-weight:900;font-size:17px;line-height:1.25;margin-top:6px;}
+.wheel-widget-timer-row{display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap;}
+.wheel-widget-label{font-size:11px;font-weight:800;color:#8a8a8a;}
+.wheel-widget-timer{display:inline-block;padding:5px 10px;border-radius:999px;background:#0f0f0f;border:1px solid #303030;font-weight:950;font-size:13px;letter-spacing:.5px;color:#fff;font-variant-numeric:tabular-nums;}
+.wheel-widget-disc{flex:0 0 auto;width:96px;height:96px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:conic-gradient(#ff4d6d 0 45deg,#ffa23a 45deg 90deg,#ffe14d 90deg 135deg,#4ddb6f 135deg 180deg,#3ec9ff 180deg 225deg,#7b6bff 225deg 270deg,#ff5fd0 270deg 315deg,#ff8a4d 315deg 360deg);box-shadow:0 8px 22px rgba(0,0,0,.45),inset 0 0 0 4px rgba(255,255,255,.10);}
+.wheel-widget-disc span{display:flex;align-items:center;justify-content:center;text-align:center;width:56px;height:56px;border-radius:50%;background:#121212;color:#fff;font-weight:950;font-size:11px;line-height:1.15;}
+
+/* ===== Экран колеса ===== */
+#screen-wheel .wheel-hero{border-radius:22px;border:1px solid #2b2b2b;background:linear-gradient(115deg,#141414 0%,#1d1c26 60%,#141414 100%);padding:18px 16px 22px;}
+#screen-wheel .wheel-hero-title{font-weight:950;font-size:20px;line-height:1.25;margin-top:6px;}
+#screen-wheel .wheel-stage{position:relative;width:266px;height:266px;margin:22px auto 0;}
+#screen-wheel .wheel-pointer{position:absolute;top:-14px;left:50%;transform:translateX(-50%);font-size:26px;color:#ffd54a;z-index:6;filter:drop-shadow(0 3px 5px rgba(0,0,0,.6));}
+#screen-wheel .wheel-disc{position:relative;width:100%;height:100%;border-radius:50%;border:8px solid #101010;background:conic-gradient(#ff4d6d 0 45deg,#ffa23a 45deg 90deg,#ffe14d 90deg 135deg,#4ddb6f 135deg 180deg,#3ec9ff 180deg 225deg,#7b6bff 225deg 270deg,#ff5fd0 270deg 315deg,#ff8a4d 315deg 360deg);box-shadow:0 0 0 4px rgba(255,255,255,.08),0 18px 40px rgba(0,0,0,.55);transition:transform 4.2s cubic-bezier(.12,.72,.06,1);}
+#screen-wheel .wheel-label{position:absolute;top:50%;left:50%;color:#141414;font-weight:950;font-size:14px;text-shadow:0 1px 0 rgba(255,255,255,.45);}
+#screen-wheel .wheel-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:82px;height:82px;border-radius:50%;background:#121212;border:4px solid #2a2a2a;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;z-index:4;}
+#screen-wheel .wheel-center b{font-size:15px;font-weight:950;letter-spacing:.5px;}
+#screen-wheel .wheel-center small{font-size:10px;font-weight:800;color:#0b9dff;letter-spacing:1px;}
+#screen-wheel .wheel-timer{margin-top:10px;text-align:center;font-size:13px;font-weight:800;color:#8a8a8a;}
+.wheel-prizes{margin-top:18px;padding:14px;border-radius:18px;border:1px solid #262626;background:#141414;}
+.wheel-prizes-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;}
+.wheel-prize-chip{padding:6px 11px;border-radius:999px;background:#1c1c1c;border:1px solid #2e2e2e;font-weight:900;font-size:12px;color:#fff;}
+.wheel-prizes-note{margin-top:12px;font-size:12px;font-weight:700;color:#7d7d7d;line-height:1.45;}
+
+/* ===== Списки игр на главной ===== */
+.home-rail-block{margin:0 0 20px;}
+.home-rail-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;}
+.home-rail-title{font-weight:950;font-size:16px;color:#fff;}
+.home-rail-all{background:#1b1b1b;border:1px solid #2b2b2b;color:#b9b9b9;font-weight:800;font-size:12px;padding:6px 11px;border-radius:999px;cursor:pointer;}
+.home-rail-all:active{transform:translateY(1px);}
+.home-rail{display:flex;gap:10px;overflow-x:auto;padding:2px 2px 6px;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
+.home-rail::-webkit-scrollbar{height:0;display:none;}
+.rail-card{position:relative;flex:0 0 auto;width:122px;aspect-ratio:4/5;padding:0;border-radius:16px;overflow:hidden;border:1px solid #2a2a2a;background:#141414;cursor:pointer;scroll-snap-align:start;}
+.rail-card:active{transform:translateY(2px) scale(.985);}
+.rail-card-media{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;pointer-events:none;}
+.rail-card-label{position:absolute;left:0;right:0;bottom:0;display:flex;flex-direction:column;gap:1px;padding:20px 9px 9px;background:linear-gradient(180deg,rgba(0,0,0,0) 0%,rgba(0,0,0,.86) 70%);text-align:left;pointer-events:none;}
+.rail-card-label b{font-size:12px;font-weight:950;color:#fff;line-height:1.2;}
+.rail-card-label small{font-size:10px;font-weight:800;color:#9a9a9a;}
+@media (min-width:760px){ .rail-card{width:150px;} }
+
+/* ===== Подсказки получателей ===== */
+.transfer-suggest-box{margin-top:8px;border-radius:16px;border:1px solid #2b2b2b;background:#141414;overflow:hidden;}
+.transfer-suggest-box.hidden{display:none;}
+.transfer-suggest-row{display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;background:transparent;border:0;border-bottom:1px solid #232323;cursor:pointer;text-align:left;color:#fff;}
+.transfer-suggest-row:last-child{border-bottom:0;}
+.transfer-suggest-row:hover{background:#1b1b1b;}
+.transfer-suggest-row .avatar-badge{width:34px!important;height:34px!important;min-width:34px!important;border-radius:50%!important;font-size:17px!important;overflow:hidden;}
+.transfer-suggest-info{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1 1 auto;}
+.transfer-suggest-info b{font-size:14px;font-weight:900;}
+.transfer-suggest-info small{font-size:11px;font-weight:700;color:#8a8a8a;}
+.transfer-suggest-bal{font-size:12px;font-weight:900;color:#0b9dff;white-space:nowrap;}
+.transfer-suggest-empty{padding:12px;font-size:12px;font-weight:700;color:#8a8a8a;}
+
+/* ===== История переводов ===== */
+#historyBox .transfer-row{display:flex;align-items:flex-start;gap:11px;padding:12px 0;border-bottom:1px solid #232323;}
+#historyBox .transfer-row:last-child{border-bottom:0;}
+#historyBox .transfer-row .avatar-badge{width:40px!important;height:40px!important;min-width:40px!important;border-radius:50%!important;font-size:19px!important;overflow:hidden;}
+.transfer-row-info{flex:1 1 auto;min-width:0;}
+.transfer-row-top{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.transfer-row-top b{font-size:14px;font-weight:900;color:#fff;}
+.transfer-row-amt{font-size:14px;font-weight:950;white-space:nowrap;}
+.transfer-row-amt.plus{color:#2ed573;}
+.transfer-row-amt.minus{color:#ff5f6d;}
+.transfer-row-sub{font-size:11px;font-weight:700;color:#8a8a8a;margin-top:3px;}
+.transfer-row-sub.muted{color:#6a6a6a;}
 </style>

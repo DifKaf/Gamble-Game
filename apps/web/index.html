@@ -232,20 +232,10 @@ input,select{font-family:inherit;}
 .game-header h2{color:#fff;font-size:19px;font-weight:800;margin:0;}
 .gg-global-bar{position:fixed;top:0;left:0;right:0;z-index:1000;background:#000;border-bottom:1px solid #242424;}
 .gg-global-bar-inner{max-width:1280px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 16px;}
-.gg-logo-wrap{position:relative;display:inline-flex;align-items:center;padding-bottom:6px;}
-.gg-global-logo{height:38px;width:auto;object-fit:contain;cursor:pointer;border-radius:8px;display:block;filter:drop-shadow(0 2px 8px rgba(0,0,0,.45));transition:transform .15s ease;}
+.gg-logo-wrap{position:relative;display:inline-flex;align-items:center;padding-bottom:0;}
+.gg-global-logo{height:30px;width:auto;object-fit:contain;cursor:pointer;border-radius:8px;display:block;filter:drop-shadow(0 2px 8px rgba(0,0,0,.45));transition:transform .15s ease;}
 .gg-logo-wrap:hover .gg-global-logo{transform:scale(1.04);}
-.gg-logo-wrap:after{
-  content:'';
-  position:absolute;
-  left:8%;
-  right:8%;
-  bottom:0;
-  height:3px;
-  border-radius:999px;
-  background:linear-gradient(90deg,rgba(255,255,255,0) 0%,rgba(255,255,255,.95) 50%,rgba(255,255,255,0) 100%);
-  box-shadow:0 0 10px 1px rgba(255,255,255,.7),0 0 18px rgba(120,200,255,.4);
-}
+.gg-logo-wrap:after{content:none;display:none;}
 .gg-global-chip{flex-shrink:0;}
 #screen-dice .game-header,#screen-coinflip .game-header,#screen-roulette .game-header,#screen-mines .game-header,#screen-blackjack .game-header,#screen-baccarat .game-header{position:relative!important;justify-content:flex-start!important;}
 #screen-dice .game-header .back-btn,#screen-coinflip .game-header .back-btn,#screen-roulette .game-header .back-btn,#screen-mines .game-header .back-btn,#screen-blackjack .game-header .back-btn,#screen-baccarat .game-header .back-btn{position:relative!important;z-index:2!important;}
@@ -5283,31 +5273,87 @@ updateUI();
       return '<div class="leaderboard-row"><span class="medal">'+(medals[i]||'🎗️')+'</span><span class="name">'+avatarHtml(p.avatar)+'<span>'+escapeHtml(p.name)+(p.id===state.currentPlayerId?' (вы)':'')+'</span>'+(p.playerId?'<small class="leader-id">ID '+escapeHtml(p.playerId)+'</small>':'')+'</span><span class="bal">'+fmt(p.balance)+' GC</span></div>';
     }).join('');
   }
+  // История переводов грузится в три шага, чтобы она не пропадала:
+  //   1) /wallet/transfers — полные данные со второй стороной;
+  //   2) /wallet/transactions — если на сервере ещё старая версия API без /transfers;
+  //   3) локальный кэш последнего успешного ответа — если сети нет вообще.
+  function transfersCacheKey(){ return 'gg_transfers_' + ((backendUser && backendUser.id) || 'local'); }
+  function readTransfersCache(){
+    try{ var raw = localStorage.getItem(transfersCacheKey()); var arr = raw ? JSON.parse(raw) : []; return Array.isArray(arr) ? arr : []; }catch(e){ return []; }
+  }
+  function writeTransfersCache(list){
+    try{ localStorage.setItem(transfersCacheKey(), JSON.stringify((list || []).slice(0, 100))); }catch(e){}
+  }
+  function transfersFromTransactions(list){
+    return (list || []).filter(function(t){ return t.source === 'transfer-in' || t.source === 'transfer-out'; }).map(function(t){
+      var meta = t.metadata || {};
+      return {
+        id: t.id,
+        direction: t.source === 'transfer-in' ? 'in' : 'out',
+        amount: Math.abs(Number(t.amount) || 0),
+        createdAt: t.createdAt,
+        counterparty: {
+          id: meta.counterpartyId || null,
+          playerId: meta.counterpartyPlayerId || meta.toPlayerId || meta.fromPlayerId || null,
+          username: meta.counterpartyUsername || null,
+          name: meta.counterpartyName || meta.to || meta.from || 'Игрок',
+          photoUrl: meta.counterpartyPhotoUrl || null
+        }
+      };
+    });
+  }
+  async function loadTransferHistory(){
+    try{
+      var data = await apiRequest('/wallet/transfers');
+      return data.transfers || [];
+    }catch(err){
+      var legacy = await apiRequest('/wallet/transactions');
+      return transfersFromTransactions(legacy.transactions);
+    }
+  }
+  function transferRowHtml(t){
+    var isPlus = t.direction === 'in';
+    var cp = t.counterparty || {};
+    var name = cp.name || 'Игрок';
+    var nick = cp.username ? ('@' + cp.username) : 'без username';
+    var pid = 'ID ' + (cp.playerId || (cp.id ? stablePlayerId(cp.id) : null) || '—');
+    var d = new Date(t.createdAt);
+    var time = isNaN(d.getTime()) ? '' : (d.toLocaleDateString('ru-RU') + ' ' + d.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}));
+    return '<div class="transfer-row">' + avatarHtml(cp.photoUrl || '👤') +
+
+      '<div class="transfer-row-info">' +
+
+        '<div class="transfer-row-top"><b>' + escapeHtml(name) + '</b><span class="transfer-row-amt ' + (isPlus?'plus':'minus') + '">' + (isPlus?'+':'−') + fmt(t.amount) + ' GC</span></div>' +
+
+        '<div class="transfer-row-sub">' + escapeHtml(nick) + ' · ' + escapeHtml(pid) + '</div>' +
+
+        '<div class="transfer-row-sub muted">' + (isPlus?'Перевод вам':'Перевод игроку') + ' · ' + time + '</div>' +
+
+      '</div></div>';
+  }
   function renderHistory(){
     var box = document.getElementById('historyBox');
     if(backendReady){
-      apiRequest('/wallet/transfers').then(function(data){
-        var transfers = data.transfers || [];
-        if(transfers.length===0){
+      var cached = readTransfersCache();
+      if(cached.length) box.innerHTML = cached.map(transferRowHtml).join('');
+      loadTransferHistory().then(function(transfers){
+        writeTransfersCache(transfers);
+        if(!transfers.length){
           box.innerHTML = '<div class="empty-state">Пока нет переводов.</div>';
           return;
         }
-        box.innerHTML = transfers.map(function(t){
-          var isPlus = t.direction === 'in';
-          var cp = t.counterparty || {};
-          var name = cp.name || 'Игрок';
-          var nick = cp.username ? ('@'+cp.username) : 'без username';
-          var pid = 'ID ' + (cp.playerId || '—');
-          var d = new Date(t.createdAt);
-          var time = d.toLocaleDateString('ru-RU') + ' ' + d.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});
-          return '<div class="transfer-row">'+avatarHtml(cp.photoUrl||'👤')+
-            '<div class="transfer-row-info">'+
-              '<div class="transfer-row-top"><b>'+escapeHtml(name)+'</b><span class="transfer-row-amt '+(isPlus?'plus':'minus')+'">'+(isPlus?'+':'−')+fmt(t.amount)+' GC</span></div>'+
-              '<div class="transfer-row-sub">'+escapeHtml(nick)+' · '+escapeHtml(pid)+'</div>'+
-              '<div class="transfer-row-sub muted">'+(isPlus?'Перевод вам':'Перевод игроку')+' · '+time+'</div>'+
-            '</div></div>';
-        }).join('');
-      }).catch(function(){ box.innerHTML = '<div class="empty-state">Не удалось загрузить историю.</div>'; });
+        box.innerHTML = transfers.map(transferRowHtml).join('');
+      }).catch(function(err){
+        // Сохранённую историю не затираем ошибкой.
+        if(cached.length) return;
+        var reason = (err && err.message) ? err.message : 'нет связи с сервером';
+        if(/Unauthorized|401/i.test(reason)) reason = 'требуется вход через Telegram';
+        if(/Not Found|404/i.test(reason)) reason = 'сервер ещё не обновлён';
+        box.innerHTML = '<div class="empty-state">История переводов недоступна: ' + escapeHtml(reason) +
+          '<br><button id="historyRetryBtn" style="margin-top:10px;padding:8px 16px;border-radius:10px;border:1px solid #333;background:#1b1b1b;color:#fff;font:inherit;cursor:pointer;">Повторить</button></div>';
+        var retryBtn = document.getElementById('historyRetryBtn');
+        if(retryBtn) retryBtn.addEventListener('click', function(){ renderHistory(); });
+      });
       return;
     }
     var p = me();
@@ -5689,7 +5735,7 @@ updateUI();
 
 <style>
 /* ===== Логотип ===== */
-.gg-global-logo{height:42px!important;}
+.gg-global-logo{height:30px!important;}
 
 /* ===== Виджет колеса фортуны ===== */
 .wheel-widget{position:relative;display:flex;align-items:center;gap:12px;width:100%;margin:2px 0 20px;padding:16px 14px;border-radius:20px;border:1px solid #2b2b2b;background:linear-gradient(115deg,#141414 0%,#1d1c26 55%,#141414 100%);color:#fff;text-align:left;cursor:pointer;overflow:hidden;}
@@ -5778,5 +5824,5 @@ updateUI();
 /* ===== Слот: никаких белых подложек ни до, ни после загрузки ===== */
 #screen-slot,.olympus-embed-wrap,.olympus-embed{background:#050110!important;}
 /* ===== Логотип без белого фона ===== */
-.gg-global-logo{height:42px!important;background:transparent!important;}
+.gg-global-logo{height:30px!important;background:transparent!important;}
 </style>

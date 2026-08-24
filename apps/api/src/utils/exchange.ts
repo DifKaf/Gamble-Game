@@ -40,13 +40,13 @@ export function exchangeConfig() {
 		enabled: envFlag('EXCHANGE_ENABLED', true),
 		currency: String(process.env.EXCHANGE_CURRENCY || 'RUB'),
 		rateGcPerUnit: Math.max(1, Number(process.env.EXCHANGE_RATE_GC_PER_UNIT || 1000)),
-		minGc: Math.max(1, Number(process.env.EXCHANGE_MIN_GC || 10000)),
+		minGc: Math.max(1, Number(process.env.EXCHANGE_MIN_GC || 5000)),
 		maxGcPerWeek: Math.max(0, Number(process.env.EXCHANGE_MAX_GC_PER_WEEK || 1000000)),
 		feePercent: Math.min(90, Math.max(0, Number(process.env.EXCHANGE_FEE_PERCENT || 0))),
 		requireWager: Math.max(0, Number(process.env.EXCHANGE_REQUIRE_WAGER || 50000)),
 		maxPending: Math.max(1, Number(process.env.EXCHANGE_MAX_PENDING || 3)),
 		dealTimeoutMin: Math.max(5, Number(process.env.EXCHANGE_DEAL_TIMEOUT_MIN || 30)),
-		methods: methods.map((m) => ({ code: m, title: METHOD_TITLES[m] || m, hint: METHOD_HINTS[m] || 'Реквизиты для оплаты' })),
+		methods: methods.map((m) => ({ code: m, title: METHOD_TITLES[m] || m, hint: METHOD_HINTS[m] || 'Реквизиты для оплаты', logo: m })),
 		note: String(process.env.EXCHANGE_NOTE || 'Игроки меняются напрямую. GC держатся в эскроу, пока продавец не подтвердит оплату.')
 	}
 }

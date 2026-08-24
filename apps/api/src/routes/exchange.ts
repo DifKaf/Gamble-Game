@@ -25,7 +25,7 @@ const offerSchema = z.object({
 	price: z.number().positive().max(100000000),
 	method: z.string().min(2).max(20),
 	destination: z.string().min(4).max(120),
-	contact: z.string().min(2).max(80)
+	contact: z.string().max(80).optional()
 })
 
 const adminActionSchema = z.object({
@@ -131,7 +131,7 @@ export async function exchangeRoutes(app: FastifyInstance) {
 		const amountGc = parsed.data.amountGc
 		const method = parsed.data.method.toLowerCase()
 		const destination = parsed.data.destination.trim()
-		const contact = parsed.data.contact.trim()
+		const contact = parsed.data.contact ? parsed.data.contact.trim() : null
 		const priceMinor = Math.round(parsed.data.price * 100)
 
 		if (!cfg.methods.some((m) => m.code === method)) return reply.code(400).send({ error: 'Недоступный способ оплаты' })
@@ -322,7 +322,7 @@ export async function exchangeRoutes(app: FastifyInstance) {
 		}
 
 		if (!isSeller || (row.status !== 'OPEN' && row.status !== 'PENDING')) {
-			return reply.code(400).send({ error: 'Снять с витрины может только продавец' })
+			return reply.code(400).send({ error: 'Снять с витрин�� может только продавец' })
 		}
 
 		await prisma.$transaction(async (tx) => {

@@ -12,6 +12,7 @@ import { minesRoutes } from './routes/mines.js'
 import { coinflipRoutes } from './routes/coinflip.js'
 import { blackjackRoutes } from './routes/blackjack.js'
 import { drunkardGateRoutes } from './routes/drunkardGate.js'
+import { ensurePlayerIds } from './utils/ensurePlayerIds.js'
 const app=Fastify({logger:true})
 await app.register(cors,{origin:process.env.FRONTEND_ORIGIN||true,credentials:true})
 await app.register(jwt,{secret:process.env.JWT_SECRET!})
@@ -21,4 +22,6 @@ app.addContentTypeParser('application/json',{parseAs:'string'},(_req:any,body:an
 app.decorate('authenticate',async function(request:any,reply:any){try{await request.jwtVerify()}catch{return reply.code(401).send({error:'Unauthorized'})}})
 app.get('/health',async()=>({ok:true}))
 await app.register(authRoutes,{prefix:'/auth'}); await app.register(meRoutes,{prefix:'/me'}); await app.register(walletRoutes,{prefix:'/wallet'}); await app.register(bonusRoutes,{prefix:'/bonus'}); await app.register(gameRoutes,{prefix:'/games'}); await app.register(minesRoutes,{prefix:'/games/mines'}); await app.register(coinflipRoutes,{prefix:'/games/coinflip'}); await app.register(blackjackRoutes,{prefix:'/games/blackjack'}); await app.register(drunkardGateRoutes,{prefix:'/games/drunkard-gate'});
+// Выдаём индивидуальный playerId всем игрокам до того, как принимать запросы.
+await ensurePlayerIds(app.log)
 await app.listen({port:Number(process.env.PORT||4000),host:'0.0.0.0'})

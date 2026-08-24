@@ -53,10 +53,16 @@ export async function meRoutes(app: FastifyInstance) {
 		const digits = q.replace(/\D/g, '')
 		if (digits.length >= 2) {
 			// Префиксный поиск по ID: "1000" находит 100012, 100047 и т.д.
-			const rows = await prisma.$queryRawUnsafe<Array<{ id: string }>>(
-				'SELECT id FROM "User" WHERE CAST("playerId" AS TEXT) LIKE $1 ORDER BY "playerId" ASC LIMIT 8',
-				digits + '%'
-			)
+			let rows: Array<{ id: string }> = []
+			try {
+				rows = await prisma.$queryRawUnsafe<Array<{ id: string }>>(
+					'SELECT id FROM "User" WHERE CAST("playerId" AS TEXT) LIKE $1 ORDER BY "playerId" ASC LIMIT 8',
+					digits + '%'
+				)
+			} catch (err) {
+				// Старая база без колонки playerId: подсказки по username остаются работать.
+				request.log?.warn({ err }, 'playerId search unavailable')
+			}
 			const ids = rows.map((r) => r.id)
 			if (ids.length) {
 				byPlayerId = await prisma.user.findMany({ where: { id: { in: ids } }, select: publicSelect })

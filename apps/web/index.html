@@ -622,8 +622,8 @@ body{background:radial-gradient(circle at 15% 5%,rgba(72,216,255,.18),transparen
 }
 
 /* ---------- Embedded Drunkard Gate slot ---------- */
-.olympus-embed-wrap{height:calc(100vh - 180px);min-height:620px;border-radius:26px;overflow:hidden;border:1px solid rgba(255,255,255,.14);box-shadow:0 18px 45px rgba(0,0,0,.35);background:#05020a;}
-.olympus-embed{width:100%;height:100%;border:0;display:block;background:#05020a;}
+.olympus-embed-wrap{height:calc(100vh - 180px);min-height:620px;border-radius:26px;overflow:hidden;border:1px solid rgba(255,255,255,.14);box-shadow:0 18px 45px rgba(0,0,0,.35);background:#050110;}
+.olympus-embed{width:100%;height:100%;border:0;display:block;background:#050110;}
 
 /* Drunkard Gate standalone mode */
 #app.drunkard-standalone .topbar,
@@ -1068,12 +1068,13 @@ body{background:#000!important;}
 &lt;head&gt;
 &lt;meta charset=&quot;UTF-8&quot;&gt;
 &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width,initial-scale=1.0&quot;&gt;
+&lt;meta name=&quot;color-scheme&quot; content=&quot;dark&quot;&gt;
 &lt;title&gt;DRUNKARD GATE&lt;/title&gt;
 &lt;link rel=&quot;preconnect&quot; href=&quot;https://fonts.googleapis.com&quot;&gt;
 &lt;link href=&quot;https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&amp;display=swap&quot; rel=&quot;stylesheet&quot;&gt;
 &lt;style&gt;
 *{margin:0;padding:0;box-sizing:border-box}
-html,body{width:100%;height:100%;overflow:hidden}
+html,body{width:100%;height:100%;overflow:hidden;background:#050110;color-scheme:dark}
 body{
   background:
     radial-gradient(ellipse at 50% 0%,rgba(120,30,80,.45) 0%,rgba(60,30,90,.55) 55%,rgba(10,5,20,.92) 100%),
@@ -1183,34 +1184,33 @@ body{
 .cell svg{width:74%;height:74%;flex-shrink:0;display:block}
 .cell.win{border-color:rgba(255,215,0,.5)}
 .cell.win svg{animation:wP .7s cubic-bezier(.45,0,.55,1) infinite alternate}
-@keyframes wP{0%{transform:scale(1) rotate(0deg);filter:brightness(1)}100%{transform:scale(1.2) rotate(-2deg);filter:brightness(2.2) drop-shadow(0 0 14px var(--sc,gold)) saturate(1.4)}}
-.cell.blast svg{animation:bO .5s cubic-bezier(.4,0,.6,1) forwards}
-@keyframes bO{0%{transform:scale(1) rotate(0);opacity:1;filter:brightness(1)}25%{transform:scale(1.3) rotate(-4deg);filter:brightness(2.8) saturate(1.6) drop-shadow(0 0 14px var(--sc,gold))}55%{transform:scale(1.55) rotate(4deg);filter:brightness(5) blur(1.5px)}100%{transform:scale(.05) rotate(0);opacity:0;filter:brightness(7) blur(5px)}}
+@keyframes wP{0%{transform:scale(1)}100%{transform:scale(1.16)}}
+.cell.blast svg{animation:bO .32s cubic-bezier(.35,0,.7,1) forwards;will-change:transform,opacity}
+@keyframes bO{0%{transform:scale(1);opacity:1}30%{transform:scale(1.26);opacity:1}62%{transform:scale(1.42);opacity:.8}100%{transform:scale(.12);opacity:0}}
 /* Gates-style weighty drop: accelerating fall + squash-and-stretch bounce landing */
 .cell.drop{z-index:6}
-.cell.drop svg{animation:dI .6s linear}
+.cell.drop svg{animation:dI .42s cubic-bezier(.2,.75,.32,1) both;will-change:transform,opacity}
 @keyframes dI{
-  0%{transform:translateY(calc(-1 * var(--fy,180%))) scaleY(1.05) scaleX(.97) rotate(var(--til,-1.2deg));opacity:0;filter:blur(1.1px) brightness(1.15) drop-shadow(0 1px 1px rgba(0,0,0,.1));animation-timing-function:cubic-bezier(.45,0,.85,.45)}
-  7%{opacity:1;filter:blur(.2px) brightness(1.08) drop-shadow(0 2px 2px rgba(0,0,0,.18));animation-timing-function:cubic-bezier(.45,0,.85,.45)}
-  58%{transform:translateY(0) scaleY(.9) scaleX(1.07) rotate(0deg);filter:brightness(1.3) drop-shadow(0 9px 5px rgba(0,0,0,.4));animation-timing-function:cubic-bezier(.22,.7,.32,1)}
-  71%{transform:translateY(-7%) scaleY(1.04) scaleX(.98) rotate(.4deg);filter:brightness(1.08) drop-shadow(0 4px 3px rgba(0,0,0,.28));animation-timing-function:cubic-bezier(.5,0,.7,.4)}
-  84%{transform:translateY(0) scaleY(.98) scaleX(1.015) rotate(0deg);filter:brightness(1.02) drop-shadow(0 6px 4px rgba(0,0,0,.32));animation-timing-function:cubic-bezier(.22,.7,.32,1)}
-  93%{transform:translateY(-2%) scaleY(1.005) scaleX(1);filter:drop-shadow(0 5px 3px rgba(0,0,0,.28))}
-  100%{transform:translateY(0) scale(1) rotate(0deg);filter:brightness(1) drop-shadow(0 5px 4px rgba(0,0,0,.28))}
+  0%{transform:translate3d(0,calc(-1 * var(--fy,180%)),0) scaleY(1.07) scaleX(.95);opacity:0}
+  14%{opacity:1}
+  62%{transform:translate3d(0,0,0) scaleY(.9) scaleX(1.08);opacity:1}
+  78%{transform:translate3d(0,-7%,0) scaleY(1.04) scaleX(.98);opacity:1}
+  90%{transform:translate3d(0,0,0) scaleY(.985) scaleX(1.015);opacity:1}
+  100%{transform:translate3d(0,0,0) scale(1);opacity:1}
 }
-.cell.vanishing svg,.cell.vanishing .cellmult{animation:symVanish .18s ease-in forwards}
+.cell.vanishing svg,.cell.vanishing .cellmult{animation:symVanish .14s ease-in forwards}
 @keyframes symVanish{
-  0%{opacity:1;transform:scale(1) translateY(0);filter:blur(0)}
-  100%{opacity:0;transform:scale(.55) translateY(12%);filter:blur(3px)}
+  0%{opacity:1;transform:scale(1) translate3d(0,0,0)}
+  100%{opacity:0;transform:scale(.5) translate3d(0,12%,0)}
 }
-.cell.drop .csh{animation:impactFlash .6s linear}
-@keyframes impactFlash{0%,52%{opacity:0}58%{opacity:.55}100%{opacity:0}}
+.cell.drop .csh{animation:impactFlash .42s linear}
+@keyframes impactFlash{0%,56%{opacity:0}64%{opacity:.5}100%{opacity:0}}
 .cell.scatter-glow{border-color:rgba(255,100,50,.7);animation:scGlow .8s ease infinite}
 @keyframes scGlow{0%,100%{box-shadow:0 0 8px rgba(255,100,50,.6)}50%{box-shadow:0 0 22px rgba(255,180,50,.9)}}
 .csh{position:absolute;inset:0;border-radius:9px;opacity:0;
   background:radial-gradient(circle,var(--sc,gold) 0%,transparent 70%);
   transition:opacity .3s;pointer-events:none}
-.cell.win .csh{opacity:.15}
+.cell.win .csh{opacity:.3}
 /* Floating win amount shown on a winning symbol during a cascade */
 .winPop{
   position:absolute;top:50%;left:50%;z-index:30;pointer-events:none;white-space:nowrap;
@@ -1250,7 +1250,7 @@ body{
   animation:mPulse 1.6s ease-in-out infinite;
 }
 @keyframes mPulse{0%,100%{transform:scale(1);filter:brightness(1)}50%{transform:scale(1.06);filter:brightness(1.25)}}
-.cell.drop .cellmult{animation:dI .6s linear,mPulse 1.6s ease-in-out .6s infinite}
+.cell.drop .cellmult{animation:dI .42s cubic-bezier(.2,.75,.32,1) both,mPulse 1.6s ease-in-out .42s infinite}
 /* Global multiplier badge */
 .gmult-badge{
   position:absolute;top:-12px;right:-12px;border-radius:12px;
@@ -2099,6 +2099,22 @@ function buildGrid(){
 }
 buildGrid();
 
+// Кэш разобранных SVG: раньше на каждый символ парсился innerHTML
+// (30 разборов разметки на один дроп) — основной источник лагов на телефоне.
+const SYM_TPL=[];
+function symNode(id){
+  let t=SYM_TPL[id];
+  if(!t){ const d=document.createElement(&#x27;div&#x27;); d.innerHTML=SVG[id]; t=d.querySelector(&#x27;svg&#x27;); SYM_TPL[id]=t; }
+  return t ? t.cloneNode(true) : null;
+}
+// Высота ячейки замеряется один раз: чтение offsetHeight посреди анимации
+// заставляло браузер пересчитывать layout на каждый символ.
+let CELL_H=0;
+function measureCell(){ const el=cells[0]&amp;&amp;cells[0][0]; if(el&amp;&amp;el.offsetHeight) CELL_H=el.offsetHeight+4; return CELL_H||64; }
+window.addEventListener(&#x27;resize&#x27;,()=&gt;{ CELL_H=0; });
+// Тайминги как в Gates of Olympus: короткий дроп и лесенка по колонкам/рядам.
+const DROP_DUR=0.42, DROP_COL=0.055, DROP_ROW=0.028;
+
 function setSym(c,r,sym,anim,fall){
   const el=cells[c][r];
   el.className=&#x27;cell&#x27;+(anim?&#x27; &#x27;+anim:&#x27;&#x27;);
@@ -2106,16 +2122,15 @@ function setSym(c,r,sym,anim,fall){
   const old=el.querySelector(&#x27;svg&#x27;); if(old) old.remove();
   const oldm=el.querySelector(&#x27;.cellmult&#x27;); if(oldm) oldm.remove();
   // Waterfall stagger: lower rows land first, upper rows follow (Gates-style tumble)
-  const delay = anim===&#x27;drop&#x27; ? (c*.012 + (ROWS-1-r)*.03) : 0;
+  const delay = anim===&#x27;drop&#x27; ? (c*DROP_COL + (ROWS-1-r)*DROP_ROW) : 0;
   // Real fall distance (px) so symbols visibly fall from above instead of popping in place.
   // The grid clips at its outer edge, so a symbol travels DOWN across cells into its slot.
   let fy=&#x27;180%&#x27;;
   let til=&#x27;0deg&#x27;;
   if(anim===&#x27;drop&#x27;){
-    const rp=((cells[0]&amp;&amp;cells[0][0]?cells[0][0].offsetHeight:60)+4);
+    const rp=CELL_H||measureCell();
     fy=(Math.max(fall==null?1.4:fall,0.7)*rp)+&#x27;px&#x27;;
-    // Subtle, organic per-symbol tilt while falling for a neater, less mechanical look
-    til=((Math.random()*2.4-1.2).toFixed(2))+&#x27;deg&#x27;;
+    til=&#x27;0deg&#x27;;
   }
   const csh=el.querySelector(&#x27;.csh&#x27;); if(csh) csh.style.animationDelay=delay+&#x27;s&#x27;;
   if(sym &amp;&amp; sym.isMult){
@@ -2124,13 +2139,12 @@ function setSym(c,r,sym,anim,fall){
     d.style.background=multBg(sym.mult);
     if(sym.mult&gt;=100) d.style.fontSize=&#x27;.64em&#x27;;
     else if(sym.mult&gt;=25) d.style.fontSize=&#x27;.72em&#x27;;
-    if(anim===&#x27;drop&#x27;){ d.style.setProperty(&#x27;--fy&#x27;,fy); d.style.setProperty(&#x27;--til&#x27;,til); d.style.animation=`dI .6s linear ${delay}s, mPulse 1.6s ease-in-out ${(delay+0.6).toFixed(3)}s infinite`; }
+    if(anim===&#x27;drop&#x27;){ d.style.setProperty(&#x27;--fy&#x27;,fy); d.style.animation=`dI ${DROP_DUR}s cubic-bezier(.2,.75,.32,1) ${delay}s both, mPulse 1.6s ease-in-out ${(delay+DROP_DUR).toFixed(3)}s infinite`; }
     else d.style.animation=&#x27;mPulse 1.6s ease-in-out infinite&#x27;;
     el.appendChild(d);
   } else if(sym){
-    const tmp=document.createElement(&#x27;div&#x27;); tmp.innerHTML=SVG[sym.id];
-    const s=tmp.querySelector(&#x27;svg&#x27;);
-    if(s){ s.style.animationDelay=delay+&#x27;s&#x27;; if(anim===&#x27;drop&#x27;){ s.style.setProperty(&#x27;--fy&#x27;,fy); s.style.setProperty(&#x27;--til&#x27;,til); } el.appendChild(s); }
+    const s=symNode(sym.id);
+    if(s){ s.style.animationDelay=delay+&#x27;s&#x27;; if(anim===&#x27;drop&#x27;){ s.style.setProperty(&#x27;--fy&#x27;,fy); } el.appendChild(s); }
   }
   // scatter glow
   if(sym &amp;&amp; sym.isScatter) el.classList.add(&#x27;scatter-glow&#x27;);
@@ -2153,7 +2167,7 @@ function fillGrid(anteBet){
 // the new symbols fall in from above (Gates of Olympus style reveal).
 async function clearGridVanish(){
   for(let c=0;c&lt;COLS;c++) for(let r=0;r&lt;ROWS;r++) cells[c][r].classList.add(&#x27;vanishing&#x27;);
-  await wait(160);
+  await wait(120);
   for(let c=0;c&lt;COLS;c++) for(let r=0;r&lt;ROWS;r++){
     const el=cells[c][r];
     el.className=&#x27;cell&#x27;;
@@ -2434,8 +2448,8 @@ function removeAndDrop(wc, allowMult){
           sfx(&#x27;mult&#x27;);
         }
       }
-      setTimeout(res,560);
-    },340);
+      setTimeout(res,420);
+    },220);
   });
 }
 
@@ -2586,18 +2600,22 @@ async function doSpin(){
   // animation - no cycling through random symbols.
   await clearGridVanish();
   grid=[];
+  measureCell();
+  // Стиль Gates of Olympus: все символы выставляются одним проходом, а лесенка
+  // падения задаётся через animation-delay в CSS. Раньше здесь было 30 await
+  // подряд по 42 мс плюс паузы по 210 мс — отсюда бралась рваная выдача.
   for(let stopC=0;stopC&lt;COLS;stopC++){
     grid[stopC]=[];
     for(let r=0;r&lt;ROWS;r++){
       grid[stopC][r]=finalGrid[stopC][r];
       setSym(stopC,r,grid[stopC][r],&#x27;drop&#x27;);
-      await wait(42);
     }
-    sfx(&#x27;land&#x27;);
-    if(stopC&lt;COLS-1) await wait(210); // pause before the next reel drops
   }
-
-  await wait(300);
+  for(let landC=0;landC&lt;COLS;landC++){
+    const sd=Math.round(DROP_COL*landC*1000*(turboOn?0.22:1));
+    setTimeout(()=&gt;sfx(&#x27;land&#x27;), sd);
+  }
+  await wait(Math.round((DROP_COL*(COLS-1)+DROP_ROW*(ROWS-1)+DROP_DUR)*1000)+40);
 
   // A multiplier symbol may also land on the initial drop (falls as a symbol)
   {
@@ -2876,6 +2894,12 @@ const BETS=[10,25,50,100,250,500,1000,2500,5000,10000]; let bIdx=0;
 document.getElementById(&#x27;bDn&#x27;).onclick=()=&gt;{ initAudio(); if(inFreeSpin) return; if(bIdx&gt;0){bIdx--;bet=BETS[bIdx];updateUI();sfx(&#x27;click&#x27;);} };
 document.getElementById(&#x27;bUp&#x27;).onclick=()=&gt;{ initAudio(); if(inFreeSpin) return; if(bIdx&lt;BETS.length-1){bIdx++;bet=BETS[bIdx];updateUI();sfx(&#x27;click&#x27;);} };
 document.getElementById(&#x27;spBtn&#x27;).onclick=doSpin;
+// Родительское приложение глушит и возвращает звук без перезагрузки iframe.
+window.addEventListener(&#x27;message&#x27;,function(ev){
+  var msg = ev &amp;&amp; ev.data;
+  if(msg === &#x27;dg-stop-audio&#x27;){ try{ stopBg(); if(ac &amp;&amp; ac.suspend) ac.suspend(); }catch(e){} }
+  if(msg === &#x27;dg-resume-audio&#x27;){ try{ if(ac &amp;&amp; ac.resume) ac.resume(); }catch(e){} }
+});
 document.addEventListener(&#x27;keydown&#x27;,e=&gt;{ if(e.code===&#x27;Space&#x27;&amp;&amp;!spinning){e.preventDefault();doSpin();} });
 
 document.getElementById(&#x27;anteBtn&#x27;).onclick=()=&gt;{
@@ -3317,11 +3341,11 @@ updateUI();
   </main>
 
   <nav class="bottom-nav">
-    <button class="nav-btn active" data-nav="home"><span class="ic">🏠</span><span>Главная</span></button>
-    <button class="nav-btn" data-nav="games"><span class="ic">🎮</span><span>Игры</span></button>
-    <button class="nav-btn" data-nav="bonuses"><span class="ic">🎁</span><span>Бонусы</span></button>
-    <button class="nav-btn" data-nav="wallet"><span class="ic">💸</span><span>Кошелёк</span></button>
-    <button class="nav-btn" data-nav="profile"><span class="ic">👤</span><span>Профиль</span></button>
+    <button class="nav-btn active" data-nav="home"><span class="ic"><svg viewBox="0 0 24 24"><path d="M3.6 11.4 12 4.2l8.4 7.2"/><path d="M5.9 10.3V20h12.2v-9.7"/><path d="M9.9 20v-5.2h4.2V20"/></svg></span><span>Главная</span></button>
+    <button class="nav-btn" data-nav="wallet"><span class="ic"><svg viewBox="0 0 24 24"><rect x="3" y="6.2" width="18" height="13" rx="3.4"/><path d="M3 10.6h18"/><circle cx="16.6" cy="14.9" r="1.35"/></svg></span><span>Кошелёк</span></button>
+    <button class="nav-btn" data-nav="games"><span class="ic"><svg viewBox="0 0 24 24"><path d="M7.6 7.8h8.8a4.6 4.6 0 0 1 4.5 5.5l-.6 3a3 3 0 0 1-5.4 1.1l-1.2-1.7H10.3l-1.2 1.7a3 3 0 0 1-5.4-1.1l-.6-3a4.6 4.6 0 0 1 4.5-5.5Z"/><path d="M7.1 12.6h2.6M8.4 11.3v2.6"/><circle cx="15" cy="11.9" r=".95"/><circle cx="17.1" cy="13.8" r=".95"/></svg></span><span>Игры</span></button>
+    <button class="nav-btn" data-nav="bonuses"><span class="ic"><svg viewBox="0 0 24 24"><rect x="3.6" y="9.2" width="16.8" height="10.8" rx="2.4"/><path d="M3.6 13.2h16.8M12 9.2V20"/><path d="M12 9.2C10.7 6.9 9.5 5.2 8 5.2a2 2 0 0 0 0 4h4Zm0 0c1.3-2.3 2.5-4 4-4a2 2 0 0 1 0 4h-4Z"/></svg></span><span>Бонусы</span></button>
+    <button class="nav-btn" data-nav="profile"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="8.4" r="3.6"/><path d="M4.9 20c.7-3.8 3.6-5.8 7.1-5.8s6.4 2 7.1 5.8"/></svg></span><span>Профиль</span></button>
   </nav>
 
   <div id="toastLayer"></div>
@@ -3663,15 +3687,21 @@ updateUI();
   }
 
   /* ================= Navigation ================= */
-  var mainTabs = ['home','games','bonuses','wallet','profile'];
+  var mainTabs = ['home','wallet','games','bonuses','profile'];
   var screenHistory = [];
   var currentScreen = 'home';
   function stopDrunkardGateAudio(){
     var frame = document.querySelector('#screen-slot .olympus-embed');
     if(!frame) return;
-    // Reloading srcdoc destroys the iframe's audio context, so music cannot keep playing on the main screen.
-    var src = frame.getAttribute('srcdoc');
-    frame.setAttribute('srcdoc', src || '');
+    // Раньше здесь перезагружался srcdoc: аудио умирало вместе с iframe, но на
+    // каждый вход в слот заново парсилось ~260 КБ разметки — отсюда белая
+    // вспышка и просадка на старте. Теперь просто глушим звук сообщением.
+    try{ frame.contentWindow.postMessage('dg-stop-audio','*'); }catch(e){}
+  }
+  function resumeDrunkardGateAudio(){
+    var frame = document.querySelector('#screen-slot .olympus-embed');
+    if(!frame) return;
+    try{ frame.contentWindow.postMessage('dg-resume-audio','*'); }catch(e){}
   }
   var lastBalanceRouteRefresh = 0;
   async function refreshBackendBalanceForScreen(){
@@ -3699,6 +3729,7 @@ updateUI();
     currentScreen = name;
     var wasSlot = document.getElementById('screen-slot') && document.getElementById('screen-slot').classList.contains('active');
     if(wasSlot && name !== 'slot') stopDrunkardGateAudio();
+    if(name === 'slot') resumeDrunkardGateAudio();
     document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
     var el = document.getElementById('screen-'+name);
     if(el) el.classList.add('active');
@@ -5176,6 +5207,23 @@ updateUI();
     if(backendReady) applyBackendBalanceToUI();
   }
 
+  // Тот же алгоритм, что и на сервере (utils/playerId.ts). Если API ещё не отдаёт
+  // playerId (старая версия бэкенда), берём стабильный ID из UUID игрока,
+  // а не прочерк и не общий на всех 120001.
+  function stablePlayerId(uuid){
+    var str = String(uuid || '');
+    if(!str) return null;
+    var hash = 0;
+    for(var i=0;i<str.length;i++){ hash = (hash*131 + str.charCodeAt(i)) % 900000; if(hash<0) hash += 900000; }
+    return String(100000 + hash);
+  }
+  function resolvePlayerId(){
+    if(backendUser){
+      if(backendUser.playerId) return String(backendUser.playerId);
+      if(backendUser.id) return stablePlayerId(backendUser.id);
+    }
+    return null;
+  }
   function playerPublicId(raw){
     var digits=String(raw||'').replace(/\D/g,'');
     var tail=(digits||'1').slice(-4).padStart(4,'0');
@@ -5281,7 +5329,7 @@ updateUI();
     setAvatarEl('profileAvatar', p.avatar);
     var profileNameEl=document.getElementById('profileName'); if(profileNameEl) profileNameEl.textContent = p.name;
     var profileBalanceEl=document.getElementById('profileBalance'); if(profileBalanceEl) profileBalanceEl.textContent = fmt(p.balance)+' GC';
-    var profilePlayerIdEl=document.getElementById('profilePlayerId'); if(profilePlayerIdEl) profilePlayerIdEl.textContent = 'ID: '+(backendUser && backendUser.playerId ? backendUser.playerId : '—');
+    var profilePlayerIdEl=document.getElementById('profilePlayerId'); if(profilePlayerIdEl) profilePlayerIdEl.textContent = 'ID: '+(resolvePlayerId() || '—');
     var statWageredEl=document.getElementById('statWagered'); if(statWageredEl) statWageredEl.textContent = fmt(p.stats.wagered);
     var statWonEl=document.getElementById('statWon'); if(statWonEl) statWonEl.textContent = fmt(p.stats.won);
     var statBiggestEl=document.getElementById('statBiggest'); if(statBiggestEl) statBiggestEl.textContent = fmt(p.stats.biggest);
@@ -5713,4 +5761,22 @@ updateUI();
 .transfer-row-amt.minus{color:#ff5f6d;}
 .transfer-row-sub{font-size:11px;font-weight:700;color:#8a8a8a;margin-top:3px;}
 .transfer-row-sub.muted{color:#6a6a6a;}
+</style>
+
+<style>
+/* ===== Нижняя навигация: свои иконки вместо эмодзи ===== */
+.bottom-nav{overflow:visible!important;}
+.bottom-nav .nav-btn{gap:4px!important;}
+.bottom-nav .nav-btn .ic{display:flex!important;align-items:center;justify-content:center;width:26px;height:26px;margin:0 auto!important;font-size:0!important;}
+.bottom-nav .nav-btn .ic svg{width:24px;height:24px;display:block;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;}
+.bottom-nav .nav-btn.active .ic{transform:translateY(-1px) scale(1.04);}
+/* Игры — центральная вкладка, выделена кружком */
+.bottom-nav .nav-btn[data-nav="games"] .ic{width:44px;height:44px;margin-top:-14px!important;border-radius:16px;background:linear-gradient(150deg,#333,#171717);border:1px solid #3d3d3d;box-shadow:0 8px 20px rgba(0,0,0,.5);}
+.bottom-nav .nav-btn[data-nav="games"] .ic svg{width:23px;height:23px;}
+.bottom-nav .nav-btn[data-nav="games"].active .ic{background:linear-gradient(150deg,#ffffff,#d8d8d8);border-color:#fff;color:#111;transform:translateY(-1px) scale(1.04);}
+.bottom-nav .nav-btn[data-nav="games"].active{background:transparent!important;}
+/* ===== Слот: никаких белых подложек ни до, ни после загрузки ===== */
+#screen-slot,.olympus-embed-wrap,.olympus-embed{background:#050110!important;}
+/* ===== Логотип без белого фона ===== */
+.gg-global-logo{height:42px!important;background:transparent!important;}
 </style>

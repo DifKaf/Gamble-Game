@@ -66,7 +66,12 @@ const STATEMENTS: Array<string> = [
 	`ALTER TABLE "ExchangeRequest" ADD COLUMN IF NOT EXISTS "status" TEXT NOT NULL DEFAULT 'PENDING'`,
 	`ALTER TABLE "ExchangeRequest" ADD COLUMN IF NOT EXISTS "adminNote" TEXT`,
 	`ALTER TABLE "ExchangeRequest" ADD COLUMN IF NOT EXISTS "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP`,
-	`ALTER TABLE "ExchangeRequest" ADD COLUMN IF NOT EXISTS "processedAt" TIMESTAMP(3)`
+	`ALTER TABLE "ExchangeRequest" ADD COLUMN IF NOT EXISTS "processedAt" TIMESTAMP(3)`,
+	`ALTER TABLE "ExchangeRequest" ADD COLUMN IF NOT EXISTS "buyerId" TEXT`,
+	`ALTER TABLE "ExchangeRequest" ADD COLUMN IF NOT EXISTS "takenAt" TIMESTAMP(3)`,
+	`ALTER TABLE "ExchangeRequest" ADD COLUMN IF NOT EXISTS "paidAt" TIMESTAMP(3)`,
+	`CREATE INDEX IF NOT EXISTS "ExchangeRequest_buyerId_createdAt_idx" ON "ExchangeRequest"("buyerId", "createdAt")`,
+	`UPDATE "ExchangeRequest" SET "status" = 'OPEN' WHERE "status" = 'PENDING'`
 ]
 
 export async function ensureFeatureTables(log?: { info: (msg: string) => void; warn: (msg: string) => void }) {

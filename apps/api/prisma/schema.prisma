@@ -204,11 +204,12 @@ model QuestClaim {
   @@index([userId, claimedAt])
 }
 
-/// Заявка на обмен GC. Выплата подтверждается оператором вручную.
+/// P2P-оффер: продавец держит GC в эскроу, покупатель платит ему напрямую.
 model ExchangeRequest {
   id String @id @default(uuid())
   userId String
   user User @relation(fields: [userId], references: [id])
+  buyerId String?
   amountGc BigInt
   payoutMinor BigInt @default(0)
   currency String @default("RUB")
@@ -217,10 +218,13 @@ model ExchangeRequest {
   method String
   destination String
   contact String?
-  status String @default("PENDING")
+  status String @default("OPEN")
   adminNote String?
   createdAt DateTime @default(now())
+  takenAt DateTime?
+  paidAt DateTime?
   processedAt DateTime?
   @@index([userId, createdAt])
+  @@index([buyerId, createdAt])
   @@index([status, createdAt])
 }

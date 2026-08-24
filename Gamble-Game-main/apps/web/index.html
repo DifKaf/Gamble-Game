@@ -4140,7 +4140,11 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
   }
 
   async function loadExchange(){
-    if(!backendReady) return;
+    if(!backendReady){
+      var waitBox = document.getElementById('exchangeBox');
+      if(waitBox && !exchangeCfg) waitBox.innerHTML = '<div class="quest-reset">Подключаемся к серверу...</div>';
+      return;
+    }
     try{
       var cfg = await apiRequest('/exchange/config');
       exchangeCfg = cfg;
@@ -4153,7 +4157,10 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
       renderExchange();
     }catch(e){
       var box = document.getElementById('exchangeBox');
-      if(box && !exchangeCfg) box.innerHTML = '<div class="quest-reset">Не удалось загрузить биржу. Попробуйте позже.</div>';
+      if(box && !exchangeCfg){
+        box.innerHTML = '<div class="exch-warn">Не удалось загрузить биржу: ' + escapeHtml(e.message || 'ошибка сервера') + '</div>'
+          + '<button class="btn btn-gold btn-block" id="exchRetryBtn" style="margin-top:12px;">Повторить</button>';
+      }
     }
   }
 
@@ -4218,6 +4225,7 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
       renderExchange();
       return;
     }
+    if(ev.target.closest('#exchRetryBtn')){ ev.preventDefault(); loadExchange(); return; }
     if(ev.target.closest('#exchSubmitBtn')){ ev.preventDefault(); submitExchange(); return; }
     var c = ev.target.closest('[data-exch-cancel]');
     if(c){ ev.preventDefault(); cancelExchange(c.getAttribute('data-exch-cancel')); }

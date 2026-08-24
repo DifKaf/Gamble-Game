@@ -1,0 +1,227 @@
+import { prisma } from '../db.js'
+import { applyBalanceChange } from '../wallet/wallet.js'
+import { publicPlayerId, parsePlayerId } from './playerId.js'
+
+// Реферальная программа.
+//
+// Приглашающий получает бонус сразу и второй бонус, когда новичок наберёт
+// оборот (чтобы не было выгодно плодить пустые аккаунты ради регистрационного бонуса).
+const INVITER_BONUS = BigInt(Number(process.env.REFERRAL_BONUS_INVITER || 2500))
+const INVITEE_BONUS = BigInt(Number(process.env.REFERRAL_BONUS_INVITEE || 1000))
+const MILESTONE_WAGER = Number(process.env.REFERRAL_MILESTONE_WAGER || 25000)
+const MILESTONE_BONUS = BigInt(Number(process.env.REFERRAL_MILESTONE_BONUS || 5000))
+// Привязать приглашение можно только в первые часы после регистрации,
+// иначе старые игроки будут «приглашать» друг друга ради бонусов.
+const ATTACH_WINDOW_MS = Number(process.env.REFERRAL_ATTACH_WINDOW_HOURS || 72) * 60 * 60 * 1000
+
+export function inviteCode(user: { playerId?: number | null; id: string }) {
+	return `ref_${publicPlayerId(user as any)}`
+}
+
+export function inviteLink(user: { playerId?: number | null; id: string }) {
+	const bot = String(process.env.TELEGRAM_BOT_USERNAME || '').replace(/^@/, '').trim()
+	const code = inviteCode(user)
+	if (!bot) return { url: '', code, configured: false }
+	const appName = String(process.env.TELEGRAM_APP_NAME || '').trim()
+	// startapp открывает сразу mini app и прокидывает код в initDataUnsafe.start_param.
+	const TG_BASE = String.fromCharCode(104,116,116,112,115) + "://t.me/"
+	const base = appName ? TG_BASE + bot + "/" + appName : TG_BASE + bot
+	return { url: `${base}?startapp=${code}`, code, configured: true }
+}
+
+// Принимаем и 'ref_120001', и '120001', и '#120001'.
+export function parseRefCode(raw: unknown): number | null {
+	const clean = String(raw || '').trim().replace(/^ref[_-]?/i, '')
+	if (!clean) return null
+	return parsePlayerId(clean)
+}
+
+export type AttachResult = {
+	ok: boolean
+	reason: string
+	bonus: number
+	referrer?: { playerId: number | string; username: string | null; name: string }
+}
+
+// Привязывает игрока к пригласившему. Идемпотентно: повторные вызовы не дают бонус снова.
+export async function attachReferral(userId: string, rawCode: unknown): Promise<AttachResult> {
+	const code = parseRefCode(rawCode)
+	if (!code) return { ok: false, reason: 'invalid_code', bonus: 0 }
+
+	const [user, existing] = await Promise.all([
+		prisma.user.findUnique({ where: { id: userId } }),
+		prisma.referral.findUnique({ where: { referredId: userId } })
+	])
+	if (!user) return { ok: false, reason: 'user_not_found', bonus: 0 }
+	if (existing) return { ok: false, reason: 'already_attached', bonus: 0 }
+
+	if (Date.now() - new Date(user.createdAt).getTime() > ATTACH_WINDOW_MS) {
+		return { ok: false, reason: 'window_closed', bonus: 0 }
+	}
+
+	const referrer = await prisma.user.findUnique({ where: { playerId: code } })
+	if (!referrer) return { ok: false, reason: 'referrer_not_found', bonus: 0 }
+	if (referrer.id === userId) return { ok: false, reason: 'self_invite', bonus: 0 }
+
+	try {
+		await prisma.$transaction(async (tx) => {
+			// Уникальный индекс по referredId — защита от гонки двух одновременных запросов.
+			await tx.referral.create({
+				data: { referrerId: referrer.id, referredId: userId, registrationBonus: INVITER_BONUS }
+			})
+			if (INVITER_BONUS > 0n) {
+				await applyBalanceChange({
+					tx,
+					userId: referrer.id,
+					amount: INVITER_BONUS,
+					type: 'BONUS',
+					source: 'referral-signup',
+					metadata: { referredId: userId, referredPlayerId: publicPlayerId(user) }
+				})
+			}
+			if (INVITEE_BONUS > 0n) {
+				await applyBalanceChange({
+					tx,
+					userId,
+					amount: INVITEE_BONUS,
+					type: 'BONUS',
+					source: 'referral-welcome',
+					metadata: { referrerId: referrer.id, referrerPlayerId: publicPlayerId(referrer) }
+				})
+			}
+		})
+	} catch (err: any) {
+		if (String(err?.code) === 'P2002') return { ok: false, reason: 'already_attached', bonus: 0 }
+		throw err
+	}
+
+	return {
+		ok: true,
+		reason: 'attached',
+		bonus: Number(INVITEE_BONUS),
+		referrer: {
+			playerId: publicPlayerId(referrer),
+			username: referrer.username,
+			name: referrer.firstName || referrer.username || 'Игрок'
+		}
+	}
+}
+
+// Второй бонус: когда приглашённые набрали нужный оборот.
+// Вызывается при открытии экрана «Друзья», а не на каждой ставке — чтобы не грузить игровой путь.
+export async function payReferralMilestones(referrerId: string) {
+	if (MILESTONE_BONUS <= 0n || MILESTONE_WAGER <= 0) return { paid: 0, count: 0 }
+
+	const pending = await prisma.referral.findMany({
+		where: { referrerId, milestoneBonus: 0n },
+		select: { id: true, referredId: true }
+	})
+	if (!pending.length) return { paid: 0, count: 0 }
+
+	let paid = 0n
+	let count = 0
+	for (const row of pending) {
+		const agg = await prisma.gameSession.aggregate({
+			where: { userId: row.referredId, status: 'FINISHED' },
+			_sum: { betAmount: true }
+		})
+		if (Number(agg._sum?.betAmount || 0) < MILESTONE_WAGER) continue
+
+		// updateMany с фильтром milestoneBonus: 0 — бонус не уйдёт дважды даже при двух запросах сразу.
+		await prisma.$transaction(async (tx) => {
+			const claim = await tx.referral.updateMany({
+				where: { id: row.id, milestoneBonus: 0n },
+				data: { milestoneBonus: MILESTONE_BONUS }
+			})
+			if (!claim.count) return
+			await applyBalanceChange({
+				tx,
+				userId: referrerId,
+				amount: MILESTONE_BONUS,
+				type: 'BONUS',
+				source: 'referral-milestone',
+				metadata: { referredId: row.referredId, wagerTarget: MILESTONE_WAGER }
+			})
+			paid += MILESTONE_BONUS
+			count++
+		})
+	}
+
+	return { paid: Number(paid), count }
+}
+
+export type ReferralStats = Awaited<ReturnType<typeof referralStats>>
+
+export async function referralStats(userId: string) {
+	const user = await prisma.user.findUniqueOrThrow({ where: { id: userId } })
+	const link = inviteLink(user)
+
+	const rows = await prisma.referral.findMany({
+		where: { referrerId: userId },
+		orderBy: { createdAt: 'desc' },
+		take: 50
+	})
+
+	const ids = rows.map((r) => r.referredId)
+	const friends = ids.length
+		? await prisma.user.findMany({
+				where: { id: { in: ids } },
+				select: { id: true, playerId: true, username: true, firstName: true, photoUrl: true }
+			})
+		: []
+	const byId = new Map(friends.map((f) => [f.id, f]))
+
+	const wagerRows = ids.length
+		? await prisma.gameSession.groupBy({
+				by: ['userId'],
+				where: { userId: { in: ids }, status: 'FINISHED' },
+				_sum: { betAmount: true }
+			})
+		: []
+	const wagerById = new Map(wagerRows.map((w) => [w.userId, Number(w._sum?.betAmount || 0)]))
+
+	const invitedBy = await prisma.referral.findUnique({ where: { referredId: userId } })
+	let inviter: any = null
+	if (invitedBy) {
+		const r = await prisma.user.findUnique({
+			where: { id: invitedBy.referrerId },
+			select: { id: true, playerId: true, username: true, firstName: true, photoUrl: true }
+		})
+		if (r) inviter = { playerId: publicPlayerId(r), username: r.username, name: r.firstName || r.username || 'Игрок', photoUrl: r.photoUrl }
+	}
+
+	let earned = 0
+	const list = rows.map((r) => {
+		const f: any = byId.get(r.referredId)
+		const wagered = wagerById.get(r.referredId) || 0
+		earned += Number(r.registrationBonus) + Number(r.milestoneBonus)
+		return {
+			playerId: f ? publicPlayerId(f) : null,
+			username: f ? f.username : null,
+			name: f ? f.firstName || f.username || 'Игрок' : 'Игрок',
+			photoUrl: f ? f.photoUrl : null,
+			joinedAt: r.createdAt,
+			wagered,
+			earned: Number(r.registrationBonus) + Number(r.milestoneBonus),
+			milestoneDone: Number(r.milestoneBonus) > 0,
+			milestoneProgress: MILESTONE_WAGER > 0 ? Math.min(100, Math.round((wagered / MILESTONE_WAGER) * 100)) : 100
+		}
+	})
+
+	return {
+		link: link.url,
+		code: link.code,
+		configured: link.configured,
+		playerId: publicPlayerId(user),
+		rewards: {
+			inviter: Number(INVITER_BONUS),
+			invitee: Number(INVITEE_BONUS),
+			milestone: Number(MILESTONE_BONUS),
+			milestoneWager: MILESTONE_WAGER
+		},
+		invitedCount: rows.length,
+		totalEarned: earned,
+		inviter,
+		friends: list
+	}
+}

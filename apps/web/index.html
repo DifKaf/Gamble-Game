@@ -981,6 +981,15 @@ body{background:#000!important;}
         <div class="wheel-widget-disc"><span>SPIN<br>TO WIN</span></div>
       </button>
       <div class="panel">
+        <div class="panel-title">🎯 Ежедневные квесты</div>
+        <div id="questsBox">Загрузка...</div>
+        <div class="quest-reset" id="questsReset"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-title">👥 Друзья</div>
+        <div id="referralBox">Загрузка...</div>
+      </div>
+      <div class="panel">
         <div class="panel-title">🎟️ Промокоды</div>
         <div class="custom-bet-row"><input type="text" inputmode="text" placeholder="Введите промокод" id="promoCodeInput"></div>
         <button class="btn btn-gold btn-block" id="promoCodeBtn">Активировать</button>
@@ -3287,6 +3296,11 @@ updateUI();
         <button class="btn btn-primary btn-block" id="transferBtn" style="margin-top:12px;">📤 Отправить</button>
       </div>
 
+      <div class="section-title">💱 Биржа</div>
+      <div class="panel" id="exchangePanel">
+        <div id="exchangeBox">Загрузка...</div>
+      </div>
+
       <div class="section-title">🧾 История</div>
       <div class="panel" id="historyBox"></div>
     </section>
@@ -3452,7 +3466,9 @@ updateUI();
     try{
       var auth;
       if(tg && tg.initData){
-        auth = await apiRequest('/auth/telegram', { method:'POST', body:JSON.stringify({ initData: tg.initData }) });
+        var startParam = (tg && tg.initDataUnsafe && tg.initDataUnsafe.start_param) || '';
+        auth = await apiRequest('/auth/telegram', { method:'POST', body:JSON.stringify({ initData: tg.initData, startParam: startParam }) });
+        if(auth && auth.referral && auth.referral.bonus) showToast('Бонус за приглашение: +' + fmt(auth.referral.bonus) + ' GC','success');
       } else if(backendToken){
         var meData = await apiRequest('/me');
         auth = { token: backendToken, user: meData };
@@ -3476,6 +3492,9 @@ updateUI();
       refreshMiniGameHistories(true); loadLeaderboardFromBackend();
       if(typeof loadWeekly==='function') loadWeekly();
       if(typeof refreshWeeklyStats==='function') refreshWeeklyStats();
+      if(typeof loadQuests==='function') loadQuests();
+      if(typeof loadReferrals==='function') loadReferrals();
+      if(typeof loadExchange==='function') loadExchange();
       if(typeof checkWheelStatus==='function') checkWheelStatus();
       console.log('Backend auth success', auth.user);
     }catch(e){
@@ -3664,6 +3683,368 @@ updateUI();
     for(var i=0;i<table.length;i++){ acc += table[i].weight; if(r<=acc) return table[i]; }
     return table[table.length-1];
   }
+  // ===== Ежедневные квесты =====
+  var questsData = null;
+  var questsBusy = false;
+
+  function questRowHtml(q){
+    var pct = q.target > 0 ? Math.min(100, Math.round((Number(q.current||0) / Number(q.target)) * 100)) : 100;
+    var right;
+    if(q.claimed) right = '<div class="quest-done">✓ Получено</div>';
+    else if(q.done) right = '<button class="quest-claim" data-quest-claim="' + escapeHtml(q.code) + '">Забрать ' + fmt(q.reward) + '</button>';
+    else right = '<div class="quest-done" style="color:#8a8a8a;">+' + fmt(q.reward) + '</div>';
+    return '<div class="quest-row"><div class="quest-ico">' + escapeHtml(q.icon || '⭐') + '</div>'
+      + '<div class="quest-info"><b>' + escapeHtml(q.title || '') + '</b><small>' + escapeHtml(q.description || '') + ' · ' + fmt(q.current || 0) + '/' + fmt(q.target) + '</small>'
+      + '<div class="quest-bar"><i style="width:' + pct + '%"></i></div></div>' + right + '</div>';
+  }
+
+  function renderQuests(){
+    var box = document.getElementById('questsBox');
+    var reset = document.getElementById('questsReset');
+    if(!box) return;
+    if(!questsData || !questsData.quests){
+      box.innerHTML = '<div class="quest-reset">Квесты загружаются...</div>';
+      return;
+    }
+    box.innerHTML = questsData.quests.map(questRowHtml).join('');
+    if(reset){
+      var left = questsData.resetAt ? (new Date(questsData.resetAt).getTime() - Date.now()) : 0;
+      var hours = Math.max(0, Math.floor(left / 3600000));
+      var mins = Math.max(0, Math.floor((left % 3600000) / 60000));
+      reset.textContent = 'Обновление через ' + hours + ' ч ' + mins + ' мин' + (questsData.claimableReward ? ' · к выдаче: ' + fmt(questsData.claimableReward) + ' GC' : '');
+    }
+  }
+
+  async function loadQuests(){
+    if(!backendReady) return;
+    try{
+      questsData = await apiRequest('/quests');
+      renderQuests();
+    }catch(e){
+      var box = document.getElementById('questsBox');
+      if(box && !questsData) box.innerHTML = '<div class="quest-reset">Не удалось загрузить квесты. Попробуйте позже.</div>';
+    }
+  }
+
+  async function claimQuest(code){
+    if(questsBusy) return;
+    questsBusy = true;
+    try{
+      var res = await apiRequest('/quests/claim', { method:'POST', body: JSON.stringify({ code: code }) });
+      haptic('success');
+      showToast('Награда за квест: +' + fmt(res.reward) + ' GC','success');
+      if(typeof res.balance === 'number'){ backendBalance = res.balance; applyBackendBalanceToUI(); }
+      if(res.quests) questsData = res;
+      renderQuests();
+    }catch(e){
+      showToast(e.message || 'Не удалось забрать награду','error');
+      loadQuests();
+    }finally{
+      questsBusy = false;
+    }
+  }
+
+  document.addEventListener('click', function(ev){
+    var btn = ev.target && ev.target.closest ? ev.target.closest('[data-quest-claim]') : null;
+    if(!btn) return;
+    ev.preventDefault();
+    claimQuest(btn.getAttribute('data-quest-claim'));
+  });
+
+  // ===== Друзья / реферальная программа =====
+  var referralData = null;
+  var referralBusy = false;
+
+  function refFriendHtml(f){
+    var av = f.photoUrl ? '<div class="av" style="background-image:url(' + escapeHtml(f.photoUrl) + ')"></div>' : '<div class="av">👤</div>';
+    var name = f.username ? '@' + f.username : (f.name || 'Игрок');
+    var sub = 'ID: ' + (f.playerId || '—') + ' · оборот ' + fmt(f.wagered || 0) + ' GC';
+    if(!f.milestoneDone) sub += ' (' + (f.milestoneProgress || 0) + '%)';
+    return '<div class="ref-friend">' + av + '<div class="info"><b>' + escapeHtml(name) + '</b><small>' + escapeHtml(sub) + '</small></div>'
+      + '<div class="earned">+' + fmt(f.earned || 0) + '</div></div>';
+  }
+
+  function renderReferrals(){
+    var box = document.getElementById('referralBox');
+    if(!box) return;
+    if(!referralData){
+      box.innerHTML = '<div class="quest-reset">Загружаем данные о приглашениях...</div>';
+      return;
+    }
+    var d = referralData;
+    var rw = d.rewards || {};
+    var html = [];
+    html.push('<div class="quest-reset" style="margin-top:0;">За каждого друга — ' + fmt(rw.inviter || 0) + ' GC вам и ' + fmt(rw.invitee || 0) + ' GC ему. Когда друг прокрутит ' + fmt(rw.milestoneWager || 0) + ' GC, вы получите ещё ' + fmt(rw.milestone || 0) + ' GC.</div>');
+    if(d.link){
+      html.push('<div class="ref-link-row"><div class="ref-link" id="refLinkText">' + escapeHtml(d.link) + '</div>'
+        + '<button class="btn btn-gold" id="refCopyBtn" style="flex:0 0 auto;">Копировать</button></div>');
+      html.push('<button class="btn btn-primary btn-block" id="refShareBtn" style="margin-top:8px;">📤 Поделиться в Telegram</button>');
+    } else {
+      html.push('<div class="exch-warn">Ссылка-приглашение появится, когда в настройках сервера будет указан @username бота.</div>');
+      if(d.code) html.push('<div class="ref-link-row"><div class="ref-link" id="refLinkText">Код: ' + escapeHtml(d.code) + '</div>'
+        + '<button class="btn btn-gold" id="refCopyBtn" style="flex:0 0 auto;">Копировать</button></div>');
+    }
+    html.push('<div class="ref-stats"><div class="ref-stat"><b>' + fmt(d.invitedCount || 0) + '</b><small>ПРИГЛАШЕНО</small></div>'
+      + '<div class="ref-stat"><b>' + fmt(d.totalEarned || 0) + '</b><small>ЗАРАБОТАНО GC</small></div></div>');
+    if(d.inviter){
+      var invName = d.inviter.username ? '@' + d.inviter.username : (d.inviter.name || 'Игрок');
+      html.push('<div class="quest-reset">Вас пригласил: ' + escapeHtml(invName) + ' (ID: ' + escapeHtml(String(d.inviter.playerId || '—')) + ')</div>');
+    } else {
+      html.push('<div class="field-label" style="margin-top:14px;">Вас кто-то пригласил? Введите его ID или код:</div>');
+      html.push('<div class="ref-link-row"><input class="input" id="refCodeInput" type="text" placeholder="Например, 120045" autocomplete="off" style="flex:1;min-width:0;">'
+        + '<button class="btn btn-green" id="refAttachBtn" style="flex:0 0 auto;">Применить</button></div>');
+    }
+    if(d.friends && d.friends.length){
+      html.push('<div class="field-label" style="margin-top:14px;">Ваши друзья</div>');
+      html.push(d.friends.map(refFriendHtml).join(''));
+    } else {
+      html.push('<div class="quest-reset">Пока никого нет — отправьте ссылку друзьям.</div>');
+    }
+    box.innerHTML = html.join('');
+  }
+
+  async function loadReferrals(){
+    if(!backendReady) return;
+    try{
+      var data = await apiRequest('/referrals');
+      referralData = data;
+      if(typeof data.balance === 'number'){ backendBalance = data.balance; applyBackendBalanceToUI(); }
+      if(data.milestonesPaid && data.milestonesPaid.paid){
+        showToast('Бонус за активность друзей: +' + fmt(data.milestonesPaid.paid) + ' GC','success');
+      }
+      renderReferrals();
+    }catch(e){
+      var box = document.getElementById('referralBox');
+      if(box && !referralData) box.innerHTML = '<div class="quest-reset">Не удалось загрузить раздел друзей. Попробуйте позже.</div>';
+    }
+  }
+
+  function copyRefLink(){
+    var link = referralData && (referralData.link || referralData.code);
+    if(!link) return;
+    try{
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(link).then(function(){ showToast('Ссылка скопирована','success'); }).catch(fallbackCopy);
+      } else fallbackCopy();
+    }catch(e){ fallbackCopy(); }
+    function fallbackCopy(){
+      try{
+        var ta = document.createElement('textarea');
+        ta.value = link;
+        ta.style.position = 'fixed'; ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        showToast('Ссылка скопирована','success');
+      }catch(err){ showToast('Скопируйте ссылку вручную','error'); }
+    }
+  }
+
+  function shareRefLink(){
+    var link = referralData && referralData.link;
+    if(!link){ showToast('Ссылка ещё не готова','error'); return; }
+    var text = 'Забирай бонус в Gamble — играем вместе!';
+    var share = 'https://t.me/share/url?url=' + encodeURIComponent(link) + '&text=' + encodeURIComponent(text);
+    if(tg && tg.openTelegramLink) tg.openTelegramLink(share);
+    else window.open(share, '_blank');
+  }
+
+  async function attachRefCode(){
+    if(referralBusy) return;
+    var input = document.getElementById('refCodeInput');
+    var code = input ? String(input.value || '').trim() : '';
+    if(!code){ showToast('Введите ID или код','error'); return; }
+    referralBusy = true;
+    try{
+      var res = await apiRequest('/referrals/attach', { method:'POST', body: JSON.stringify({ code: code }) });
+      haptic('success');
+      showToast('Приглашение учтено: +' + fmt(res.bonus || 0) + ' GC','success');
+      if(typeof res.balance === 'number'){ backendBalance = res.balance; applyBackendBalanceToUI(); }
+      loadReferrals();
+    }catch(e){ showToast(e.message || 'Не удалось применить код','error'); }
+    finally{ referralBusy = false; }
+  }
+
+  document.addEventListener('click', function(ev){
+    if(!ev.target || !ev.target.closest) return;
+    if(ev.target.closest('#refCopyBtn')){ ev.preventDefault(); copyRefLink(); return; }
+    if(ev.target.closest('#refShareBtn')){ ev.preventDefault(); shareRefLink(); return; }
+    if(ev.target.closest('#refAttachBtn')){ ev.preventDefault(); attachRefCode(); }
+  });
+
+  // ===== Биржа (обмен GC на деньги) =====
+  var exchangeCfg = null;
+  var exchangeRequests = [];
+  var exchangeMethod = '';
+  var exchangeDraft = { amount:'', destination:'', contact:'' };
+  var exchangeBusy = false;
+
+  function money(v, currency){
+    var n = Number(v || 0);
+    return n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' ' + (currency || '');
+  }
+
+  function exchangeStatusTitle(s){
+    if(s === 'PENDING') return 'В обработке';
+    if(s === 'PAID') return 'Выплачено';
+    if(s === 'REJECTED') return 'Отказ';
+    if(s === 'CANCELLED') return 'Отменено';
+    return s;
+  }
+
+  function exchangeRowHtml(r){
+    var when = r.createdAt ? new Date(r.createdAt).toLocaleDateString('ru-RU', { day:'2-digit', month:'2-digit' }) : '';
+    var cancel = r.status === 'PENDING' ? '<button class="exch-cancel" data-exch-cancel="' + escapeHtml(r.id) + '">Отменить</button>' : '';
+    var note = r.adminNote ? '<br><span style="color:#8a8a8a;font-weight:700;">' + escapeHtml(r.adminNote) + '</span>' : '';
+    return '<div class="exch-row"><div>' + fmt(r.amountGc) + ' GC → ' + escapeHtml(money(r.payout, r.currency))
+      + '<br><span style="color:#8a8a8a;font-weight:700;">' + escapeHtml(r.methodTitle || r.method) + ' · ' + escapeHtml(String(r.destination || '')) + ' · ' + when + '</span>' + note + '</div>'
+      + '<div style="display:flex;align-items:center;gap:8px;flex:0 0 auto;"><span class="exch-status ' + escapeHtml(r.status) + '">' + exchangeStatusTitle(r.status) + '</span>' + cancel + '</div></div>';
+  }
+
+  function renderExchange(){
+    var box = document.getElementById('exchangeBox');
+    if(!box) return;
+    if(!exchangeCfg){
+      box.innerHTML = '<div class="quest-reset">Загружаем условия обмена...</div>';
+      return;
+    }
+    var c = exchangeCfg;
+    var html = [];
+    html.push('<div class="panel-title" style="margin-top:0;">💱 Обмен GC на ' + escapeHtml(c.currency) + '</div>');
+    html.push('<div class="quest-reset" style="margin-top:0;">Курс: ' + fmt(c.rateGcPerUnit) + ' GC = 1 ' + escapeHtml(c.currency)
+      + ' · минимум ' + fmt(c.minGc) + ' GC' + (c.feePercent ? ' · комиссия ' + c.feePercent + '%' : '') + '</div>');
+    if(!c.enabled){
+      html.push('<div class="exch-warn">Биржа временно закрыта. Обмен откроется позже — следите за новостями.</div>');
+    } else {
+      var wager = c.wager || { current:0, required:0, ok:true };
+      if(!wager.ok){
+        html.push('<div class="exch-warn">Доступ к обмену откроется после отыгрыша ' + fmt(wager.required) + ' GC. Сейчас: ' + fmt(wager.current) + ' GC.</div>');
+      }
+      if(c.weekRemaining !== null && typeof c.weekRemaining !== 'undefined'){
+        html.push('<div class="quest-reset">Доступно на этой неделе: ' + fmt(c.weekRemaining) + ' GC</div>');
+      }
+      html.push('<div class="field-label" style="margin-top:12px;">Сумма в GC:</div>');
+      html.push('<input class="input" id="exchAmount" type="number" min="' + c.minGc + '" placeholder="От ' + c.minGc + ' GC" value="' + escapeHtml(exchangeDraft.amount) + '">');
+      html.push('<div class="field-label" style="margin-top:12px;">Способ выплаты:</div>');
+      html.push('<div class="exch-grid">' + (c.methods || []).map(function(m){
+        return '<button class="exch-method' + (m.code === exchangeMethod ? ' active' : '') + '" data-exch-method="' + escapeHtml(m.code) + '">' + escapeHtml(m.title) + '</button>';
+      }).join('') + '</div>');
+      var active = (c.methods || []).filter(function(m){ return m.code === exchangeMethod; })[0];
+      html.push('<div class="field-label" style="margin-top:12px;">' + escapeHtml(active ? active.hint : 'Реквизиты для выплаты') + ':</div>');
+      html.push('<input class="input" id="exchDest" type="text" placeholder="Номер карты, кошелёк или @username" autocomplete="off" value="' + escapeHtml(exchangeDraft.destination) + '">');
+      html.push('<div class="field-label" style="margin-top:12px;">Контакт для связи (необязательно):</div>');
+      html.push('<input class="input" id="exchContact" type="text" placeholder="@username в Telegram" autocomplete="off" value="' + escapeHtml(exchangeDraft.contact) + '">');
+      html.push('<div class="exch-quote" id="exchQuote">К выплате: <span>' + escapeHtml(money(0, c.currency)) + '</span></div>');
+      html.push('<button class="btn btn-gold btn-block" id="exchSubmitBtn" style="margin-top:12px;">Создать заявку</button>');
+    }
+    if(c.note) html.push('<div class="exch-note">' + escapeHtml(c.note) + '</div>');
+    html.push('<div class="exch-note">GC списываются сразу при создании заявки и возвращаются, если заявка отменена или отклонена.</div>');
+    html.push('<div class="field-label" style="margin-top:14px;">Мои заявки</div>');
+    html.push(exchangeRequests.length ? exchangeRequests.map(exchangeRowHtml).join('') : '<div class="quest-reset">Заявок пока нет.</div>');
+    box.innerHTML = html.join('');
+    updateExchangeQuote();
+  }
+
+  function updateExchangeQuote(){
+    var out = document.getElementById('exchQuote');
+    if(!out || !exchangeCfg) return;
+    var input = document.getElementById('exchAmount');
+    var amount = input ? Number(input.value || 0) : 0;
+    if(!Number.isFinite(amount) || amount <= 0){
+      out.innerHTML = 'К выплате: <span>' + escapeHtml(money(0, exchangeCfg.currency)) + '</span>';
+      return;
+    }
+    var gross = Math.floor((amount / exchangeCfg.rateGcPerUnit) * 100);
+    var fee = Math.floor((gross * (exchangeCfg.feePercent || 0)) / 100);
+    var payout = Math.max(0, gross - fee) / 100;
+    out.innerHTML = 'К выплате: <span>' + escapeHtml(money(payout, exchangeCfg.currency)) + '</span>';
+  }
+
+  async function loadExchange(){
+    if(!backendReady) return;
+    try{
+      var cfg = await apiRequest('/exchange/config');
+      exchangeCfg = cfg;
+      if(typeof cfg.balance === 'number'){ backendBalance = cfg.balance; applyBackendBalanceToUI(); }
+      if(!exchangeMethod && cfg.methods && cfg.methods.length) exchangeMethod = cfg.methods[0].code;
+      try{
+        var list = await apiRequest('/exchange/requests');
+        exchangeRequests = (list && list.requests) || [];
+      }catch(e){ exchangeRequests = exchangeRequests || []; }
+      renderExchange();
+    }catch(e){
+      var box = document.getElementById('exchangeBox');
+      if(box && !exchangeCfg) box.innerHTML = '<div class="quest-reset">Не удалось загрузить биржу. Попробуйте позже.</div>';
+    }
+  }
+
+  function readExchangeDraft(){
+    var a = document.getElementById('exchAmount');
+    var d = document.getElementById('exchDest');
+    var c = document.getElementById('exchContact');
+    exchangeDraft.amount = a ? String(a.value || '') : '';
+    exchangeDraft.destination = d ? String(d.value || '') : '';
+    exchangeDraft.contact = c ? String(c.value || '') : '';
+  }
+
+  async function submitExchange(){
+    if(exchangeBusy || !exchangeCfg) return;
+    readExchangeDraft();
+    var amount = Math.floor(Number(exchangeDraft.amount || 0));
+    var destination = exchangeDraft.destination.trim();
+    if(!Number.isFinite(amount) || amount < exchangeCfg.minGc){ showToast('Минимальная сумма обмена — ' + fmt(exchangeCfg.minGc) + ' GC','error'); return; }
+    if(!exchangeMethod){ showToast('Выберите способ выплаты','error'); return; }
+    if(destination.length < 4){ showToast('Укажите реквизиты для выплаты','error'); return; }
+    exchangeBusy = true;
+    try{
+      var res = await apiRequest('/exchange/request', { method:'POST', body: JSON.stringify({
+        amountGc: amount,
+        method: exchangeMethod,
+        destination: destination,
+        contact: exchangeDraft.contact.trim() || undefined
+      }) });
+      haptic('success');
+      showToast('Заявка создана, она в обработке','success');
+      if(typeof res.balance === 'number'){ backendBalance = res.balance; applyBackendBalanceToUI(); }
+      exchangeDraft = { amount:'', destination:'', contact:'' };
+      await loadExchange();
+      if(typeof loadTransferHistory === 'function') loadTransferHistory(true);
+    }catch(e){ showToast(e.message || 'Не удалось создать заявку','error'); }
+    finally{ exchangeBusy = false; }
+  }
+
+  async function cancelExchange(id){
+    if(exchangeBusy) return;
+    exchangeBusy = true;
+    try{
+      var res = await apiRequest('/exchange/requests/' + encodeURIComponent(id) + '/cancel', { method:'POST', body: JSON.stringify({}) });
+      showToast('Заявка отменена, GC вернулись','success');
+      if(typeof res.balance === 'number'){ backendBalance = res.balance; applyBackendBalanceToUI(); }
+      await loadExchange();
+    }catch(e){ showToast(e.message || 'Не удалось отменить заявку','error'); }
+    finally{ exchangeBusy = false; }
+  }
+
+  document.addEventListener('input', function(ev){
+    if(ev.target && ev.target.id === 'exchAmount') updateExchangeQuote();
+  });
+
+  document.addEventListener('click', function(ev){
+    if(!ev.target || !ev.target.closest) return;
+    var m = ev.target.closest('[data-exch-method]');
+    if(m){
+      ev.preventDefault();
+      readExchangeDraft();
+      exchangeMethod = m.getAttribute('data-exch-method');
+      renderExchange();
+      return;
+    }
+    if(ev.target.closest('#exchSubmitBtn')){ ev.preventDefault(); submitExchange(); return; }
+    var c = ev.target.closest('[data-exch-cancel]');
+    if(c){ ev.preventDefault(); cancelExchange(c.getAttribute('data-exch-cancel')); }
+  });
+
   function showToast(msg, type){
     var layer = document.getElementById('toastLayer');
     var t = document.createElement('div');
@@ -3782,6 +4163,8 @@ updateUI();
     if(name==='promo-create') loadCreatedPromos();
     if((name==='bonuses'||name==='wheel'||name==='home') && typeof checkWheelStatus==='function') checkWheelStatus();
     if((name==='profile'||name==='wheel'||name==='bonuses') && typeof refreshWeeklyStats==='function') refreshWeeklyStats();
+    if(name==='bonuses'){ if(typeof loadQuests==='function') loadQuests(); if(typeof loadReferrals==='function') loadReferrals(); }
+    if(name==='wallet' && typeof loadExchange==='function') loadExchange();
     if(name==='wallet' && typeof renderHistory==='function') renderHistory();
     if(typeof trackRecentGame==='function') trackRecentGame(name);
     window.scrollTo(0,0);
@@ -5904,6 +6287,45 @@ updateUI();
 .wheel-req-bar i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#ffd54a,#ff8a3d);transition:width .4s ease;}
 .wheel-req-actions{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;}
 .wheel-req-actions .btn{flex:1;min-width:150px;}
+.quest-row{display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid rgba(0,0,0,.06);}
+.quest-row:last-child{border-bottom:none;}
+.quest-ico{width:38px;height:38px;border-radius:12px;background:var(--card-tint);display:flex;align-items:center;justify-content:center;font-size:18px;flex:0 0 auto;}
+.quest-info{flex:1;min-width:0;}
+.quest-info b{display:block;font-size:13px;font-weight:800;}
+.quest-info small{display:block;font-size:11px;color:#7d7d7d;font-weight:700;}
+.quest-bar{height:6px;border-radius:99px;background:rgba(0,0,0,.08);margin-top:6px;overflow:hidden;}
+.quest-bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#ffd54a,#ff8a3d);transition:width .4s ease;}
+.quest-claim{flex:0 0 auto;font-size:11px;font-weight:800;padding:8px 12px;border-radius:12px;border:none;background:linear-gradient(135deg,#ffd54a,#ff8a3d);color:#2a1a00;}
+.quest-claim:disabled{opacity:.45;}
+.quest-done{flex:0 0 auto;font-size:11px;font-weight:800;color:#1aa15c;}
+.quest-reset{margin-top:10px;font-size:11px;font-weight:700;color:#7d7d7d;}
+.ref-link-row{display:flex;gap:8px;margin-top:10px;}
+.ref-link{flex:1;min-width:0;font-size:12px;font-weight:700;padding:11px 12px;border-radius:12px;background:rgba(0,0,0,.05);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.ref-stats{display:flex;gap:8px;margin-top:10px;}
+.ref-stat{flex:1;background:rgba(0,0,0,.04);border-radius:14px;padding:10px;text-align:center;}
+.ref-stat b{display:block;font-size:16px;font-weight:900;}
+.ref-stat small{font-size:10px;color:#7d7d7d;font-weight:700;}
+.ref-friend{display:flex;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid rgba(0,0,0,.06);}
+.ref-friend:last-child{border-bottom:none;}
+.ref-friend .av{width:34px;height:34px;border-radius:50%;background:var(--card-tint);background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;font-size:14px;flex:0 0 auto;}
+.ref-friend .info{flex:1;min-width:0;}
+.ref-friend .info b{display:block;font-size:13px;font-weight:800;}
+.ref-friend .info small{display:block;font-size:11px;color:#7d7d7d;font-weight:700;}
+.ref-friend .earned{font-size:12px;font-weight:900;color:#1aa15c;flex:0 0 auto;}
+.exch-grid{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;}
+.exch-method{flex:1;min-width:104px;padding:10px;border-radius:12px;border:2px solid rgba(0,0,0,.08);background:#fff;font-size:12px;font-weight:800;color:#1a1a1a;}
+.exch-method.active{border-color:#ff8a3d;background:rgba(255,138,61,.09);}
+.exch-quote{margin-top:12px;font-size:14px;font-weight:900;}
+.exch-quote span{color:#1aa15c;}
+.exch-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 0;border-bottom:1px solid rgba(0,0,0,.06);font-size:12px;font-weight:700;}
+.exch-row:last-child{border-bottom:none;}
+.exch-status{font-size:10px;font-weight:900;padding:3px 8px;border-radius:99px;white-space:nowrap;}
+.exch-status.PENDING{background:rgba(255,193,7,.2);color:#8a6100;}
+.exch-status.PAID{background:rgba(26,161,92,.16);color:#127a45;}
+.exch-status.REJECTED,.exch-status.CANCELLED{background:rgba(0,0,0,.08);color:#666;}
+.exch-note{font-size:11px;color:#7d7d7d;font-weight:700;margin-top:12px;line-height:1.5;}
+.exch-warn{font-size:11px;font-weight:800;color:#b3261e;margin-top:8px;line-height:1.5;}
+.exch-cancel{border:none;background:rgba(0,0,0,.06);color:#444;font-size:11px;font-weight:800;padding:6px 10px;border-radius:10px;}
 
 /* ===== Списки игр на главной ===== */
 .home-rail-block{margin:0 0 20px;}

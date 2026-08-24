@@ -50,6 +50,10 @@ model User {
   blackjackSessions BlackjackSession[]
   coinflipSessions CoinflipSession[]
   slotSessions SlotSession[]
+  referralsMade Referral[] @relation("ReferralsMade")
+  referralSource Referral? @relation("ReferralSource")
+  questClaims QuestClaim[]
+  exchangeRequests ExchangeRequest[]
 
   @@index([balance])
 }
@@ -172,4 +176,51 @@ model BlackjackSession {
   createdAt DateTime @default(now())
   finishedAt DateTime?
   @@index([userId, status, createdAt])
+}
+
+/// Кто кого пригласил. Один игрок может быть приглашён только один раз.
+model Referral {
+  id String @id @default(uuid())
+  referrerId String
+  referredId String @unique
+  registrationBonus BigInt @default(0)
+  milestoneBonus BigInt @default(0)
+  createdAt DateTime @default(now())
+  referrer User @relation("ReferralsMade", fields: [referrerId], references: [id])
+  referred User @relation("ReferralSource", fields: [referredId], references: [id])
+  @@index([referrerId, createdAt])
+}
+
+/// Факт получения награды за квест. Прогресс не хранится — он считается по раундам дня.
+model QuestClaim {
+  id String @id @default(uuid())
+  userId String
+  user User @relation(fields: [userId], references: [id])
+  questCode String
+  periodKey String
+  reward BigInt @default(0)
+  claimedAt DateTime @default(now())
+  @@unique([userId, questCode, periodKey])
+  @@index([userId, claimedAt])
+}
+
+/// Заявка на обмен GC. Выплата подтверждается оператором вручную.
+model ExchangeRequest {
+  id String @id @default(uuid())
+  userId String
+  user User @relation(fields: [userId], references: [id])
+  amountGc BigInt
+  payoutMinor BigInt @default(0)
+  currency String @default("RUB")
+  rateGcPerUnit BigInt @default(0)
+  feePercent Float @default(0)
+  method String
+  destination String
+  contact String?
+  status String @default("PENDING")
+  adminNote String?
+  createdAt DateTime @default(now())
+  processedAt DateTime?
+  @@index([userId, createdAt])
+  @@index([status, createdAt])
 }

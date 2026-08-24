@@ -3,6 +3,7 @@ import { getAuthUser } from '../auth/getUser.js'
 import { prisma } from '../db.js'
 import { publicPlayerId } from '../utils/playerId.js'
 import { cached } from '../utils/cache.js'
+import { weeklyStats } from '../utils/weeklyStats.js'
 
 // Лидерборд одинаков для всех, пересчитывать его на каждый запрос смысла нет.
 const LEADERBOARD_TTL_MS = Number(process.env.LEADERBOARD_TTL_MS || 45000)
@@ -42,6 +43,12 @@ export async function meRoutes(app: FastifyInstance) {
 			const users = await prisma.user.findMany({ orderBy: { balance: 'desc' }, take: 50, select: publicSelect })
 			return { users: users.map(toPublic) }
 		})
+	})
+
+	// Статистика за текущую неделю (окно с понедельника, обнуляется само).
+	app.get('/stats', { preHandler: [(app as any).authenticate] }, async (req) => {
+		const u = await getAuthUser(req)
+		return weeklyStats(u.id)
 	})
 
 	// Поиск получателя перевода: по @username ИЛИ по началу цифрового ID.

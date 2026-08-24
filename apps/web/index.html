@@ -1013,6 +1013,15 @@ body{background:#000!important;}
       </div>
       <button class="btn btn-gold btn-block" id="wheelSpinBtn" style="margin-top:16px;">🎁 Крутить колесо</button>
       <div class="wheel-timer" id="wheelTimer">Загрузка...</div>
+      <div class="wheel-req" id="wheelReq" style="display:none;">
+        <div class="panel-title">Условия доступа</div>
+        <div class="wheel-req-row" id="wheelReqSub"></div>
+        <div class="wheel-req-row" id="wheelReqWager"></div>
+        <div class="wheel-req-actions">
+          <a class="btn btn-blue" id="wheelSubBtn" href="#" target="_blank" rel="noopener" style="display:none;">Подписаться на канал</a>
+          <button class="btn btn-ghost" id="wheelReqRefresh">Проверить заново</button>
+        </div>
+      </div>
       <div class="wheel-prizes">
         <div class="panel-title">Возможные призы</div>
         <div class="wheel-prizes-grid"><span class="wheel-prize-chip">500 GC</span><span class="wheel-prize-chip">1000 GC</span><span class="wheel-prize-chip">2000 GC</span><span class="wheel-prize-chip">3000 GC</span><span class="wheel-prize-chip">5000 GC</span><span class="wheel-prize-chip">7500 GC</span><span class="wheel-prize-chip">10000 GC</span><span class="wheel-prize-chip">25000 GC</span></div>
@@ -3293,7 +3302,7 @@ updateUI();
         </div>
       </div>
       <div class="stat-grid">
-        <div class="stat-box"><div class="v" id="statWagered">0</div><div class="l">СУММА СТАВОК</div></div>
+        <div class="stat-box"><div class="v" id="statWagered">0</div><div class="l">СТАВКИ ЗА НЕДЕЛЮ</div></div>
         <div class="stat-box"><div class="v" id="statWon">0</div><div class="l">ВСЕГО ВЫИГРАНО</div></div>
         <div class="stat-box"><div class="v" id="statBiggest">0</div><div class="l">ЛУЧШИЙ ВЫИГРЫШ</div></div>
       </div>
@@ -3393,7 +3402,12 @@ updateUI();
     if(backendToken) headers.Authorization = 'Bearer ' + backendToken;
     var res = await fetch(API_URL + path, Object.assign({}, options, { headers: headers }));
     var data = await res.json().catch(function(){ return {}; });
-    if(!res.ok) throw new Error(data.error || 'API error');
+    if(!res.ok){
+      var apiErr = new Error(data.error || 'API error');
+      Object.keys(data || {}).forEach(function(k){ if(k !== 'error') apiErr[k] = data[k]; });
+      apiErr.status = res.status;
+      throw apiErr;
+    }
     return data;
   }
 
@@ -3460,6 +3474,8 @@ updateUI();
       saveState();
       setInterval(function(){ if(backendReady) applyBackendBalanceToUI(); }, 1000);
       refreshMiniGameHistories(true); loadLeaderboardFromBackend();
+      if(typeof loadWeekly==='function') loadWeekly();
+      if(typeof refreshWeeklyStats==='function') refreshWeeklyStats();
       if(typeof checkWheelStatus==='function') checkWheelStatus();
       console.log('Backend auth success', auth.user);
     }catch(e){
@@ -3594,12 +3610,44 @@ updateUI();
       if(amount > p.stats.biggest) p.stats.biggest = amount;
     }
   }
+  /* ============ Статистика за неделю ============ */
+  // Неделя считается с понедельника 00:00. Сброс не требует никакого крона:
+  // как только меняется начало недели, счётчики начинаются заново.
+  function weekStartMs(ts){ var d = new Date(ts || Date.now()); var day = (d.getDay()+6)%7; d.setHours(0,0,0,0); d.setDate(d.getDate()-day); return d.getTime(); }
+  var weekly = { weekStart: weekStartMs(), wagered: 0, won: 0, best: 0 };
+  function weeklyKey(){ var uid = (typeof backendUser !== 'undefined' && backendUser && backendUser.id) ? backendUser.id : 'local'; return 'gg_week_stats_' + uid; }
+  function loadWeekly(){
+    try{ var raw = JSON.parse(localStorage.getItem(weeklyKey()) || 'null');
+      if(raw && Number(raw.weekStart) === weekStartMs()){ weekly = { weekStart: Number(raw.weekStart), wagered: Number(raw.wagered)||0, won: Number(raw.won)||0, best: Number(raw.best)||0 }; return; }
+    }catch(e){}
+    weekly = { weekStart: weekStartMs(), wagered: 0, won: 0, best: 0 };
+  }
+  function saveWeekly(){ try{ localStorage.setItem(weeklyKey(), JSON.stringify(weekly)); }catch(e){} }
+  function rollWeekIfNeeded(){ var ws = weekStartMs(); if(weekly.weekStart !== ws){ weekly = { weekStart: ws, wagered: 0, won: 0, best: 0 }; saveWeekly(); renderProfile(); } }
+  async function refreshWeeklyStats(){
+    rollWeekIfNeeded();
+    if(!backendReady) return;
+    try{ var d = await apiRequest('/me/stats');
+      weekly.weekStart = weekStartMs();
+      weekly.wagered = Number(d.wagered)||0; weekly.won = Number(d.won)||0; weekly.best = Number(d.best)||0;
+      saveWeekly(); renderProfile();
+      if(typeof updateWheelWagerLocal === 'function') updateWheelWagerLocal(weekly.wagered);
+    }catch(e){ /* остаёмся на локальном счётчике */ }
+  }
+  loadWeekly();
+  setInterval(rollWeekIfNeeded, 60000);
   function syncProfileStats(betAmount, winAmount){
     var p = me();
     var bet = Math.max(0, Number(betAmount)||0);
     var win = Math.max(0, Number(winAmount)||0);
     var profit = Math.max(0, win - bet);
     p.stats.wagered = Math.round((p.stats.wagered + bet)*100)/100;
+    rollWeekIfNeeded();
+    weekly.wagered = Math.round((weekly.wagered + bet)*100)/100;
+    weekly.won = Math.round((weekly.won + win)*100)/100;
+    if(win > weekly.best) weekly.best = win;
+    saveWeekly();
+    if(typeof updateWheelWagerLocal === 'function') updateWheelWagerLocal(weekly.wagered);
     if(profit > 0){
       p.stats.won = Math.round((p.stats.won + profit)*100)/100;
       if(profit > p.stats.biggest) p.stats.biggest = profit;
@@ -3733,6 +3781,7 @@ updateUI();
     if(name==='home') loadLeaderboardFromBackend();
     if(name==='promo-create') loadCreatedPromos();
     if((name==='bonuses'||name==='wheel'||name==='home') && typeof checkWheelStatus==='function') checkWheelStatus();
+    if((name==='profile'||name==='wheel'||name==='bonuses') && typeof refreshWeeklyStats==='function') refreshWeeklyStats();
     if(name==='wallet' && typeof renderHistory==='function') renderHistory();
     if(typeof trackRecentGame==='function') trackRecentGame(name);
     window.scrollTo(0,0);
@@ -5113,10 +5162,49 @@ updateUI();
     tick();
     wheelCountdownInterval = setInterval(tick, 1000);
   }
+  var wheelReqCache = null;
+  function wheelReqRowHtml(ok, title, sub, extra){
+    return '<span class="wheel-req-mark ' + (ok ? 'ok' : 'bad') + '">' + (ok ? '✓' : '✕') + '</span><div class="wheel-req-text"><b>' + title + '</b><small>' + sub + '</small>' + (extra || '') + '</div>';
+  }
+  function renderWheelRequirements(req){
+    wheelReqCache = req || null;
+    var box = document.getElementById('wheelReq');
+    if(!box) return;
+    if(!req){ box.style.display = 'none'; return; }
+    box.style.display = req.ok ? 'none' : '';
+    var sub = req.subscription || {}, wager = req.wager || {};
+    var subRow = document.getElementById('wheelReqSub');
+    if(subRow) subRow.innerHTML = wheelReqRowHtml(!!sub.ok, 'Подписка на Telegram-канал', sub.configured ? (sub.ok ? 'Подписка активна' : 'Подпишитесь на ' + escapeHtml(sub.channel || 'канал проекта')) : 'Канал не настроен — условие не проверяется');
+    var need = Number(wager.required) || 0, cur = Number(wager.current) || 0;
+    var pct = need > 0 ? Math.min(100, Math.round(cur / need * 100)) : 100;
+    var wagerRow = document.getElementById('wheelReqWager');
+    if(wagerRow) wagerRow.innerHTML = wheelReqRowHtml(!!wager.ok, 'Ставки за неделю', fmt(cur) + ' / ' + fmt(need) + ' GC', '<div class="wheel-req-bar"><i style="width:' + pct + '%"></i></div>');
+    var link = document.getElementById('wheelSubBtn');
+    if(link){ if(sub.url && !sub.ok){ link.href = sub.url; link.style.display = ''; } else { link.style.display = 'none'; } }
+  }
+  // Локальный прогресс: полоска растёт сразу после ставки, а не после запроса к серверу.
+  function updateWheelWagerLocal(current){
+    if(!wheelReqCache || !wheelReqCache.wager) return;
+    var w = wheelReqCache.wager;
+    w.current = Math.max(Number(w.current) || 0, Number(current) || 0);
+    w.remaining = Math.max(0, (Number(w.required) || 0) - w.current);
+    w.ok = w.current >= (Number(w.required) || 0);
+    wheelReqCache.ok = Boolean(w.ok && wheelReqCache.subscription && wheelReqCache.subscription.ok);
+    renderWheelRequirements(wheelReqCache);
+  }
+  function lockWheel(reason){
+    if(wheelCountdownInterval) clearInterval(wheelCountdownInterval);
+    setWheelReady(false);
+    var el = document.getElementById('wheelTimer');
+    if(el) el.textContent = reason || 'Колесо пока закрыто';
+    document.querySelectorAll('.wheelWidgetTimer').forEach(function(x){ x.textContent = 'Условия'; });
+  }
   async function checkWheelStatus(){
     if(!backendReady){ var t=document.getElementById('wheelTimer'); if(t) t.textContent='Доступно после авторизации'; setWheelReady(false); return; }
     try{
       var data = await apiRequest('/bonus/wheel/status');
+      renderWheelRequirements(data.requirements);
+      if(data.locked){ lockWheel(data.lockReason); return; }
       if(data.ready) setWheelReady(true); else startWheelCountdown(data.nextAvailableAt);
     }catch(e){ /* ignore */ }
   }
@@ -5128,6 +5216,16 @@ updateUI();
     var total = wheelSpins*360 + seg;
     disc.style.transform = 'rotate('+total+'deg)';
   }
+  var wheelReqRefreshBtn = document.getElementById('wheelReqRefresh');
+  if(wheelReqRefreshBtn) wheelReqRefreshBtn.addEventListener('click', async function(){
+    wheelReqRefreshBtn.disabled = true;
+    try{
+      await refreshWeeklyStats();
+      await checkWheelStatus();
+      if(wheelReqCache && wheelReqCache.ok) showToast('Условия выполнены, колесо открыто','success');
+      else showToast('Условия пока не выполнены','error');
+    }finally{ wheelReqRefreshBtn.disabled = false; }
+  });
   var wheelSpinBtn=document.getElementById('wheelSpinBtn');
   if(wheelSpinBtn) wheelSpinBtn.addEventListener('click', async function(){
     if(!backendReady){ showToast('Крути колесо после авторизации','error'); return; }
@@ -5145,6 +5243,7 @@ updateUI();
       }, 3700);
     }catch(e){
       showToast(e.message || 'Колесо ещё не готово','error');
+      if(e.requirements){ renderWheelRequirements(e.requirements); lockWheel(e.message); return; }
       if(e.nextAvailableAt) startWheelCountdown(e.nextAvailableAt); else setWheelReady(true);
       wheelSpinBtn.disabled = false;
     }
@@ -5376,7 +5475,7 @@ updateUI();
     var profileNameEl=document.getElementById('profileName'); if(profileNameEl) profileNameEl.textContent = p.name;
     var profileBalanceEl=document.getElementById('profileBalance'); if(profileBalanceEl) profileBalanceEl.textContent = fmt(p.balance)+' GC';
     var profilePlayerIdEl=document.getElementById('profilePlayerId'); if(profilePlayerIdEl) profilePlayerIdEl.textContent = 'ID: '+(resolvePlayerId() || '—');
-    var statWageredEl=document.getElementById('statWagered'); if(statWageredEl) statWageredEl.textContent = fmt(p.stats.wagered);
+    var statWageredEl=document.getElementById('statWagered'); if(statWageredEl) statWageredEl.textContent = fmt(weekly.wagered);
     var statWonEl=document.getElementById('statWon'); if(statWonEl) statWonEl.textContent = fmt(p.stats.won);
     var statBiggestEl=document.getElementById('statBiggest'); if(statBiggestEl) statBiggestEl.textContent = fmt(p.stats.biggest);
   }
@@ -5793,6 +5892,18 @@ updateUI();
 .wheel-prizes-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;}
 .wheel-prize-chip{padding:6px 11px;border-radius:999px;background:#1c1c1c;border:1px solid #2e2e2e;font-weight:900;font-size:12px;color:#fff;}
 .wheel-prizes-note{margin-top:12px;font-size:12px;font-weight:700;color:#7d7d7d;line-height:1.45;}
+.wheel-req{margin-top:16px;padding:14px;border-radius:18px;border:1px solid #262626;background:#141414;}
+.wheel-req-row{display:flex;gap:10px;align-items:flex-start;margin-top:12px;}
+.wheel-req-mark{flex:0 0 22px;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;}
+.wheel-req-mark.ok{background:rgba(46,204,113,.16);color:#2ecc71;border:1px solid rgba(46,204,113,.45);}
+.wheel-req-mark.bad{background:rgba(255,77,79,.14);color:#ff6b6b;border:1px solid rgba(255,77,79,.4);}
+.wheel-req-text{flex:1;min-width:0;}
+.wheel-req-text b{display:block;font-size:13px;font-weight:900;}
+.wheel-req-text small{display:block;margin-top:3px;font-size:12px;font-weight:700;color:#8a8a8a;}
+.wheel-req-bar{margin-top:8px;height:7px;border-radius:999px;background:#1e1e1e;overflow:hidden;}
+.wheel-req-bar i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#ffd54a,#ff8a3d);transition:width .4s ease;}
+.wheel-req-actions{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;}
+.wheel-req-actions .btn{flex:1;min-width:150px;}
 
 /* ===== Списки игр на главной ===== */
 .home-rail-block{margin:0 0 20px;}

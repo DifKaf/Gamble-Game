@@ -30,10 +30,10 @@ function envFlag(name: string, fallback: boolean) {
 }
 
 export function exchangeConfig() {
-	const methods = String(process.env.EXCHANGE_METHODS || 'card,crypto,stars,sbp')
+	const methods = String(process.env.EXCHANGE_METHODS || 'card,crypto,sbp')
 		.split(',')
 		.map((m) => m.trim().toLowerCase())
-		.filter(Boolean)
+		.filter((m) => m && m !== 'stars')
 
 	return {
 		p2p: true,

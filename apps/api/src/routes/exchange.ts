@@ -322,7 +322,7 @@ export async function exchangeRoutes(app: FastifyInstance) {
 		}
 
 		if (!isSeller || (row.status !== 'OPEN' && row.status !== 'PENDING')) {
-			return reply.code(400).send({ error: 'Снять с витрин�� может только продавец' })
+			return reply.code(400).send({ error: 'Снять с витрины может только продавец' })
 		}
 
 		await prisma.$transaction(async (tx) => {

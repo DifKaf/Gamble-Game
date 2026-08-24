@@ -21,10 +21,10 @@ export type QuestDef = {
 }
 
 const RAW_QUESTS: Array<QuestDef> = [
-	{ code: 'rounds20', kind: 'rounds', title: 'Разминка', description: 'Сделай 20 ставок в любых играх', target: 20, reward: 500, icon: '🎯' },
-	{ code: 'wager5000', kind: 'wager', title: 'Оборот', description: 'Прокрути 5 000 GC за день', target: 5000, reward: 1000, icon: '🔁' },
-	{ code: 'variety3', kind: 'variety', title: 'Разнообразие', description: 'Сыграй в 3 разные игры', target: 3, reward: 750, icon: '🎲' },
-	{ code: 'multi10', kind: 'multiplier', title: 'Крупный куш', description: 'Поймай выигрыш от ×10', target: 10, reward: 1500, icon: '💰' }
+	{ code: 'rounds20', kind: 'rounds', title: 'Разминка', description: 'Сделай 20 ставок в любых играх', target: 20, reward: 500, icon: '' },
+	{ code: 'wager5000', kind: 'wager', title: 'Оборот', description: 'Прокрути 5 000 GC за день', target: 5000, reward: 1000, icon: '' },
+	{ code: 'variety3', kind: 'variety', title: 'Разнообразие', description: 'Сыграй в 3 разные игры', target: 3, reward: 750, icon: '' },
+	{ code: 'multi10', kind: 'multiplier', title: 'Крупный куш', description: 'Поймай выигрыш от ×10', target: 10, reward: 1500, icon: '' }
 ]
 
 export const QUESTS: Array<QuestDef> = RAW_QUESTS.map((q) => ({

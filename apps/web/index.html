@@ -5431,13 +5431,13 @@ updateUI();
       });
     });
   });
-  async function renderGameHistory(gameCode){
+  /* Рендер отделён от загрузки: история всех игр приезжает одним запросом. */
+  function renderGameHistoryItems(gameCode, items, scope){
     var box = document.getElementById(GAME_HISTORY_MAP[gameCode]);
-    if(!box || !backendReady) return;
-    var scope = gameHistoryScope[gameCode] || 'live';
+    if(!box) return;
+    scope = scope || gameHistoryScope[gameCode] || 'live';
     try{
-      var data = await apiRequest('/games/' + gameCode + '/history' + (scope==='mine' ? '?scope=mine' : ''));
-      var items = data.items || [];
+      items = items || [];
       if(!items.length){ box.innerHTML = '<div class="empty-state">'+(scope==='mine' ? 'У вас пока нет ставок' : 'Истории пока нет')+'</div>'; return; }
       box.innerHTML = items.slice(0,10).map(function(item){
         var bet = Number(item.betAmount||0);
@@ -5450,12 +5450,40 @@ updateUI();
       }).join('');
     }catch(e){ box.innerHTML = '<div class="empty-state">Не удалось загрузить историю</div>'; }
   }
+  async function renderGameHistory(gameCode){
+    var box = document.getElementById(GAME_HISTORY_MAP[gameCode]);
+    if(!box || !backendReady) return;
+    var scope = gameHistoryScope[gameCode] || 'live';
+    try{
+      var data = await apiRequest('/games/' + gameCode + '/history' + (scope==='mine' ? '?scope=mine' : ''));
+      renderGameHistoryItems(gameCode, (data && data.items) || [], scope);
+    }catch(e){ box.innerHTML = '<div class="empty-state">Не удалось загрузить историю</div>'; }
+  }
+  var GAME_HISTORY_CODES = ['dice','coinflip','roulette','mines','blackjack','baccarat'];
   var lastHistoryRefresh = 0;
+  var batchHistoryOk = true;
   function refreshMiniGameHistories(force){
     var now = Date.now();
-    if(!force && now - lastHistoryRefresh < 2500) return;
+    if(!force && now - lastHistoryRefresh < 8000) return;
     lastHistoryRefresh = now;
-    ['dice','coinflip','roulette','mines','blackjack','baccarat'].forEach(renderGameHistory);
+    if(!backendReady) return;
+    if(!batchHistoryOk){ GAME_HISTORY_CODES.forEach(renderGameHistory); return; }
+    var byScope = {};
+    GAME_HISTORY_CODES.forEach(function(code){
+      var scope = gameHistoryScope[code] || 'live';
+      (byScope[scope] = byScope[scope] || []).push(code);
+    });
+    Object.keys(byScope).forEach(function(scope){
+      var codes = byScope[scope];
+      apiRequest('/games/history?scope=' + scope + '&codes=' + codes.join(',')).then(function(data){
+        var histories = (data && data.histories) || {};
+        codes.forEach(function(code){ renderGameHistoryItems(code, (histories[code] || {}).items || [], scope); });
+      }).catch(function(){
+        /* Старый API без пакетного эндпоинта — откат на запрос по каждой игре. */
+        batchHistoryOk = false;
+        codes.forEach(renderGameHistory);
+      });
+    });
   }
 
   /* ================= HOME: списки игр по группам ================= */

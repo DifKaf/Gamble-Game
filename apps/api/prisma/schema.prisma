@@ -50,6 +50,8 @@ model User {
   blackjackSessions BlackjackSession[]
   coinflipSessions CoinflipSession[]
   slotSessions SlotSession[]
+
+  @@index([balance])
 }
 
 model WalletTransaction {

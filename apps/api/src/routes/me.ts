@@ -2,6 +2,10 @@ import { FastifyInstance } from 'fastify'
 import { getAuthUser } from '../auth/getUser.js'
 import { prisma } from '../db.js'
 import { publicPlayerId } from '../utils/playerId.js'
+import { cached } from '../utils/cache.js'
+
+// Лидерборд одинаков для всех, пересчитывать его на каждый запрос смысла нет.
+const LEADERBOARD_TTL_MS = Number(process.env.LEADERBOARD_TTL_MS || 45000)
 
 const publicSelect = { id: true, playerId: true, username: true, firstName: true, lastName: true, photoUrl: true, balance: true } as const
 
@@ -34,8 +38,10 @@ export async function meRoutes(app: FastifyInstance) {
 	})
 
 	app.get('/leaderboard', { preHandler: [(app as any).authenticate] }, async () => {
-		const users = await prisma.user.findMany({ orderBy: { balance: 'desc' }, take: 50, select: publicSelect })
-		return { users: users.map(toPublic) }
+		return cached('leaderboard:50', LEADERBOARD_TTL_MS, async () => {
+			const users = await prisma.user.findMany({ orderBy: { balance: 'desc' }, take: 50, select: publicSelect })
+			return { users: users.map(toPublic) }
+		})
 	})
 
 	// Поиск получателя перевода: по @username ИЛИ по началу цифрового ID.
@@ -61,7 +67,7 @@ export async function meRoutes(app: FastifyInstance) {
 				)
 			} catch (err) {
 				// Старая база без колонки playerId: подсказки по username остаются работать.
-				request.log?.warn({ err }, 'playerId search unavailable')
+				req.log?.warn({ err }, 'playerId search unavailable')
 			}
 			const ids = rows.map((r) => r.id)
 			if (ids.length) {

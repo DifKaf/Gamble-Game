@@ -55,7 +55,18 @@ const STATEMENTS: Array<string> = [
 		CONSTRAINT "ExchangeRequest_pkey" PRIMARY KEY ("id")
 	)`,
 	`CREATE INDEX IF NOT EXISTS "ExchangeRequest_userId_createdAt_idx" ON "ExchangeRequest"("userId", "createdAt")`,
-	`CREATE INDEX IF NOT EXISTS "ExchangeRequest_status_createdAt_idx" ON "ExchangeRequest"("status", "createdAt")`
+	`CREATE INDEX IF NOT EXISTS "ExchangeRequest_status_createdAt_idx" ON "ExchangeRequest"("status", "createdAt")`,
+	`ALTER TABLE "ExchangeRequest" ADD COLUMN IF NOT EXISTS "payoutMinor" BIGINT NOT NULL DEFAULT 0`,
+	`ALTER TABLE "ExchangeRequest" ADD COLUMN IF NOT EXISTS "currency" TEXT NOT NULL DEFAULT 'RUB'`,
+	`ALTER TABLE "ExchangeRequest" ADD COLUMN IF NOT EXISTS "rateGcPerUnit" BIGINT NOT NULL DEFAULT 0`,
+	`ALTER TABLE "ExchangeRequest" ADD COLUMN IF NOT EXISTS "feePercent" DOUBLE PRECISION NOT NULL DEFAULT 0`,
+	`ALTER TABLE "ExchangeRequest" ADD COLUMN IF NOT EXISTS "method" TEXT NOT NULL DEFAULT 'card'`,
+	`ALTER TABLE "ExchangeRequest" ADD COLUMN IF NOT EXISTS "destination" TEXT NOT NULL DEFAULT ''`,
+	`ALTER TABLE "ExchangeRequest" ADD COLUMN IF NOT EXISTS "contact" TEXT`,
+	`ALTER TABLE "ExchangeRequest" ADD COLUMN IF NOT EXISTS "status" TEXT NOT NULL DEFAULT 'PENDING'`,
+	`ALTER TABLE "ExchangeRequest" ADD COLUMN IF NOT EXISTS "adminNote" TEXT`,
+	`ALTER TABLE "ExchangeRequest" ADD COLUMN IF NOT EXISTS "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP`,
+	`ALTER TABLE "ExchangeRequest" ADD COLUMN IF NOT EXISTS "processedAt" TIMESTAMP(3)`
 ]
 
 export async function ensureFeatureTables(log?: { info: (msg: string) => void; warn: (msg: string) => void }) {

@@ -9,7 +9,13 @@ import {
 	quoteExchange,
 	weeklyExchangeUsage,
 	lifetimeWager,
-	serializeRequest
+	serializeRequest,
+	countPendingRequests,
+	listExchangeRequests,
+	findExchangeRequest,
+	createExchangeRequest,
+	updateExchangeStatus,
+	ensureExchangeReady
 } from '../utils/exchange.js'
 
 const requestSchema = z.object({
@@ -25,15 +31,22 @@ const adminActionSchema = z.object({
 })
 
 export async function exchangeRoutes(app: FastifyInstance) {
-	// Курс, лимиты и готовность игрока к обмену.
 	app.get('/config', { preHandler: [(app as any).authenticate] }, async (request) => {
 		const user = await getAuthUser(request)
 		const cfg = exchangeConfig()
-		const [usedWeek, wagered, pending] = await Promise.all([
-			weeklyExchangeUsage(user.id),
-			lifetimeWager(user.id),
-			prisma.exchangeRequest.count({ where: { userId: user.id, status: 'PENDING' } })
-		])
+		let usedWeek = 0
+		let wagered = 0
+		let pending = 0
+		try {
+			await ensureExchangeReady()
+			;[usedWeek, wagered, pending] = await Promise.all([
+				weeklyExchangeUsage(user.id),
+				lifetimeWager(user.id),
+				countPendingRequests(user.id)
+			])
+		} catch (err: any) {
+			request.log?.warn({ err }, 'exchange config fallback without live stats')
+		}
 
 		const weekRemaining = cfg.maxGcPerWeek > 0 ? Math.max(0, cfg.maxGcPerWeek - usedWeek) : null
 		const wagerOk = wagered >= cfg.requireWager
@@ -50,14 +63,12 @@ export async function exchangeRoutes(app: FastifyInstance) {
 		}
 	})
 
-	// Предварительный расчёт без создания заявки.
 	app.get('/quote', { preHandler: [(app as any).authenticate] }, async (request, reply) => {
 		const amount = Number((request.query as any).amountGc)
 		if (!Number.isFinite(amount) || amount <= 0) return reply.code(400).send({ error: 'Укажите сумму в GC' })
 		return quoteExchange(Math.floor(amount))
 	})
 
-	// Создать заявку: GC списываются сразу (резерв), выплата подтверждается вручную.
 	app.post('/request', { preHandler: [(app as any).authenticate] }, async (request, reply) => {
 		const user = await getAuthUser(request)
 		const cfg = exchangeConfig()
@@ -75,7 +86,7 @@ export async function exchangeRoutes(app: FastifyInstance) {
 		const [wagered, usedWeek, pending] = await Promise.all([
 			lifetimeWager(user.id),
 			weeklyExchangeUsage(user.id),
-			prisma.exchangeRequest.count({ where: { userId: user.id, status: 'PENDING' } })
+			countPendingRequests(user.id)
 		])
 
 		if (wagered < cfg.requireWager) {
@@ -94,21 +105,18 @@ export async function exchangeRoutes(app: FastifyInstance) {
 
 		try {
 			const created = await prisma.$transaction(async (tx) => {
-				const row = await tx.exchangeRequest.create({
-					data: {
-						userId: user.id,
-						amountGc: BigInt(amountGc),
-						payoutMinor: BigInt(quote.payoutMinor),
-						currency: quote.currency,
-						rateGcPerUnit: BigInt(quote.rateGcPerUnit),
-						feePercent: quote.feePercent,
-						method,
-						destination: destination.trim(),
-						contact: parsed.data.contact?.trim() || null,
-						status: 'PENDING'
-					}
-				})
-				// Резерв: GC списываются сразу, чтобы их нельзя было проиграть или перевести.
+				const row = await createExchangeRequest({
+					userId: user.id,
+					amountGc: BigInt(amountGc),
+					payoutMinor: BigInt(quote.payoutMinor),
+					currency: quote.currency,
+					rateGcPerUnit: BigInt(quote.rateGcPerUnit),
+					feePercent: quote.feePercent,
+					method,
+					destination: destination.trim(),
+					contact: parsed.data.contact?.trim() || null,
+					status: 'PENDING'
+				}, tx)
 				await applyBalanceChange({
 					tx,
 					userId: user.id,
@@ -124,40 +132,36 @@ export async function exchangeRoutes(app: FastifyInstance) {
 			return { ok: true, request: serializeRequest(created), balance: Number(fresh.balance) }
 		} catch (e: any) {
 			if (e.message === 'Insufficient balance') return reply.code(400).send({ error: 'Недостаточно Gamble Coin' })
-			throw e
+			request.log?.error({ err: e }, 'exchange request failed')
+			return reply.code(500).send({ error: 'Не удалось создать заявку. Попробуйте ещё раз.' })
 		}
 	})
 
-	// Свои заявки.
 	app.get('/requests', { preHandler: [(app as any).authenticate] }, async (request) => {
 		const user = await getAuthUser(request)
-		const rows = await prisma.exchangeRequest.findMany({
-			where: { userId: user.id },
-			orderBy: { createdAt: 'desc' },
-			take: 50
-		})
-		return { requests: rows.map((r) => serializeRequest(r)) }
+		try {
+			const rows = await listExchangeRequests({ userId: user.id }, 50, 'desc')
+			return { requests: rows.map((r) => serializeRequest(r)) }
+		} catch (err: any) {
+			request.log?.warn({ err }, 'exchange list fallback empty')
+			return { requests: [] }
+		}
 	})
 
-	// Отмена своей заявки с возвратом GC.
 	app.post('/requests/:id/cancel', { preHandler: [(app as any).authenticate] }, async (request, reply) => {
 		const user = await getAuthUser(request)
 		const id = String((request.params as any).id || '')
-		const row = await prisma.exchangeRequest.findUnique({ where: { id } })
+		const row = await findExchangeRequest(id)
 		if (!row || row.userId !== user.id) return reply.code(404).send({ error: 'Заявка не найдена' })
 		if (row.status !== 'PENDING') return reply.code(400).send({ error: 'Заявка уже обработана' })
 
 		await prisma.$transaction(async (tx) => {
-			// Фильтр по status — защита от гонки с оператором: возврат только один раз.
-			const upd = await tx.exchangeRequest.updateMany({
-				where: { id: row.id, status: 'PENDING' },
-				data: { status: 'CANCELLED', processedAt: new Date() }
-			})
+			const upd = await updateExchangeStatus(row.id, 'CANCELLED', { processedAt: new Date() }, tx)
 			if (!upd.count) return
 			await applyBalanceChange({
 				tx,
 				userId: user.id,
-				amount: row.amountGc,
+				amount: BigInt(row.amountGc),
 				type: 'REFUND',
 				source: 'exchange-refund',
 				metadata: { requestId: row.id, reason: 'cancelled_by_user' }
@@ -168,18 +172,12 @@ export async function exchangeRoutes(app: FastifyInstance) {
 		return { ok: true, balance: Number(fresh.balance) }
 	})
 
-	// --- Операторская часть: ADMIN_TELEGRAM_IDS ---
-
 	app.get('/admin/requests', { preHandler: [(app as any).authenticate] }, async (request, reply) => {
 		const user = await getAuthUser(request)
 		if (!isExchangeAdmin(user.telegramId)) return reply.code(403).send({ error: 'Нет доступа' })
 
 		const status = String((request.query as any).status || 'PENDING').toUpperCase()
-		const rows = await prisma.exchangeRequest.findMany({
-			where: status === 'ALL' ? {} : { status },
-			orderBy: { createdAt: 'asc' },
-			take: 100
-		})
+		const rows = await listExchangeRequests({ status }, 100, 'asc')
 		const users = await prisma.user.findMany({
 			where: { id: { in: rows.map((r) => r.userId) } },
 			select: { id: true, playerId: true, username: true, firstName: true, telegramId: true }
@@ -204,7 +202,6 @@ export async function exchangeRoutes(app: FastifyInstance) {
 		}
 	})
 
-	// Отметить выплату (GC не возвращаются) или отклонить (GC возвращаются игроку).
 	app.post('/admin/requests/:id', { preHandler: [(app as any).authenticate] }, async (request, reply) => {
 		const admin = await getAuthUser(request)
 		if (!isExchangeAdmin(admin.telegramId)) return reply.code(403).send({ error: 'Нет доступа' })
@@ -213,23 +210,25 @@ export async function exchangeRoutes(app: FastifyInstance) {
 		if (!parsed.success) return reply.code(400).send({ error: 'action: paid | reject' })
 
 		const id = String((request.params as any).id || '')
-		const row = await prisma.exchangeRequest.findUnique({ where: { id } })
+		const row = await findExchangeRequest(id)
 		if (!row) return reply.code(404).send({ error: 'Заявка не найдена' })
 		if (row.status !== 'PENDING') return reply.code(400).send({ error: 'Заявка уже обработана' })
 
 		const note = parsed.data.note?.trim() || null
 
 		await prisma.$transaction(async (tx) => {
-			const upd = await tx.exchangeRequest.updateMany({
-				where: { id: row.id, status: 'PENDING' },
-				data: { status: parsed.data.action === 'paid' ? 'PAID' : 'REJECTED', adminNote: note, processedAt: new Date() }
-			})
+			const upd = await updateExchangeStatus(
+				row.id,
+				parsed.data.action === 'paid' ? 'PAID' : 'REJECTED',
+				{ adminNote: note, processedAt: new Date() },
+				tx
+			)
 			if (!upd.count) return
 			if (parsed.data.action === 'reject') {
 				await applyBalanceChange({
 					tx,
 					userId: row.userId,
-					amount: row.amountGc,
+					amount: BigInt(row.amountGc),
 					type: 'REFUND',
 					source: 'exchange-refund',
 					metadata: { requestId: row.id, reason: 'rejected', note }
@@ -237,7 +236,7 @@ export async function exchangeRoutes(app: FastifyInstance) {
 			}
 		})
 
-		const updatedRow = await prisma.exchangeRequest.findUniqueOrThrow({ where: { id: row.id } })
+		const updatedRow = await findExchangeRequest(row.id)
 		return { ok: true, request: serializeRequest(updatedRow, { full: true }) }
 	})
 }

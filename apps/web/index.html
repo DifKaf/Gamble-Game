@@ -2467,21 +2467,21 @@ function removeAndDrop(wc, allowMult){
 let balance=1000000, bet=100, anteBetOn=false, turboOn=false, autoSpinOn=false;
 function syncSharedBalanceFromParent(){
   try{
-    if(window.parent && window.parent !== window && window.parent.GambleSharedBalance){
+    if(window.parent &amp;&amp; window.parent !== window &amp;&amp; window.parent.GambleSharedBalance){
       balance = window.parent.GambleSharedBalance.get(); if(!isFinite(balance)) balance = window.parent.GambleSharedBalance.set(0);
     }
   }catch(e){}
 }
 function pushSharedBalanceToParent(){
   try{
-    if(window.parent && window.parent !== window && window.parent.GambleSharedBalance){
+    if(window.parent &amp;&amp; window.parent !== window &amp;&amp; window.parent.GambleSharedBalance){
       window.parent.GambleSharedBalance.set(balance);
     }
   }catch(e){}
 }
 function addSharedBalance(delta){
   try{
-    if(window.parent && window.parent !== window && window.parent.GambleSharedBalance){
+    if(window.parent &amp;&amp; window.parent !== window &amp;&amp; window.parent.GambleSharedBalance){
       balance = window.parent.GambleSharedBalance.add(delta);
       return;
     }
@@ -2489,13 +2489,123 @@ function addSharedBalance(delta){
   balance += delta;
 }
 syncSharedBalanceFromParent();
-setTimeout(function(){ syncSharedBalanceFromParent(); if(typeof updateUI === 'function') updateUI(); }, 50);
-setTimeout(function(){ syncSharedBalanceFromParent(); if(typeof updateUI === 'function') updateUI(); }, 250);
-setTimeout(function(){ syncSharedBalanceFromParent(); if(typeof updateUI === 'function') updateUI(); }, 1000);
+setTimeout(function(){ syncSharedBalanceFromParent(); if(typeof updateUI === &#x27;function&#x27;) updateUI(); }, 50);
+setTimeout(function(){ syncSharedBalanceFromParent(); if(typeof updateUI === &#x27;function&#x27;) updateUI(); }, 250);
+setTimeout(function(){ syncSharedBalanceFromParent(); if(typeof updateUI === &#x27;function&#x27;) updateUI(); }, 1000);
 let totalWin=0, tumbleWin=0, cascMult=1, spinning=false;
 let inFreeSpin=false, freeSpins=0, fsGlobalMult=0;
 
 function actualStake(){ return anteBetOn ? Math.round(bet*1.25) : bet; }
+
+function parentBackend(){
+  try{
+    if(window.parent &amp;&amp; window.parent !== window &amp;&amp; window.parent.GambleBackend) return window.parent.GambleBackend;
+  }catch(e){}
+  return null;
+}
+function decodeCell(cell){
+  if(!cell) return SYMS[7];
+  if(cell.kind===&#x27;mult&#x27; || cell.isMult) return makeMultSym(cell.mult||2);
+  const base = SYMS.find(s=&gt;s.id===cell.id) || SYMS[7];
+  return {id:base.id,name:base.name,color:base.color,isScatter:Boolean(base.isScatter||cell.kind===&#x27;scatter&#x27;)};
+}
+function decodeGrid(src){
+  const out=[];
+  for(let c=0;c&lt;COLS;c++){
+    out[c]=[];
+    for(let r=0;r&lt;ROWS;r++) out[c][r]=decodeCell(src &amp;&amp; src[c] &amp;&amp; src[c][r]);
+  }
+  return out;
+}
+function paintGrid(src, anim){
+  grid=decodeGrid(src);
+  for(let c=0;c&lt;COLS;c++) for(let r=0;r&lt;ROWS;r++) setSym(c,r,grid[c][r],anim||&#x27;&#x27;);
+}
+async function requestServerSpin(){
+  const api=parentBackend();
+  if(!api || !api.slotSpin || (api.isReady &amp;&amp; !api.isReady())) return null;
+  return api.slotSpin({ betAmount:bet, ante:anteBetOn });
+}
+async function requestServerBuy(){
+  const api=parentBackend();
+  if(!api || !api.slotBuyBonus) throw new Error(&#x27;Сервер недоступен&#x27;);
+  return api.slotBuyBonus({ betAmount:bet });
+}
+function applyRoundState(round){
+  if(!round || !(round.freeSpinsLeft&gt;0)){
+    if(round &amp;&amp; round.status===&#x27;FINISHED&#x27;){ inFreeSpin=false; freeSpins=0; }
+    return;
+  }
+  inFreeSpin=true;
+  freeSpins=round.freeSpinsLeft;
+  fsGlobalMult=round.globalMult||0;
+}
+async function restoreServerRound(){
+  try{
+    const api=parentBackend();
+    if(!api || !api.slotState) return;
+    const data=await api.slotState();
+    if(data &amp;&amp; data.balance!=null){ balance=data.balance; }
+    applyRoundState(data &amp;&amp; data.round);
+    updateUI();
+  }catch(e){}
+}
+async function playServerOutcome(remote){
+  const spin=remote.spin;
+  const frames=spin.frames||[];
+  if(!inFreeSpin){ totalWin=0; fsGlobalMult=spin.globalMult||0; }
+  tumbleWin=0; cascMult=1; clearOrbs(); setMsg(&#x27;...&#x27;,&#x27;&#x27;); sfx(&#x27;click&#x27;); updateUI();
+  await clearGridVanish(); measureCell();
+  if(frames[0]) paintGrid(frames[0].grid,&#x27;drop&#x27;);
+  await wait(Math.round((DROP_COL*(COLS-1)+DROP_ROW*(ROWS-1)+DROP_DUR)*1000)+40);
+  updateScatterBar(spin.scatters||countScatters());
+  for(let i=1;i&lt;frames.length;i++){
+    const fr=frames[i];
+    if(fr.clusters &amp;&amp; fr.clusters.length){
+      fr.clusters.forEach((cl)=&gt;cl.cells.forEach(([c,r])=&gt;{ if(cells[c] &amp;&amp; cells[c][r]) cells[c][r].className=&#x27;cell win&#x27;; }));
+      if(fr.tumbleWin&gt;0) showWinPop(fr.clusters.map(cl=&gt;({symId:cl.symId,cls:cl.cells})), fr.tumbleWin, spin.stake);
+      await wait(900);
+      tumbleWin=fr.spinWin||tumbleWin; totalWin=Math.max(totalWin, fr.spinWin||0); updateUI();
+      if((fr.spinWin||0)&gt;=spin.stake*30) sfx(&#x27;mega&#x27;);
+      else if((fr.spinWin||0)&gt;=spin.stake*8) sfx(&#x27;bigwin&#x27;);
+      else sfx(&#x27;cascade&#x27;);
+    }
+    if(fr.mults &amp;&amp; fr.mults.length){
+      cascMult=fr.appliedMult||1;
+      tumbleWin=fr.winAfterMult||fr.spinWin||tumbleWin;
+      totalWin=Math.max(totalWin, tumbleWin);
+      sfx((fr.appliedMult||0)&gt;=50?&#x27;mega&#x27;:&#x27;bigwin&#x27;);
+      await wait(500);
+    }
+    if(fr.grid) paintGrid(fr.grid,&#x27;drop&#x27;);
+    await wait(420);
+    updateScatterBar(countScatters());
+  }
+  syncSharedBalanceFromParent();
+  applyRoundState(remote.round);
+  const spinWin=spin.win||0;
+  if(spin.triggeredFreeSpins){
+    sfx(&#x27;scatter&#x27;);
+    await triggerFreeSpins(spin.freeSpinsAwarded||15);
+    return;
+  }
+  if(!spinWin &amp;&amp; !inFreeSpin){ sfx(&#x27;lose&#x27;); setMsg(&#x27;НЕ ПОВЕЗЛО...&#x27;,&#x27;sc&#x27;); }
+  else if(spinWin&gt;0){
+    const rt=spin.stake?spinWin/spin.stake:0;
+    if(rt&gt;=80){ setMsg(&#x27;🌟 МЕГА ДЖЕКПОТ! +&#x27;+spinWin,&#x27;mg&#x27;); doConfetti(120); }
+    else if(rt&gt;=15){ setMsg(&#x27;✨ БОЛЬШОЙ ВЫИГРЫШ! +&#x27;+spinWin,&#x27;bw&#x27;); doConfetti(50); }
+    else setMsg(&#x27;⚡ +&#x27;+spinWin,&#x27;w&#x27;);
+  }
+  if(inFreeSpin){
+    if(freeSpins&gt;0){
+      setMsg(&#x27;⚡ ФРИСПИН! Осталось: &#x27;+freeSpins+&#x27;  ×&#x27;+fsGlobalMult,&#x27;w&#x27;);
+      spinning=false; updateUI();
+      setTimeout(doSpin, turboOn?160:700);
+      return;
+    }
+    inFreeSpin=false; stopBg(); schedMusic(false); showWinOverlay(totalWin, fsGlobalMult);
+  }
+}
 
 function updateScatterDots(){
   const bar=document.getElementById(&#x27;scBar&#x27;);
@@ -2563,6 +2673,12 @@ async function doSpin(){
   document.getElementById(&#x27;anteBtn&#x27;).disabled=true;
   document.getElementById(&#x27;buyBtn&#x27;).disabled=true;
   try{
+  const remote = await requestServerSpin();
+  if(remote &amp;&amp; remote.spin){
+    syncSharedBalanceFromParent();
+    await playServerOutcome(remote);
+    return;
+  }
   if(!inFreeSpin){ addSharedBalance(-stake); totalWin=0; }
   tumbleWin=0;
   cascMult=1;
@@ -2768,7 +2884,7 @@ async function doSpin(){
     const rt=totalWin/stake;
     if(rt&gt;=80){ setMsg(`🌟 МЕГА ДЖЕКПОТ! +${totalWin}`,&#x27;mg&#x27;); doConfetti(120); }
     else if(rt&gt;=15){ setMsg(`✨ БОЛЬШОЙ ВЫИГРЫШ! +${totalWin}`,&#x27;bw&#x27;); doConfetti(50); }
-    else setMsg(`⚡ +${spinWin}`,&#x27;w&#x27;);
+    else setMsg(`�� +${spinWin}`,&#x27;w&#x27;);
   }
 
   // FS: decrement and loop (AUTO-SPIN)
@@ -2933,16 +3049,32 @@ document.getElementById(&#x27;bcNo&#x27;).onclick=()=&gt;{
   sfx(&#x27;click&#x27;);
 };
 
-document.getElementById(&#x27;bcYes&#x27;).onclick=()=&gt;{
+document.getElementById(&#x27;bcYes&#x27;).onclick=async ()=&gt;{
   document.getElementById(&#x27;buyConfirmOverlay&#x27;).classList.remove(&#x27;show&#x27;);
   if(spinning) return;
   const cost=bet*100;
   if(balance&lt;cost){ setMsg(`НУЖНО ${cost} ДЛЯ ПОКУПКИ БОНУСА`,&#x27;sc&#x27;); return; }
-  addSharedBalance(-cost); totalWin=0;
-  setMsg(`БОНУС КУПЛЕН ЗА ${cost}!`,&#x27;mg&#x27;);
-  triggerFreeSpins(15);
-  sfx(&#x27;fsstart&#x27;);
-  updateUI();
+  try{
+    const remote=await requestServerBuy();
+    syncSharedBalanceFromParent();
+    applyRoundState(remote &amp;&amp; remote.round);
+    totalWin=0;
+    setMsg(`БОНУС КУПЛЕН ЗА ${remote &amp;&amp; remote.cost ? remote.cost : cost}!`,&#x27;mg&#x27;);
+    sfx(&#x27;fsstart&#x27;);
+    await triggerFreeSpins((remote &amp;&amp; remote.round &amp;&amp; remote.round.freeSpinsLeft) || 15);
+    updateUI();
+    return;
+  }catch(e){
+    if(!(parentBackend() &amp;&amp; parentBackend().slotBuyBonus &amp;&amp; parentBackend().isReady &amp;&amp; parentBackend().isReady())){
+      addSharedBalance(-cost); totalWin=0;
+      setMsg(`БОНУС КУПЛЕН ЗА ${cost}!`,&#x27;mg&#x27;);
+      triggerFreeSpins(15);
+      sfx(&#x27;fsstart&#x27;);
+      updateUI();
+      return;
+    }
+    setMsg(e &amp;&amp; e.message ? e.message : &#x27;Ошибка покупки бонуса&#x27;,&#x27;sc&#x27;);
+  }
 };
 
 document.getElementById(&#x27;turboBtn&#x27;).onclick=()=&gt;{
@@ -2957,6 +3089,8 @@ document.getElementById(&#x27;autoBtn&#x27;).onclick=()=&gt;{
   if(autoSpinOn &amp;&amp; !spinning) doSpin();
 };
 updateUI();
+setTimeout(function(){ restoreServerRound(); }, 400);
+setTimeout(function(){ restoreServerRound(); }, 1600);
 
 // === INFO MODAL ===
 (function(){
@@ -3528,7 +3662,61 @@ updateUI();
   }
 
 
-  window.GambleBackend = { apiRequest:apiRequest, init:initBackendAuth, serverBet:serverBet, getBalance:function(){return backendBalance;} };
+  async function slotSpin(opts){
+    opts = opts || {};
+    if(!backendReady) await initBackendAuth();
+    var data = await apiRequest('/games/drunkard-gate/spin', {
+      method:'POST',
+      body:JSON.stringify({
+        betAmount: Math.round(Number(opts.betAmount)||10),
+        ante: !!opts.ante,
+        requestId: (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : String(Date.now()) + '_' + String(Math.random()),
+        clientSeed: opts.clientSeed || ''
+      })
+    });
+    backendBalance = data.balance;
+    applyBackendBalanceToUI();
+    renderBalances();
+    saveState();
+    if(data.spin) syncProfileStats(data.spin.stake || opts.betAmount || 0, data.spin.win || 0);
+    renderProfile();
+    refreshMiniGameHistories(true);
+    loadLeaderboardFromBackend();
+    return data;
+  }
+  async function slotBuyBonus(opts){
+    opts = opts || {};
+    if(!backendReady) await initBackendAuth();
+    var data = await apiRequest('/games/drunkard-gate/buy-bonus', {
+      method:'POST',
+      body:JSON.stringify({
+        betAmount: Math.round(Number(opts.betAmount)||10),
+        requestId: (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : String(Date.now()) + '_' + String(Math.random()),
+        clientSeed: opts.clientSeed || ''
+      })
+    });
+    backendBalance = data.balance;
+    applyBackendBalanceToUI();
+    renderBalances();
+    saveState();
+    renderProfile();
+    return data;
+  }
+  async function slotState(){
+    if(!backendReady) await initBackendAuth();
+    return apiRequest('/games/drunkard-gate/state');
+  }
+
+  window.GambleBackend = {
+    apiRequest:apiRequest,
+    init:initBackendAuth,
+    serverBet:serverBet,
+    getBalance:function(){return backendBalance;},
+    slotSpin:slotSpin,
+    slotBuyBonus:slotBuyBonus,
+    slotState:slotState,
+    isReady:function(){return backendReady;}
+  };
 
   /* ================= State ================= */
   var STORAGE_KEY = 'gambleGameState_v3_million_fixed';
@@ -3581,19 +3769,9 @@ updateUI();
     add:function(delta){
       delta = Math.round(Number(delta)||0);
       if(backendReady){
+        // Слот считает выигрыш на сервере. Здесь только локальный UI, без /wallet/game-adjust.
         backendBalance = Math.max(0, Math.round((backendBalance + delta)*100)/100);
         applyBackendBalanceToUI();
-        apiRequest('/wallet/game-adjust', {
-          method:'POST',
-          body:JSON.stringify({ amount:delta, source:'drunkard-gate', metadata:{ legacyIframe:true } })
-        }).then(function(data){
-          backendBalance = data.balance;
-          applyBackendBalanceToUI();
-          saveState();
-        }).catch(function(e){
-          console.error('Drunkard Gate balance sync failed', e);
-          showToast('Ошибка синхронизации баланса слота','error');
-        });
         return backendBalance;
       }
       ensureMillionBalance();
@@ -3716,13 +3894,20 @@ updateUI();
   }
 
   async function loadQuests(){
-    if(!backendReady) return;
+    if(!backendReady){
+      var waitBox = document.getElementById('questsBox');
+      if(waitBox && !questsData) waitBox.innerHTML = '<div class="quest-reset">Подключаемся к серверу...</div>';
+      return;
+    }
     try{
       questsData = await apiRequest('/quests');
       renderQuests();
     }catch(e){
       var box = document.getElementById('questsBox');
-      if(box && !questsData) box.innerHTML = '<div class="quest-reset">Не удалось загрузить квесты. Попробуйте позже.</div>';
+      if(box && !questsData){
+        box.innerHTML = '<div class="exch-warn">Не удалось загрузить квесты: ' + escapeHtml(e.message || 'ошибка сервера') + '</div>'
+          + '<button class="btn btn-gold btn-block" id="questsRetryBtn" style="margin-top:12px;">Повторить</button>';
+      }
     }
   }
 
@@ -3804,7 +3989,11 @@ updateUI();
   }
 
   async function loadReferrals(){
-    if(!backendReady) return;
+    if(!backendReady){
+      var waitBox = document.getElementById('referralBox');
+      if(waitBox && !referralData) waitBox.innerHTML = '<div class="quest-reset">Подключаемся к серверу...</div>';
+      return;
+    }
     try{
       var data = await apiRequest('/referrals');
       referralData = data;
@@ -3815,7 +4004,10 @@ updateUI();
       renderReferrals();
     }catch(e){
       var box = document.getElementById('referralBox');
-      if(box && !referralData) box.innerHTML = '<div class="quest-reset">Не удалось загрузить раздел друзей. Попробуйте позже.</div>';
+      if(box && !referralData){
+        box.innerHTML = '<div class="exch-warn">Не удалось загрузить раздел друзей: ' + escapeHtml(e.message || 'ошибка сервера') + '</div>'
+          + '<button class="btn btn-gold btn-block" id="refRetryBtn" style="margin-top:12px;">Повторить</button>';
+      }
     }
   }
 
@@ -3868,6 +4060,8 @@ updateUI();
 
   document.addEventListener('click', function(ev){
     if(!ev.target || !ev.target.closest) return;
+    if(ev.target.closest('#questsRetryBtn')){ ev.preventDefault(); loadQuests(); return; }
+    if(ev.target.closest('#refRetryBtn')){ ev.preventDefault(); loadReferrals(); return; }
     if(ev.target.closest('#refCopyBtn')){ ev.preventDefault(); copyRefLink(); return; }
     if(ev.target.closest('#refShareBtn')){ ev.preventDefault(); shareRefLink(); return; }
     if(ev.target.closest('#refAttachBtn')){ ev.preventDefault(); attachRefCode(); }
@@ -3962,7 +4156,11 @@ updateUI();
   }
 
   async function loadExchange(){
-    if(!backendReady) return;
+    if(!backendReady){
+      var waitBox = document.getElementById('exchangeBox');
+      if(waitBox && !exchangeCfg) waitBox.innerHTML = '<div class="quest-reset">Подключаемся к серверу...</div>';
+      return;
+    }
     try{
       var cfg = await apiRequest('/exchange/config');
       exchangeCfg = cfg;
@@ -3975,7 +4173,10 @@ updateUI();
       renderExchange();
     }catch(e){
       var box = document.getElementById('exchangeBox');
-      if(box && !exchangeCfg) box.innerHTML = '<div class="quest-reset">Не удалось загрузить биржу. Попробуйте позже.</div>';
+      if(box && !exchangeCfg){
+        box.innerHTML = '<div class="exch-warn">Не удалось загрузить биржу: ' + escapeHtml(e.message || 'ошибка сервера') + '</div>'
+          + '<button class="btn btn-gold btn-block" id="exchRetryBtn" style="margin-top:12px;">Повторить</button>';
+      }
     }
   }
 
@@ -3995,7 +4196,7 @@ updateUI();
     var destination = exchangeDraft.destination.trim();
     if(!Number.isFinite(amount) || amount < exchangeCfg.minGc){ showToast('Минимальная сумма обмена — ' + fmt(exchangeCfg.minGc) + ' GC','error'); return; }
     if(!exchangeMethod){ showToast('Выберите способ выплаты','error'); return; }
-    if(destination.length < 4){ showToast('Укажите реквизиты для выплаты','error'); return; }
+    if(destination.length < 4){ showToast('Укажите реквизиты для ��ыплаты','error'); return; }
     exchangeBusy = true;
     try{
       var res = await apiRequest('/exchange/request', { method:'POST', body: JSON.stringify({
@@ -4040,6 +4241,7 @@ updateUI();
       renderExchange();
       return;
     }
+    if(ev.target.closest('#exchRetryBtn')){ ev.preventDefault(); loadExchange(); return; }
     if(ev.target.closest('#exchSubmitBtn')){ ev.preventDefault(); submitExchange(); return; }
     var c = ev.target.closest('[data-exch-cancel]');
     if(c){ ev.preventDefault(); cancelExchange(c.getAttribute('data-exch-cancel')); }
@@ -5287,7 +5489,7 @@ updateUI();
       var data = await apiRequest('/games/blackjack/start', { method:'POST', body:JSON.stringify({ betAmount:bet }) });
       backendBalance = data.balance; applyBackendBalanceToUI(); renderBalances(); bumpBalanceChip();
       renderBlackjack(data);
-    }catch(e){ backendBalance = prevBackendBalance; applyBackendBalanceToUI(); renderBalances(); showToast(e.message || 'Ошибка старта Blackjack','error'); haptic('error'); }
+    }catch(e){ backendBalance = prevBackendBalance; applyBackendBalanceToUI(); renderBalances(); showToast(e.message || '��шибка старта Blackjack','error'); haptic('error'); }
   });
 
   document.getElementById('bjInsuranceYes').addEventListener('click', async function(){
@@ -5296,7 +5498,7 @@ updateUI();
       var data = await apiRequest('/games/blackjack/insurance', { method:'POST', body:JSON.stringify({ sessionId:bjState.sessionId, take:true }) });
       backendBalance = data.balance; applyBackendBalanceToUI();
       renderBlackjack(data);
-    }catch(e){ showToast(e.message || 'Ошибка страховки','error'); haptic('error'); }
+    }catch(e){ showToast(e.message || 'Оши��ка страховки','error'); haptic('error'); }
   });
   document.getElementById('bjInsuranceNo').addEventListener('click', async function(){
     if(!bjState) return;
@@ -5396,9 +5598,8 @@ updateUI();
       var names={player:'Игрок',banker:'Банкир',tie:'Ничья'};
       var refund = result.refundAmount || 0;
       var isPush = result.winner==='tie' && !placed.tie;
-      if(isPush){ refund = (placed.player||0) + (placed.banker||0); }
-      if(refund>0 && backendReady){ try{ var rd=await apiRequest('/wallet/game-adjust',{method:'POST',body:JSON.stringify({amount:refund,source:'baccarat-refund',metadata:{push:true}})}); backendBalance=rd.balance; applyBackendBalanceToUI(); renderBalances(); }catch(e){} }
-      var shownWin = (result.winAmount||0) + refund;
+      var shownWin = result.winAmount || 0;
+      if(isPush && !shownWin) shownWin = refund || ((placed.player||0) + (placed.banker||0));
       var res=document.getElementById('baccaratResult'); if(res) res.textContent='Победил: '+names[result.winner]+' • '+(shownWin>0?('+'+fmt(shownWin)+' GC'):'проигрыш');
       if(isPush){ showTieOverlay(shownWin); haptic('light'); } else if(shownWin>0){ showWinOverlay(shownWin); haptic('success'); } else { haptic('error'); }
       baccaratPendingBets={player:0,tie:0,banker:0}; renderBaccaratChips(); renderAll();

@@ -36,5 +36,14 @@ npm run dev
 curl -X POST http://localhost:4000/auth/dev -H "Content-Type: application/json" -d '{"telegramId":123456}'
 ```
 
+## Сборка API
+В репозитории обязательны файлы движка слота:
+- `apps/api/src/games/drunkardGate/engine.ts`
+- `apps/api/src/games/drunkardGate/rng.ts`
+- `apps/api/src/games/drunkardGate/config.ts`
+
+Без них `npm run build` падает с `TS2307 Cannot find module '../games/drunkardGate/engine.js'`.
+Если Docker берёт старый слой `COPY src`, пересобери без кэша.
+
 ## Следующий этап
 Frontend сейчас включён как legacy HTML. Для настоящего production нужно заменить локальную логику баланса/рандома на вызовы API из `apps/api`. Backend уже подготовлен под это.

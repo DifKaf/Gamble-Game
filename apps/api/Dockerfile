@@ -7,6 +7,10 @@ COPY prisma ./prisma
 RUN npx prisma generate
 COPY tsconfig.json ./
 COPY src ./src
-RUN npm run build
+# Без этих файлов tsc падает: маршрут слота импортирует серверный движок.
+RUN test -f src/games/drunkardGate/engine.ts \
+ && test -f src/games/drunkardGate/rng.ts \
+ && test -f src/games/drunkardGate/config.ts \
+ && npm run build
 EXPOSE 4000
 CMD ["npm","start"]

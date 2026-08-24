@@ -1,0 +1,1 @@
+export function playDrunkardGate(p:{betAmount:number; payload?:any}){ const r=Math.random(); const multiplier=r<.62?0:r<.84?1.5:r<.95?3:r<.99?8:25; const winAmount=Math.floor(p.betAmount*multiplier); return {game:'drunkard-gate',win:winAmount>0,multiplier,winAmount,serverMode:'mvp',note:'MVP серверного расчета; визуальные каскады можно перенести следующим этапом'} }

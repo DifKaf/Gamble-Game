@@ -1,0 +1,12 @@
+{
+  "name": "gamble-game-production",
+  "private": true,
+  "scripts": {
+    "dev:api": "npm --workspace apps/api run dev",
+    "build": "npm --workspace apps/api run build",
+    "db:migrate": "npm --workspace apps/api run prisma:migrate"
+  },
+  "workspaces": [
+    "apps/api"
+  ]
+}

@@ -1,0 +1,226 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum TransactionType {
+  BET
+  WIN
+  BONUS
+  REFUND
+  ADMIN_ADJUSTMENT
+}
+
+enum GameCode {
+  DRUNKARD_GATE
+  DICE
+  COINFLIP
+  ROULETTE
+  MINES
+  BLACKJACK
+}
+
+enum GameSessionStatus {
+  CREATED
+  FINISHED
+  CANCELLED
+  FAILED
+}
+
+model User {
+  id         String @id @default(uuid())
+  telegramId BigInt @unique
+  playerId   Int @unique @default(autoincrement())
+  username   String?
+  firstName  String?
+  lastName   String?
+  photoUrl   String?
+  balance    BigInt @default(1000000)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  transactions WalletTransaction[]
+  gameSessions GameSession[]
+  dailyBonuses DailyBonus[]
+  minesSessions MinesSession[]
+  blackjackSessions BlackjackSession[]
+  coinflipSessions CoinflipSession[]
+  slotSessions SlotSession[]
+  referralsMade Referral[] @relation("ReferralsMade")
+  referralSource Referral? @relation("ReferralSource")
+  questClaims QuestClaim[]
+  exchangeRequests ExchangeRequest[]
+
+  @@index([balance])
+}
+
+model WalletTransaction {
+  id String @id @default(uuid())
+  userId String
+  user User @relation(fields: [userId], references: [id])
+  type TransactionType
+  amount BigInt
+  balanceBefore BigInt
+  balanceAfter BigInt
+  source String?
+  metadata Json?
+  createdAt DateTime @default(now())
+  @@index([userId, createdAt])
+}
+
+model GameSession {
+  id String @id @default(uuid())
+  requestId String? @unique
+  userId String
+  user User @relation(fields: [userId], references: [id])
+  gameCode GameCode
+  status GameSessionStatus @default(CREATED)
+  betAmount BigInt
+  winAmount BigInt @default(0)
+  multiplier Float @default(0)
+  result Json?
+  createdAt DateTime @default(now())
+  finishedAt DateTime?
+  @@index([userId, gameCode, createdAt])
+}
+
+model MinesSession {
+  id String @id @default(uuid())
+  userId String
+  user User @relation(fields: [userId], references: [id])
+  status GameSessionStatus @default(CREATED)
+  betAmount BigInt
+  mineCount Int
+  minePositions Json
+  openedCells Json
+  multiplier Float @default(1)
+  winAmount BigInt @default(0)
+  createdAt DateTime @default(now())
+  finishedAt DateTime?
+  @@index([userId, status, createdAt])
+}
+
+model CoinflipSession {
+  id String @id @default(uuid())
+  userId String
+  user User @relation(fields: [userId], references: [id])
+  status GameSessionStatus @default(CREATED)
+  betAmount BigInt
+  streak Int @default(0)
+  multiplier Float @default(1)
+  winAmount BigInt @default(0)
+  createdAt DateTime @default(now())
+  finishedAt DateTime?
+  @@index([userId, status, createdAt])
+}
+
+/// Бонусный раунд слота (Drunkard Gate): фриспины живут на сервере, не в браузере.
+model SlotSession {
+  id String @id @default(uuid())
+  userId String
+  user User @relation(fields: [userId], references: [id])
+  gameCode GameCode @default(DRUNKARD_GATE)
+  status GameSessionStatus @default(CREATED)
+  /// Ставка одного фриспина (уже с учётом ante для триггерных раундов).
+  stake BigInt
+  /// Сколько стоила покупка бонуса (0 для раундов, выбитых скаттерами).
+  cost BigInt @default(0)
+  ante Boolean @default(false)
+  purchased Boolean @default(false)
+  freeSpinsLeft Int @default(0)
+  freeSpinsTotal Int @default(0)
+  globalMult Float @default(0)
+  roundWin BigInt @default(0)
+  /// Серверный сид ГПСЧ; клиенту отдаётся только его хэш до конца раунда.
+  seed String
+  clientSeed String @default("")
+  nonce Int @default(0)
+  /// Идемпотентность последнего фриспина при ретрае запроса.
+  lastRequestId String?
+  lastSpin Json?
+  /// Строка GameSession, которая закрывается по итогам раунда (при покупке бонуса).
+  triggerGameSessionId String?
+  createdAt DateTime @default(now())
+  finishedAt DateTime?
+  @@index([userId, status, createdAt])
+}
+
+model DailyBonus {
+  id String @id @default(uuid())
+  userId String
+  user User @relation(fields: [userId], references: [id])
+  amount BigInt
+  claimedAt DateTime @default(now())
+  @@index([userId, claimedAt])
+}
+
+model BlackjackSession {
+  id String @id @default(uuid())
+  userId String
+  user User @relation(fields: [userId], references: [id])
+  status GameSessionStatus @default(CREATED)
+  betAmount BigInt
+  doubled Boolean @default(false)
+  insuranceBet BigInt @default(0)
+  insuranceOffered Boolean @default(false)
+  insuranceResolved Boolean @default(false)
+  playerCards Json
+  dealerCards Json
+  dealerHoleHidden Boolean @default(true)
+  outcome String?
+  winAmount BigInt @default(0)
+  createdAt DateTime @default(now())
+  finishedAt DateTime?
+  @@index([userId, status, createdAt])
+}
+
+/// Кто кого пригласил. Один игрок может быть приглашён только один раз.
+model Referral {
+  id String @id @default(uuid())
+  referrerId String
+  referredId String @unique
+  registrationBonus BigInt @default(0)
+  milestoneBonus BigInt @default(0)
+  createdAt DateTime @default(now())
+  referrer User @relation("ReferralsMade", fields: [referrerId], references: [id])
+  referred User @relation("ReferralSource", fields: [referredId], references: [id])
+  @@index([referrerId, createdAt])
+}
+
+/// Факт получения награды за квест. Прогресс не хранится — он считается по раундам дня.
+model QuestClaim {
+  id String @id @default(uuid())
+  userId String
+  user User @relation(fields: [userId], references: [id])
+  questCode String
+  periodKey String
+  reward BigInt @default(0)
+  claimedAt DateTime @default(now())
+  @@unique([userId, questCode, periodKey])
+  @@index([userId, claimedAt])
+}
+
+/// Заявка на обмен GC. Выплата подтверждается оператором вручную.
+model ExchangeRequest {
+  id String @id @default(uuid())
+  userId String
+  user User @relation(fields: [userId], references: [id])
+  amountGc BigInt
+  payoutMinor BigInt @default(0)
+  currency String @default("RUB")
+  rateGcPerUnit BigInt @default(0)
+  feePercent Float @default(0)
+  method String
+  destination String
+  contact String?
+  status String @default("PENDING")
+  adminNote String?
+  createdAt DateTime @default(now())
+  processedAt DateTime?
+  @@index([userId, createdAt])
+  @@index([status, createdAt])
+}

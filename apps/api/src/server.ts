@@ -21,7 +21,7 @@ import { ensureIndexes } from './utils/ensureIndexes.js'
 import { scheduleRetention } from './utils/retention.js'
 // trustProxy обязателен на Railway: без него request.ip — это адрес прокси,
 // один и тот же для всех игроков, и лимит запросов делится между всеми сразу.
-const app=Fastify({logger:true,trustProxy:true})
+const app=Fastify({logger:true,trustProxy:true,bodyLimit:3*1024*1024})
 await app.register(cors,{origin:process.env.FRONTEND_ORIGIN||true,credentials:true})
 await app.register(jwt,{secret:process.env.JWT_SECRET!})
 // Лимит считается на игрока (по токену), а не на весь сервер.

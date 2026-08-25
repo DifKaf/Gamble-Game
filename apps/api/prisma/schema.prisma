@@ -223,6 +223,7 @@ model ExchangeRequest {
   createdAt DateTime @default(now())
   takenAt DateTime?
   paidAt DateTime?
+  receiptUrl String?
   processedAt DateTime?
   @@index([userId, createdAt])
   @@index([buyerId, createdAt])

@@ -70,6 +70,7 @@ const STATEMENTS: Array<string> = [
 	`ALTER TABLE "ExchangeRequest" ADD COLUMN IF NOT EXISTS "buyerId" TEXT`,
 	`ALTER TABLE "ExchangeRequest" ADD COLUMN IF NOT EXISTS "takenAt" TIMESTAMP(3)`,
 	`ALTER TABLE "ExchangeRequest" ADD COLUMN IF NOT EXISTS "paidAt" TIMESTAMP(3)`,
+	`ALTER TABLE "ExchangeRequest" ADD COLUMN IF NOT EXISTS "receiptUrl" TEXT`,
 	`CREATE INDEX IF NOT EXISTS "ExchangeRequest_buyerId_createdAt_idx" ON "ExchangeRequest"("buyerId", "createdAt")`,
 	`UPDATE "ExchangeRequest" SET "status" = 'OPEN' WHERE "status" = 'PENDING'`
 ]

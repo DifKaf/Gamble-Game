@@ -3,6 +3,8 @@ import { z } from 'zod'
 import { prisma } from '../db.js'
 import { getAuthUser } from '../auth/getUser.js'
 import { applyBalanceChange } from '../wallet/wallet.js'
+import { sendTelegramMessage, sendTelegramPhoto } from '../utils/telegram.js'
+import { publicPlayerId } from '../utils/playerId.js'
 import {
 	exchangeConfig,
 	isExchangeAdmin,
@@ -234,6 +236,43 @@ export async function exchangeRoutes(app: FastifyInstance) {
 		})
 		if (!upd.count) return reply.code(409).send({ error: 'Объявление уже занято' })
 
+		const updated = await findExchangeRequest(row.id)
+		const [offer] = await enrichOffers([updated], user.id)
+		try {
+			const seller = await prisma.user.findUnique({ where: { id: row.userId } })
+			if (seller) {
+				const buyerName = user.firstName || user.username || publicPlayerId(user)
+				void sendTelegramMessage(
+					seller.telegramId,
+					`🛒 Ваш лот купили на P2P:\n${Number(row.amountGc)} GC за ${Number(row.payoutMinor) / 100} ${row.currency}\nПокупатель: ${buyerName} (ID ${publicPlayerId(user)})`
+				)
+			}
+		} catch {}
+		return { ok: true, offer }
+	})
+
+	app.post('/offers/:id/receipt', { preHandler: [(app as any).authenticate] }, async (request, reply) => {
+		const user = await getAuthUser(request)
+		const id = String((request.params as any).id || '')
+		const row = await loadOfferOr404(id, reply)
+		if (!row) return
+		if (row.buyerId !== user.id) return reply.code(403).send({ error: 'Чек может отправить только покупатель' })
+		if (row.status !== 'DEAL' && row.status !== 'PAID') return reply.code(400).send({ error: 'Сначала возьмите объявление' })
+		const body: any = request.body || {}
+		const image = String(body.image || body.receipt || '').trim()
+		if (!image.startsWith('data:image/')) return reply.code(400).send({ error: 'Прикрепите скриншот или фото чека' })
+		if (image.length > 2_500_000) return reply.code(400).send({ error: 'Файл слишком большой. Сожмите скриншот.' })
+
+		await updateOffer(row.id, [row.status], { receiptUrl: image, status: row.status === 'DEAL' ? 'PAID' : row.status, paidAt: row.paidAt || new Date() })
+		try {
+			const seller = await prisma.user.findUnique({ where: { id: row.userId } })
+			if (seller) {
+				const buyerName = user.firstName || user.username || publicPlayerId(user)
+				const caption = `🧾 Чек по P2P-сделке\n${Number(row.amountGc)} GC / ${Number(row.payoutMinor) / 100} ${row.currency}\nОт ${buyerName}`
+				const sent = await sendTelegramPhoto(seller.telegramId, image, caption)
+				if (!sent) void sendTelegramMessage(seller.telegramId, caption + '\nОткройте сделку в приложении, чтобы увидеть чек.')
+			}
+		} catch {}
 		const updated = await findExchangeRequest(row.id)
 		const [offer] = await enrichOffers([updated], user.id)
 		return { ok: true, offer }

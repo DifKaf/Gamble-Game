@@ -4,6 +4,7 @@ import { prisma } from '../db.js'
 import { getAuthUser } from '../auth/getUser.js'
 import { applyBalanceChange } from '../wallet/wallet.js'
 import { computePlayerId, publicPlayerId, parsePlayerId } from '../utils/playerId.js'
+import { sendTelegramMessage } from '../utils/telegram.js'
 
 const gameAdjustSchema = z.object({
   amount: z.number().int().min(-1000000).max(10000000),
@@ -201,6 +202,11 @@ export async function walletRoutes(app: FastifyInstance) {
         return tx.user.findUniqueOrThrow({ where: { id: user.id } })
       })
 
+      const fromName = user.firstName || user.username || publicPlayerId(user)
+      void sendTelegramMessage(
+        recipient.telegramId,
+        `💸 Вам пришёл перевод в Gamble:\n+${Number(amount)} GC от ${fromName} (ID ${publicPlayerId(user)})`
+      )
       return {
         balance: Number(result.balance),
         recipient: {

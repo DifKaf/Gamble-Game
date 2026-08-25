@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 800" width="640" height="800">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#3b0a5c"/>
+      <stop offset="0.5" stop-color="#7b1fa2"/>
+      <stop offset="1" stop-color="#ff8a3d"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="800" rx="48" fill="url(#bg)"/>
+  <g transform="translate(120,150)">
+    <rect x="0" y="40" width="400" height="420" rx="36" fill="#1a1028"/>
+    <rect x="28" y="78" width="344" height="250" rx="18" fill="#0d0818"/>
+    <rect x="48" y="98" width="90" height="210" rx="10" fill="#2a163f"/>
+    <rect x="155" y="98" width="90" height="210" rx="10" fill="#2a163f"/>
+    <rect x="262" y="98" width="90" height="210" rx="10" fill="#2a163f"/>
+    <text x="93" y="220" text-anchor="middle" font-size="54" fill="#ffd54a">7</text>
+    <text x="200" y="220" text-anchor="middle" font-size="54" fill="#ffd54a">7</text>
+    <text x="307" y="220" text-anchor="middle" font-size="54" fill="#ffd54a">7</text>
+    <circle cx="200" cy="390" r="28" fill="#e53935"/>
+    <rect x="70" y="430" width="260" height="18" rx="9" fill="#ffd54a"/>
+  </g>
+  <text x="320" y="680" text-anchor="middle" font-family="Arial Black, sans-serif" font-size="72" font-weight="900" fill="#fff">СЛОТЫ</text>
+  <text x="320" y="730" text-anchor="middle" font-family="Arial, sans-serif" font-size="28" fill="#ffe082">Игровые автоматы</text>
+</svg>

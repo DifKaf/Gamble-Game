@@ -8,7 +8,7 @@ import { checkChannelSubscription } from '../utils/telegram.js'
 const promoCreateSchema=z.object({code:z.string().min(2).max(32),amount:z.number().int().positive().max(10000000),maxUses:z.number().int().positive().max(100000).default(1)})
 const promoRedeemSchema=z.object({code:z.string().min(2).max(32)})
 function norm(code:string){return code.trim().toUpperCase().replace(/[^A-Z0-9_-]/g,'')}
-const WHEEL_SEGMENTS=[{amount:500,weight:30},{amount:1000,weight:25},{amount:2000,weight:18},{amount:3000,weight:12},{amount:5000,weight:8},{amount:7500,weight:4},{amount:10000,weight:2},{amount:25000,weight:1}]
+const WHEEL_SEGMENTS=[{amount:100,weight:30},{amount:200,weight:25},{amount:300,weight:18},{amount:500,weight:12},{amount:750,weight:8},{amount:1000,weight:4},{amount:1500,weight:2},{amount:2500,weight:1}]
 const WHEEL_COOLDOWN_MS=24*60*60*1000
 function pickWheelSegment(){ const total=WHEEL_SEGMENTS.reduce((s,x)=>s+x.weight,0); let r=Math.random()*total; for(let i=0;i<WHEEL_SEGMENTS.length;i++){ r-=WHEEL_SEGMENTS[i].weight; if(r<=0) return i } return WHEEL_SEGMENTS.length-1 }
 const WHEEL_WEEKLY_WAGER=Number(process.env.WHEEL_WEEKLY_WAGER||25000)

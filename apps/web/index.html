@@ -53,7 +53,7 @@ body{
   margin:0 auto;
   min-height:100vh;
   position:relative;
-  padding-bottom:86px;
+  padding-bottom:118px;
 }
 button{font-family:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent;}
 input,select{font-family:inherit;}
@@ -160,6 +160,8 @@ input,select{font-family:inherit;}
 .game-card:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(0,0,0,0.25);}
 .game-card.img-card{position:relative;padding:0;border:none;aspect-ratio:4/5;min-height:unset;overflow:hidden;box-shadow:0 8px 18px rgba(0,0,0,.4);width:86%;margin:0 auto;}
 .game-card.img-card.slot-img-card{width:58%;}
+.game-card.img-card.slot-img-card-clear{background:transparent!important;border:none!important;box-shadow:none!important;}
+.game-card.img-card.slot-img-card-clear .img-card-media{object-fit:contain;}
 .game-card.img-card:active{transform:translateY(3px) scale(.98);}
 .game-card.img-card .img-card-media{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;pointer-events:none;}
 .game-card .icon{font-size:32px;}
@@ -474,7 +476,7 @@ select.input, input.input{
   position:fixed;bottom:0;left:0;right:0;max-width:460px;margin:0 auto;
   display:grid;grid-template-columns:repeat(5,1fr);
   background:rgba(35,16,70,0.75);backdrop-filter:blur(10px);
-  border-top:2px solid rgba(255,255,255,0.14);padding:8px 4px calc(8px + env(safe-area-inset-bottom));
+  border-top:2px solid rgba(255,255,255,0.14);padding:10px 4px calc(18px + env(safe-area-inset-bottom, 16px)); bottom:12px;
   z-index:30;
 }
 .nav-btn{
@@ -854,9 +856,9 @@ body{background:#000!important;}
 /* ---------- Mobile home offset + desktop leaderboard fix ---------- */
 @media (max-width:899px){
   #app{width:100%!important;max-width:none!important;margin:0!important;min-height:100vh!important;}
-  .screen-container{padding:14px 14px 84px!important;}
+  .screen-container{padding:14px 14px 120px!important;}
   .topbar{display:none!important;}
-  .bottom-nav{position:fixed!important;left:0!important;right:0!important;bottom:0!important;top:auto!important;height:64px!important;border-top:1px solid #242424!important;border-bottom:0!important;border-radius:0!important;z-index:999!important;}
+  .bottom-nav{position:fixed!important;left:10px!important;right:10px!important;bottom:calc(18px + env(safe-area-inset-bottom, 12px))!important;top:auto!important;height:auto!important;min-height:64px!important;padding:10px 6px 12px!important;border:1px solid #2a2a2a!important;border-radius:18px!important;z-index:999!important;background:#111!important;}
   .bottom-nav:before{display:none!important;content:none!important;}
   #screen-home.active{display:block!important;padding-top:0!important;max-width:520px!important;margin:0 auto!important;}
   #screen-home .hero{margin-top:0!important;margin-bottom:18px!important;transform:none!important;}
@@ -1020,14 +1022,14 @@ body{background:#000!important;}
         <div class="wheel-stage">
           <div class="wheel-pointer">▼</div>
           <div class="wheel-disc" id="wheelDisc">
-            <span class="wheel-label" style="transform:translate(-50%,-50%) rotate(22.5deg) translateY(-112px);">500</span>
-            <span class="wheel-label" style="transform:translate(-50%,-50%) rotate(67.5deg) translateY(-112px);">1000</span>
-            <span class="wheel-label" style="transform:translate(-50%,-50%) rotate(112.5deg) translateY(-112px);">2000</span>
-            <span class="wheel-label" style="transform:translate(-50%,-50%) rotate(157.5deg) translateY(-112px);">3000</span>
-            <span class="wheel-label" style="transform:translate(-50%,-50%) rotate(202.5deg) translateY(-112px);">5000</span>
-            <span class="wheel-label" style="transform:translate(-50%,-50%) rotate(247.5deg) translateY(-112px);">7500</span>
-            <span class="wheel-label" style="transform:translate(-50%,-50%) rotate(292.5deg) translateY(-112px);">10000</span>
-            <span class="wheel-label" style="transform:translate(-50%,-50%) rotate(337.5deg) translateY(-112px);">25000</span>
+            <span class="wheel-label" style="transform:translate(-50%,-50%) rotate(22.5deg) translateY(-112px);">100</span>
+            <span class="wheel-label" style="transform:translate(-50%,-50%) rotate(67.5deg) translateY(-112px);">200</span>
+            <span class="wheel-label" style="transform:translate(-50%,-50%) rotate(112.5deg) translateY(-112px);">300</span>
+            <span class="wheel-label" style="transform:translate(-50%,-50%) rotate(157.5deg) translateY(-112px);">500</span>
+            <span class="wheel-label" style="transform:translate(-50%,-50%) rotate(202.5deg) translateY(-112px);">750</span>
+            <span class="wheel-label" style="transform:translate(-50%,-50%) rotate(247.5deg) translateY(-112px);">1000</span>
+            <span class="wheel-label" style="transform:translate(-50%,-50%) rotate(292.5deg) translateY(-112px);">1500</span>
+            <span class="wheel-label" style="transform:translate(-50%,-50%) rotate(337.5deg) translateY(-112px);">2500</span>
             <div class="wheel-center"><b>SPIN</b><small>TO WIN</small></div>
           </div>
         </div>
@@ -1045,7 +1047,7 @@ body{background:#000!important;}
       </div>
       <div class="wheel-prizes">
         <div class="panel-title">Возможные призы</div>
-        <div class="wheel-prizes-grid"><span class="wheel-prize-chip">500 GC</span><span class="wheel-prize-chip">1000 GC</span><span class="wheel-prize-chip">2000 GC</span><span class="wheel-prize-chip">3000 GC</span><span class="wheel-prize-chip">5000 GC</span><span class="wheel-prize-chip">7500 GC</span><span class="wheel-prize-chip">10000 GC</span><span class="wheel-prize-chip">25000 GC</span></div>
+        <div class="wheel-prizes-grid"><span class="wheel-prize-chip">100 GC</span><span class="wheel-prize-chip">200 GC</span><span class="wheel-prize-chip">300 GC</span><span class="wheel-prize-chip">500 GC</span><span class="wheel-prize-chip">750 GC</span><span class="wheel-prize-chip">1000 GC</span><span class="wheel-prize-chip">1500 GC</span><span class="wheel-prize-chip">2500 GC</span></div>
         <div class="wheel-prizes-note">Один бесплатный спин раз в 24 часа. Выигрыш сразу падает на баланс.</div>
       </div>
     </section>
@@ -1054,8 +1056,8 @@ body{background:#000!important;}
     <section id="screen-games" class="screen">
       <div class="section-title">🎮 Игры</div>
       <div class="game-grid">
-        <button class="game-card img-card cat-img-card" data-open="slots" aria-label="Слоты"><img src="assets/card-drunkardgate.jpg" alt="Слоты" class="img-card-media"><span class="cat-img-label"><b>СЛОТЫ</b><small>Игровые автоматы</small></span></button>
-        <button class="game-card img-card cat-img-card" data-open="minigames" aria-label="Мини игры"><img src="assets/card-dice.jpg" alt="Мини игры" class="img-card-media"><span class="cat-img-label"><b>МИНИ ИГРЫ</b><small>Кости, монетка и другие</small></span></button>
+        <button class="game-card img-card cat-img-card" data-open="slots" aria-label="Слоты"><img src="assets/card-slots.svg" alt="Слоты" class="img-card-media"></button>
+        <button class="game-card img-card cat-img-card" data-open="minigames" aria-label="Мини игры"><img src="assets/card-minigames.svg" alt="Мини игры" class="img-card-media"></button>
       </div>
     </section>
 
@@ -1063,7 +1065,7 @@ body{background:#000!important;}
     <section id="screen-slots" class="screen">
       <div class="game-header"><button class="back-btn" data-nav="games">←</button><h2>🎰 Слоты</h2></div>
       <div class="game-grid">
-        <button class="game-card img-card slot-img-card" data-open="slot" aria-label="Drunkard Gate" style="grid-column:1/-1;"><img src="assets/card-drunkardgate.jpg" alt="Drunkard Gate" class="img-card-media"></button>
+        <button class="game-card img-card slot-img-card slot-img-card-clear" data-open="slot" aria-label="Drunkard Gate" style="grid-column:1/-1;"><img src="assets/card-drunkardgate.png" alt="Drunkard Gate" class="img-card-media"></button>
       </div>
     </section>
 
@@ -3199,7 +3201,7 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
         <button class="btn btn-primary btn-block" id="slotSpinBtn">🎰 Крутить за <span id="slotBetLabel">20</span> GC</button>
         <div class="paytable">
           <div class="paytable-row"><span>🏆🏆🏆🏆🏆 на линии</span><span>ВСЁ ДЖЕКПОТ 💰</span></div>
-          <div class="paytable-row"><span>🏆 WILD — заменяет любой символ</span><span>x10 / x25 / x60</span></div>
+          <div class="paytable-row"><span>🏆 WILD — з��меняет любой символ</span><span>x10 / x25 / x60</span></div>
           <div class="paytable-row"><span>🗺️ SCATTER — где угодно, 3+</span><span>бонус + x2/x5/x20</span></div>
           <div class="paytable-row"><span>💎💎💎 Алмаз</span><span>x8 / x20 / x50</span></div>
           <div class="paytable-row"><span>👑👑👑 Корона</span><span>x5 / x12 / x30</span></div>
@@ -3488,7 +3490,7 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
         <div class="stat-box"><div class="v" id="statWon">0</div><div class="l">ВСЕГО ВЫИГРАНО</div></div>
         <div class="stat-box"><div class="v" id="statBiggest">0</div><div class="l">ЛУЧШИЙ ВЫИГРЫШ</div></div>
       </div>
-      <button class="btn btn-blue btn-block" id="togglePromoCreator" style="margin-top:16px;">Создать промокод</button>
+      <button class="btn btn-blue btn-block" id="togglePromoCreator" style="margin-top:16px;">Создать промок��д</button>
       <div class="panel hidden" id="promoCreatorPanel" style="margin-top:12px;">
         <div class="panel-title">🎟️ Создать промокод</div>
         <div class="promo-create-grid">
@@ -3543,7 +3545,7 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
     <div class="modal-card">
       <div style="font-size:30px;">♻️</div>
       <h3>Сбросить прогресс?</h3>
-      <p>Все балансы, история и статистика демо-игроков будут сброшены к начальным значениям.</p>
+      <p>Все балансы, история и статистика демо-игроков будут сброшены к начальным значения��.</p>
       <div class="modal-actions">
         <button class="btn btn-ghost" id="modalCancel">Отмена</button>
         <button class="btn btn-primary" id="modalConfirm">Сбросить</button>
@@ -4148,6 +4150,7 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
       btns.push('<button class="p2p-ghost" data-exch-cancel="' + escapeHtml(o.id) + '">Снять с витрины</button>');
     }
     if(o.status === 'DEAL' && o.role === 'buyer'){
+      btns.push('<label class="btn btn-gold p2p-receipt-btn">Отправить чек<input type="file" accept="image/*,application/pdf" hidden data-exch-receipt="' + escapeHtml(o.id) + '"></label>');
       btns.push('<button class="btn btn-gold" data-exch-paid="' + escapeHtml(o.id) + '">Я оплатил</button>');
       btns.push('<button class="p2p-ghost" data-exch-cancel="' + escapeHtml(o.id) + '">Отменить</button>');
     }
@@ -4168,6 +4171,8 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
       extra += '<div><small>Способ</small><b>' + methodLogoHtml(o.method) + ' ' + escapeHtml(o.methodTitle || o.method || '') + '</b></div>';
       if(o.destination) extra += '<div><small>Реквизиты</small><b>' + escapeHtml(String(o.destination)) + '</b></div>';
       extra += '</div>';
+      if(o.receiptUrl) extra += '<div class="p2p-receipt"><small>Чек</small><img src="' + escapeHtml(o.receiptUrl) + '" alt="Чек"></div>';
+      else if(o.role === 'buyer' && o.status === 'PAID') extra += '<label class="p2p-receipt-link">Прикрепить чек<input type="file" accept="image/*" hidden data-exch-receipt="' + escapeHtml(o.id) + '"></label>';
     }
     return '<article class="p2p-card">'
       + '<div class="p2p-card-top"><div><div class="p2p-amount">' + fmt(o.amountGc) + ' GC</div><div class="p2p-sub">' + methodLogoHtml(o.method) + ' ' + escapeHtml(o.methodTitle || o.method || '') + ' · ' + escapeHtml(who) + '</div></div>'
@@ -4374,6 +4379,60 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
     var c = ev.target.closest('[data-exch-cancel]');
     if(c){ ev.preventDefault(); exchangeAction('/exchange/offers/' + encodeURIComponent(c.getAttribute('data-exch-cancel')) + '/cancel', 'Отменено'); }
   });
+
+  document.addEventListener('change', function(ev){
+    var inp = ev.target && ev.target.closest ? ev.target.closest('[data-exch-receipt]') : null;
+    if(!inp || !inp.files || !inp.files[0]) return;
+    uploadExchangeReceipt(inp.getAttribute('data-exch-receipt'), inp.files[0]);
+  });
+
+  function compressReceipt(file){
+    return new Promise(function(resolve, reject){
+      if(!file) return reject(new Error('Файл не выбран'));
+      if(file.type === 'application/pdf'){
+        return reject(new Error('Отправьте скриншот чека картинкой'));
+      }
+      var reader = new FileReader();
+      reader.onerror = function(){ reject(new Error('Не удалось прочитать файл')); };
+      reader.onload = function(){
+        var img = new Image();
+        img.onload = function(){
+          var max = 1280;
+          var w = img.width, h = img.height;
+          if(w > max || h > max){
+            var k = Math.min(max / w, max / h);
+            w = Math.round(w * k); h = Math.round(h * k);
+          }
+          var canvas = document.createElement('canvas');
+          canvas.width = w; canvas.height = h;
+          canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+          resolve(canvas.toDataURL('image/jpeg', 0.72));
+        };
+        img.onerror = function(){ reject(new Error('Не удалось открыть изображение')); };
+        img.src = reader.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function uploadExchangeReceipt(id, file){
+    if(exchangeBusy || !id) return;
+    exchangeBusy = true;
+    try{
+      var image = await compressReceipt(file);
+      var res = await apiRequest('/exchange/offers/' + encodeURIComponent(id) + '/receipt', {
+        method:'POST',
+        body: JSON.stringify({ image: image })
+      });
+      haptic('success');
+      showToast('Чек отправлен продавцу','success');
+      if(res && res.offer){
+        exchangeMine = (exchangeMine || []).map(function(o){ return o.id === res.offer.id ? res.offer : o; });
+      }
+      await loadExchange();
+    }catch(e){ showToast(e.message || 'Не удалось отправить чек','error'); }
+    finally{ exchangeBusy = false; }
+  }
 
   function showToast(msg, type){
     var layer = document.getElementById('toastLayer');
@@ -4764,7 +4823,7 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
     var bet = isBonusSpin ? slotBonus.triggerBet : slotBetCtl.get();
     if(!isBonusSpin){
       if(me().balance < bet){
-        showToast('Недостаточно Gamble Coin!','error'); haptic('error');
+        showToast('Недос��аточно Gamble Coin!','error'); haptic('error');
         if(slotAuto.active) stopAutoplay();
         return;
       }
@@ -5347,7 +5406,7 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
   }
   async function runRouletteRound(){
     if(rouletteSpinning || !roulettePendingBets.length) return; rouletteSpinning=true;
-    var resultEl=document.getElementById('rouletteResult'); if(resultEl) resultEl.textContent='Шарик крутится...';
+    var resultEl=document.getElementById('rouletteResult'); if(resultEl) resultEl.textContent='Шарик крут��тся...';
     try{
       var first=roulettePendingBets[0];
       var totalBetAmount = roulettePendingBets.reduce(function(sum,b){ return sum + Number(b.amount||0); }, 0);
@@ -6622,6 +6681,11 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
 #screen-exchange .p2p-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
 #screen-exchange .p2p-actions .btn{flex:1;min-width:120px;}
 #screen-exchange .p2p-ghost{border:1px solid #2f2f2f;background:#171717;color:#cfcfcf;border-radius:12px;padding:10px 12px;font-weight:800;font-size:13px;}
+#screen-exchange .p2p-receipt{margin-top:10px;}
+#screen-exchange .p2p-receipt small{display:block;font-size:10px;font-weight:800;color:#8a8a8a;margin-bottom:6px;}
+#screen-exchange .p2p-receipt img{width:100%;max-height:220px;object-fit:contain;border-radius:12px;background:#111;border:1px solid #2a2a2a;}
+#screen-exchange .p2p-receipt-btn input,#screen-exchange .p2p-receipt-link input{display:none;}
+#screen-exchange .p2p-receipt-link{display:inline-block;margin-top:10px;font-size:12px;font-weight:800;color:#0b9dff;}
 #screen-exchange .p2p-form{background:#191919;border:1px solid #2a2a2a;border-radius:18px;padding:14px;}
 #screen-exchange .p2p-label{display:block;margin:12px 0 6px;font-size:12px;font-weight:800;color:#9fb0c8;}
 #screen-exchange .p2p-input{width:100%;box-sizing:border-box;background:#111;border:1px solid #2f2f2f;color:#fff;border-radius:14px;padding:12px 14px;font-weight:800;}

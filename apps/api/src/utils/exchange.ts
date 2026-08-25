@@ -134,6 +134,7 @@ function mapRow(row: any) {
 		createdAt: row.createdAt ?? row.createdat,
 		takenAt: row.takenAt ?? row.takenat ?? null,
 		paidAt: row.paidAt ?? row.paidat ?? null,
+		receiptUrl: row.receiptUrl ?? row.receipturl ?? null,
 		processedAt: row.processedAt ?? row.processedat ?? null
 	}
 }
@@ -404,6 +405,7 @@ export function serializeRequest(row: any, opts?: { full?: boolean; viewerId?: s
 		createdAt: mapped.createdAt,
 		takenAt: mapped.takenAt || null,
 		paidAt: mapped.paidAt || null,
+		receiptUrl: showFull ? (mapped.receiptUrl || null) : null,
 		processedAt: mapped.processedAt || null,
 		role,
 		mine: role !== 'viewer',

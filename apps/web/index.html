@@ -2864,7 +2864,7 @@ async function doSpin(){
   const finalMultsPos=gridMultsWithPos();
   const finalMults=finalMultsPos.map(m=&gt;m.mult);
   if(!inFreeSpin &amp;&amp; spinWin&gt;0 &amp;&amp; finalMults.length){
-    // Базовая игра: символы-множители улетают к общему выигрышу,
+    // Ба��овая игра: символы-множители улетают к общему выигрышу,
     // суммируются, и итоговая сумма умножает выигрыш сыгровки.
     const totMult=finalMults.reduce((a,b)=&gt;a+b,0);
     cascMult=totMult;
@@ -3340,7 +3340,8 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
       <div class="panel hidden" id="minesGamePanel">
         <div class="mines-status"><span>Множитель: <b id="minesMult">x1.00</b></span><span>Выплата: <b id="minesPayout">0</b> GC</span></div>
         <div class="mines-grid" id="minesGrid"></div>
-        <button class="btn btn-gold btn-block" id="minesCashoutBtn" disabled>💰 Забрать выигрыш</button>
+        <button class="btn btn-gold btn-block" id="minesCashoutBtn" disabled>Забрать выигрыш</button>
+        <button class="btn btn-primary btn-block hidden" id="minesContinueBtn">Продолжить</button>
       </div>
     </section>
     <!-- BLACKJACK -->
@@ -3490,11 +3491,17 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
         <div class="stat-box"><div class="v" id="statWon">0</div><div class="l">ВСЕГО ВЫИГРАНО</div></div>
         <div class="stat-box"><div class="v" id="statBiggest">0</div><div class="l">ЛУЧШИЙ ВЫИГРЫШ</div></div>
       </div>
-      <div class="panel" id="profileRankPanel" style="margin-top:12px;">
-        <div class="panel-title">Рейтинг</div>
-        <div class="rank-line"><b id="profileRankTitle">Новичок</b><span id="profileRankLevel">Ур. 1</span></div>
-        <div class="quest-bar"><i id="profileRankBar" style="width:0%"></i></div>
-        <div class="quest-reset" id="profileRankHint">Играйте, чтобы повышать уровень.</div>
+      <div class="rank-card" id="profileRankPanel">
+        <div class="rank-card-top">
+          <div class="rank-medal" id="profileRankMedal">I</div>
+          <div class="rank-copy">
+            <div class="rank-kicker">Ваш ранг</div>
+            <div class="rank-title" id="profileRankTitle">Новичок</div>
+            <div class="rank-level" id="profileRankLevel">Уровень 1</div>
+          </div>
+        </div>
+        <div class="rank-meter"><i id="profileRankBar" style="width:0%"></i></div>
+        <div class="rank-hint" id="profileRankHint">Играйте, чтобы повышать уровень.</div>
         <div class="badge-grid" id="profileBadges"></div>
       </div>
       <button class="btn btn-blue btn-block hidden" id="openAdminBtn" style="margin-top:16px;">Админка</button>
@@ -4004,8 +4011,8 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
   function refFriendHtml(f){
     var av = f.photoUrl ? '<div class="av" style="background-image:url(' + escapeHtml(f.photoUrl) + ')"></div>' : '<div class="av">👤</div>';
     var name = f.username ? '@' + f.username : (f.name || 'Игрок');
-    var sub = 'ID: ' + (f.playerId || '—') + ' · оборот ' + fmt(f.wagered || 0) + ' GC';
-    if(!f.milestoneDone) sub += ' (' + (f.milestoneProgress || 0) + '%)';
+    var sub = 'ID: ' + (f.playerId || '—') + ' · ставки за неделю ' + fmt(f.wagered || 0) + ' GC';
+    if(f.weekShare) sub += ' · вам ' + fmt(f.weekShare) + ' GC';
     return '<div class="ref-friend">' + av + '<div class="info"><b>' + escapeHtml(name) + '</b><small>' + escapeHtml(sub) + '</small></div>'
       + '<div class="earned">+' + fmt(f.earned || 0) + '</div></div>';
   }
@@ -4020,7 +4027,7 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
     var d = referralData;
     var rw = d.rewards || {};
     var html = [];
-    html.push('<div class="quest-reset" style="margin-top:0;">За каждого друга — ' + fmt(rw.inviter || 0) + ' GC вам и ' + fmt(rw.invitee || 0) + ' GC ему. Когда друг прокрутит ' + fmt(rw.milestoneWager || 0) + ' GC, вы получите ещё ' + fmt(rw.milestone || 0) + ' GC.</div>');
+    html.push('<div class="quest-reset" style="margin-top:0;">За друга по ссылке вы получаете ' + String(rw.weekSharePct || 0.5).replace('.', ',') + '% от его ставок за неделю. Бонус начисляется автоматически.</div>');
     if(d.link){
       html.push('<div class="ref-link-row"><div class="ref-link" id="refLinkText">' + escapeHtml(d.link) + '</div>'
         + '<button class="btn btn-gold" id="refCopyBtn" style="flex:0 0 auto;">Копировать</button></div>');
@@ -4135,9 +4142,9 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
 
   function methodLogoHtml(code){
     var c = String(code || '').toLowerCase();
-    if(c === 'sbp') return '<span class="p2p-logo p2p-logo-svg" aria-hidden="true"><svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#5B57A2"/><path d="M8 16.2c0-4.4 3.6-8 8-8 2.5 0 4.7 1.1 6.2 2.9l-3 2.2A4.7 4.7 0 0 0 16 11.4c-2.6 0-4.8 2.1-4.8 4.8S13.4 21 16 21c1.6 0 3-.8 3.9-2h-3.2v-3.2H24V21c-2 2.4-5 4-8 4-4.4 0-8-3.6-8-8.8z" fill="#fff"/></svg></span>';
-    if(c === 'card') return '<span class="p2p-logo p2p-logo-svg" aria-hidden="true"><svg viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="#fff"/><path d="M6 11.2h7.6c2.8 0 4.4 1.5 4.4 3.8 0 2.6-2 4.2-5 4.2H9.6V24H6V11.2zm3.6 5.5h3.2c1.3 0 2-.6 2-1.6s-.6-1.5-1.9-1.5H9.6v3.1zm10.2-5.5H26c2.7 0 4.2 1.4 4.2 3.6 0 1.5-.7 2.6-2 3.2L29.8 24h-3.8l-1.4-4.4h-1.2V24h-3.6V11.2zm3.6 5.3h1.5c.9 0 1.4-.4 1.4-1.2s-.5-1.2-1.4-1.2h-1.5v2.4z" fill="#1A8C3E"/></svg></span>';
-    if(c === 'crypto') return '<span class="p2p-logo p2p-logo-svg" aria-hidden="true"><svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#26A17B"/><path d="M17.6 17.5v4.3c2.6-.1 4.5-.7 4.5-1.4 0-.7-1.9-1.3-4.5-1.4v-1.5zm0-6.7v4.1c2.3-.1 3.9-.6 3.9-1.3s-1.6-1.2-3.9-1.3zM8 16c0 4.4 3.6 8 8 8s8-3.6 8-8-3.6-8-8-8-8 3.6-8 8zm9.6-7.3V7h-2.3v1.7c-2 .1-3.4.8-3.4 1.8 0 1 1.3 1.6 3.4 1.8v4.4c-1.7-.1-2.8-.5-2.8-1.1h-2.5c0 1.4 1.6 2.2 5.3 2.4V25h2.3v-1.7c2.1-.1 3.6-.8 3.6-1.9 0-1-1.4-1.6-3.6-1.8v-4.3c1.6.1 2.6.5 2.6 1.1h2.4c0-1.3-1.5-2.1-5-2.3z" fill="#fff"/></svg></span>';
+    if(c === 'sbp') return '<img class="p2p-logo" alt="СБП" src="assets/logo-sbp.png">';
+    if(c === 'card') return '<img class="p2p-logo" alt="МИР" src="assets/logo-mir.png">';
+    if(c === 'crypto') return '<img class="p2p-logo" alt="USDT" src="assets/logo-usdt.png">';
     return '<span class="p2p-logo">💱</span>';
   }
 
@@ -4232,7 +4239,6 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
     html.push('<input class="p2p-input" id="exchDest" type="text" placeholder="Номер карты, кошелёк или телефон" autocomplete="off" value="' + escapeHtml(exchangeDraft.destination) + '">');
     html.push('<div class="p2p-quote" id="exchQuote">Курс: —</div>');
     html.push('<button class="btn btn-gold btn-block" id="exchSubmitBtn">Выставить на витрину</button>');
-    html.push('<div class="p2p-hint">GC сразу уйдут в эскроу. Если снять объявление — вернутся на баланс.</div>');
     html.push('</div>');
     return html.join('');
   }
@@ -4660,7 +4666,7 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
       var reason = next ? (window.prompt('Причина блокировки', 'Нарушение правил') || 'Нарушение правил') : '';
       apiRequest('/admin/users/' + encodeURIComponent(ban.getAttribute('data-admin-ban')) + '/ban', {
         method:'POST', body: JSON.stringify({ banned: next, reason: reason })
-      }).then(function(){ showToast(next ? 'Игрок заблокирован' : 'Игрок разблокирован','success'); loadAdmin(); }).catch(function(e){ showToast(e.message||'Ошибка','error'); });
+      }).then(function(){ showToast(next ? 'Игрок заблокирова��' : 'Игрок разблокирован','success'); loadAdmin(); }).catch(function(e){ showToast(e.message||'Ошибка','error'); });
       return;
     }
     var deal = ev.target && ev.target.closest ? ev.target.closest('[data-admin-deal]') : null;
@@ -5649,9 +5655,12 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
       if(data.hitMine){
         minesState.ended = true;
         tile.classList.add('boom'); tile.textContent = '💣'; haptic('error');
-        revealServerMines(data.mines || []);
+        revealFullMinesBoard(data.mines || [], data.openedCells || minesState.openedCells || []);
         addHistory(me(),'loss', minesState.bet, 'Мины: подрыв'); syncProfileStats(minesState.bet, 0); renderProfile(); refreshMiniGameHistories();
-        setTimeout(function(){ endMinesRound(); }, 250);
+        var cash = document.getElementById('minesCashoutBtn');
+        var cont = document.getElementById('minesContinueBtn');
+        if(cash) cash.classList.add('hidden');
+        if(cont) cont.classList.remove('hidden');
       } else {
         tile.classList.add('safe'); tile.textContent = '💎';
         minesState.openedCells = data.openedCells || [];
@@ -5666,11 +5675,24 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
     }catch(e){ tile.disabled = false; showToast(e.message || 'Ошибка клетки','error'); haptic('error'); }
   }
 
-  function revealServerMines(mines){
+  function revealFullMinesBoard(mines, opened){
     var grid = document.getElementById('minesGrid');
-    mines.forEach(function(idx){
-      var tile = grid.querySelector('[data-idx="'+idx+'"]');
-      if(tile && !tile.classList.contains('boom')){ tile.textContent = '💣'; tile.style.opacity = '0.6'; tile.disabled = true; }
+    if(!grid) return;
+    var mineSet = {};
+    (mines || []).forEach(function(idx){ mineSet[idx] = true; });
+    var openSet = {};
+    (opened || []).forEach(function(idx){ openSet[idx] = true; });
+    grid.querySelectorAll('.mine-tile').forEach(function(tile){
+      var idx = parseInt(tile.dataset.idx, 10);
+      tile.disabled = true;
+      if(mineSet[idx]){
+        if(!tile.classList.contains('boom')){ tile.classList.add('boom'); tile.style.opacity = '0.85'; }
+        tile.textContent = '💣';
+      } else {
+        tile.classList.add('safe');
+        tile.textContent = '💎';
+        if(!openSet[idx]) tile.style.opacity = '0.72';
+      }
     });
   }
 
@@ -5679,10 +5701,16 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
     updateMinesLadder(0);
     var minesSetupPanel = document.getElementById('minesSetupPanel');
     var minesGamePanel = document.getElementById('minesGamePanel');
+    var cash = document.getElementById('minesCashoutBtn');
+    var cont = document.getElementById('minesContinueBtn');
     if(minesSetupPanel) minesSetupPanel.classList.remove('hidden');
     if(minesGamePanel) minesGamePanel.classList.add('hidden');
+    if(cash){ cash.classList.remove('hidden'); cash.disabled = true; }
+    if(cont) cont.classList.add('hidden');
     renderAll();
   }
+  var minesContinueBtn = document.getElementById('minesContinueBtn');
+  if(minesContinueBtn) minesContinueBtn.addEventListener('click', function(){ endMinesRound(); });
 
   document.getElementById('minesCashoutBtn').addEventListener('click', async function(){
     if(!minesState || minesState.ended) return;
@@ -6104,7 +6132,7 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
       await refreshWeeklyStats();
       await checkWheelStatus();
       if(wheelReqCache && wheelReqCache.ok) showToast('Условия выполнены, колесо открыто','success');
-      else showToast('Условия пока не выполнены','error');
+      else showToast('Условия пока не выпол��ены','error');
     }finally{ wheelReqRefreshBtn.disabled = false; }
   });
   var wheelSpinBtn=document.getElementById('wheelSpinBtn');
@@ -6253,7 +6281,7 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
       return '<div class="leaderboard-row"><span class="medal">'+(medals[i]||'🎗️')+'</span><span class="name">'+avatarHtml(p.avatar)+'<span>'+escapeHtml(p.name)+(p.id===state.currentPlayerId?' (вы)':'')+'</span>'+(p.playerId?'<small class="leader-id">ID '+escapeHtml(p.playerId)+'</small>':'')+'</span><span class="bal">'+fmt(p.balance)+' GC</span></div>';
     }).join('');
   }
-  // История переводов грузится в три шага, чтобы она не пропадала:
+  // История перевод��в грузится в три шага, чтобы она не пропадала:
   //   1) /wallet/transfers — полные данные со второй стороной;
   //   2) /wallet/transactions — если на сервере ещё старая версия API без /transfers;
   //   3) локальный кэш последнего успешного ответа — если сети нет вообще.
@@ -6364,11 +6392,13 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
     if(adminBtn) adminBtn.classList.toggle('hidden', !(backendUser && backendUser.admin));
     if(profileExtra && profileExtra.rank){
       var r = profileExtra.rank;
+      var roman = ['I','II','III','IV','V','VI'][Math.max(0, (r.level||1)-1)] || String(r.level||1);
+      var medal=document.getElementById('profileRankMedal'); if(medal) medal.textContent = roman;
       var titleEl=document.getElementById('profileRankTitle'); if(titleEl) titleEl.textContent = r.title;
-      var lvlEl=document.getElementById('profileRankLevel'); if(lvlEl) lvlEl.textContent = 'Ур. ' + r.level;
+      var lvlEl=document.getElementById('profileRankLevel'); if(lvlEl) lvlEl.textContent = 'Уровень ' + r.level;
       var bar=document.getElementById('profileRankBar'); if(bar) bar.style.width = (r.progress||0) + '%';
       var hint=document.getElementById('profileRankHint');
-      if(hint) hint.textContent = r.nextXp ? ('До следующего уровня: ' + fmt(Math.max(0, r.nextXp - r.xp)) + ' GC отыгрыша') : 'Максимальный уровень';
+      if(hint) hint.textContent = r.nextXp ? ('До следующего ранга осталось ' + fmt(Math.max(0, r.nextXp - r.xp)) + ' GC отыгрыша') : 'Вы на максимальном ранге';
       var badges=document.getElementById('profileBadges');
       if(badges){
         badges.innerHTML = (profileExtra.badges||[]).map(function(b){
@@ -6770,28 +6800,25 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
 .gg-global-logo{height:30px!important;}
 
 /* ===== Виджет колеса фортуны ===== */
-.wheel-widget{position:relative;display:flex;align-items:center;gap:12px;width:100%;margin:2px 0 20px;padding:16px 14px;border-radius:20px;border:1px solid #2b2b2b;background:linear-gradient(115deg,#141414 0%,#1d1c26 55%,#141414 100%);color:#fff;text-align:left;cursor:pointer;overflow:hidden;}
-.wheel-widget:active{transform:translateY(2px);}
-.wheel-widget-text{flex:1 1 auto;min-width:0;}
-.wheel-widget-brand{font-weight:950;font-size:13px;letter-spacing:.5px;color:#fff;}
-.wheel-widget-brand span{color:#0b9dff;}
-.wheel-widget-title{font-weight:900;font-size:17px;line-height:1.25;margin-top:6px;}
-.wheel-widget-timer-row{display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap;}
-.wheel-widget-label{font-size:11px;font-weight:800;color:#8a8a8a;}
-.wheel-widget-timer{display:inline-block;padding:5px 10px;border-radius:999px;background:#0f0f0f;border:1px solid #303030;font-weight:950;font-size:13px;letter-spacing:.5px;color:#fff;font-variant-numeric:tabular-nums;}
-.wheel-widget-disc{flex:0 0 auto;width:96px;height:96px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:conic-gradient(#ff4d6d 0 45deg,#ffa23a 45deg 90deg,#ffe14d 90deg 135deg,#4ddb6f 135deg 180deg,#3ec9ff 180deg 225deg,#7b6bff 225deg 270deg,#ff5fd0 270deg 315deg,#ff8a4d 315deg 360deg);box-shadow:0 8px 22px rgba(0,0,0,.45),inset 0 0 0 4px rgba(255,255,255,.10);}
-.wheel-widget-disc span{display:flex;align-items:center;justify-content:center;text-align:center;width:56px;height:56px;border-radius:50%;background:#121212;color:#fff;font-weight:950;font-size:11px;line-height:1.15;}
-.p2p-widget{position:relative;display:flex;align-items:center;gap:12px;width:100%;margin:18px 0 8px;padding:16px 14px;border-radius:20px;border:1px solid #2b2b2b;background:linear-gradient(115deg,#141414 0%,#1a2433 52%,#141414 100%);color:#fff;text-align:left;cursor:pointer;overflow:hidden;}
-.p2p-widget:active{transform:translateY(2px);}
-.p2p-widget:after{content:"";position:absolute;right:-30px;top:-40px;width:140px;height:140px;border-radius:50%;background:radial-gradient(circle,#0b9dff44,transparent 68%);pointer-events:none;}
-.p2p-widget-text{flex:1 1 auto;min-width:0;position:relative;z-index:1;}
-.p2p-widget-brand{font-weight:950;font-size:13px;letter-spacing:.5px;color:#fff;}
-.p2p-widget-brand span{color:#0b9dff;}
-.p2p-widget-title{font-weight:900;font-size:17px;line-height:1.25;margin-top:6px;}
-.p2p-widget-meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
-.p2p-widget-chip{display:inline-block;padding:5px 10px;border-radius:999px;background:#0f0f0f;border:1px solid #303030;font-weight:900;font-size:11px;color:#d8e2f4;}
-.p2p-widget-orb{flex:0 0 auto;width:84px;height:84px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:conic-gradient(#0b9dff,#7b6bff,#ffd54a,#0b9dff);box-shadow:0 8px 22px rgba(0,0,0,.45);position:relative;z-index:1;}
-.p2p-widget-orb span,.p2p-hero-orb span{display:flex;align-items:center;justify-content:center;width:56px;height:56px;border-radius:50%;background:#121212;color:#fff;font-weight:950;font-size:13px;}
+.wheel-widget,.p2p-widget{position:relative;display:flex;align-items:center;gap:14px;width:100%;padding:18px 16px;border:0;color:#fff;text-align:left;cursor:pointer;overflow:hidden;isolation:isolate;}
+.wheel-widget{margin:2px 0 18px;border-radius:24px;background:linear-gradient(135deg,#2a1248 0%,#6b1fa0 48%,#ff7a3d 160%);box-shadow:0 16px 36px rgba(80,18,120,.28);}
+.p2p-widget{margin:16px 0 8px;border-radius:24px;background:linear-gradient(135deg,#06243d 0%,#0b84d8 52%,#7ee0ff 160%);box-shadow:0 16px 36px rgba(11,132,216,.24);}
+.wheel-widget:before,.p2p-widget:before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.16),transparent 42%);pointer-events:none;}
+.wheel-widget:after,.p2p-widget:after{content:"";position:absolute;right:-24px;bottom:-36px;width:150px;height:150px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.18),transparent 68%);pointer-events:none;}
+.wheel-widget:active,.p2p-widget:active{transform:translateY(2px) scale(.995);}
+.wheel-widget-text,.p2p-widget-text{flex:1 1 auto;min-width:0;position:relative;z-index:1;}
+.wheel-widget-brand,.p2p-widget-brand{font-weight:900;font-size:11px;letter-spacing:1.4px;text-transform:uppercase;color:rgba(255,255,255,.78);}
+.wheel-widget-brand span,.p2p-widget-brand span{color:#fff;}
+.wheel-widget-title,.p2p-widget-title{font-weight:900;font-size:18px;line-height:1.2;margin-top:6px;letter-spacing:-.02em;}
+.wheel-widget-timer-row{display:flex;align-items:center;gap:8px;margin-top:12px;flex-wrap:wrap;}
+.wheel-widget-label{font-size:11px;font-weight:800;color:rgba(255,255,255,.72);}
+.wheel-widget-timer{display:inline-block;padding:6px 10px;border-radius:999px;background:rgba(8,8,12,.28);border:1px solid rgba(255,255,255,.18);font-weight:950;font-size:13px;letter-spacing:.4px;color:#fff;font-variant-numeric:tabular-nums;}
+.wheel-widget-disc{flex:0 0 auto;width:86px;height:86px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:conic-gradient(#fff 0 18deg,#ffd54a 18deg 72deg,#ff8a3d 72deg 126deg,#ff4d6d 126deg 180deg,#7b6bff 180deg 234deg,#3ec9ff 234deg 288deg,#4ddb6f 288deg 342deg,#fff 342deg 360deg);box-shadow:0 10px 24px rgba(0,0,0,.22);position:relative;z-index:1;}
+.wheel-widget-disc span{display:flex;align-items:center;justify-content:center;text-align:center;width:48px;height:48px;border-radius:50%;background:#16081f;color:#fff;font-weight:950;font-size:10px;line-height:1.15;}
+.p2p-widget-meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
+.p2p-widget-chip{display:inline-block;padding:6px 10px;border-radius:999px;background:rgba(8,8,12,.22);border:1px solid rgba(255,255,255,.16);font-weight:800;font-size:11px;color:#fff;}
+.p2p-widget-orb{flex:0 0 auto;width:78px;height:78px;border-radius:22px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.2);position:relative;z-index:1;backdrop-filter:blur(8px);}
+.p2p-widget-orb span,.p2p-hero-orb span{display:flex;align-items:center;justify-content:center;width:100%;height:100%;border-radius:22px;background:transparent;color:#fff;font-weight:950;font-size:16px;letter-spacing:.04em;}
 #screen-exchange .p2p-hero{display:flex;align-items:center;gap:14px;border-radius:22px;border:1px solid #2b2b2b;background:linear-gradient(115deg,#141414 0%,#1a2433 60%,#141414 100%);padding:18px 16px;margin-bottom:14px;}
 #screen-exchange .p2p-hero-title{font-weight:950;font-size:20px;line-height:1.25;margin-top:6px;color:#fff;}
 #screen-exchange .p2p-hero-sub{margin-top:8px;font-size:12px;font-weight:800;color:#8a8a8a;}
@@ -6829,14 +6856,21 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
 .p2p-logo{display:inline-flex;width:22px;height:22px;flex:0 0 22px;vertical-align:-5px;margin-right:4px;align-items:center;justify-content:center;}
 .p2p-logo-svg,.p2p-logo svg{width:22px;height:22px;display:block;border-radius:6px;}
 .p2p-logo[src],img.p2p-logo{object-fit:contain;background:#fff;border-radius:6px;padding:1px;}
-.rank-line{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px;}
-.rank-line b{font-size:16px;}
-.rank-line span{font-size:12px;font-weight:800;color:#9fb0c8;}
-.badge-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;}
-.badge-chip{background:#151515;border:1px solid #2a2a2a;border-radius:12px;padding:10px;opacity:.45;}
-.badge-chip.on{opacity:1;border-color:#3d6bff;}
+.rank-card{margin-top:14px;padding:16px;border-radius:22px;background:linear-gradient(160deg,#17121f 0%,#241833 58%,#151515 100%);border:1px solid #332844;box-shadow:0 14px 28px rgba(0,0,0,.22);}
+.rank-card-top{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
+.rank-medal{width:58px;height:58px;border-radius:18px;display:flex;align-items:center;justify-content:center;font-weight:950;font-size:20px;color:#201018;background:linear-gradient(160deg,#ffe082,#ffb300 55%,#ff8f00);box-shadow:0 8px 18px rgba(255,179,0,.28);}
+.rank-kicker{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#b39ddb;}
+.rank-title{font-size:22px;font-weight:950;margin-top:2px;color:#fff;}
+.rank-level{font-size:13px;font-weight:800;color:#d1c4e9;margin-top:2px;}
+.rank-meter{height:10px;border-radius:999px;background:#2a2233;overflow:hidden;}
+.rank-meter i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#7b1fa2,#ff8a3d);}
+.rank-hint{margin-top:10px;font-size:12px;font-weight:800;color:#bdbdbd;}
+.badge-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px;}
+.badge-chip{background:rgba(255,255,255,.04);border:1px solid #3a3146;border-radius:14px;padding:10px;opacity:.42;}
+.badge-chip.on{opacity:1;border-color:#ffb74d;background:rgba(255,183,77,.08);}
 .badge-chip b,.badge-chip small{display:block;}
-.badge-chip small{margin-top:4px;color:#8a8a8a;font-size:11px;}
+.badge-chip small{margin-top:4px;color:#bdbdbd;font-size:11px;}
+.p2p-logo{width:22px;height:22px;object-fit:contain;background:#fff;border-radius:6px;padding:1px;}
 .admin-list{display:flex;flex-direction:column;gap:8px;margin-top:10px;}
 .admin-row{display:flex;justify-content:space-between;gap:10px;align-items:center;background:#151515;border:1px solid #2a2a2a;border-radius:14px;padding:10px;}
 .admin-row b{display:block;}

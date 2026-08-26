@@ -3,6 +3,7 @@ import { prisma } from '../db.js'
 import { applyBalanceChange } from '../wallet/wallet.js'
 import { publicPlayerId, parsePlayerId } from './playerId.js'
 import { ensureFeatureTables } from './ensureFeatureTables.js'
+import { weekRange } from './weeklyStats.js'
 
 function isMissingRelation(err: any) {
 	const msg = String(err?.message || err || '')
@@ -21,10 +22,9 @@ async function ready() {
 //
 // Приглашающий получает бонус сразу и второй бонус, когда новичок наберёт
 // оборот (чтобы не было выгодно плодить пустые аккаунты ради регистрационного бонуса).
-const INVITER_BONUS = BigInt(Number(process.env.REFERRAL_BONUS_INVITER || 2500))
-const INVITEE_BONUS = BigInt(Number(process.env.REFERRAL_BONUS_INVITEE || 1000))
-const MILESTONE_WAGER = Number(process.env.REFERRAL_MILESTONE_WAGER || 25000)
-const MILESTONE_BONUS = BigInt(Number(process.env.REFERRAL_MILESTONE_BONUS || 5000))
+const INVITER_BONUS = BigInt(Number(process.env.REFERRAL_BONUS_INVITER || 0))
+const INVITEE_BONUS = BigInt(Number(process.env.REFERRAL_BONUS_INVITEE || 0))
+const WEEK_SHARE_PCT = Math.max(0, Number(process.env.REFERRAL_WEEK_SHARE_PCT || 0.5))
 // Привязать приглашение можно только в первые часы после регистрации,
 // иначе старые игроки будут «приглашать» друг друга ради бонусов.
 const ATTACH_WINDOW_MS = Number(process.env.REFERRAL_ATTACH_WINDOW_HOURS || 72) * 60 * 60 * 1000
@@ -142,51 +142,73 @@ export async function attachReferral(userId: string, rawCode: unknown): Promise<
 	}
 }
 
-// Второй бонус: когда приглашённые набрали нужный оборот.
-// Вызывается при открытии экрана «Друзья», а не на каждой ставке — чтобы не грузить игровой путь.
+// 0.5% от ставок приглашённого за текущую неделю. Платится при открытии «Друзья».
 export async function payReferralMilestones(referrerId: string) {
-	if (MILESTONE_BONUS <= 0n || MILESTONE_WAGER <= 0) return { paid: 0, count: 0 }
+	if (WEEK_SHARE_PCT <= 0) return { paid: 0, count: 0 }
 
 	await ready()
-	let pending: Array<{ id: string; referredId: string }> = []
+	let friends: Array<{ id: string; referredId: string }> = []
 	try {
 		const del = referralDelegate()
-		pending = del
-			? await del.findMany({ where: { referrerId, milestoneBonus: 0n }, select: { id: true, referredId: true } })
-			: await prisma.$queryRawUnsafe(`SELECT "id", "referredId" FROM "Referral" WHERE "referrerId" = $1 AND "milestoneBonus" = 0`, referrerId)
+		friends = del
+			? await del.findMany({ where: { referrerId }, select: { id: true, referredId: true } })
+			: await prisma.$queryRawUnsafe(`SELECT "id", "referredId" FROM "Referral" WHERE "referrerId" = $1`, referrerId)
 	} catch (err) {
 		if (!isMissingRelation(err)) throw err
 		return { paid: 0, count: 0 }
 	}
-	if (!pending.length) return { paid: 0, count: 0 }
+	if (!friends.length) return { paid: 0, count: 0 }
 
+	const { start, end } = weekRange()
+	const weekKey = start.toISOString()
 	let paid = 0n
 	let count = 0
-	for (const row of pending) {
+
+	for (const row of friends) {
 		const agg = await prisma.gameSession.aggregate({
-			where: { userId: row.referredId, status: 'FINISHED' },
+			where: { userId: row.referredId, status: 'FINISHED', createdAt: { gte: start, lt: end } },
 			_sum: { betAmount: true }
 		})
-		if (Number(agg._sum?.betAmount || 0) < MILESTONE_WAGER) continue
+		const weeklyWager = Number(agg._sum?.betAmount || 0)
+		const due = Math.floor(weeklyWager * WEEK_SHARE_PCT / 100)
+		if (due <= 0) continue
 
-		// updateMany с фильтром milestoneBonus: 0 — бонус не уйдёт дважды даже при двух запросах сразу.
+		const alreadyRows = await prisma.walletTransaction.findMany({
+			where: {
+				userId: referrerId,
+				source: 'referral-week',
+				createdAt: { gte: start, lt: end }
+			},
+			select: { amount: true, metadata: true }
+		})
+		const already = alreadyRows.reduce((s, t: any) => {
+			const meta = t.metadata || {}
+			if (meta.referredId === row.referredId && meta.weekKey === weekKey) return s + Number(t.amount || 0)
+			return s
+		}, 0)
+		const delta = due - already
+		if (delta <= 0) continue
+
 		await prisma.$transaction(async (tx) => {
-			const del = referralDelegate(tx)
-			const claim = del
-				? await del.updateMany({ where: { id: row.id, milestoneBonus: 0n }, data: { milestoneBonus: MILESTONE_BONUS } })
-				: { count: Number(await tx.$executeRawUnsafe(`UPDATE "Referral" SET "milestoneBonus" = $2 WHERE "id" = $1 AND "milestoneBonus" = 0`, row.id, MILESTONE_BONUS) || 0) }
-			if (!claim.count) return
 			await applyBalanceChange({
 				tx,
 				userId: referrerId,
-				amount: MILESTONE_BONUS,
+				amount: BigInt(delta),
 				type: 'BONUS',
-				source: 'referral-milestone',
-				metadata: { referredId: row.referredId, wagerTarget: MILESTONE_WAGER }
+				source: 'referral-week',
+				metadata: { referredId: row.referredId, weekKey, weeklyWager, percent: WEEK_SHARE_PCT }
 			})
-			paid += MILESTONE_BONUS
-			count++
+			const del = referralDelegate(tx)
+			if (del) {
+				await del.update({ where: { id: row.id }, data: { milestoneBonus: { increment: BigInt(delta) } } }).catch(async () => {
+					await tx.$executeRawUnsafe(`UPDATE "Referral" SET "milestoneBonus" = "milestoneBonus" + $2 WHERE "id" = $1`, row.id, delta)
+				})
+			} else {
+				await tx.$executeRawUnsafe(`UPDATE "Referral" SET "milestoneBonus" = "milestoneBonus" + $2 WHERE "id" = $1`, row.id, delta)
+			}
 		})
+		paid += BigInt(delta)
+		count++
 	}
 
 	return { paid: Number(paid), count }
@@ -219,10 +241,11 @@ export async function referralStats(userId: string) {
 		: []
 	const byId = new Map(friends.map((f) => [f.id, f]))
 
+	const { start, end } = weekRange()
 	const wagerRows = ids.length
 		? await prisma.gameSession.groupBy({
 				by: ['userId'],
-				where: { userId: { in: ids }, status: 'FINISHED' },
+				where: { userId: { in: ids }, status: 'FINISHED', createdAt: { gte: start, lt: end } },
 				_sum: { betAmount: true }
 			})
 		: []
@@ -258,9 +281,10 @@ export async function referralStats(userId: string) {
 			photoUrl: f ? f.photoUrl : null,
 			joinedAt: r.createdAt,
 			wagered,
+			weekShare: Math.floor(wagered * WEEK_SHARE_PCT / 100),
 			earned: Number(r.registrationBonus) + Number(r.milestoneBonus),
-			milestoneDone: Number(r.milestoneBonus) > 0,
-			milestoneProgress: MILESTONE_WAGER > 0 ? Math.min(100, Math.round((wagered / MILESTONE_WAGER) * 100)) : 100
+			milestoneDone: true,
+			milestoneProgress: 100
 		}
 	})
 
@@ -272,8 +296,7 @@ export async function referralStats(userId: string) {
 		rewards: {
 			inviter: Number(INVITER_BONUS),
 			invitee: Number(INVITEE_BONUS),
-			milestone: Number(MILESTONE_BONUS),
-			milestoneWager: MILESTONE_WAGER
+			weekSharePct: WEEK_SHARE_PCT
 		},
 		invitedCount: rows.length,
 		totalEarned: earned,

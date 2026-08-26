@@ -34,7 +34,7 @@ export async function referralRoutes(app: FastifyInstance) {
 				code: link.code,
 				configured: link.configured,
 				playerId: user.playerId,
-				rewards: { inviter: 2500, invitee: 1000, milestone: 5000, milestoneWager: 25000 },
+				rewards: { inviter: 0, invitee: 0, weekSharePct: 0.5 },
 				invitedCount: 0,
 				totalEarned: 0,
 				inviter: null,

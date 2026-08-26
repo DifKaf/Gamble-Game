@@ -15,6 +15,7 @@ import { drunkardGateRoutes } from './routes/drunkardGate.js'
 import { questRoutes } from './routes/quests.js'
 import { referralRoutes } from './routes/referrals.js'
 import { exchangeRoutes } from './routes/exchange.js'
+import { adminRoutes } from './routes/admin.js'
 import { ensurePlayerIds } from './utils/ensurePlayerIds.js'
 import { ensureFeatureTables } from './utils/ensureFeatureTables.js'
 import { ensureIndexes } from './utils/ensureIndexes.js'
@@ -45,7 +46,7 @@ await app.register(rateLimit,{
 app.addContentTypeParser('application/json',{parseAs:'string'},(_req:any,body:any,done:any)=>{ const raw=typeof body==='string'?body.trim():''; if(!raw) return done(null,{}); try{ done(null,JSON.parse(raw)) }catch(err:any){ err.statusCode=400; done(err,undefined) } })
 app.decorate('authenticate',async function(request:any,reply:any){try{await request.jwtVerify()}catch{return reply.code(401).send({error:'Unauthorized'})}})
 app.get('/health',async()=>({ok:true}))
-await app.register(authRoutes,{prefix:'/auth'}); await app.register(meRoutes,{prefix:'/me'}); await app.register(walletRoutes,{prefix:'/wallet'}); await app.register(bonusRoutes,{prefix:'/bonus'}); await app.register(gameRoutes,{prefix:'/games'}); await app.register(minesRoutes,{prefix:'/games/mines'}); await app.register(coinflipRoutes,{prefix:'/games/coinflip'}); await app.register(blackjackRoutes,{prefix:'/games/blackjack'}); await app.register(drunkardGateRoutes,{prefix:'/games/drunkard-gate'}); await app.register(questRoutes,{prefix:'/quests'}); await app.register(referralRoutes,{prefix:'/referrals'}); await app.register(exchangeRoutes,{prefix:'/exchange'});
+await app.register(authRoutes,{prefix:'/auth'}); await app.register(meRoutes,{prefix:'/me'}); await app.register(walletRoutes,{prefix:'/wallet'}); await app.register(bonusRoutes,{prefix:'/bonus'}); await app.register(gameRoutes,{prefix:'/games'}); await app.register(minesRoutes,{prefix:'/games/mines'}); await app.register(coinflipRoutes,{prefix:'/games/coinflip'}); await app.register(blackjackRoutes,{prefix:'/games/blackjack'}); await app.register(drunkardGateRoutes,{prefix:'/games/drunkard-gate'}); await app.register(questRoutes,{prefix:'/quests'}); await app.register(referralRoutes,{prefix:'/referrals'}); await app.register(exchangeRoutes,{prefix:'/exchange'}); await app.register(adminRoutes,{prefix:'/admin'});
 // Выдаём индивидуальный playerId всем игрокам до того, как принимать запросы.
 await ensurePlayerIds(app.log)
 // Индексы под лидерборд и историю: миграций в проекте нет, поэтому создаём на старте.

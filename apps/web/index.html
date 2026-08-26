@@ -2130,7 +2130,7 @@ function symNode(id){
   return t ? t.cloneNode(true) : null;
 }
 // Высота ячейки замеряется один раз: чтение offsetHeight посреди анимации
-// заставляло браузер пересчитывать layout на каждый символ.
+// заставляло брау��ер пересчитывать layout на каждый символ.
 let CELL_H=0;
 function measureCell(){ const el=cells[0]&amp;&amp;cells[0][0]; if(el&amp;&amp;el.offsetHeight) CELL_H=el.offsetHeight+4; return CELL_H||64; }
 window.addEventListener(&#x27;resize&#x27;,()=&gt;{ CELL_H=0; });
@@ -2860,7 +2860,7 @@ async function doSpin(){
     if(await checkScatterTrigger()) return;
   }
 
-  // Собираем все символы-множители, оставшиеся на поле в конце последовательности
+  // Собираем все символы-множители, остав��иеся на поле в конце последовательности
   const finalMultsPos=gridMultsWithPos();
   const finalMults=finalMultsPos.map(m=&gt;m.mult);
   if(!inFreeSpin &amp;&amp; spinWin&gt;0 &amp;&amp; finalMults.length){
@@ -3209,7 +3209,7 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
           <div class="paytable-row"><span>🗝️🗝️🗝️ Ключ</span><span>x2 / x4 / x10</span></div>
           <div class="paytable-row"><span>🦜🦜🦜 Попугай</span><span>x1.5 / x3 / x7</span></div>
           <div class="paytable-row"><span>⚓⚓⚓ Якорь</span><span>x1 / x2 / x5</span></div>
-          <div class="paytable-note">5 игровых линий (3 прямые + 2 зигзага) · совпадения считаются слева-направо от 1-го барабана · 3+ 🗺️ дают 8 бесплатных спинов ×2 (с ре-триггером) · 5 🏆 на любой линии = весь джекпот!</div>
+          <div class="paytable-note">5 игровых линий (3 прямые + 2 зиг��ага) · совпадения считаются слева-направо от 1-го барабана · 3+ 🗺️ дают 8 бесплатных спинов ×2 (с ре-триггером) · 5 🏆 на любой линии = весь джекпот!</div>
         </div>
       </div>
     </section>
@@ -3490,6 +3490,14 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
         <div class="stat-box"><div class="v" id="statWon">0</div><div class="l">ВСЕГО ВЫИГРАНО</div></div>
         <div class="stat-box"><div class="v" id="statBiggest">0</div><div class="l">ЛУЧШИЙ ВЫИГРЫШ</div></div>
       </div>
+      <div class="panel" id="profileRankPanel" style="margin-top:12px;">
+        <div class="panel-title">Рейтинг</div>
+        <div class="rank-line"><b id="profileRankTitle">Новичок</b><span id="profileRankLevel">Ур. 1</span></div>
+        <div class="quest-bar"><i id="profileRankBar" style="width:0%"></i></div>
+        <div class="quest-reset" id="profileRankHint">Играйте, чтобы повышать уровень.</div>
+        <div class="badge-grid" id="profileBadges"></div>
+      </div>
+      <button class="btn btn-blue btn-block hidden" id="openAdminBtn" style="margin-top:16px;">Админка</button>
       <button class="btn btn-blue btn-block" id="togglePromoCreator" style="margin-top:16px;">Создать промокод</button>
       <div class="panel hidden" id="promoCreatorPanel" style="margin-top:12px;">
         <div class="panel-title">🎟️ Создать промокод</div>
@@ -3519,6 +3527,20 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
       </div>
       <div class="section-title">Созданные промокоды</div>
       <div class="panel" id="createdPromosList"><div class="empty-state">Пока нет созданных промокодов.</div></div>
+    </section>
+
+    <section id="screen-admin" class="screen">
+      <div class="game-header"><button class="back-btn" data-nav="profile">←</button><h2>Админка</h2></div>
+      <div class="stat-grid" id="adminOverview"></div>
+      <div class="panel" style="margin-top:12px;">
+        <div class="panel-title">Игроки</div>
+        <input class="input" id="adminUserQuery" type="text" placeholder="Ник или ID">
+        <div id="adminUsers" class="admin-list"></div>
+      </div>
+      <div class="panel" style="margin-top:12px;">
+        <div class="panel-title">Споры и сделки</div>
+        <div id="adminDeals" class="admin-list"></div>
+      </div>
     </section>
 
   </main>
@@ -3666,6 +3688,7 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
       if(typeof loadReferrals==='function') loadReferrals();
       if(typeof loadExchange==='function') loadExchange();
       if(typeof checkWheelStatus==='function') checkWheelStatus();
+      if(typeof loadProfileExtra==='function') loadProfileExtra();
       console.log('Backend auth success', auth.user);
     }catch(e){
       console.error('Backend auth failed:', e);
@@ -3846,7 +3869,7 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
     }
   }
   /* ============ Статистика за неделю ============ */
-  // Неделя считается с понедельника 00:00. Сброс не требует никакого крона:
+  // Недел�� считается с понедельника 00:00. Сброс не требует никакого крона:
   // как только меняется начало недели, счётчики начинаются заново.
   function weekStartMs(ts){ var d = new Date(ts || Date.now()); var day = (d.getDay()+6)%7; d.setHours(0,0,0,0); d.setDate(d.getDate()-day); return d.getTime(); }
   var weekly = { weekStart: weekStartMs(), wagered: 0, won: 0, best: 0 };
@@ -3943,7 +3966,7 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
     }catch(e){
       var box = document.getElementById('questsBox');
       if(box && !questsData){
-        box.innerHTML = '<div class="exch-warn">Не удалось загрузить квесты: ' + escapeHtml(e.message || 'ошибка сервера') + '</div>'
+        box.innerHTML = '<div class="exch-warn">Не удалось загрузить квесты: ' + escapeHtml(e.message || 'ошибка серве��а') + '</div>'
           + '<button class="btn btn-gold btn-block" id="questsRetryBtn" style="margin-top:12px;">Повторить</button>';
       }
     }
@@ -4112,12 +4135,10 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
 
   function methodLogoHtml(code){
     var c = String(code || '').toLowerCase();
-    var src = '';
-    if(c === 'sbp') src = 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/SBP_Logo.svg/240px-SBP_Logo.svg.png';
-    else if(c === 'card') src = 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/Mir-logo.SVG.svg/200px-Mir-logo.SVG.svg.png';
-    else if(c === 'crypto') src = 'https://assets.coingecko.com/coins/images/325/small/Tether.png';
-    if(!src) return '<span class="p2p-logo">💱</span>';
-    return '<img class="p2p-logo" alt="' + escapeHtml(c) + '" src="' + src + '" referrerpolicy="no-referrer">';
+    if(c === 'sbp') return '<span class="p2p-logo p2p-logo-svg" aria-hidden="true"><svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#5B57A2"/><path d="M8 16.2c0-4.4 3.6-8 8-8 2.5 0 4.7 1.1 6.2 2.9l-3 2.2A4.7 4.7 0 0 0 16 11.4c-2.6 0-4.8 2.1-4.8 4.8S13.4 21 16 21c1.6 0 3-.8 3.9-2h-3.2v-3.2H24V21c-2 2.4-5 4-8 4-4.4 0-8-3.6-8-8.8z" fill="#fff"/></svg></span>';
+    if(c === 'card') return '<span class="p2p-logo p2p-logo-svg" aria-hidden="true"><svg viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="#fff"/><path d="M6 11.2h7.6c2.8 0 4.4 1.5 4.4 3.8 0 2.6-2 4.2-5 4.2H9.6V24H6V11.2zm3.6 5.5h3.2c1.3 0 2-.6 2-1.6s-.6-1.5-1.9-1.5H9.6v3.1zm10.2-5.5H26c2.7 0 4.2 1.4 4.2 3.6 0 1.5-.7 2.6-2 3.2L29.8 24h-3.8l-1.4-4.4h-1.2V24h-3.6V11.2zm3.6 5.3h1.5c.9 0 1.4-.4 1.4-1.2s-.5-1.2-1.4-1.2h-1.5v2.4z" fill="#1A8C3E"/></svg></span>';
+    if(c === 'crypto') return '<span class="p2p-logo p2p-logo-svg" aria-hidden="true"><svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#26A17B"/><path d="M17.6 17.5v4.3c2.6-.1 4.5-.7 4.5-1.4 0-.7-1.9-1.3-4.5-1.4v-1.5zm0-6.7v4.1c2.3-.1 3.9-.6 3.9-1.3s-1.6-1.2-3.9-1.3zM8 16c0 4.4 3.6 8 8 8s8-3.6 8-8-3.6-8-8-8-8 3.6-8 8zm9.6-7.3V7h-2.3v1.7c-2 .1-3.4.8-3.4 1.8 0 1 1.3 1.6 3.4 1.8v4.4c-1.7-.1-2.8-.5-2.8-1.1h-2.5c0 1.4 1.6 2.2 5.3 2.4V25h2.3v-1.7c2.1-.1 3.6-.8 3.6-1.9 0-1-1.4-1.6-3.6-1.8v-4.3c1.6.1 2.6.5 2.6 1.1h2.4c0-1.3-1.5-2.1-5-2.3z" fill="#fff"/></svg></span>';
+    return '<span class="p2p-logo">💱</span>';
   }
 
   function money(v, currency){
@@ -4160,6 +4181,9 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
     if(o.status === 'PAID' && o.role === 'seller'){
       btns.push('<button class="btn btn-green" data-exch-confirm="' + escapeHtml(o.id) + '">Деньги получил</button>');
     }
+    if((o.status === 'DEAL' || o.status === 'PAID') && o.mine){
+      btns.push('<button class="p2p-ghost" data-exch-dispute="' + escapeHtml(o.id) + '">Открыть спор</button>');
+    }
     return btns.length ? '<div class="p2p-actions">' + btns.join('') + '</div>' : '';
   }
 
@@ -4173,6 +4197,7 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
       extra += '</div>';
       if(o.receiptUrl) extra += '<div class="p2p-receipt"><small>Чек</small><img src="' + escapeHtml(o.receiptUrl) + '" alt="Чек"></div>';
       else if(o.role === 'buyer' && o.status === 'PAID') extra += '<label class="p2p-receipt-link">Прикрепить чек<input type="file" accept="image/*" hidden data-exch-receipt="' + escapeHtml(o.id) + '"></label>';
+      if(o.status === 'DISPUTED' && o.disputeReason) extra += '<div class="p2p-dispute-note">Спор: ' + escapeHtml(o.disputeReason) + '</div>';
     }
     return '<article class="p2p-card">'
       + '<div class="p2p-card-top"><div><div class="p2p-amount">' + fmt(o.amountGc) + ' GC</div><div class="p2p-sub">' + methodLogoHtml(o.method) + ' ' + escapeHtml(o.methodTitle || o.method || '') + ' · ' + escapeHtml(who) + '</div></div>'
@@ -4332,11 +4357,11 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
     finally{ exchangeBusy = false; }
   }
 
-  async function exchangeAction(path, okMsg){
+  async function exchangeAction(path, okMsg, extra){
     if(exchangeBusy) return;
     exchangeBusy = true;
     try{
-      var res = await apiRequest(path, { method:'POST', body: JSON.stringify({}) });
+      var res = await apiRequest(path, { method:'POST', body: JSON.stringify(extra || {}) });
       haptic('success');
       showToast(okMsg,'success');
       if(typeof res.balance === 'number'){ backendBalance = res.balance; applyBackendBalanceToUI(); }
@@ -4377,7 +4402,14 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
     var conf = ev.target.closest('[data-exch-confirm]');
     if(conf){ ev.preventDefault(); exchangeAction('/exchange/offers/' + encodeURIComponent(conf.getAttribute('data-exch-confirm')) + '/confirm', 'GC ушли покупателю'); return; }
     var c = ev.target.closest('[data-exch-cancel]');
-    if(c){ ev.preventDefault(); exchangeAction('/exchange/offers/' + encodeURIComponent(c.getAttribute('data-exch-cancel')) + '/cancel', 'Отменено'); }
+    if(c){ ev.preventDefault(); exchangeAction('/exchange/offers/' + encodeURIComponent(c.getAttribute('data-exch-cancel')) + '/cancel', 'Отменено'); return; }
+    var d = ev.target.closest('[data-exch-dispute]');
+    if(d){
+      ev.preventDefault();
+      var reason = window.prompt('Опишите проблему по сделке', 'Не получил оплату / неверные реквизиты');
+      if(reason === null) return;
+      exchangeAction('/exchange/offers/' + encodeURIComponent(d.getAttribute('data-exch-dispute')) + '/dispute', 'Спор открыт', { reason: reason });
+    }
   });
 
   document.addEventListener('change', function(ev){
@@ -4552,6 +4584,8 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
     if(name==='promo-create') loadCreatedPromos();
     if((name==='bonuses'||name==='wheel'||name==='home') && typeof checkWheelStatus==='function') checkWheelStatus();
     if((name==='profile'||name==='wheel'||name==='bonuses') && typeof refreshWeeklyStats==='function') refreshWeeklyStats();
+    if(name==='profile' && typeof loadProfileExtra==='function') loadProfileExtra();
+    if(name==='admin' && typeof loadAdmin==='function') loadAdmin();
     if(name==='bonuses'){ if(typeof loadQuests==='function') loadQuests(); if(typeof loadReferrals==='function') loadReferrals(); }
     if((name==='exchange'||name==='wallet'||name==='home') && typeof loadExchange==='function') loadExchange();
     if(name==='wallet' && typeof renderHistory==='function') renderHistory();
@@ -4560,6 +4594,82 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
   }
   document.querySelectorAll('[data-nav]').forEach(function(btn){
     btn.addEventListener('click', function(){ showScreen(btn.getAttribute('data-nav')); haptic('light'); });
+  });
+  var openAdminBtn = document.getElementById('openAdminBtn');
+  if(openAdminBtn) openAdminBtn.addEventListener('click', function(){ showScreen('admin'); haptic('light'); });
+
+  async function loadAdmin(){
+    if(!backendReady || !(backendUser && backendUser.admin)) return;
+    try{
+      var ov = await apiRequest('/admin/overview');
+      var box = document.getElementById('adminOverview');
+      if(box){
+        box.innerHTML = ''
+          + '<div class="stat-box"><div class="v">' + fmt(ov.users||0) + '</div><div class="l">ИГРОКИ</div></div>'
+          + '<div class="stat-box"><div class="v">' + fmt(ov.disputed||0) + '</div><div class="l">СПОРЫ</div></div>'
+          + '<div class="stat-box"><div class="v">' + fmt(ov.paid||0) + '</div><div class="l">ЖДУТ ПОДТВЕРЖДЕНИЯ</div></div>';
+      }
+      var users = await apiRequest('/admin/users?q=' + encodeURIComponent((document.getElementById('adminUserQuery')||{}).value || ''));
+      var uBox = document.getElementById('adminUsers');
+      if(uBox){
+        uBox.innerHTML = (users.users||[]).map(function(u){
+          return '<div class="admin-row" data-admin-user="' + escapeHtml(u.id) + '">'
+            + '<div><b>' + escapeHtml(u.firstName || u.username || 'Игрок') + '</b><small>ID ' + escapeHtml(String(u.playerId||'')) + ' · ' + fmt(u.balance) + ' GC' + (u.banned ? ' · блок' : '') + '</small></div>'
+            + '<div class="p2p-actions">'
+            + '<button class="p2p-ghost" data-admin-adjust="' + escapeHtml(u.id) + '">Баланс</button>'
+            + '<button class="p2p-ghost" data-admin-ban="' + escapeHtml(u.id) + '" data-banned="' + (u.banned ? '1' : '0') + '">' + (u.banned ? 'Разблок' : 'Бан') + '</button>'
+            + '</div></div>';
+        }).join('') || '<div class="empty-state">Никого не нашли</div>';
+      }
+      var deals = await apiRequest('/admin/deals');
+      var dBox = document.getElementById('adminDeals');
+      if(dBox){
+        dBox.innerHTML = (deals.deals||[]).map(function(d){
+          return '<div class="admin-row">'
+            + '<div><b>' + fmt(d.amountGc) + ' GC · ' + escapeHtml(d.status) + '</b><small>' + escapeHtml(d.method||'') + (d.disputeReason ? ' · ' + escapeHtml(d.disputeReason) : '') + '</small></div>'
+            + '<div class="p2p-actions">'
+            + '<button class="btn btn-green" data-admin-deal="' + escapeHtml(d.id) + '" data-action="complete">Покупателю</button>'
+            + '<button class="p2p-ghost" data-admin-deal="' + escapeHtml(d.id) + '" data-action="cancel">Продавцу</button>'
+            + '</div></div>';
+        }).join('') || '<div class="empty-state">Активных споров нет</div>';
+      }
+    }catch(e){ showToast(e.message || 'Нет доступа к админке','error'); }
+  }
+
+  document.addEventListener('input', function(ev){
+    if(ev.target && ev.target.id === 'adminUserQuery'){
+      clearTimeout(window.__adminSearchT);
+      window.__adminSearchT = setTimeout(function(){ if(typeof loadAdmin==='function') loadAdmin(); }, 280);
+    }
+  });
+  document.addEventListener('click', function(ev){
+    var adj = ev.target && ev.target.closest ? ev.target.closest('[data-admin-adjust]') : null;
+    if(adj){
+      ev.preventDefault();
+      var amount = window.prompt('На сколько изменить баланс? Например 5000 или -2000', '1000');
+      if(amount === null) return;
+      apiRequest('/admin/users/' + encodeURIComponent(adj.getAttribute('data-admin-adjust')) + '/adjust', {
+        method:'POST', body: JSON.stringify({ amount: Number(amount) })
+      }).then(function(){ showToast('Баланс обновлён','success'); loadAdmin(); }).catch(function(e){ showToast(e.message||'Ошибка','error'); });
+      return;
+    }
+    var ban = ev.target && ev.target.closest ? ev.target.closest('[data-admin-ban]') : null;
+    if(ban){
+      ev.preventDefault();
+      var next = ban.getAttribute('data-banned') !== '1';
+      var reason = next ? (window.prompt('Причина блокировки', 'Нарушение правил') || 'Нарушение правил') : '';
+      apiRequest('/admin/users/' + encodeURIComponent(ban.getAttribute('data-admin-ban')) + '/ban', {
+        method:'POST', body: JSON.stringify({ banned: next, reason: reason })
+      }).then(function(){ showToast(next ? 'Игрок заблокирован' : 'Игрок разблокирован','success'); loadAdmin(); }).catch(function(e){ showToast(e.message||'Ошибка','error'); });
+      return;
+    }
+    var deal = ev.target && ev.target.closest ? ev.target.closest('[data-admin-deal]') : null;
+    if(deal){
+      ev.preventDefault();
+      apiRequest('/exchange/admin/requests/' + encodeURIComponent(deal.getAttribute('data-admin-deal')), {
+        method:'POST', body: JSON.stringify({ action: deal.getAttribute('data-action') })
+      }).then(function(){ showToast('Сделка обработана','success'); loadAdmin(); }).catch(function(e){ showToast(e.message||'Ошибка','error'); });
+    }
   });
   document.querySelectorAll('[data-open]').forEach(function(btn){
     btn.addEventListener('click', function(){ showScreen(btn.getAttribute('data-open')); haptic('light'); });
@@ -6219,7 +6329,7 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
         var reason = (err && err.message) ? err.message : 'нет связи с сервером';
         if(/Unauthorized|401/i.test(reason)) reason = 'требуется вход через Telegram';
         if(/Not Found|404/i.test(reason)) reason = 'сервер ещё не обновлён';
-        box.innerHTML = '<div class="empty-state">История переводов недоступна: ' + escapeHtml(reason) +
+        box.innerHTML = '<div class="empty-state">История переводов нед��ступна: ' + escapeHtml(reason) +
           '<br><button id="historyRetryBtn" style="margin-top:10px;padding:8px 16px;border-radius:10px;border:1px solid #333;background:#1b1b1b;color:#fff;font:inherit;cursor:pointer;">Повторить</button></div>';
         var retryBtn = document.getElementById('historyRetryBtn');
         if(retryBtn) retryBtn.addEventListener('click', function(){ renderHistory(); });
@@ -6240,6 +6350,7 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
       return '<div class="history-item"><div><div class="desc">'+h.desc+'</div><div class="time">'+time+'</div></div><div class="amt '+(isPlus?'plus':'minus')+'">'+sign+fmt(h.amount)+' GC</div></div>';
     }).join('');
   }
+  var profileExtra = null;
   function renderProfile(){
     var p = me();
     setAvatarEl('profileAvatar', p.avatar);
@@ -6249,6 +6360,29 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
     var statWageredEl=document.getElementById('statWagered'); if(statWageredEl) statWageredEl.textContent = fmt(weekly.wagered);
     var statWonEl=document.getElementById('statWon'); if(statWonEl) statWonEl.textContent = fmt(p.stats.won);
     var statBiggestEl=document.getElementById('statBiggest'); if(statBiggestEl) statBiggestEl.textContent = fmt(p.stats.biggest);
+    var adminBtn=document.getElementById('openAdminBtn');
+    if(adminBtn) adminBtn.classList.toggle('hidden', !(backendUser && backendUser.admin));
+    if(profileExtra && profileExtra.rank){
+      var r = profileExtra.rank;
+      var titleEl=document.getElementById('profileRankTitle'); if(titleEl) titleEl.textContent = r.title;
+      var lvlEl=document.getElementById('profileRankLevel'); if(lvlEl) lvlEl.textContent = 'Ур. ' + r.level;
+      var bar=document.getElementById('profileRankBar'); if(bar) bar.style.width = (r.progress||0) + '%';
+      var hint=document.getElementById('profileRankHint');
+      if(hint) hint.textContent = r.nextXp ? ('До следующего уровня: ' + fmt(Math.max(0, r.nextXp - r.xp)) + ' GC отыгрыша') : 'Максимальный уровень';
+      var badges=document.getElementById('profileBadges');
+      if(badges){
+        badges.innerHTML = (profileExtra.badges||[]).map(function(b){
+          return '<div class="badge-chip' + (b.unlocked ? ' on' : '') + '"><b>' + escapeHtml(b.title) + '</b><small>' + escapeHtml(b.hint) + '</small></div>';
+        }).join('');
+      }
+    }
+  }
+  async function loadProfileExtra(){
+    if(!backendReady) return;
+    try{
+      profileExtra = await apiRequest('/me/profile');
+      renderProfile();
+    }catch(e){}
   }
   function renderPlayerSwitch(){
     var box = document.getElementById('playerSwitchBox');
@@ -6692,8 +6826,22 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
 #screen-exchange .p2p-methods{display:flex;gap:8px;flex-wrap:wrap;}
 #screen-exchange .p2p-method{flex:1;min-width:104px;padding:10px;border-radius:12px;border:1px solid #2f2f2f;background:#111;color:#fff;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;gap:8px;}
 #screen-exchange .p2p-method.active{border-color:#0b9dff;background:rgba(11,157,255,.12);}
-.p2p-logo{display:inline-flex;width:22px;height:22px;flex:0 0 22px;vertical-align:-5px;margin-right:4px;}
+.p2p-logo{display:inline-flex;width:22px;height:22px;flex:0 0 22px;vertical-align:-5px;margin-right:4px;align-items:center;justify-content:center;}
+.p2p-logo-svg,.p2p-logo svg{width:22px;height:22px;display:block;border-radius:6px;}
 .p2p-logo[src],img.p2p-logo{object-fit:contain;background:#fff;border-radius:6px;padding:1px;}
+.rank-line{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px;}
+.rank-line b{font-size:16px;}
+.rank-line span{font-size:12px;font-weight:800;color:#9fb0c8;}
+.badge-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;}
+.badge-chip{background:#151515;border:1px solid #2a2a2a;border-radius:12px;padding:10px;opacity:.45;}
+.badge-chip.on{opacity:1;border-color:#3d6bff;}
+.badge-chip b,.badge-chip small{display:block;}
+.badge-chip small{margin-top:4px;color:#8a8a8a;font-size:11px;}
+.admin-list{display:flex;flex-direction:column;gap:8px;margin-top:10px;}
+.admin-row{display:flex;justify-content:space-between;gap:10px;align-items:center;background:#151515;border:1px solid #2a2a2a;border-radius:14px;padding:10px;}
+.admin-row b{display:block;}
+.admin-row small{display:block;color:#8a8a8a;margin-top:3px;}
+.p2p-dispute-note{margin-top:8px;color:#ffb74d;font-size:12px;font-weight:800;}
 .cat-img-card{position:relative;min-height:140px;overflow:hidden;}
 .cat-img-label{position:absolute;left:12px;right:12px;bottom:12px;z-index:2;text-align:left;}
 .cat-img-label b{display:block;font-size:22px;font-weight:950;color:#fff;letter-spacing:.04em;text-shadow:0 2px 10px rgba(0,0,0,.65);}

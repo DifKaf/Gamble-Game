@@ -1,0 +1,170 @@
+import { FastifyInstance } from 'fastify'
+import { z } from 'zod'
+import { prisma } from '../db.js'
+import { getAuthUser } from '../auth/getUser.js'
+import { applyBalanceChange } from '../wallet/wallet.js'
+import { isExchangeAdmin } from '../utils/exchange.js'
+import { publicPlayerId, parsePlayerId } from '../utils/playerId.js'
+import { sendTelegramMessage } from '../utils/telegram.js'
+import { profilePayload } from '../utils/profile.js'
+
+function requireAdmin(user: any, reply: any) {
+	if (!isExchangeAdmin(user.telegramId)) {
+		reply.code(403).send({ error: 'Нет доступа' })
+		return false
+	}
+	return true
+}
+
+function publicAdminUser(u: any) {
+	return {
+		id: u.id,
+		playerId: publicPlayerId(u),
+		telegramId: String(u.telegramId),
+		username: u.username,
+		firstName: u.firstName,
+		lastName: u.lastName,
+		photoUrl: u.photoUrl,
+		balance: Number(u.balance),
+		banned: Boolean(u.banned),
+		banReason: u.banReason || null,
+		createdAt: u.createdAt
+	}
+}
+
+export async function adminRoutes(app: FastifyInstance) {
+	app.get('/me', { preHandler: [(app as any).authenticate] }, async (request, reply) => {
+		const user = await getAuthUser(request)
+		if (!requireAdmin(user, reply)) return
+		return { ok: true, admin: true }
+	})
+
+	app.get('/overview', { preHandler: [(app as any).authenticate] }, async (request, reply) => {
+		const user = await getAuthUser(request)
+		if (!requireAdmin(user, reply)) return
+		const [users, banned, open, disputed, paid] = await Promise.all([
+			prisma.user.count(),
+			prisma.user.count({ where: { banned: true } as any }).catch(() => 0),
+			prisma.exchangeRequest.count({ where: { status: 'OPEN' } }).catch(() => 0),
+			prisma.exchangeRequest.count({ where: { status: 'DISPUTED' } }).catch(() => 0),
+			prisma.exchangeRequest.count({ where: { status: 'PAID' } }).catch(() => 0)
+		])
+		return { users, banned, openOffers: open, disputed, paid }
+	})
+
+	app.get('/users', { preHandler: [(app as any).authenticate] }, async (request, reply) => {
+		const user = await getAuthUser(request)
+		if (!requireAdmin(user, reply)) return
+		const q = String((request.query as any).q || '').replace(/^@/, '').trim()
+		const where: any = {}
+		if (q) {
+			const or: any[] = [
+				{ username: { contains: q, mode: 'insensitive' } },
+				{ firstName: { contains: q, mode: 'insensitive' } }
+			]
+			const pid = parsePlayerId(q)
+			if (pid) or.push({ playerId: pid })
+			where.OR = or
+		}
+		const rows = await prisma.user.findMany({
+			where,
+			orderBy: { createdAt: 'desc' },
+			take: 30
+		})
+		return { users: rows.map(publicAdminUser) }
+	})
+
+	app.get('/users/:id', { preHandler: [(app as any).authenticate] }, async (request, reply) => {
+		const admin = await getAuthUser(request)
+		if (!requireAdmin(admin, reply)) return
+		const id = String((request.params as any).id || '')
+		const row = await prisma.user.findUnique({ where: { id } })
+		if (!row) return reply.code(404).send({ error: 'Игрок не найден' })
+		const profile = await profilePayload(row.id)
+		const deals = await prisma.exchangeRequest.findMany({
+			where: { OR: [{ userId: row.id }, { buyerId: row.id }] },
+			orderBy: { createdAt: 'desc' },
+			take: 12
+		}).catch(() => [])
+		return { user: publicAdminUser(row), profile, deals }
+	})
+
+	app.post('/users/:id/adjust', { preHandler: [(app as any).authenticate] }, async (request, reply) => {
+		const admin = await getAuthUser(request)
+		if (!requireAdmin(admin, reply)) return
+		const parsed = z.object({
+			amount: z.number().int().min(-10000000).max(10000000),
+			note: z.string().max(200).optional()
+		}).safeParse(request.body)
+		if (!parsed.success || !parsed.data.amount) return reply.code(400).send({ error: 'Укажите сумму' })
+		const id = String((request.params as any).id || '')
+		const target = await prisma.user.findUnique({ where: { id } })
+		if (!target) return reply.code(404).send({ error: 'Игрок не найден' })
+		const updated = await prisma.$transaction(async (tx) => applyBalanceChange({
+			tx,
+			userId: target.id,
+			amount: BigInt(parsed.data.amount),
+			type: 'ADMIN_ADJUSTMENT',
+			source: 'admin-adjust',
+			metadata: { adminId: admin.id, note: parsed.data.note || '' }
+		}))
+		void sendTelegramMessage(target.telegramId, `🛠 Админ изменил ваш баланс на ${parsed.data.amount} GC.`)
+		return { ok: true, user: { ...publicAdminUser(target), balance: Number(updated.balance) } }
+	})
+
+	app.post('/users/:id/ban', { preHandler: [(app as any).authenticate] }, async (request, reply) => {
+		const admin = await getAuthUser(request)
+		if (!requireAdmin(admin, reply)) return
+		const parsed = z.object({
+			banned: z.boolean(),
+			reason: z.string().max(200).optional()
+		}).safeParse(request.body)
+		if (!parsed.success) return reply.code(400).send({ error: 'Укажите статус' })
+		const id = String((request.params as any).id || '')
+		try {
+			const row = await prisma.user.update({
+				where: { id },
+				data: {
+					banned: parsed.data.banned,
+					banReason: parsed.data.banned ? (parsed.data.reason || 'Нарушение правил') : null
+				} as any
+			})
+			return { ok: true, user: publicAdminUser(row) }
+		} catch {
+			await prisma.$executeRawUnsafe(
+				'UPDATE "User" SET "banned" = $2, "banReason" = $3 WHERE "id" = $1',
+				id,
+				parsed.data.banned,
+				parsed.data.banned ? (parsed.data.reason || 'Нарушение правил') : null
+			)
+			const row = await prisma.user.findUniqueOrThrow({ where: { id } })
+			return { ok: true, user: publicAdminUser({ ...row, banned: parsed.data.banned, banReason: parsed.data.reason || null }) }
+		}
+	})
+
+	app.get('/deals', { preHandler: [(app as any).authenticate] }, async (request, reply) => {
+		const admin = await getAuthUser(request)
+		if (!requireAdmin(admin, reply)) return
+		const status = String((request.query as any).status || '').toUpperCase()
+		const where: any = status ? { status } : { status: { in: ['OPEN', 'DEAL', 'PAID', 'DISPUTED'] } }
+		const rows = await prisma.exchangeRequest.findMany({
+			where,
+			orderBy: { createdAt: 'desc' },
+			take: 40
+		})
+		return { deals: rows.map((row) => ({
+			id: row.id,
+			status: row.status,
+			amountGc: Number(row.amountGc),
+			payout: Number(row.payoutMinor) / 100,
+			currency: row.currency,
+			method: row.method,
+			destination: row.destination,
+			sellerId: row.userId,
+			buyerId: row.buyerId,
+			disputeReason: (row as any).disputeReason || null,
+			adminNote: row.adminNote,
+			createdAt: row.createdAt
+		})) }
+	})
+}

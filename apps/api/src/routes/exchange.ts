@@ -4,6 +4,7 @@ import { prisma } from '../db.js'
 import { getAuthUser } from '../auth/getUser.js'
 import { applyBalanceChange } from '../wallet/wallet.js'
 import { sendTelegramMessage, sendTelegramPhoto } from '../utils/telegram.js'
+import { assertCanSellP2p, isUserBanned, mapAntifraudError } from '../utils/antifraud.js'
 import { publicPlayerId } from '../utils/playerId.js'
 import {
 	exchangeConfig,
@@ -31,7 +32,7 @@ const offerSchema = z.object({
 })
 
 const adminActionSchema = z.object({
-	action: z.enum(['complete', 'cancel', 'paid', 'reject']),
+	action: z.enum(['complete', 'cancel', 'paid', 'reject', 'release', 'refund']),
 	note: z.string().max(300).optional()
 })
 
@@ -126,6 +127,7 @@ export async function exchangeRoutes(app: FastifyInstance) {
 		const user = await getAuthUser(request)
 		const cfg = exchangeConfig()
 		if (!cfg.enabled) return reply.code(403).send({ error: 'Биржа временно закрыта' })
+		if (isUserBanned(user)) return reply.code(403).send({ error: 'Аккаунт заблокирован. Напишите в поддержку.' })
 
 		const parsed = offerSchema.safeParse(request.body)
 		if (!parsed.success) return reply.code(400).send({ error: 'Укажите сумму GC, цену, способ и реквизиты' })
@@ -140,6 +142,11 @@ export async function exchangeRoutes(app: FastifyInstance) {
 		if (amountGc < cfg.minGc) return reply.code(400).send({ error: `Минимальная сумма — ${cfg.minGc} GC` })
 		if (priceMinor < 100) return reply.code(400).send({ error: 'Минимальная цена — 1 ' + cfg.currency })
 		if (amountGc > Number(user.balance)) return reply.code(400).send({ error: 'Недостаточно Gamble Coin' })
+		try { await assertCanSellP2p(user, amountGc, destination) } catch (e: any) {
+			const mapped = mapAntifraudError(e)
+			if (mapped) return reply.code(mapped.code).send({ error: mapped.error })
+			throw e
+		}
 
 		const [wagered, usedWeek, pending] = await Promise.all([
 			lifetimeWager(user.id),
@@ -403,6 +410,30 @@ export async function exchangeRoutes(app: FastifyInstance) {
 		const updated = await findExchangeRequest(row.id)
 		const [offer] = await enrichOffers([updated], user.id)
 		return { ok: true, offer, balance: Number(fresh.balance), released: true }
+	})
+
+	app.post('/offers/:id/dispute', { preHandler: [(app as any).authenticate] }, async (request, reply) => {
+		const user = await getAuthUser(request)
+		const id = String((request.params as any).id || '')
+		const row = await loadOfferOr404(id, reply)
+		if (!row) return
+		const isSeller = row.userId === user.id
+		const isBuyer = row.buyerId === user.id
+		if (!isSeller && !isBuyer) return reply.code(403).send({ error: 'Спор может открыть только участник сделки' })
+		if (row.status !== 'DEAL' && row.status !== 'PAID') return reply.code(400).send({ error: 'Спор можно открыть только по активной сделке' })
+		const reason = String((request.body as any)?.reason || '').trim().slice(0, 300) || 'Открыт спор по сделке'
+		const upd = await updateOffer(row.id, [row.status], { status: 'DISPUTED', disputeReason: reason })
+		if (!upd.count) return reply.code(409).send({ error: 'Статус сделки уже изменился' })
+		try {
+			const otherId = isSeller ? row.buyerId : row.userId
+			if (otherId) {
+				const other = await prisma.user.findUnique({ where: { id: otherId } })
+				if (other) void sendTelegramMessage(other.telegramId, `⚠️ По P2P-сделке открыт спор.\n${Number(row.amountGc)} GC\nПричина: ${reason}`)
+			}
+		} catch {}
+		const updated = await findExchangeRequest(row.id)
+		const [offer] = await enrichOffers([updated], user.id)
+		return { ok: true, offer }
 	})
 
 	app.post('/requests/:id/cancel', { preHandler: [(app as any).authenticate] }, async (request, reply) => {

@@ -5,6 +5,7 @@ import { getAuthUser } from '../auth/getUser.js'
 import { applyBalanceChange } from '../wallet/wallet.js'
 import { computePlayerId, publicPlayerId, parsePlayerId } from '../utils/playerId.js'
 import { sendTelegramMessage } from '../utils/telegram.js'
+import { assertCanTransfer, mapAntifraudError } from '../utils/antifraud.js'
 
 const gameAdjustSchema = z.object({
   amount: z.number().int().min(-1000000).max(10000000),
@@ -180,6 +181,11 @@ export async function walletRoutes(app: FastifyInstance) {
     const recipient: any = await findUserByHandle(raw)
     if (!recipient) return reply.code(404).send({ error: 'Игрок не найден' })
     if (recipient.id === user.id) return reply.code(400).send({ error: 'Нельзя перевести самому себе' })
+    try { await assertCanTransfer(user, Number(amount)) } catch (e: any) {
+      const mapped = mapAntifraudError(e)
+      if (mapped) return reply.code(mapped.code).send({ error: mapped.error })
+      throw e
+    }
 
     try {
       const result = await prisma.$transaction(async (tx) => {

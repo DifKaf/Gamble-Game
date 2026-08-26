@@ -41,6 +41,8 @@ model User {
   lastName   String?
   photoUrl   String?
   balance    BigInt @default(1000000)
+  banned     Boolean @default(false)
+  banReason  String?
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
   transactions WalletTransaction[]
@@ -224,6 +226,7 @@ model ExchangeRequest {
   takenAt DateTime?
   paidAt DateTime?
   receiptUrl String?
+  disputeReason String?
   processedAt DateTime?
   @@index([userId, createdAt])
   @@index([buyerId, createdAt])

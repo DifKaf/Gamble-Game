@@ -4,6 +4,8 @@ import { prisma } from '../db.js'
 import { publicPlayerId } from '../utils/playerId.js'
 import { cached } from '../utils/cache.js'
 import { weeklyStats } from '../utils/weeklyStats.js'
+import { profilePayload } from '../utils/profile.js'
+import { isExchangeAdmin } from '../utils/exchange.js'
 
 // Лидерборд одинаков для всех, пересчитывать его на каждый запрос смысла нет.
 const LEADERBOARD_TTL_MS = Number(process.env.LEADERBOARD_TTL_MS || 45000)
@@ -34,8 +36,15 @@ export async function meRoutes(app: FastifyInstance) {
 			lastName: u.lastName,
 			photoUrl: u.photoUrl,
 			balance: Number(u.balance),
+			banned: Boolean((u as any).banned),
+			admin: isExchangeAdmin(u.telegramId),
 			createdAt: u.createdAt
 		}
+	})
+
+	app.get('/profile', { preHandler: [(app as any).authenticate] }, async (req) => {
+		const u = await getAuthUser(req)
+		return profilePayload(u.id)
 	})
 
 	app.get('/leaderboard', { preHandler: [(app as any).authenticate] }, async () => {

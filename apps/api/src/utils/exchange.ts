@@ -309,7 +309,11 @@ export async function updateOffer(id: string, expectedStatus: string | string[],
 	const statuses = Array.isArray(expectedStatus) ? expectedStatus : [expectedStatus]
 	const del = exchangeDelegate(client)
 	if (del) {
-		return del.updateMany({ where: { id, status: { in: statuses } }, data })
+		try {
+			return await del.updateMany({ where: { id, status: { in: statuses } }, data })
+		} catch (err) {
+			if (!isMissingRelation(err) && !/Unknown arg|receiptUrl/i.test(String((err as any)?.message || ''))) throw err
+		}
 	}
 	const sets: string[] = []
 	const params: any[] = [id]

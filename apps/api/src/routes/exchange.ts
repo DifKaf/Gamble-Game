@@ -288,6 +288,16 @@ export async function exchangeRoutes(app: FastifyInstance) {
 
 		const upd = await updateOffer(row.id, 'DEAL', { status: 'PAID', paidAt: new Date() })
 		if (!upd.count) return reply.code(409).send({ error: 'Статус сделки уже изменился' })
+		try {
+			const seller = await prisma.user.findUnique({ where: { id: row.userId } })
+			if (seller) {
+				const buyerName = user.firstName || user.username || publicPlayerId(user)
+				void sendTelegramMessage(
+					seller.telegramId,
+					`💳 Покупатель отметил оплату по P2P:\n${Number(row.amountGc)} GC / ${Number(row.payoutMinor) / 100} ${row.currency}\nОт ${buyerName}\nПроверьте чек и подтвердите сделку.`
+				)
+			}
+		} catch {}
 		const updated = await findExchangeRequest(row.id)
 		const [offer] = await enrichOffers([updated], user.id)
 		return { ok: true, offer }
@@ -334,6 +344,15 @@ export async function exchangeRoutes(app: FastifyInstance) {
 		const updated = await findExchangeRequest(row.id)
 		const [offer] = await enrichOffers([updated], user.id)
 		const fresh = await prisma.user.findUniqueOrThrow({ where: { id: user.id } })
+		try {
+			const buyer = await prisma.user.findUnique({ where: { id: row.buyerId } })
+			if (buyer) {
+				void sendTelegramMessage(
+					buyer.telegramId,
+					`✅ Продавец подтвердил P2P-сделку.\nВам зачислено ${Number(buyerGets)} GC.`
+				)
+			}
+		} catch {}
 		return { ok: true, offer, balance: Number(fresh.balance) }
 	})
 

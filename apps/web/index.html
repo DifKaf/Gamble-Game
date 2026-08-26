@@ -3201,7 +3201,7 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
         <button class="btn btn-primary btn-block" id="slotSpinBtn">🎰 Крутить за <span id="slotBetLabel">20</span> GC</button>
         <div class="paytable">
           <div class="paytable-row"><span>🏆🏆🏆🏆🏆 на линии</span><span>ВСЁ ДЖЕКПОТ 💰</span></div>
-          <div class="paytable-row"><span>🏆 WILD — з��меняет любой символ</span><span>x10 / x25 / x60</span></div>
+          <div class="paytable-row"><span>🏆 WILD — заменяет любой символ</span><span>x10 / x25 / x60</span></div>
           <div class="paytable-row"><span>🗺️ SCATTER — где угодно, 3+</span><span>бонус + x2/x5/x20</span></div>
           <div class="paytable-row"><span>💎💎💎 Алмаз</span><span>x8 / x20 / x50</span></div>
           <div class="paytable-row"><span>👑👑👑 Корона</span><span>x5 / x12 / x30</span></div>
@@ -3490,7 +3490,7 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
         <div class="stat-box"><div class="v" id="statWon">0</div><div class="l">ВСЕГО ВЫИГРАНО</div></div>
         <div class="stat-box"><div class="v" id="statBiggest">0</div><div class="l">ЛУЧШИЙ ВЫИГРЫШ</div></div>
       </div>
-      <button class="btn btn-blue btn-block" id="togglePromoCreator" style="margin-top:16px;">Создать промок��д</button>
+      <button class="btn btn-blue btn-block" id="togglePromoCreator" style="margin-top:16px;">Создать промокод</button>
       <div class="panel hidden" id="promoCreatorPanel" style="margin-top:12px;">
         <div class="panel-title">🎟️ Создать промокод</div>
         <div class="promo-create-grid">
@@ -3545,7 +3545,7 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
     <div class="modal-card">
       <div style="font-size:30px;">♻️</div>
       <h3>Сбросить прогресс?</h3>
-      <p>Все балансы, история и статистика демо-игроков будут сброшены к начальным значения��.</p>
+      <p>Все балансы, история и статистика демо-игроков будут сброшены к начальным значениям.</p>
       <div class="modal-actions">
         <button class="btn btn-ghost" id="modalCancel">Отмена</button>
         <button class="btn btn-primary" id="modalConfirm">Сбросить</button>
@@ -3669,7 +3669,7 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
       console.log('Backend auth success', auth.user);
     }catch(e){
       console.error('Backend auth failed:', e);
-      showToast('Backend auth error: ' + e.message, 'error');
+      showToast('Не удалось подключиться к серверу. Проверьте интернет и откройте приложение заново.', 'error');
     }
   }
 
@@ -4823,7 +4823,7 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
     var bet = isBonusSpin ? slotBonus.triggerBet : slotBetCtl.get();
     if(!isBonusSpin){
       if(me().balance < bet){
-        showToast('Недос��аточно Gamble Coin!','error'); haptic('error');
+        showToast('Недостаточно Gamble Coin!','error'); haptic('error');
         if(slotAuto.active) stopAutoplay();
         return;
       }
@@ -5406,7 +5406,7 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
   }
   async function runRouletteRound(){
     if(rouletteSpinning || !roulettePendingBets.length) return; rouletteSpinning=true;
-    var resultEl=document.getElementById('rouletteResult'); if(resultEl) resultEl.textContent='Шарик крут��тся...';
+    var resultEl=document.getElementById('rouletteResult'); if(resultEl) resultEl.textContent='Шарик крутится...';
     try{
       var first=roulettePendingBets[0];
       var totalBetAmount = roulettePendingBets.reduce(function(sum,b){ return sum + Number(b.amount||0); }, 0);

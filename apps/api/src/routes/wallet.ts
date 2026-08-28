@@ -139,9 +139,12 @@ export async function walletRoutes(app: FastifyInstance) {
     const user = await getAuthUser(request)
     const body = gameAdjustSchema.parse(request.body)
 
-    const isLegacySlot = body.source === 'drunkard-gate'
-    if (isLegacySlot && process.env.ALLOW_LEGACY_GAME_ADJUST !== 'true') {
-      return reply.code(410).send({ error: 'Legacy endpoint removed. Use POST /games/drunkard-gate/spin' })
+    // ВАЖНО: раньше блокировался только source === 'drunkard-gate', поэтому любой
+    // другой source полностью обходил защиту и позволял начислить себе выигрыш
+    // без ставки и без игровой логики. Теперь эндпоинт закрыт для ЛЮБОГО source,
+    // если явно не включён флагом (тестовая среда).
+    if (process.env.ALLOW_LEGACY_GAME_ADJUST !== 'true') {
+      return reply.code(410).send({ error: 'Legacy endpoint removed. Use the dedicated game endpoints.' })
     }
 
     if (body.amount === 0) {

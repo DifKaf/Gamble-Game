@@ -47,11 +47,17 @@ async function grantNewPlayerLuck(tx: Tx, userId: string, stake: bigint, source?
 	if (Math.random() > chance) return
 	const bonus = BigInt(Math.round(Number(stake) * (multiplier - 1)))
 	if (bonus <= 0n) return
-	const fresh = await tx.user.findUnique({ where: { id: userId } })
-	if (!fresh) return
-	const before = fresh.balance
-	const after = before + bonus
-	await tx.user.update({ where: { id: userId }, data: { balance: after } })
+	// Атомарный UPDATE вместо "прочитать баланс -> сложить -> записать": под нагрузкой
+	// два параллельных изменения баланса одного игрока могли перетереть друг друга
+	// (lost update), и часть денег бесследно исчезала или начислялась мимо баланса.
+	const rows = await tx.$queryRawUnsafe<Array<{ balance: bigint }>>(
+		`UPDATE "User" SET balance = balance + $1 WHERE id = $2 RETURNING balance`,
+		bonus,
+		userId,
+	)
+	if (!rows.length) return
+	const after = rows[0].balance
+	const before = after - bonus
 	await tx.walletTransaction.create({
 		data: {
 			userId,
@@ -73,12 +79,23 @@ export async function applyBalanceChange(p: {
 	source?: string
 	metadata?: any
 }) {
-	const user = await p.tx.user.findUnique({ where: { id: p.userId } })
-	if (!user) throw new Error('User not found')
-	const before = user.balance
-	const after = before + p.amount
-	if (after < 0n) throw new Error('Insufficient balance')
-	const updated = await p.tx.user.update({ where: { id: p.userId }, data: { balance: after } })
+	// Атомарный condition-UPDATE: баланс и проверка "не в минус" считаются в одном
+	// SQL-выражении на актуальной (а не прочитанной секунды назад) строке. Раньше
+	// баланс читался отдельным SELECT и затем перезаписывался вычисленным числом —
+	// под параллельными запросами (например, два быстрых перевода/ставки подряд)
+	// это давало classic lost update: одна из операций могла быть перетёрта другой.
+	const rows = await p.tx.$queryRawUnsafe<Array<{ balance: bigint }>>(
+		`UPDATE "User" SET balance = balance + $1 WHERE id = $2 AND balance + $1 >= 0 RETURNING balance`,
+		p.amount,
+		p.userId,
+	)
+	if (!rows.length) {
+		const exists = await p.tx.user.findUnique({ where: { id: p.userId }, select: { id: true } })
+		if (!exists) throw new Error('User not found')
+		throw new Error('Insufficient balance')
+	}
+	const after = rows[0].balance
+	const before = after - p.amount
 	await p.tx.walletTransaction.create({
 		data: {
 			userId: p.userId,
@@ -93,7 +110,7 @@ export async function applyBalanceChange(p: {
 	if (p.type === 'BET') {
 		await grantNewPlayerLuck(p.tx, p.userId, -p.amount, p.source)
 	}
-	return updated
+	return p.tx.user.findUniqueOrThrow({ where: { id: p.userId } })
 }
 
 /**
@@ -112,15 +129,22 @@ export async function settleRound(p: {
 	source: string
 	metadata?: any
 }) {
-	const user = await p.tx.user.findUnique({ where: { id: p.userId } })
-	if (!user) throw new Error('User not found')
-
-	const before = user.balance
-	if (before < p.stake) throw new Error('Insufficient balance')
-
 	const net = p.payout - p.stake
-	const after = before + net
-	await p.tx.user.update({ where: { id: p.userId }, data: { balance: after } })
+	// См. комментарий в applyBalanceChange: условный UPDATE считает баланс и
+	// проверяет достаточность средств одной атомарной операцией на актуальной
+	// строке, без гонки между параллельными раундами одного игрока.
+	const rows = await p.tx.$queryRawUnsafe<Array<{ balance: bigint }>>(
+		`UPDATE "User" SET balance = balance + $1 WHERE id = $2 AND balance + $1 >= 0 RETURNING balance`,
+		net,
+		p.userId,
+	)
+	if (!rows.length) {
+		const exists = await p.tx.user.findUnique({ where: { id: p.userId }, select: { id: true } })
+		if (!exists) throw new Error('User not found')
+		throw new Error('Insufficient balance')
+	}
+	const after = rows[0].balance
+	const before = after - net
 
 	await p.tx.walletTransaction.create({
 		data: {

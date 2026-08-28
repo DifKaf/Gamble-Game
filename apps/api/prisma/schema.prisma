@@ -41,6 +41,7 @@ model User {
   photoUrl   String?
   balance    BigInt @default(1000000)
   gamesPlayed Int @default(0)
+  lastWheelSpinAt DateTime?
   banned     Boolean @default(false)
   banReason  String?
   createdAt  DateTime @default(now())
@@ -156,8 +157,47 @@ model DailyBonus {
   userId String
   user User @relation(fields: [userId], references: [id])
   amount BigInt
+  dayKey String @default("")
   claimedAt DateTime @default(now())
+  @@unique([userId, dayKey])
   @@index([userId, claimedAt])
+}
+
+/// Промокод: сумма и лимит активаций. usedCount растёт только атомарно (CAS), чтобы
+/// параллельные активации не могли выдать больше, чем было зарезервировано.
+model PromoCode {
+  id String @id @default(uuid())
+  code String @unique
+  amount BigInt
+  maxUses Int @default(1)
+  usedCount Int @default(0)
+  creatorId String
+  creatorUsername String?
+  createdAt DateTime @default(now())
+}
+
+/// Факт активации промокода конкретным игроком. Уникальный индекс не даёт
+/// одному игроку активировать один код дважды, даже при параллельных запросах.
+model PromoRedemption {
+  id String @id @default(uuid())
+  code String
+  userId String
+  amount BigInt
+  createdAt DateTime @default(now())
+  @@unique([code, userId])
+  @@index([code])
+}
+
+/// Недельная выплата рефереру за оборот одного приглашённого. Уникальный индекс
+/// + CAS-обновление не дают начислить бонус повторно при параллельных запросах.
+model ReferralWeeklyPayout {
+  id String @id @default(uuid())
+  referrerId String
+  referredId String
+  weekKey String
+  amount BigInt
+  createdAt DateTime @default(now())
+  @@unique([referrerId, referredId, weekKey])
 }
 
 model BlackjackSession {

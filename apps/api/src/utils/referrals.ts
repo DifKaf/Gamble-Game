@@ -164,6 +164,13 @@ export async function payReferralMilestones(referrerId: string) {
 	let paid = 0n
 	let count = 0
 
+	// Раньше "уже выплачено на этой неделе" считалось суммированием WalletTransaction без
+	// какой-либо блокировки — параллельные вызовы (эта функция дёргается при каждом открытии
+	// вкладки «Друзья») могли оба прочитать одно и то же "already" и оба доначислить одну и
+	// ту же delta, задваивая выплату. Теперь дедупликация идёт через ReferralWeeklyPayout
+	// с уникальным индексом (referrerId, referredId, weekKey) и CAS-обновлением: первое
+	// создание строки или условный UPDATE ... WHERE amount = $already выигрывает гонку,
+	// а проигравший запрос просто получает 0 затронутых строк / P2002 и ничего не начисляет.
 	for (const row of friends) {
 		const agg = await prisma.gameSession.aggregate({
 			where: { userId: row.referredId, status: 'FINISHED', createdAt: { gte: start, lt: end } },
@@ -173,42 +180,61 @@ export async function payReferralMilestones(referrerId: string) {
 		const due = Math.floor(weeklyWager * WEEK_SHARE_PCT / 100)
 		if (due <= 0) continue
 
-		const alreadyRows = await prisma.walletTransaction.findMany({
-			where: {
-				userId: referrerId,
-				source: 'referral-week',
-				createdAt: { gte: start, lt: end }
-			},
-			select: { amount: true, metadata: true }
-		})
-		const already = alreadyRows.reduce((s, t: any) => {
-			const meta = t.metadata || {}
-			if (meta.referredId === row.referredId && meta.weekKey === weekKey) return s + Number(t.amount || 0)
-			return s
-		}, 0)
-		const delta = due - already
-		if (delta <= 0) continue
-
-		await prisma.$transaction(async (tx) => {
-			await applyBalanceChange({
-				tx,
-				userId: referrerId,
-				amount: BigInt(delta),
-				type: 'BONUS',
-				source: 'referral-week',
-				metadata: { referredId: row.referredId, weekKey, weeklyWager, percent: WEEK_SHARE_PCT }
-			})
-			const del = referralDelegate(tx)
-			if (del) {
-				await del.update({ where: { id: row.id }, data: { milestoneBonus: { increment: BigInt(delta) } } }).catch(async () => {
-					await tx.$executeRawUnsafe(`UPDATE "Referral" SET "milestoneBonus" = "milestoneBonus" + $2 WHERE "id" = $1`, row.id, delta)
+		try {
+			const delta = await prisma.$transaction(async (tx) => {
+				const existing = await tx.referralWeeklyPayout.findUnique({
+					where: { referrerId_referredId_weekKey: { referrerId, referredId: row.referredId, weekKey } }
 				})
-			} else {
-				await tx.$executeRawUnsafe(`UPDATE "Referral" SET "milestoneBonus" = "milestoneBonus" + $2 WHERE "id" = $1`, row.id, delta)
+				let deltaAmount: number
+				if (!existing) {
+					try {
+						await tx.referralWeeklyPayout.create({
+							data: { referrerId, referredId: row.referredId, weekKey, amount: BigInt(due) }
+						})
+					} catch (e: any) {
+						if (String(e?.code) === 'P2002') return 0 // кто-то другой успел создать строку первым — ничего не начисляем
+						throw e
+					}
+					deltaAmount = due
+				} else {
+					const already = Number(existing.amount)
+					deltaAmount = due - already
+					if (deltaAmount <= 0) return 0
+					const upd = await tx.$executeRawUnsafe(
+						`UPDATE "ReferralWeeklyPayout" SET amount = $1 WHERE id = $2 AND amount = $3`,
+						BigInt(due),
+						existing.id,
+						existing.amount
+					)
+					if (!upd) return 0 // проиграли гонку CAS — кто-то другой уже обновил эту строку
+				}
+				// Один вызов applyBalanceChange внутри одной транзакции, независимо от ветки — без
+				// второго вызова снаружи, который раньше мог бы случайно сработать для delta === due и задвоить выплату.
+				await applyBalanceChange({
+					tx,
+					userId: referrerId,
+					amount: BigInt(deltaAmount),
+					type: 'BONUS',
+					source: 'referral-week',
+					metadata: { referredId: row.referredId, weekKey, weeklyWager, percent: WEEK_SHARE_PCT }
+				})
+				const del = referralDelegate(tx)
+				if (del) {
+					await del.update({ where: { id: row.id }, data: { milestoneBonus: { increment: BigInt(deltaAmount) } } }).catch(async () => {
+						await tx.$executeRawUnsafe(`UPDATE "Referral" SET "milestoneBonus" = "milestoneBonus" + $2 WHERE "id" = $1`, row.id, deltaAmount)
+					})
+				} else {
+					await tx.$executeRawUnsafe(`UPDATE "Referral" SET "milestoneBonus" = "milestoneBonus" + $2 WHERE "id" = $1`, row.id, deltaAmount)
+				}
+				return deltaAmount
+			})
+			if (delta > 0) {
+				paid += BigInt(delta)
+				count++
 			}
-		})
-		paid += BigInt(delta)
-		count++
+		} catch (err) {
+			if (!isMissingRelation(err)) throw err
+		}
 	}
 
 	return { paid: Number(paid), count }

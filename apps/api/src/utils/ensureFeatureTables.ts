@@ -118,7 +118,47 @@ const STATEMENTS: Array<string> = [
 	`ALTER TABLE "SlotSession" ADD COLUMN IF NOT EXISTS "lastRequestId" TEXT`,
 	`ALTER TABLE "SlotSession" ADD COLUMN IF NOT EXISTS "lastSpin" JSONB`,
 	`ALTER TABLE "SlotSession" ADD COLUMN IF NOT EXISTS "triggerGameSessionId" TEXT`,
-	`ALTER TABLE "SlotSession" ADD COLUMN IF NOT EXISTS "finishedAt" TIMESTAMP(3)`
+	`ALTER TABLE "SlotSession" ADD COLUMN IF NOT EXISTS "finishedAt" TIMESTAMP(3)`,
+
+	// Анти-гонка для бонусов (аудит бонусов/рефералов): если `prisma db push` на деплое
+	// по каким-то причинам не применится (как раньше с SlotSession на Railway), эти таблицы/колонки
+	// всё равно будут созданы на старте API, и атомарные защиты от гонок не сломаются из-за
+	// отсутствующей структуры в базе.
+	`ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "lastWheelSpinAt" TIMESTAMP(3)`,
+	`ALTER TABLE "DailyBonus" ADD COLUMN IF NOT EXISTS "dayKey" TEXT NOT NULL DEFAULT ''`,
+	`CREATE UNIQUE INDEX IF NOT EXISTS "DailyBonus_userId_dayKey_key" ON "DailyBonus"("userId", "dayKey")`,
+	`CREATE TABLE IF NOT EXISTS "PromoCode" (
+		"id" TEXT NOT NULL,
+		"code" TEXT NOT NULL,
+		"amount" BIGINT NOT NULL,
+		"maxUses" INTEGER NOT NULL DEFAULT 1,
+		"usedCount" INTEGER NOT NULL DEFAULT 0,
+		"creatorId" TEXT NOT NULL,
+		"creatorUsername" TEXT,
+		"createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+		CONSTRAINT "PromoCode_pkey" PRIMARY KEY ("id")
+	)`,
+	`CREATE UNIQUE INDEX IF NOT EXISTS "PromoCode_code_key" ON "PromoCode"("code")`,
+	`CREATE TABLE IF NOT EXISTS "PromoRedemption" (
+		"id" TEXT NOT NULL,
+		"code" TEXT NOT NULL,
+		"userId" TEXT NOT NULL,
+		"amount" BIGINT NOT NULL,
+		"createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+		CONSTRAINT "PromoRedemption_pkey" PRIMARY KEY ("id")
+	)`,
+	`CREATE UNIQUE INDEX IF NOT EXISTS "PromoRedemption_code_userId_key" ON "PromoRedemption"("code", "userId")`,
+	`CREATE INDEX IF NOT EXISTS "PromoRedemption_code_idx" ON "PromoRedemption"("code")`,
+	`CREATE TABLE IF NOT EXISTS "ReferralWeeklyPayout" (
+		"id" TEXT NOT NULL,
+		"referrerId" TEXT NOT NULL,
+		"referredId" TEXT NOT NULL,
+		"weekKey" TEXT NOT NULL,
+		"amount" BIGINT NOT NULL,
+		"createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+		CONSTRAINT "ReferralWeeklyPayout_pkey" PRIMARY KEY ("id")
+	)`,
+	`CREATE UNIQUE INDEX IF NOT EXISTS "ReferralWeeklyPayout_referrerId_referredId_weekKey_key" ON "ReferralWeeklyPayout"("referrerId", "referredId", "weekKey")`
 ]
 
 export async function ensureFeatureTables(log?: { info: (msg: string) => void; warn: (msg: string) => void }) {

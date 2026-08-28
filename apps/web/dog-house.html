@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The Dog House</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#1a0c08;color:#fff;font-family:Arial,sans-serif}
+body{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:10px}
+.wrap{width:min(460px,100%);}
+.logo{text-align:center;font-weight:900;letter-spacing:.08em;font-size:22px;color:#ffd54a;text-shadow:0 2px 0 #7a1e12}
+.sub{text-align:center;font-size:11px;font-weight:800;color:#ffcc80;margin:4px 0 10px}
+.stage{background:linear-gradient(180deg,#7a1e12,#3b1208);border:4px solid #f2c14e;border-radius:18px;padding:10px;box-shadow:0 12px 28px rgba(0,0,0,.45)}
+.grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.cell{aspect-ratio:1;border-radius:12px;background:#2a140c;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:28px;position:relative;overflow:hidden}
+.cell.win{outline:2px solid #ffd54a;box-shadow:0 0 12px #ffd54a}
+.cell.sticky{outline:2px solid #7ee0ff}
+.mult{position:absolute;top:4px;right:5px;font-size:10px;font-weight:900;background:#111;border-radius:999px;padding:2px 5px;color:#ffd54a}
+.hud{display:flex;justify-content:space-between;gap:8px;margin-top:10px;font-weight:800;font-size:13px}
+.msg{min-height:22px;text-align:center;margin-top:8px;font-weight:900;color:#ffe082}
+.controls{display:flex;gap:8px;margin-top:10px}
+button{flex:1;border:0;border-radius:12px;padding:12px 8px;font-weight:900;cursor:pointer}
+.spin{background:#ffd54a;color:#3b1208}
+.buy{background:#7a1e12;color:#fff;border:1px solid #f2c14e}
+.bets{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.bets button{flex:0 0 auto;padding:8px 10px;background:#2a140c;color:#fff;border:1px solid #5a2a12}
+.bets button.on{background:#f2c14e;color:#3b1208}
+.fs{display:none;margin-top:8px;text-align:center;font-weight:900;color:#7ee0ff}
+.fs.on{display:block}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="logo">THE DOG HOUSE</div>
+  <div class="sub">20 линий · sticky wilds x2/x3</div>
+  <div class="stage">
+    <div class="grid" id="grid"></div>
+  </div>
+  <div class="hud"><span>Баланс: <b id="bal">—</b></span><span>Ставка: <b id="betLab">20</b></span></div>
+  <div class="msg" id="msg">Крути, чтобы сорвать будку</div>
+  <div class="fs" id="fsBox">FREE SPINS: <span id="fsLeft">0</span> · WIN <span id="fsWin">0</span></div>
+  <div class="controls">
+    <button class="spin" id="spinBtn">SPIN</button>
+    <button class="buy" id="buyBtn">BUY 100x</button>
+  </div>
+  <div class="bets" id="bets"></div>
+</div>
+<script>
+const ICONS={0:'🔔',1:'🏠',2:'👩',3:'👨',4:'🐶',5:'🐕',6:'🦮',7:'A',8:'K',9:'Q',10:'J',11:'10'};
+const BETS=[10,20,50,100,200,500,1000,2500,5000,10000];
+let bet=20, spinning=false, round=null, grid=null;
+function parentApi(){ try{ return parent.GambleBackend || null }catch(e){ return null } }
+function fmt(n){ return Math.round(Number(n)||0).toLocaleString('ru-RU') }
+function setBal(n){ document.getElementById('bal').textContent = fmt(n)+' GC' }
+function paint(g, wilds, wins){
+  const box=document.getElementById('grid');
+  box.innerHTML='';
+  const winSet={};
+  (wins||[]).forEach(w=> (w.positions||[]).forEach(p=> winSet[p.c+':'+p.r]=1));
+  for(let r=0;r<3;r++) for(let c=0;c<5;c++){
+    const id=g[c][r];
+    const el=document.createElement('div');
+    el.className='cell'+(winSet[c+':'+r]?' win':'');
+    el.textContent=ICONS[id]||'?';
+    const m=wilds && wilds[c] ? wilds[c][r] : null;
+    if(m){ const b=document.createElement('span'); b.className='mult'; b.textContent='x'+m; el.appendChild(b); }
+    box.appendChild(el);
+  }
+}
+function dummyGrid(){
+  const g=[]; for(let c=0;c<5;c++){ g[c]=[]; for(let r=0;r<3;r++) g[c][r]=7+((c+r)%5); } return g;
+}
+function renderBets(){
+  const box=document.getElementById('bets');
+  box.innerHTML='';
+  BETS.forEach(v=>{
+    const b=document.createElement('button');
+    b.textContent=v;
+    if(v===bet) b.className='on';
+    b.onclick=()=>{ if(spinning||round) return; bet=v; document.getElementById('betLab').textContent=v; renderBets(); };
+    box.appendChild(b);
+  });
+}
+async function doSpin(){
+  if(spinning) return;
+  const api=parentApi();
+  if(!api || !api.dogHouseSpin){ document.getElementById('msg').textContent='Сервер недоступен'; return; }
+  spinning=true; document.getElementById('spinBtn').disabled=true;
+  try{
+    const data=await api.dogHouseSpin({ betAmount: bet });
+    if(typeof data.balance==='number') setBal(data.balance);
+    const spin=data.spin;
+    grid=spin.grid; paint(spin.grid, spin.wildMults, spin.lines);
+    round=data.round;
+    if(spin.win>0) document.getElementById('msg').textContent='WIN +'+fmt(spin.win)+' GC';
+    else document.getElementById('msg').textContent='Не повезло';
+    if(spin.freeSpinsAwarded) document.getElementById('msg').textContent='FREE SPINS x'+spin.freeSpinsAwarded;
+    syncRound(round, data.roundWin);
+  }catch(e){ document.getElementById('msg').textContent=e.message||'Ошибка спина'; }
+  spinning=false; document.getElementById('spinBtn').disabled=false;
+}
+async function buyBonus(){
+  if(spinning||round) return;
+  const api=parentApi();
+  if(!api || !api.dogHouseBuyBonus) return;
+  spinning=true;
+  try{
+    const data=await api.dogHouseBuyBonus({ betAmount: bet });
+    if(typeof data.balance==='number') setBal(data.balance);
+    round=data.round; syncRound(round, 0);
+    document.getElementById('msg').textContent='Куплены фриспины';
+  }catch(e){ document.getElementById('msg').textContent=e.message||'Не удалось купить бонус'; }
+  spinning=false;
+}
+function syncRound(r, win){
+  const box=document.getElementById('fsBox');
+  if(r && r.freeSpinsLeft>0){
+    box.classList.add('on');
+    document.getElementById('fsLeft').textContent=r.freeSpinsLeft;
+    document.getElementById('fsWin').textContent=fmt(win||r.roundWin||0);
+    document.getElementById('buyBtn').disabled=true;
+  } else {
+    box.classList.remove('on');
+    document.getElementById('buyBtn').disabled=false;
+    round=null;
+  }
+}
+async function boot(){
+  paint(dummyGrid(), null, []);
+  renderBets();
+  const api=parentApi();
+  try{
+    if(api && api.getBalance) setBal(api.getBalance());
+    if(api && api.dogHouseState){
+      const st=await api.dogHouseState();
+      if(typeof st.balance==='number') setBal(st.balance);
+      syncRound(st.round, st.round && st.round.roundWin);
+    }
+  }catch(e){}
+}
+document.getElementById('spinBtn').onclick=doSpin;
+document.getElementById('buyBtn').onclick=buyBonus;
+boot();
+</script>
+</body>
+</html>

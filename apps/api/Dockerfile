@@ -11,6 +11,8 @@ COPY src ./src
 RUN test -f src/games/drunkardGate/engine.ts \
  && test -f src/games/drunkardGate/rng.ts \
  && test -f src/games/drunkardGate/config.ts \
+ && test -f src/games/dogHouse/engine.ts \
+ && test -f src/games/dogHouse/config.ts \
  && npm run build
 EXPOSE 4000
 CMD ["npm","start"]

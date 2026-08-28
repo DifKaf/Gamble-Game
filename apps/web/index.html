@@ -622,16 +622,21 @@ body{background:radial-gradient(circle at 15% 5%,rgba(72,216,255,.18),transparen
 #app.drunkard-standalone .bottom-nav{display:none!important;}
 #app.drunkard-standalone{padding-top:0!important;}
 #app.drunkard-standalone .screen-container{padding-top:12px;padding-bottom:12px;}
-#app.drunkard-standalone #screen-slot .game-header{margin:0 0 10px 0;}
+#app.drunkard-standalone #screen-slot .game-header,
+#app.drunkard-standalone #screen-doghouse .game-header{margin:0 0 10px 0;}
 #app.drunkard-standalone .olympus-embed-wrap{height:calc(100vh - 62px);min-height:620px;}
 
 /* Strong standalone override */
 #app.drunkard-standalone .topbar,#app.drunkard-standalone .bottom-nav{display:none!important;visibility:hidden!important;height:0!important;}
 #app.drunkard-standalone .screen-container{padding:0!important;}
-#app.drunkard-standalone #screen-slot{padding:0!important;}
-#app.drunkard-standalone #screen-slot .game-header{position:absolute;z-index:10;top:10px;left:10px;margin:0!important;}
-#app.drunkard-standalone #screen-slot .game-header h2{display:none!important;}
-#app.drunkard-standalone #screen-slot .back-btn{background:rgba(0,0,0,.55);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.18);color:#fff;}
+#app.drunkard-standalone #screen-slot,
+#app.drunkard-standalone #screen-doghouse{padding:0!important;}
+#app.drunkard-standalone #screen-slot .game-header,
+#app.drunkard-standalone #screen-doghouse .game-header{position:absolute;z-index:10;top:10px;left:10px;margin:0!important;}
+#app.drunkard-standalone #screen-slot .game-header h2,
+#app.drunkard-standalone #screen-doghouse .game-header h2{display:none!important;}
+#app.drunkard-standalone #screen-slot .back-btn,
+#app.drunkard-standalone #screen-doghouse .back-btn{background:rgba(0,0,0,.55);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.18);color:#fff;}
 #app.drunkard-standalone .olympus-embed-wrap{height:100vh!important;min-height:100vh!important;border-radius:0!important;border:0!important;box-shadow:none!important;}
 html.slot-open,body.slot-open{overflow:hidden!important;height:100vh!important;}
 #app.drunkard-standalone{overflow:hidden!important;height:100vh!important;}
@@ -1065,7 +1070,8 @@ body{background:#000!important;}
     <section id="screen-slots" class="screen">
       <div class="game-header"><button class="back-btn" data-nav="games">←</button><h2>🎰 Слоты</h2></div>
       <div class="game-grid">
-        <button class="game-card img-card slot-img-card slot-img-card-clear" data-open="slot" aria-label="Drunkard Gate" style="grid-column:1/-1;"><img src="assets/card-drunkardgate.png" alt="Drunkard Gate" class="img-card-media"></button>
+        <button class="game-card img-card slot-img-card slot-img-card-clear" data-open="slot" aria-label="Drunkard Gate"><img src="assets/card-drunkardgate.png" alt="Drunkard Gate" class="img-card-media"></button>
+        <button class="game-card img-card slot-img-card slot-img-card-clear" data-open="doghouse" aria-label="The Dog House"><img src="assets/card-doghouse.svg" alt="The Dog House" class="img-card-media"></button>
       </div>
     </section>
 
@@ -1080,6 +1086,12 @@ body{background:#000!important;}
         <button class="game-card img-card" data-open="blackjack" aria-label="Blackjack"><img src="assets/card-blackjack.jpg" alt="Blackjack" class="img-card-media"></button>
         <button class="game-card img-card" data-open="baccarat" aria-label="Baccarat"><img src="assets/card-baccarat.jpg" alt="Baccarat" class="img-card-media"></button>
       </div>
+    </section>
+
+    <!-- DOG HOUSE -->
+    <section id="screen-doghouse" class="screen">
+      <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>The Dog House</h2><div class="game-user-chip"><span class="avatar-badge gameHeaderAvatar">🧑</span><b class="gameHeaderBalance">0 GC</b></div></div>
+      <div class="olympus-embed-wrap"><iframe class="olympus-embed" title="The Dog House" src="dog-house.html"></iframe></div>
     </section>
 
     <!-- SLOT -->
@@ -3774,6 +3786,49 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
     if(!backendReady) await initBackendAuth();
     return apiRequest('/games/drunkard-gate/state');
   }
+  async function dogHouseSpin(opts){
+    opts = opts || {};
+    if(!backendReady) await initBackendAuth();
+    var data = await apiRequest('/games/dog-house/spin', {
+      method:'POST',
+      body:JSON.stringify({
+        betAmount: Math.round(Number(opts.betAmount)||10),
+        requestId: (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : String(Date.now()) + '_' + String(Math.random()),
+        clientSeed: opts.clientSeed || ''
+      })
+    });
+    backendBalance = data.balance;
+    applyBackendBalanceToUI();
+    renderBalances();
+    saveState();
+    if(data.spin) syncProfileStats(data.spin.stake || opts.betAmount || 0, data.spin.win || 0);
+    renderProfile();
+    refreshMiniGameHistories(true);
+    loadLeaderboardFromBackend();
+    return data;
+  }
+  async function dogHouseBuyBonus(opts){
+    opts = opts || {};
+    if(!backendReady) await initBackendAuth();
+    var data = await apiRequest('/games/dog-house/buy-bonus', {
+      method:'POST',
+      body:JSON.stringify({
+        betAmount: Math.round(Number(opts.betAmount)||10),
+        requestId: (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : String(Date.now()) + '_' + String(Math.random()),
+        clientSeed: opts.clientSeed || ''
+      })
+    });
+    backendBalance = data.balance;
+    applyBackendBalanceToUI();
+    renderBalances();
+    saveState();
+    renderProfile();
+    return data;
+  }
+  async function dogHouseState(){
+    if(!backendReady) await initBackendAuth();
+    return apiRequest('/games/dog-house/state');
+  }
 
   window.GambleBackend = {
     apiRequest:apiRequest,
@@ -3783,6 +3838,9 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
     slotSpin:slotSpin,
     slotBuyBonus:slotBuyBonus,
     slotState:slotState,
+    dogHouseSpin:dogHouseSpin,
+    dogHouseBuyBonus:dogHouseBuyBonus,
+    dogHouseState:dogHouseState,
     isReady:function(){return backendReady;}
   };
 
@@ -4063,7 +4121,7 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
       referralData = data;
       if(typeof data.balance === 'number'){ backendBalance = data.balance; applyBackendBalanceToUI(); }
       if(data.milestonesPaid && data.milestonesPaid.paid){
-        showToast('Бонус за активность друзей: +' + fmt(data.milestonesPaid.paid) + ' GC','success');
+        showToast('��онус за активность друзей: +' + fmt(data.milestonesPaid.paid) + ' GC','success');
       }
       renderReferrals();
     }catch(e){
@@ -4579,7 +4637,7 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
     document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
     var el = document.getElementById('screen-'+name);
     if(el) el.classList.add('active');
-    var appEl = document.getElementById('app'); if(appEl) appEl.classList.toggle('drunkard-standalone', name === 'slot'); document.documentElement.classList.toggle('slot-open', name === 'slot'); document.body.classList.toggle('slot-open', name === 'slot');
+    var appEl = document.getElementById('app'); if(appEl) appEl.classList.toggle('drunkard-standalone', name === 'slot' || name === 'doghouse'); document.documentElement.classList.toggle('slot-open', name === 'slot' || name === 'doghouse'); document.body.classList.toggle('slot-open', name === 'slot' || name === 'doghouse');
     if(mainTabs.indexOf(name)!==-1){
       document.querySelectorAll('.nav-btn').forEach(function(b){
         b.classList.toggle('active', b.getAttribute('data-nav')===name);
@@ -5389,7 +5447,7 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
       stopCoinPreSpin();
       coinFlipping = false;
       setCoinContinueButtonsDisabled(false);
-      showToast(e.message || 'Ошибка ставки','error'); haptic('error');
+      showToast(e.message || 'О��ибка ставки','error'); haptic('error');
     }
   }
 
@@ -5423,7 +5481,7 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
     var html = '<button class="roulette-num-btn green zero" data-num="0">0</button>';
     rows.forEach(function(row, r){ row.forEach(function(n){ html += '<button class="roulette-num-btn '+rouletteColorByNumber(n)+'" data-num="'+n+'">'+n+'</button>'; }); html += '<button class="roulette-outside-btn twoone" data-outside="row'+(r+1)+'">2:1</button>'; });
     html += '<button class="roulette-outside-btn doz" data-outside="first12">1-12</button><button class="roulette-outside-btn doz" data-outside="second12">13-24</button><button class="roulette-outside-btn doz" data-outside="third12">25-36</button>';
-    html += '<button class="roulette-outside-btn wide" data-outside="low">1-18</button><button class="roulette-outside-btn wide" data-outside="even">ЧЁТ</button><button class="roulette-outside-btn wide red" data-outside="red"></button><button class="roulette-outside-btn wide black" data-outside="black"></button><button class="roulette-outside-btn wide" data-outside="odd">НЕЧЕТ</button><button class="roulette-outside-btn wide" data-outside="high">19-36</button>';
+    html += '<button class="roulette-outside-btn wide" data-outside="low">1-18</button><button class="roulette-outside-btn wide" data-outside="even">��ЁТ</button><button class="roulette-outside-btn wide red" data-outside="red"></button><button class="roulette-outside-btn wide black" data-outside="black"></button><button class="roulette-outside-btn wide" data-outside="odd">НЕЧЕТ</button><button class="roulette-outside-btn wide" data-outside="high">19-36</button>';
     grid.innerHTML = html;
     // Assign a named grid-area to every cell (n1..n36, z, t1..t3, d1..d3, o1..o6).
     // CSS then defines two different grid-template-areas layouts (desktop table
@@ -6522,7 +6580,8 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
 
   /* ================= HOME: списки игр по группам ================= */
   var GAME_CATALOG = {
-    slot:{ title:'Drunkard Gate', tag:'Слот', img:'assets/card-drunkardgate.jpg' },
+    slot:{ title:'Drunkard Gate', tag:'Слот', img:'assets/card-drunkardgate.png' },
+    doghouse:{ title:'The Dog House', tag:'Слот', img:'assets/card-doghouse.svg' },
     dice:{ title:'Dice', tag:'Мини игра', img:'assets/card-dice.jpg' },
     coinflip:{ title:'Coin Flip', tag:'Мини игра', img:'assets/card-coinflip.jpg' },
     roulette:{ title:'Roulette', tag:'Столы', img:'assets/card-roulette.jpg' },
@@ -6531,9 +6590,9 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
     baccarat:{ title:'Baccarat', tag:'Карты', img:'assets/card-baccarat.jpg' }
   };
   var HOME_RAILS = [
-    { id:'homeRailSlots', games:['slot'] },
+    { id:'homeRailSlots', games:['slot','doghouse'] },
     { id:'homeRailMini', games:['dice','coinflip','mines','roulette'] },
-    { id:'homeRailPopular', games:['slot','mines','coinflip','blackjack','roulette'] },
+    { id:'homeRailPopular', games:['slot','doghouse','mines','coinflip','blackjack'] },
     { id:'homeRailCards', games:['blackjack','baccarat','roulette'] }
   ];
   var recentGames = [];

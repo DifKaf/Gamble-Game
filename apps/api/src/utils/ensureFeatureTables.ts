@@ -75,7 +75,50 @@ const STATEMENTS: Array<string> = [
 	`ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "banned" BOOLEAN NOT NULL DEFAULT false`,
 	`ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "banReason" TEXT`,
 	`CREATE INDEX IF NOT EXISTS "ExchangeRequest_buyerId_createdAt_idx" ON "ExchangeRequest"("buyerId", "createdAt")`,
-	`UPDATE "ExchangeRequest" SET "status" = 'OPEN' WHERE "status" = 'PENDING'`
+	`UPDATE "ExchangeRequest" SET "status" = 'OPEN' WHERE "status" = 'PENDING'`,
+
+	// Бонусный раунд слотов (Drunkard Gate, The Dog House): фриспины живут на сервере.
+	// `prisma db push` в start-скрипте не создавал эту таблицу на Railway (среда
+	// игнорировала обновлённый start-скрипт), поэтому создаём её здесь же, как и
+	// остальные таблицы без каталога миграций — гарантированно на каждом старте API.
+	`CREATE TABLE IF NOT EXISTS "SlotSession" (
+		"id" TEXT NOT NULL,
+		"userId" TEXT NOT NULL,
+		"gameCode" "GameCode" NOT NULL DEFAULT 'DRUNKARD_GATE',
+		"status" "GameSessionStatus" NOT NULL DEFAULT 'CREATED',
+		"stake" BIGINT NOT NULL,
+		"cost" BIGINT NOT NULL DEFAULT 0,
+		"ante" BOOLEAN NOT NULL DEFAULT false,
+		"purchased" BOOLEAN NOT NULL DEFAULT false,
+		"freeSpinsLeft" INTEGER NOT NULL DEFAULT 0,
+		"freeSpinsTotal" INTEGER NOT NULL DEFAULT 0,
+		"globalMult" DOUBLE PRECISION NOT NULL DEFAULT 0,
+		"roundWin" BIGINT NOT NULL DEFAULT 0,
+		"seed" TEXT NOT NULL,
+		"clientSeed" TEXT NOT NULL DEFAULT '',
+		"nonce" INTEGER NOT NULL DEFAULT 0,
+		"lastRequestId" TEXT,
+		"lastSpin" JSONB,
+		"triggerGameSessionId" TEXT,
+		"createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+		"finishedAt" TIMESTAMP(3),
+		CONSTRAINT "SlotSession_pkey" PRIMARY KEY ("id")
+	)`,
+	`CREATE INDEX IF NOT EXISTS "SlotSession_userId_status_createdAt_idx" ON "SlotSession"("userId", "status", "createdAt")`,
+	// На случай если таблица уже была создана раньше в неполном виде — докатываем недостающие колонки.
+	`ALTER TABLE "SlotSession" ADD COLUMN IF NOT EXISTS "cost" BIGINT NOT NULL DEFAULT 0`,
+	`ALTER TABLE "SlotSession" ADD COLUMN IF NOT EXISTS "ante" BOOLEAN NOT NULL DEFAULT false`,
+	`ALTER TABLE "SlotSession" ADD COLUMN IF NOT EXISTS "purchased" BOOLEAN NOT NULL DEFAULT false`,
+	`ALTER TABLE "SlotSession" ADD COLUMN IF NOT EXISTS "freeSpinsLeft" INTEGER NOT NULL DEFAULT 0`,
+	`ALTER TABLE "SlotSession" ADD COLUMN IF NOT EXISTS "freeSpinsTotal" INTEGER NOT NULL DEFAULT 0`,
+	`ALTER TABLE "SlotSession" ADD COLUMN IF NOT EXISTS "globalMult" DOUBLE PRECISION NOT NULL DEFAULT 0`,
+	`ALTER TABLE "SlotSession" ADD COLUMN IF NOT EXISTS "roundWin" BIGINT NOT NULL DEFAULT 0`,
+	`ALTER TABLE "SlotSession" ADD COLUMN IF NOT EXISTS "clientSeed" TEXT NOT NULL DEFAULT ''`,
+	`ALTER TABLE "SlotSession" ADD COLUMN IF NOT EXISTS "nonce" INTEGER NOT NULL DEFAULT 0`,
+	`ALTER TABLE "SlotSession" ADD COLUMN IF NOT EXISTS "lastRequestId" TEXT`,
+	`ALTER TABLE "SlotSession" ADD COLUMN IF NOT EXISTS "lastSpin" JSONB`,
+	`ALTER TABLE "SlotSession" ADD COLUMN IF NOT EXISTS "triggerGameSessionId" TEXT`,
+	`ALTER TABLE "SlotSession" ADD COLUMN IF NOT EXISTS "finishedAt" TIMESTAMP(3)`
 ]
 
 export async function ensureFeatureTables(log?: { info: (msg: string) => void; warn: (msg: string) => void }) {

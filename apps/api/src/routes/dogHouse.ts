@@ -56,16 +56,20 @@ function roundView(round: any) {
 	}
 }
 
+const CAT_HOUSE_LOCKED = true
+
 export async function dogHouseRoutes(app: FastifyInstance) {
 	app.get('/config', async () => publicPaytable())
 
-	app.get('/state', { preHandler: [(app as any).authenticate] }, async (req) => {
+	app.get('/state', { preHandler: [(app as any).authenticate] }, async (req, rep) => {
+		if (CAT_HOUSE_LOCKED) return rep.code(423).send({ error: 'Слот временно закрыт' })
 		const user = await getAuthUser(req)
 		const round = await findDogRound(prisma, user.id)
 		return { balance: Number(user.balance), engineVersion: ENGINE_VERSION, round: roundView(round) }
 	})
 
 	app.post('/spin', { preHandler: [(app as any).authenticate] }, async (req, rep) => {
+		if (CAT_HOUSE_LOCKED) return rep.code(423).send({ error: 'Слот временно закрыт' })
 		const user = await getAuthUser(req)
 		const parsed = spinSchema.safeParse(req.body)
 		if (!parsed.success) return rep.code(400).send({ error: `Ставка от ${MIN_BET} до ${MAX_BET}` })
@@ -165,6 +169,7 @@ export async function dogHouseRoutes(app: FastifyInstance) {
 	})
 
 	app.post('/buy-bonus', { preHandler: [(app as any).authenticate] }, async (req, rep) => {
+		if (CAT_HOUSE_LOCKED) return rep.code(423).send({ error: 'Слот временно закрыт' })
 		const user = await getAuthUser(req)
 		const parsed = buySchema.safeParse(req.body)
 		if (!parsed.success) return rep.code(400).send({ error: `Ставка от ${MIN_BET} до ${MAX_BUY_BET}` })

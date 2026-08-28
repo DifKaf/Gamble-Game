@@ -167,6 +167,8 @@ input,select{font-family:inherit;}
 .game-card .icon{font-size:32px;}
 .game-card .title{font-weight:800;font-size:15px;margin-top:6px;}
 .game-card .sub{font-size:11px;opacity:0.85;font-weight:600;margin-top:2px;}
+.locked-game-card{filter:grayscale(.75) brightness(.6);}
+.card-lock-badge{position:absolute;top:8px;right:8px;width:30px;height:30px;border-radius:50%;background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;font-size:15px;z-index:2;pointer-events:none;}
 .game-card .tag{
   position:absolute;top:10px;right:10px;font-size:10px;font-weight:800;
   background:rgba(255,255,255,0.25);padding:3px 8px;border-radius:999px;
@@ -1000,11 +1002,6 @@ body{background:#000!important;}
         <div class="wheel-widget-disc"><span>SPIN<br>TO WIN</span></div>
       </button>
       <div class="panel">
-        <div class="panel-title">🎯 Ежедневные квесты</div>
-        <div id="questsBox">Загрузка...</div>
-        <div class="quest-reset" id="questsReset"></div>
-      </div>
-      <div class="panel">
         <div class="panel-title">👥 Друзья</div>
         <div id="referralBox">Загрузка...</div>
       </div>
@@ -1071,7 +1068,7 @@ body{background:#000!important;}
       <div class="game-header"><button class="back-btn" data-nav="games">←</button><h2>🎰 Слоты</h2></div>
       <div class="game-grid">
         <button class="game-card img-card slot-img-card slot-img-card-clear" data-open="slot" aria-label="Drunkard Gate"><img src="assets/card-drunkardgate.png" alt="Drunkard Gate" class="img-card-media"></button>
-        <button class="game-card img-card slot-img-card slot-img-card-clear" data-open="doghouse" aria-label="The Dog House"><img src="assets/card-doghouse.svg" alt="The Dog House" class="img-card-media"></button>
+        <button class="game-card img-card slot-img-card slot-img-card-clear locked-game-card" data-open="doghouse" data-locked="1" aria-label="The Cat House (закрыто)"><img src="assets/card-doghouse.svg" alt="The Cat House" class="img-card-media"><span class="card-lock-badge">🔒</span></button>
       </div>
     </section>
 
@@ -1088,10 +1085,10 @@ body{background:#000!important;}
       </div>
     </section>
 
-    <!-- DOG HOUSE -->
+    <!-- CAT HOUSE (locked) -->
     <section id="screen-doghouse" class="screen">
-      <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>The Dog House</h2><div class="game-user-chip"><span class="avatar-badge gameHeaderAvatar">🧑</span><b class="gameHeaderBalance">0 GC</b></div></div>
-      <div class="olympus-embed-wrap"><iframe class="olympus-embed" title="The Dog House" src="dog-house.html"></iframe></div>
+      <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>The Cat House</h2><div class="game-user-chip"><span class="avatar-badge gameHeaderAvatar">🧑</span><b class="gameHeaderBalance">0 GC</b></div></div>
+      <div class="olympus-embed-wrap"><iframe class="olympus-embed" title="The Cat House" src="dog-house.html"></iframe></div>
     </section>
 
     <!-- SLOT -->
@@ -3195,7 +3192,7 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
       <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>🎰 Gamble Vault</h2><div class="game-user-chip"><span class="avatar-badge gameHeaderAvatar">🧑</span><b class="gameHeaderBalance">0 GC</b></div></div>
       <div class="slot-cabinet" style="display:none;">
         <div class="lever-wrap" id="leverWrap"><div class="lever-arm"></div><div class="lever-knob"></div></div>
-        <div class="jackpot-marquee"><span class="jp-label">🏆 ДЖекпот</span><span class="jp-value" id="slotJackpot">5 000</span><span class="jp-label">GC</span></div>
+        <div class="jackpot-marquee"><span class="jp-label">🏆 ДЖ��кпот</span><span class="jp-value" id="slotJackpot">5 000</span><span class="jp-label">GC</span></div>
         <div class="marquee">
           <div class="bulb"></div><div class="bulb"></div><div class="bulb"></div><div class="bulb"></div><div class="bulb"></div><div class="bulb"></div><div class="bulb"></div>
         </div>
@@ -3503,19 +3500,6 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
         <div class="stat-box"><div class="v" id="statWon">0</div><div class="l">ВСЕГО ВЫИГРАНО</div></div>
         <div class="stat-box"><div class="v" id="statBiggest">0</div><div class="l">ЛУЧШИЙ ВЫИГРЫШ</div></div>
       </div>
-      <div class="rank-card" id="profileRankPanel">
-        <div class="rank-card-top">
-          <div class="rank-medal" id="profileRankMedal">I</div>
-          <div class="rank-copy">
-            <div class="rank-kicker">Ваш ранг</div>
-            <div class="rank-title" id="profileRankTitle">Новичок</div>
-            <div class="rank-level" id="profileRankLevel">Уровень 1</div>
-          </div>
-        </div>
-        <div class="rank-meter"><i id="profileRankBar" style="width:0%"></i></div>
-        <div class="rank-hint" id="profileRankHint">Играйте, чтобы повышать уровень.</div>
-        <div class="badge-grid" id="profileBadges"></div>
-      </div>
       <button class="btn btn-blue btn-block hidden" id="openAdminBtn" style="margin-top:16px;">Админка</button>
       <button class="btn btn-blue btn-block" id="togglePromoCreator" style="margin-top:16px;">Создать промокод</button>
       <div class="panel hidden" id="promoCreatorPanel" style="margin-top:12px;">
@@ -3703,11 +3687,9 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
       refreshMiniGameHistories(true); loadLeaderboardFromBackend();
       if(typeof loadWeekly==='function') loadWeekly();
       if(typeof refreshWeeklyStats==='function') refreshWeeklyStats();
-      if(typeof loadQuests==='function') loadQuests();
       if(typeof loadReferrals==='function') loadReferrals();
       if(typeof loadExchange==='function') loadExchange();
       if(typeof checkWheelStatus==='function') checkWheelStatus();
-      if(typeof loadProfileExtra==='function') loadProfileExtra();
       console.log('Backend auth success', auth.user);
     }catch(e){
       console.error('Backend auth failed:', e);
@@ -4182,7 +4164,6 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
 
   document.addEventListener('click', function(ev){
     if(!ev.target || !ev.target.closest) return;
-    if(ev.target.closest('#questsRetryBtn')){ ev.preventDefault(); loadQuests(); return; }
     if(ev.target.closest('#refRetryBtn')){ ev.preventDefault(); loadReferrals(); return; }
     if(ev.target.closest('#refCopyBtn')){ ev.preventDefault(); copyRefLink(); return; }
     if(ev.target.closest('#refShareBtn')){ ev.preventDefault(); shareRefLink(); return; }
@@ -4648,9 +4629,8 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
     if(name==='promo-create') loadCreatedPromos();
     if((name==='bonuses'||name==='wheel'||name==='home') && typeof checkWheelStatus==='function') checkWheelStatus();
     if((name==='profile'||name==='wheel'||name==='bonuses') && typeof refreshWeeklyStats==='function') refreshWeeklyStats();
-    if(name==='profile' && typeof loadProfileExtra==='function') loadProfileExtra();
     if(name==='admin' && typeof loadAdmin==='function') loadAdmin();
-    if(name==='bonuses'){ if(typeof loadQuests==='function') loadQuests(); if(typeof loadReferrals==='function') loadReferrals(); }
+    if(name==='bonuses'){ if(typeof loadReferrals==='function') loadReferrals(); }
     if((name==='exchange'||name==='wallet'||name==='home') && typeof loadExchange==='function') loadExchange();
     if(name==='wallet' && typeof renderHistory==='function') renderHistory();
     if(typeof trackRecentGame==='function') trackRecentGame(name);
@@ -4736,7 +4716,10 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
     }
   });
   document.querySelectorAll('[data-open]').forEach(function(btn){
-    btn.addEventListener('click', function(){ showScreen(btn.getAttribute('data-open')); haptic('light'); });
+    btn.addEventListener('click', function(){
+      if(btn.getAttribute('data-locked')==='1'){ if(typeof showToast==='function') showToast('Скоро открытие','info'); haptic('light'); return; }
+      showScreen(btn.getAttribute('data-open')); haptic('light');
+    });
   });
   document.querySelectorAll('[data-back]').forEach(function(btn){
     btn.addEventListener('click', function(){ var prev=screenHistory.pop() || 'home'; showScreen(prev,{skipHistory:true}); haptic('light'); });
@@ -6448,22 +6431,6 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
     var statBiggestEl=document.getElementById('statBiggest'); if(statBiggestEl) statBiggestEl.textContent = fmt(p.stats.biggest);
     var adminBtn=document.getElementById('openAdminBtn');
     if(adminBtn) adminBtn.classList.toggle('hidden', !(backendUser && backendUser.admin));
-    if(profileExtra && profileExtra.rank){
-      var r = profileExtra.rank;
-      var roman = ['I','II','III','IV','V','VI'][Math.max(0, (r.level||1)-1)] || String(r.level||1);
-      var medal=document.getElementById('profileRankMedal'); if(medal) medal.textContent = roman;
-      var titleEl=document.getElementById('profileRankTitle'); if(titleEl) titleEl.textContent = r.title;
-      var lvlEl=document.getElementById('profileRankLevel'); if(lvlEl) lvlEl.textContent = 'Уровень ' + r.level;
-      var bar=document.getElementById('profileRankBar'); if(bar) bar.style.width = (r.progress||0) + '%';
-      var hint=document.getElementById('profileRankHint');
-      if(hint) hint.textContent = r.nextXp ? ('До следующего ранга осталось ' + fmt(Math.max(0, r.nextXp - r.xp)) + ' GC отыгрыша') : 'Вы на максимальном ранге';
-      var badges=document.getElementById('profileBadges');
-      if(badges){
-        badges.innerHTML = (profileExtra.badges||[]).map(function(b){
-          return '<div class="badge-chip' + (b.unlocked ? ' on' : '') + '"><b>' + escapeHtml(b.title) + '</b><small>' + escapeHtml(b.hint) + '</small></div>';
-        }).join('');
-      }
-    }
   }
   async function loadProfileExtra(){
     if(!backendReady) return;
@@ -6581,7 +6548,7 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
   /* ================= HOME: списки игр по группам ================= */
   var GAME_CATALOG = {
     slot:{ title:'Drunkard Gate', tag:'Слот', img:'assets/card-drunkardgate.png' },
-    doghouse:{ title:'The Dog House', tag:'Слот', img:'assets/card-doghouse.svg' },
+    doghouse:{ title:'The Cat House', tag:'Слот', img:'assets/card-doghouse.svg', locked:true },
     dice:{ title:'Dice', tag:'Мини игра', img:'assets/card-dice.jpg' },
     coinflip:{ title:'Coin Flip', tag:'Мини игра', img:'assets/card-coinflip.jpg' },
     roulette:{ title:'Roulette', tag:'Столы', img:'assets/card-roulette.jpg' },
@@ -6606,10 +6573,13 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
   function railCard(key){
     var g = GAME_CATALOG[key]; if(!g) return null;
     var btn = document.createElement('button');
-    btn.className = 'rail-card';
-    btn.setAttribute('aria-label', g.title);
-    btn.innerHTML = '<img class="rail-card-media" src="'+g.img+'" alt="'+escapeHtml(g.title)+'"><span class="rail-card-label"><b>'+escapeHtml(g.title)+'</b><small>'+escapeHtml(g.tag)+'</small></span>';
-    btn.addEventListener('click', function(){ showScreen(key); haptic('light'); });
+    btn.className = 'rail-card' + (g.locked ? ' locked-game-card' : '');
+    btn.setAttribute('aria-label', g.title + (g.locked ? ' (закрыто)' : ''));
+    btn.innerHTML = '<img class="rail-card-media" src="'+g.img+'" alt="'+escapeHtml(g.title)+'"><span class="rail-card-label"><b>'+escapeHtml(g.title)+'</b><small>'+escapeHtml(g.tag)+'</small></span>' + (g.locked ? '<span class="card-lock-badge">🔒</span>' : '');
+    btn.addEventListener('click', function(){
+      if(g.locked){ if(typeof showToast==='function') showToast('Скоро открытие','info'); haptic('light'); return; }
+      showScreen(key); haptic('light');
+    });
     return btn;
   }
   function fillRail(id, games){
@@ -7054,6 +7024,8 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
 .rail-card-label{position:absolute;left:0;right:0;bottom:0;display:flex;flex-direction:column;gap:1px;padding:20px 9px 9px;background:linear-gradient(180deg,rgba(0,0,0,0) 0%,rgba(0,0,0,.86) 70%);text-align:left;pointer-events:none;}
 .rail-card-label b{font-size:12px;font-weight:950;color:#fff;line-height:1.2;}
 .rail-card-label small{font-size:10px;font-weight:800;color:#9a9a9a;}
+.rail-card.locked-game-card{filter:grayscale(.75) brightness(.6);}
+.rail-card .card-lock-badge{position:absolute;top:6px;right:6px;width:26px;height:26px;border-radius:50%;background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;font-size:13px;z-index:2;pointer-events:none;}
 @media (min-width:760px){ .rail-card{width:150px;} }
 
 /* ===== Подсказки получателей ===== */

@@ -5,143 +5,374 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>The Dog House</title>
 <style>
-*{box-sizing:border-box}
-html,body{margin:0;height:100%;background:#1a0c08;color:#fff;font-family:Arial,sans-serif}
-body{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:10px}
-.wrap{width:min(460px,100%);}
-.logo{text-align:center;font-weight:900;letter-spacing:.08em;font-size:22px;color:#ffd54a;text-shadow:0 2px 0 #7a1e12}
-.sub{text-align:center;font-size:11px;font-weight:800;color:#ffcc80;margin:4px 0 10px}
-.stage{background:linear-gradient(180deg,#7a1e12,#3b1208);border:4px solid #f2c14e;border-radius:18px;padding:10px;box-shadow:0 12px 28px rgba(0,0,0,.45)}
-.grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
-.cell{aspect-ratio:1;border-radius:12px;background:#2a140c;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:28px;position:relative;overflow:hidden}
-.cell.win{outline:2px solid #ffd54a;box-shadow:0 0 12px #ffd54a}
-.cell.sticky{outline:2px solid #7ee0ff}
-.mult{position:absolute;top:4px;right:5px;font-size:10px;font-weight:900;background:#111;border-radius:999px;padding:2px 5px;color:#ffd54a}
-.hud{display:flex;justify-content:space-between;gap:8px;margin-top:10px;font-weight:800;font-size:13px}
-.msg{min-height:22px;text-align:center;margin-top:8px;font-weight:900;color:#ffe082}
-.controls{display:flex;gap:8px;margin-top:10px}
-button{flex:1;border:0;border-radius:12px;padding:12px 8px;font-weight:900;cursor:pointer}
-.spin{background:#ffd54a;color:#3b1208}
-.buy{background:#7a1e12;color:#fff;border:1px solid #f2c14e}
-.bets{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
-.bets button{flex:0 0 auto;padding:8px 10px;background:#2a140c;color:#fff;border:1px solid #5a2a12}
-.bets button.on{background:#f2c14e;color:#3b1208}
-.fs{display:none;margin-top:8px;text-align:center;font-weight:900;color:#7ee0ff}
-.fs.on{display:block}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
+html,body{margin:0;height:100%;overflow:hidden;font-family:'Arial Black',Arial,sans-serif}
+body{
+  background:
+    radial-gradient(circle at 50% -10%, rgba(255,190,90,.25), transparent 55%),
+    repeating-linear-gradient(0deg, #7a2412 0 22px, #6c1f0f 22px 24px),
+    repeating-linear-gradient(90deg, rgba(0,0,0,.12) 0 44px, transparent 44px 88px);
+  color:#fff;display:flex;flex-direction:column;align-items:center;height:100%;padding:8px 8px 12px;
+}
+.wrap{width:min(480px,100%);display:flex;flex-direction:column;height:100%;}
+
+/* ===== Header ===== */
+.header{display:flex;align-items:center;justify-content:center;gap:8px;padding:4px 0 6px;flex:0 0 auto;}
+.logo-badge{display:flex;align-items:center;gap:8px;background:linear-gradient(180deg,#1d3f66,#122a45);border:3px solid #f2b33d;border-radius:14px;padding:6px 16px;box-shadow:0 6px 14px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.15);}
+.logo-title{font-size:20px;font-weight:900;letter-spacing:.03em;color:#ffe9a8;text-shadow:0 2px 3px rgba(0,0,0,.6);line-height:1;}
+.logo-title small{display:block;font-size:9px;letter-spacing:.2em;color:#ff8a3d;font-weight:900;margin-top:2px;}
+.paw{width:26px;height:26px;flex:0 0 auto;}
+
+/* ===== Stage / doghouse frame ===== */
+.stage-outer{position:relative;flex:1 1 auto;display:flex;flex-direction:column;min-height:0;}
+.stage{
+  position:relative;flex:1 1 auto;min-height:0;
+  background:linear-gradient(180deg,#8a3016,#5c1c0a 60%,#431408);
+  border-radius:20px;border:6px solid #2c4b78;
+  box-shadow:0 16px 30px rgba(0,0,0,.5), inset 0 0 0 3px rgba(255,196,110,.35);
+  padding:10px;display:flex;flex-direction:column;overflow:hidden;
+}
+.roof{position:absolute;left:-4%;right:-4%;top:-34px;height:60px;background:linear-gradient(160deg,#2c4b78,#1b2f4d);clip-path:polygon(50% 0, 100% 62%, 100% 100%, 0 100%, 0 62%);border-radius:10px 10px 0 0;z-index:2;box-shadow:0 -6px 14px rgba(0,0,0,.35);}
+.roof:after{content:"";position:absolute;left:50%;top:38px;transform:translateX(-50%);width:34px;height:34px;border-radius:50%;background:radial-gradient(circle,#3a2210,#1a0f06);box-shadow:inset 0 0 0 3px #f2b33d;}
+
+.reels{position:relative;flex:1 1 auto;display:grid;grid-template-columns:repeat(5,1fr);gap:6px;background:#2a1006;border-radius:14px;padding:6px;box-shadow:inset 0 0 18px rgba(0,0,0,.6);min-height:0;}
+.reel{position:relative;overflow:hidden;border-radius:10px;background:linear-gradient(180deg,#3a1a0c,#241007);display:flex;flex-direction:column;}
+.reel-strip{position:absolute;left:0;right:0;top:0;display:flex;flex-direction:column;will-change:transform;}
+.cell{
+  height:33.333%;flex:0 0 33.333%;display:flex;align-items:center;justify-content:center;position:relative;
+}
+.sym{width:82%;height:82%;border-radius:12px;display:flex;align-items:center;justify-content:center;position:relative;background:linear-gradient(160deg,rgba(255,255,255,.10),rgba(0,0,0,.18));box-shadow:0 3px 8px rgba(0,0,0,.35), inset 0 0 0 2px rgba(255,255,255,.08);}
+svg.icon{width:72%;height:72%;filter:drop-shadow(0 2px 3px rgba(0,0,0,.5));}
+.cell.win .sym{outline:3px solid #ffe066;box-shadow:0 0 16px 4px rgba(255,224,102,.75), inset 0 0 0 2px rgba(255,255,255,.2);animation:pulse 1s ease-in-out infinite;}
+.cell.sticky .sym{outline:3px solid #6fe3ff;box-shadow:0 0 14px 3px rgba(111,227,255,.65);}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+.mult-badge{position:absolute;bottom:3px;right:3px;background:#12202f;border:1px solid #ffd54a;color:#ffd54a;font-size:10px;font-weight:900;border-radius:999px;padding:1px 6px;line-height:1.3;}
+
+.win-line{position:absolute;left:0;right:0;top:0;bottom:0;pointer-events:none;z-index:5;}
+
+/* ===== overlays ===== */
+.overlay{position:absolute;inset:0;background:rgba(10,4,2,.86);display:none;align-items:center;justify-content:center;flex-direction:column;text-align:center;z-index:20;border-radius:16px;gap:10px;padding:20px;}
+.overlay.show{display:flex;}
+.overlay h1{font-size:26px;color:#ffd54a;text-shadow:0 3px 4px rgba(0,0,0,.6);margin:0;letter-spacing:.03em;}
+.overlay .big{font-size:34px;color:#fff;font-weight:900;}
+.overlay .sub2{font-size:12px;color:#ffcf9c;font-weight:800;}
+.overlay button{margin-top:6px;background:#f2b33d;color:#3b1208;border:0;border-radius:12px;padding:10px 22px;font-weight:900;font-size:14px;cursor:pointer;}
+
+/* ===== HUD ===== */
+.hud{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px;background:#1c2b42;border:2px solid #35547f;border-radius:14px;padding:8px 12px;}
+.hud .box{text-align:center;flex:1 1 0;}
+.hud .box b{display:block;font-size:14px;color:#ffe9a8;}
+.hud .box small{display:block;font-size:9px;color:#9db6d6;font-weight:800;letter-spacing:.05em;}
+.msg{flex:0 0 auto;text-align:center;min-height:20px;margin-top:6px;font-weight:900;font-size:13px;color:#ffe082;text-shadow:0 1px 2px rgba(0,0,0,.5);}
+
+.fs-banner{display:none;flex:0 0 auto;text-align:center;margin-top:6px;background:linear-gradient(90deg,#0e2e46,#164a6e);border:2px solid #6fe3ff;border-radius:12px;padding:6px;font-weight:900;color:#bdf3ff;font-size:12px;}
+.fs-banner.on{display:block;}
+
+/* ===== controls ===== */
+.controls{flex:0 0 auto;display:flex;align-items:center;gap:8px;margin-top:8px;}
+.bet-stepper{display:flex;align-items:center;background:#1c2b42;border:2px solid #35547f;border-radius:12px;overflow:hidden;flex:0 0 auto;}
+.bet-stepper button{width:34px;height:40px;background:#25395a;color:#fff;border:0;font-size:18px;font-weight:900;cursor:pointer;}
+.bet-stepper .val{width:64px;text-align:center;font-weight:900;font-size:13px;}
+.spin-btn{flex:1 1 auto;height:52px;border-radius:16px;border:0;background:radial-gradient(circle at 50% 20%,#ffe28a,#f2b33d 60%,#c47a12);color:#3b1208;font-size:16px;font-weight:900;letter-spacing:.05em;cursor:pointer;box-shadow:0 6px 14px rgba(0,0,0,.4), inset 0 2px 0 rgba(255,255,255,.5);}
+.spin-btn:disabled{opacity:.55;}
+.side-btn{width:40px;height:40px;border-radius:12px;background:#1c2b42;border:2px solid #35547f;color:#fff;font-weight:900;font-size:13px;cursor:pointer;flex:0 0 auto;}
+.side-btn.on{background:#f2b33d;color:#3b1208;border-color:#f2b33d;}
+.buy-row{flex:0 0 auto;margin-top:6px;}
+.buy-btn{width:100%;background:#7a1e12;color:#fff;border:2px solid #f2b33d;border-radius:12px;padding:9px;font-weight:900;font-size:12px;cursor:pointer;}
+.buy-btn:disabled{opacity:.45;}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <div class="logo">THE DOG HOUSE</div>
-  <div class="sub">20 линий · sticky wilds x2/x3</div>
-  <div class="stage">
-    <div class="grid" id="grid"></div>
+  <div class="header">
+    <div class="logo-badge">
+      <svg class="paw" viewBox="0 0 64 64"><g fill="#ffd54a"><circle cx="32" cy="40" r="14"/><circle cx="14" cy="22" r="8"/><circle cx="32" cy="14" r="8"/><circle cx="50" cy="22" r="8"/></g></svg>
+      <div class="logo-title">THE DOG HOUSE<small>20 LINES · SLOT</small></div>
+    </div>
   </div>
-  <div class="hud"><span>Баланс: <b id="bal">—</b></span><span>Ставка: <b id="betLab">20</b></span></div>
-  <div class="msg" id="msg">Крути, чтобы сорвать будку</div>
-  <div class="fs" id="fsBox">FREE SPINS: <span id="fsLeft">0</span> · WIN <span id="fsWin">0</span></div>
-  <div class="controls">
-    <button class="spin" id="spinBtn">SPIN</button>
-    <button class="buy" id="buyBtn">BUY 100x</button>
+
+  <div class="stage-outer">
+    <div class="stage" id="stage">
+      <div class="roof"></div>
+      <div class="reels" id="reels"></div>
+      <div class="overlay" id="fsIntro">
+        <h1>FREE SPINS!</h1>
+        <div class="big" id="fsIntroCount">8</div>
+        <div class="sub2">Wild-кости остаются на поле и растят множитель</div>
+        <button id="fsIntroBtn">НАЧАТЬ</button>
+      </div>
+      <div class="overlay" id="fsOutro">
+        <h1>ИТОГО ЗА БОНУС</h1>
+        <div class="big" id="fsOutroWin">0 GC</div>
+        <button id="fsOutroBtn">ЗАБРАТЬ</button>
+      </div>
+    </div>
+
+    <div class="fs-banner" id="fsBox">FREE SPINS: <b id="fsLeft">0</b> осталось · выигрыш бонуса <b id="fsWin">0</b> GC</div>
+    <div class="msg" id="msg">Крути, чтобы сорвать будку</div>
+
+    <div class="hud">
+      <div class="box"><small>БАЛАНС</small><b id="bal">—</b></div>
+      <div class="box"><small>СТАВКА</small><b id="betLab">20</b></div>
+      <div class="box"><small>ВЫИГРЫШ</small><b id="winLab">0</b></div>
+    </div>
+
+    <div class="controls">
+      <div class="bet-stepper">
+        <button id="betDown">−</button>
+        <div class="val" id="betVal">20</div>
+        <button id="betUp">+</button>
+      </div>
+      <button class="spin-btn" id="spinBtn">SPIN</button>
+      <button class="side-btn" id="turboBtn">TURBO</button>
+      <button class="side-btn" id="autoBtn">AUTO</button>
+    </div>
+    <div class="buy-row"><button class="buy-btn" id="buyBtn">КУПИТЬ БОНУС · 100x СТАВКИ</button></div>
   </div>
-  <div class="bets" id="bets"></div>
 </div>
 <script>
-const ICONS={0:'🔔',1:'🏠',2:'👩',3:'👨',4:'🐶',5:'🐕',6:'🦮',7:'A',8:'K',9:'Q',10:'J',11:'10'};
-const BETS=[10,20,50,100,200,500,1000,2500,5000,10000];
-let bet=20, spinning=false, round=null, grid=null;
-function parentApi(){ try{ return parent.GambleBackend || null }catch(e){ return null } }
-function fmt(n){ return Math.round(Number(n)||0).toLocaleString('ru-RU') }
-function setBal(n){ document.getElementById('bal').textContent = fmt(n)+' GC' }
-function paint(g, wilds, wins){
-  const box=document.getElementById('grid');
-  box.innerHTML='';
-  const winSet={};
-  (wins||[]).forEach(w=> (w.positions||[]).forEach(p=> winSet[p.c+':'+p.r]=1));
-  for(let r=0;r<3;r++) for(let c=0;c<5;c++){
-    const id=g[c][r];
-    const el=document.createElement('div');
-    el.className='cell'+(winSet[c+':'+r]?' win':'');
-    el.textContent=ICONS[id]||'?';
-    const m=wilds && wilds[c] ? wilds[c][r] : null;
-    if(m){ const b=document.createElement('span'); b.className='mult'; b.textContent='x'+m; el.appendChild(b); }
-    box.appendChild(el);
-  }
-}
-function dummyGrid(){
-  const g=[]; for(let c=0;c<5;c++){ g[c]=[]; for(let r=0;r<3;r++) g[c][r]=7+((c+r)%5); } return g;
-}
-function renderBets(){
-  const box=document.getElementById('bets');
-  box.innerHTML='';
-  BETS.forEach(v=>{
-    const b=document.createElement('button');
-    b.textContent=v;
-    if(v===bet) b.className='on';
-    b.onclick=()=>{ if(spinning||round) return; bet=v; document.getElementById('betLab').textContent=v; renderBets(); };
-    box.appendChild(b);
-  });
-}
-async function doSpin(){
-  if(spinning) return;
-  const api=parentApi();
-  if(!api || !api.dogHouseSpin){ document.getElementById('msg').textContent='Сервер недоступен'; return; }
-  spinning=true; document.getElementById('spinBtn').disabled=true;
-  try{
-    const data=await api.dogHouseSpin({ betAmount: bet });
-    if(typeof data.balance==='number') setBal(data.balance);
-    const spin=data.spin;
-    grid=spin.grid; paint(spin.grid, spin.wildMults, spin.lines);
-    round=data.round;
-    if(spin.win>0) document.getElementById('msg').textContent='WIN +'+fmt(spin.win)+' GC';
-    else document.getElementById('msg').textContent='Не повезло';
-    if(spin.freeSpinsAwarded) document.getElementById('msg').textContent='FREE SPINS x'+spin.freeSpinsAwarded;
-    syncRound(round, data.roundWin);
-  }catch(e){ document.getElementById('msg').textContent=e.message||'Ошибка спина'; }
-  spinning=false; document.getElementById('spinBtn').disabled=false;
-}
-async function buyBonus(){
-  if(spinning||round) return;
-  const api=parentApi();
-  if(!api || !api.dogHouseBuyBonus) return;
-  spinning=true;
-  try{
-    const data=await api.dogHouseBuyBonus({ betAmount: bet });
-    if(typeof data.balance==='number') setBal(data.balance);
-    round=data.round; syncRound(round, 0);
-    document.getElementById('msg').textContent='Куплены фриспины';
-  }catch(e){ document.getElementById('msg').textContent=e.message||'Не удалось купить бонус'; }
-  spinning=false;
-}
-function syncRound(r, win){
-  const box=document.getElementById('fsBox');
-  if(r && r.freeSpinsLeft>0){
-    box.classList.add('on');
-    document.getElementById('fsLeft').textContent=r.freeSpinsLeft;
-    document.getElementById('fsWin').textContent=fmt(win||r.roundWin||0);
-    document.getElementById('buyBtn').disabled=true;
-  } else {
-    box.classList.remove('on');
-    document.getElementById('buyBtn').disabled=false;
-    round=null;
-  }
-}
-async function boot(){
-  paint(dummyGrid(), null, []);
-  renderBets();
-  const api=parentApi();
-  try{
-    if(api && api.getBalance) setBal(api.getBalance());
-    if(api && api.dogHouseState){
-      const st=await api.dogHouseState();
-      if(typeof st.balance==='number') setBal(st.balance);
-      syncRound(st.round, st.round && st.round.roundWin);
+(function(){
+  var BETS=[10,20,50,100,200,500,1000,2500,5000,10000];
+  var COLORS={
+    2:{a:'#f4c9d8',b:'#c96b93',label:'Хаски'},   // girl
+    3:{a:'#caa27a',b:'#7a4a24',label:'Боксёр'},  // guy
+    4:{a:'#c9a9ff',b:'#6b3ea5',label:'Бульдог'}, // purple
+    5:{a:'#bfe7c0',b:'#3f8a4c',label:'Далматин'},// green
+    6:{a:'#e3b98a',b:'#8a5a2a',label:'Терьер'}   // brown
+  };
+  var CARD_LABEL={7:'A',8:'K',9:'Q',10:'J',11:'10'};
+
+  function svgFor(id, mult){
+    if(id===0){ // scatter: doghouse
+      return '<svg class="icon" viewBox="0 0 100 100"><polygon points="50,10 90,42 90,44 10,44 10,42" fill="#2c4b78"/><rect x="18" y="44" width="64" height="42" rx="4" fill="#8a3016"/><circle cx="50" cy="66" r="12" fill="#241007"/><rect x="14" y="84" width="72" height="6" rx="3" fill="#f2b33d"/></svg>';
     }
-  }catch(e){}
-}
-document.getElementById('spinBtn').onclick=doSpin;
-document.getElementById('buyBtn').onclick=buyBonus;
-boot();
+    if(id===1){ // wild: bone
+      var m = mult||2;
+      return '<svg class="icon" viewBox="0 0 100 100"><g fill="#fff7e6" stroke="#caa25a" stroke-width="3">'+
+        '<circle cx="22" cy="32" r="13"/><circle cx="22" cy="58" r="13"/>'+
+        '<circle cx="78" cy="32" r="13"/><circle cx="78" cy="58" r="13"/>'+
+        '<rect x="22" y="32" width="56" height="26" rx="9"/></g>'+
+        '<text x="50" y="52" text-anchor="middle" font-size="22" font-weight="900" fill="#7a1e12">x'+m+'</text></svg>';
+    }
+    if(CARD_LABEL[id]){
+      return '<svg class="icon" viewBox="0 0 100 100"><rect x="14" y="6" width="72" height="88" rx="10" fill="#fff7e6" stroke="#caa25a" stroke-width="3"/>'+
+        '<text x="50" y="64" text-anchor="middle" font-size="40" font-weight="900" fill="#7a1e12">'+CARD_LABEL[id]+'</text></svg>';
+    }
+    var c=COLORS[id]||{a:'#ccc',b:'#666'};
+    return '<svg class="icon" viewBox="0 0 100 100">'+
+      '<ellipse cx="50" cy="58" rx="32" ry="26" fill="'+c.a+'"/>'+
+      '<ellipse cx="30" cy="30" rx="12" ry="16" fill="'+c.b+'" transform="rotate(-25 30 30)"/>'+
+      '<ellipse cx="70" cy="30" rx="12" ry="16" fill="'+c.b+'" transform="rotate(25 70 30)"/>'+
+      '<circle cx="38" cy="54" r="5" fill="#241007"/><circle cx="62" cy="54" r="5" fill="#241007"/>'+
+      '<ellipse cx="50" cy="68" rx="8" ry="6" fill="#241007"/>'+
+      '</svg>';
+  }
+
+  var bet=20, spinning=false, round=null, autoplay=false, turbo=false, autoLeft=0;
+  var reelsEl=document.getElementById('reels');
+  var reelCols=[];
+  for(var c=0;c<5;c++){
+    var reel=document.createElement('div'); reel.className='reel';
+    var strip=document.createElement('div'); strip.className='reel-strip';
+    reel.appendChild(strip); reelsEl.appendChild(reel);
+    reelCols.push({reel:reel, strip:strip});
+  }
+
+  function parentApi(){ try{ return parent.GambleBackend || null }catch(e){ return null } }
+  function fmt(n){ return Math.round(Number(n)||0).toLocaleString('ru-RU') }
+  function setBal(n){ document.getElementById('bal').textContent = fmt(n) }
+
+  function cellHtml(id, mult, isWinPos, isSticky){
+    var cls='cell'+(isWinPos?' win':'')+(isSticky?' sticky':'');
+    var badge = mult ? '<span class="mult-badge">x'+mult+'</span>' : '';
+    return '<div class="'+cls+'"><div class="sym">'+svgFor(id, mult)+badge+'</div></div>';
+  }
+
+  function randomCol(){
+    var ids=[7,8,9,10,11,2,3,4,5,6];
+    var out=[];
+    for(var i=0;i<12;i++) out.push(ids[Math.floor(Math.random()*ids.length)]);
+    return out;
+  }
+
+  function setStatic(grid, wilds, wins, sticky){
+    var winSet={};
+    (wins||[]).forEach(function(w){ (w.positions||[]).forEach(function(p){ winSet[p.c+':'+p.r]=1; }); });
+    var stickySet={};
+    (sticky||[]).forEach(function(s){ stickySet[s.c+':'+s.r]=1; });
+    for(var c=0;c<5;c++){
+      var html='';
+      for(var r=0;r<3;r++){
+        var id=grid[c][r];
+        var m = wilds && wilds[c] ? wilds[c][r] : null;
+        html += cellHtml(id, m, !!winSet[c+':'+r], !!stickySet[c+':'+r]);
+      }
+      reelCols[c].strip.style.transition='none';
+      reelCols[c].strip.style.transform='translateY(0)';
+      reelCols[c].strip.innerHTML=html;
+    }
+  }
+
+  function animateSpin(finalGrid, finalWilds, wins, sticky, onDone){
+    var dur = turbo ? 340 : 620;
+    var stagger = turbo ? 60 : 110;
+    var doneCount=0;
+    for(var c=0;c<5;c++){
+      (function(c){
+        var strip=reelCols[c].strip;
+        var filler=randomCol();
+        var finalCol=[finalGrid[c][0], finalGrid[c][1], finalGrid[c][2]];
+        var finalMults=[ (finalWilds&&finalWilds[c]?finalWilds[c][0]:null), (finalWilds&&finalWilds[c]?finalWilds[c][1]:null), (finalWilds&&finalWilds[c]?finalWilds[c][2]:null) ];
+        var html='';
+        filler.forEach(function(id){ html += cellHtml(id, null, false, false); });
+        finalCol.forEach(function(id, i){ html += cellHtml(id, finalMults[i], false, false); });
+        strip.style.transition='none';
+        strip.style.transform='translateY(0)';
+        strip.innerHTML=html;
+        var cellH = reelCols[c].reel.clientHeight/3;
+        var travel = cellH*filler.length;
+        requestAnimationFrame(function(){
+          setTimeout(function(){
+            strip.style.transition='transform '+dur+'ms cubic-bezier(.18,.85,.32,1)';
+            strip.style.transform='translateY(-'+travel+'px)';
+          }, c*stagger);
+        });
+        setTimeout(function(){
+          doneCount++;
+          if(doneCount===5){
+            setStatic(finalGrid, finalWilds, wins, sticky);
+            if(onDone) onDone();
+          }
+        }, dur + c*stagger + 30);
+      })(c);
+    }
+  }
+
+  function renderBetLabels(){
+    document.getElementById('betLab').textContent=bet;
+    document.getElementById('betVal').textContent=bet;
+  }
+  function stepBet(dir){
+    if(spinning||round) return;
+    var idx=BETS.indexOf(bet);
+    idx = Math.max(0, Math.min(BETS.length-1, idx+dir));
+    bet=BETS[idx];
+    renderBetLabels();
+  }
+
+  function showFsIntro(count, cb){
+    document.getElementById('fsIntroCount').textContent=count;
+    var el=document.getElementById('fsIntro'); el.classList.add('show');
+    document.getElementById('fsIntroBtn').onclick=function(){ el.classList.remove('show'); if(cb) cb(); };
+  }
+  function showFsOutro(win, cb){
+    document.getElementById('fsOutroWin').textContent=fmt(win)+' GC';
+    var el=document.getElementById('fsOutro'); el.classList.add('show');
+    document.getElementById('fsOutroBtn').onclick=function(){ el.classList.remove('show'); if(cb) cb(); };
+  }
+
+  var wasInFreeSpins=false;
+  function syncRound(r, win){
+    var box=document.getElementById('fsBox');
+    if(r && r.freeSpinsLeft>0){
+      box.classList.add('on');
+      document.getElementById('fsLeft').textContent=r.freeSpinsLeft;
+      document.getElementById('fsWin').textContent=fmt(win||r.roundWin||0);
+      document.getElementById('buyBtn').disabled=true;
+      wasInFreeSpins=true;
+    } else {
+      box.classList.remove('on');
+      document.getElementById('buyBtn').disabled=false;
+      if(wasInFreeSpins){ wasInFreeSpins=false; showFsOutro(win||0, function(){}); }
+      round=null;
+    }
+  }
+
+  async function doSpin(fromAuto){
+    if(spinning) return;
+    var api=parentApi();
+    if(!api || !api.dogHouseSpin){ document.getElementById('msg').textContent='Сервер недоступен'; return; }
+    spinning=true;
+    document.getElementById('spinBtn').disabled=true;
+    document.getElementById('msg').textContent = round ? 'Бесплатный спин…' : 'Крутим…';
+    try{
+      var data = await api.dogHouseSpin({ betAmount: bet });
+      if(typeof data.balance==='number') setBal(data.balance);
+      var spin=data.spin;
+      document.getElementById('winLab').textContent = fmt(spin.win||0);
+      var wasFree = spin.mode==='free';
+      animateSpin(spin.grid, spin.wildMults, spin.lines, spin.stickyWilds, function(){
+        if(spin.win>0) document.getElementById('msg').textContent='WIN +'+fmt(spin.win)+' GC';
+        else document.getElementById('msg').textContent = data.round && data.round.freeSpinsLeft>0 ? 'Крути дальше — бонус активен' : 'Не повезло';
+        round = data.round;
+        syncRound(round, data.roundWin);
+        if(spin.freeSpinsAwarded>0 && !wasFree){
+          showFsIntro(spin.freeSpinsAwarded, function(){});
+        }
+        spinning=false;
+        document.getElementById('spinBtn').disabled=false;
+        if(autoplay && autoLeft>0){
+          autoLeft--;
+          if(autoLeft<=0){ autoplay=false; document.getElementById('autoBtn').classList.remove('on'); }
+          setTimeout(function(){ doSpin(true); }, 260);
+        } else if(round && round.freeSpinsLeft>0){
+          setTimeout(function(){ doSpin(true); }, 320);
+        }
+      });
+    }catch(e){
+      document.getElementById('msg').textContent = e.message || 'Ошибка спина';
+      spinning=false;
+      document.getElementById('spinBtn').disabled=false;
+    }
+  }
+
+  async function buyBonus(){
+    if(spinning||round) return;
+    var api=parentApi();
+    if(!api || !api.dogHouseBuyBonus) return;
+    spinning=true;
+    document.getElementById('buyBtn').disabled=true;
+    try{
+      var data = await api.dogHouseBuyBonus({ betAmount: bet });
+      if(typeof data.balance==='number') setBal(data.balance);
+      round=data.round;
+      syncRound(round, 0);
+      showFsIntro(round.freeSpinsLeft, function(){});
+      document.getElementById('msg').textContent='Бонус куплен';
+    }catch(e){ document.getElementById('msg').textContent=e.message||'Не удалось купить бонус'; }
+    spinning=false;
+    document.getElementById('buyBtn').disabled = !!round;
+  }
+
+  document.getElementById('betDown').onclick=function(){ stepBet(-1); };
+  document.getElementById('betUp').onclick=function(){ stepBet(1); };
+  document.getElementById('spinBtn').onclick=function(){ doSpin(false); };
+  document.getElementById('buyBtn').onclick=buyBonus;
+  document.getElementById('turboBtn').onclick=function(){ turbo=!turbo; document.getElementById('turboBtn').classList.toggle('on', turbo); };
+  document.getElementById('autoBtn').onclick=function(){
+    if(autoplay){ autoplay=false; autoLeft=0; document.getElementById('autoBtn').classList.remove('on'); return; }
+    autoplay=true; autoLeft=25; document.getElementById('autoBtn').classList.add('on');
+    if(!spinning) doSpin(true);
+  };
+
+  (async function boot(){
+    for(var c=0;c<5;c++){
+      var html='';
+      randomCol().slice(0,3).forEach(function(id){ html+=cellHtml(id, null, false, false); });
+      reelCols[c].strip.innerHTML=html;
+    }
+    renderBetLabels();
+    var api=parentApi();
+    try{
+      if(api && api.getBalance) setBal(api.getBalance());
+      if(api && api.dogHouseState){
+        var st = await api.dogHouseState();
+        if(typeof st.balance==='number') setBal(st.balance);
+        if(st.round && st.round.freeSpinsLeft>0){ round=st.round; syncRound(round, round.roundWin); }
+      }
+    }catch(e){}
+  })();
+})();
 </script>
 </body>
 </html>

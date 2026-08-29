@@ -1189,10 +1189,10 @@ body{
 @keyframes fsPulse{0%,100%{filter:brightness(1)}50%{filter:brightness(1.6)}}
 /* Grid */
 .gwrap{
-  position:relative;padding:10px;border-radius:16px;
-  background:rgba(4,2,10,.8);border:1px solid rgba(90,50,120,.3);
-  box-shadow:0 0 24px rgba(50,10,90,.25);
-  overflow:hidden;
+  position:relative;padding:8px;border-radius:18px;
+  background:rgba(0,0,0,.65);border:2px solid rgba(90,40,130,.4);
+  box-shadow:0 0 50px rgba(70,20,130,.35),0 0 100px rgba(50,10,100,.15),inset 0 0 40px rgba(50,10,100,.07);
+  backdrop-filter:blur(10px);overflow:hidden;
 }
 .gaura{position:absolute;inset:0;border-radius:18px;pointer-events:none;
   background:conic-gradient(from 0deg,transparent 80%,rgba(160,100,255,.035) 85%,transparent 90%);
@@ -1202,13 +1202,13 @@ body{
 .gwrap.fs-mode{border-color:rgba(244,114,182,.6);box-shadow:0 0 60px rgba(120,40,80,.55),0 0 120px rgba(244,114,182,.25),inset 0 0 50px rgba(244,114,182,.08)}
 .grid{
   display:grid;grid-template-columns:repeat(6,1fr);grid-template-rows:repeat(5,1fr);
-  gap:8px;width:clamp(320px,90vw,630px);height:clamp(265px,54vw,525px);
-  overflow:hidden;position:relative;border-radius:12px;
+  gap:4px;width:clamp(320px,90vw,630px);height:clamp(265px,54vw,525px);
+  overflow:hidden;position:relative;border-radius:10px;
 }
 /* Cells */
 .cell{
-  border-radius:14px;
-  background:rgba(8,5,16,.92);border:1px solid rgba(80,45,110,.28);
+  border-radius:9px;
+  background:rgba(10,4,30,.65);border:1px solid rgba(100,60,200,.18);
   position:relative;display:flex;align-items:center;justify-content:center;
   transition:border-color .2s;
 }
@@ -1588,7 +1588,7 @@ body.pay-info-open #autoBtn{display:none!important;pointer-events:none!important
   .game{gap:14px;padding:22px 26px;max-width:1100px;}
   .title{font-size:clamp(2em,3vw,3.1em);}
   .subtitle{font-size:.5em;letter-spacing:11px;}
-  .grid{width:clamp(460px,44vw,740px);height:clamp(380px,36vw,610px);gap:9px;}
+  .grid{width:clamp(460px,44vw,740px);height:clamp(380px,36vw,610px);gap:6px;}
   .slot-panel{max-width:900px;padding:14px 22px 16px;}
   .controls{max-width:900px;gap:12px;}
   .betbox{min-width:100px;padding:9px 16px;}

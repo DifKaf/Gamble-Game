@@ -124,6 +124,10 @@ const STATEMENTS: Array<string> = [
 	// по каким-то причинам не применится (как раньше с SlotSession на Railway), эти таблицы/колонки
 	// всё равно будут созданы на старте API, и атомарные защиты от гонок не сломаются из-за
 	// отсутствующей структуры в базе.
+	// gamesPlayed отсутствовал здесь и это ломало ВСЕ роуты, читающие пользователя
+	// (включая /auth/telegram и /auth/dev), с ошибкой P2022 "column does not exist",
+	// если `prisma db push` не был выполнен на проде после добавления фичи "удача новичка".
+	`ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "gamesPlayed" INTEGER NOT NULL DEFAULT 0`,
 	`ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "lastWheelSpinAt" TIMESTAMP(3)`,
 	`ALTER TABLE "DailyBonus" ADD COLUMN IF NOT EXISTS "dayKey" TEXT NOT NULL DEFAULT ''`,
 	`CREATE UNIQUE INDEX IF NOT EXISTS "DailyBonus_userId_dayKey_key" ON "DailyBonus"("userId", "dayKey")`,

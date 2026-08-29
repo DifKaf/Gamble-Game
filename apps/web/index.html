@@ -2148,15 +2148,18 @@ window.addEventListener(&#x27;resize&#x27;,()=&gt;{ CELL_H=0; });
 // времени падения одной колонны, чтобы следующая колонна начинала падать
 // только после того, как полностью осела предыдущая (без перекрытия).
 const DROP_DUR=0.42, DROP_ROW=0.028, DROP_COL=DROP_DUR+DROP_ROW*(ROWS-1);
+const CASC_COL=0.05; // тумблы (сыгровки) почти без сдвига между колоннами, как в Gates of Olympus; полный последовательный DROP_COL используется только для самого первого заполнения барабанов
 
-function setSym(c,r,sym,anim,fall){
+function setSym(c,r,sym,anim,fall,cascCol){
   const el=cells[c][r];
   el.className=&#x27;cell&#x27;+(anim?&#x27; &#x27;+anim:&#x27;&#x27;);
   el.style.setProperty(&#x27;--sc&#x27;,sym?sym.color:&#x27;gold&#x27;);
   const old=el.querySelector(&#x27;svg&#x27;); if(old) old.remove();
   const oldm=el.querySelector(&#x27;.cellmult&#x27;); if(oldm) oldm.remove();
-  // Waterfall stagger: lower rows land first, upper rows follow (Gates-style tumble)
-  const delay = anim===&#x27;drop&#x27; ? (c*DROP_COL + (ROWS-1-r)*DROP_ROW) : 0;
+  // Waterfall stagger: lower rows land first, upper rows follow (Gates-style tumble).
+  // При сыгровке (cascCol задан) колонны падают почти одновременно; полностью
+  // последовательный дроп (c*DROP_COL) используется только для первого заполнения сетки.
+  const delay = anim===&#x27;drop&#x27; ? ((cascCol!=null ? cascCol*CASC_COL : c*DROP_COL) + (ROWS-1-r)*DROP_ROW) : 0;
   // Real fall distance (px) so symbols visibly fall from above instead of popping in place.
   // The grid clips at its outer edge, so a symbol travels DOWN across cells into its slot.
   let fy=&#x27;180%&#x27;;
@@ -2447,11 +2450,13 @@ function removeAndDrop(wc, allowMult){
       // Sweet-Bonanza style: symbols that did NOT take part in a win stay exactly
       // where they are (never re-rendered, so they never reload/flicker). Only the
       // exact cells that won get a brand-new symbol falling in from above into that same cell.
+      // Columns barely stagger during a cascade (Gates-of-Olympus style), unlike the
+      // fully sequential column-by-column drop used for the very first reel fill.
       const byCol={};
       wc.forEach(([c,r])=&gt;{ (byCol[c]=byCol[c]||[]).push(r); });
+      const cols=Object.keys(byCol).map(Number).sort((a,b)=&gt;a-b);
       const newCells=[];
-      Object.keys(byCol).forEach(cKey=&gt;{
-        const c=+cKey;
+      cols.forEach((c,cascCol)=&gt;{
         const rows=byCol[c];
         const rowSet=new Set(rows);
         let hasSc=false;
@@ -2460,8 +2465,8 @@ function removeAndDrop(wc, allowMult){
           let s=rSym(anteBetOn);
           if(s.isScatter){ if(hasSc) s=rSymNoSc(anteBetOn); else hasSc=true; }
           grid[c][r]=s;
-          setSym(c,r,s,&#x27;drop&#x27;,r+1);
-          newCells.push([c,r]);
+          setSym(c,r,s,&#x27;drop&#x27;,r+1,cascCol);
+          newCells.push([c,r,cascCol]);
         });
       });
       // Multiplier symbols fall in together with the newly dropped symbols
@@ -2469,13 +2474,14 @@ function removeAndDrop(wc, allowMult){
         const mv=pickMultOrNone();
         if(mv!==null){
           const i=Math.floor(Math.random()*newCells.length);
-          const [c,r]=newCells[i];
+          const [c,r,cascCol]=newCells[i];
           grid[c][r]=makeMultSym(mv);
-          setSym(c,r,grid[c][r],&#x27;drop&#x27;,r+1);
+          setSym(c,r,grid[c][r],&#x27;drop&#x27;,r+1,cascCol);
           sfx(&#x27;mult&#x27;);
         }
       }
-      setTimeout(res,420);
+      const maxDelayMs=Math.round(((cols.length?(cols.length-1)*CASC_COL:0)+DROP_ROW*(ROWS-1)+DROP_DUR)*1000);
+      setTimeout(res,maxDelayMs+40);
     },220);
   });
 }
@@ -4686,7 +4692,7 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
     var adj = ev.target && ev.target.closest ? ev.target.closest('[data-admin-adjust]') : null;
     if(adj){
       ev.preventDefault();
-      var amount = window.prompt('На сколько изменить ба��анс? Например 5000 или -2000', '1000');
+      var amount = window.prompt('На сколько изменить ба����нс? Например 5000 или -2000', '1000');
       if(amount === null) return;
       apiRequest('/admin/users/' + encodeURIComponent(adj.getAttribute('data-admin-adjust')) + '/adjust', {
         method:'POST', body: JSON.stringify({ amount: Number(amount) })
@@ -6404,7 +6410,7 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
     var p = me();
     var transfers = (p.history || []).filter(function(h){ return h.type==='transfer_in' || h.type==='transfer_out'; });
     if(transfers.length===0){
-      box.innerHTML = '<div class="empty-state">Пока нет перево��ов.</div>';
+      box.innerHTML = '<div class="empty-state">Пока нет перев����ов.</div>';
       return;
     }
     box.innerHTML = transfers.map(function(h){

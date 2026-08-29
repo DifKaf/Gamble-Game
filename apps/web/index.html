@@ -2144,7 +2144,10 @@ let CELL_H=0;
 function measureCell(){ const el=cells[0]&amp;&amp;cells[0][0]; if(el&amp;&amp;el.offsetHeight) CELL_H=el.offsetHeight+4; return CELL_H||64; }
 window.addEventListener(&#x27;resize&#x27;,()=&gt;{ CELL_H=0; });
 // Тайминги как в Gates of Olympus: короткий дроп и лесенка по колонкам/рядам.
-const DROP_DUR=0.42, DROP_COL=0.055, DROP_ROW=0.028;
+// Колонны падают строго последовательно: DROP_COL равен полному
+// времени падения одной колонны, чтобы следующая колонна начинала падать
+// только после того, как полностью осела предыдущая (без перекрытия).
+const DROP_DUR=0.42, DROP_ROW=0.028, DROP_COL=DROP_DUR+DROP_ROW*(ROWS-1);
 
 function setSym(c,r,sym,anim,fall){
   const el=cells[c][r];
@@ -2441,33 +2444,26 @@ function removeAndDrop(wc, allowMult){
   return new Promise(res=&gt;{
     wc.forEach(([c,r])=&gt;cells[c][r].className=&#x27;cell blast&#x27;);
     setTimeout(()=&gt;{
-      // Collapse (Gates-style): winning symbols exploded above; survivors fall DOWN to fill
-      // the gaps, and brand-new symbols fall in from the top ON TOP of the survivors.
-      const winSet=new Set(wc.map(([c,r])=&gt;c+&#x27;:&#x27;+r));
+      // Sweet-Bonanza style: symbols that did NOT take part in a win stay exactly
+      // where they are (never re-rendered, so they never reload/flicker). Only the
+      // exact cells that won get a brand-new symbol falling in from above into that same cell.
+      const byCol={};
+      wc.forEach(([c,r])=&gt;{ (byCol[c]=byCol[c]||[]).push(r); });
       const newCells=[];
-      for(let c=0;c&lt;COLS;c++){
-        // Surviving (non-winning) symbols top-&gt;bottom, remembering their old row
-        const survivors=[];
-        for(let r=0;r&lt;ROWS;r++){ if(!winSet.has(c+&#x27;:&#x27;+r) &amp;&amp; grid[c][r]) survivors.push({sym:grid[c][r],oldR:r}); }
-        const gaps=ROWS-survivors.length; // number of new symbols needed at the top
-        const assign=new Array(ROWS);
-        let hasSc=survivors.some(o=&gt;o.sym.isScatter); // enforce max one scatter per reel
-        for(let r=0;r&lt;gaps;r++){
+      Object.keys(byCol).forEach(cKey=&gt;{
+        const c=+cKey;
+        const rows=byCol[c];
+        const rowSet=new Set(rows);
+        let hasSc=false;
+        for(let r=0;r&lt;ROWS;r++){ if(!rowSet.has(r) &amp;&amp; grid[c][r] &amp;&amp; grid[c][r].isScatter) hasSc=true; }
+        rows.forEach(r=&gt;{
           let s=rSym(anteBetOn);
           if(s.isScatter){ if(hasSc) s=rSymNoSc(anteBetOn); else hasSc=true; }
-          assign[r]={sym:s,isNew:true,animate:true,fall:gaps}; // new symbols fall from above the grid as a block
-        }
-        for(let i=0;i&lt;survivors.length;i++){
-          const r=gaps+i;
-          // Only animate a survivor if it actually moved down; fall = number of rows it dropped
-          assign[r]={sym:survivors[i].sym,isNew:false,animate:(r!==survivors[i].oldR),fall:(r-survivors[i].oldR)};
-        }
-        for(let r=0;r&lt;ROWS;r++){
-          grid[c][r]=assign[r].sym;
-          if(assign[r].animate) setSym(c,r,assign[r].sym,&#x27;drop&#x27;,assign[r].fall);
-          if(assign[r].isNew) newCells.push([c,r]);
-        }
-      }
+          grid[c][r]=s;
+          setSym(c,r,s,&#x27;drop&#x27;,r+1);
+          newCells.push([c,r]);
+        });
+      });
       // Multiplier symbols fall in together with the newly dropped symbols
       if(allowMult &amp;&amp; newCells.length){
         const mv=pickMultOrNone();
@@ -3487,7 +3483,7 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
 
     <!-- PROFILE -->
     <section id="screen-profile" class="screen">
-      <div class="section-title">👤 Профиль</div>
+      <div class="section-title">👤 Проф��ль</div>
       <div class="white-card" style="display:flex;align-items:center;gap:12px;">
         <div class="avatar-badge" id="profileAvatar" style="background:var(--card-tint);">🧑</div>
         <div>
@@ -4690,7 +4686,7 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
     var adj = ev.target && ev.target.closest ? ev.target.closest('[data-admin-adjust]') : null;
     if(adj){
       ev.preventDefault();
-      var amount = window.prompt('На сколько изменить баланс? Например 5000 или -2000', '1000');
+      var amount = window.prompt('На сколько изменить ба��анс? Например 5000 или -2000', '1000');
       if(amount === null) return;
       apiRequest('/admin/users/' + encodeURIComponent(adj.getAttribute('data-admin-adjust')) + '/adjust', {
         method:'POST', body: JSON.stringify({ amount: Number(amount) })
@@ -4712,7 +4708,7 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
       ev.preventDefault();
       apiRequest('/exchange/admin/requests/' + encodeURIComponent(deal.getAttribute('data-admin-deal')), {
         method:'POST', body: JSON.stringify({ action: deal.getAttribute('data-action') })
-      }).then(function(){ showToast('Сделка обработана','success'); loadAdmin(); }).catch(function(e){ showToast(e.message||'Ошибка','error'); });
+      }).then(function(){ showToast('Сделка ��бработана','success'); loadAdmin(); }).catch(function(e){ showToast(e.message||'Ошибка','error'); });
     }
   });
   document.querySelectorAll('[data-open]').forEach(function(btn){
@@ -6408,7 +6404,7 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
     var p = me();
     var transfers = (p.history || []).filter(function(h){ return h.type==='transfer_in' || h.type==='transfer_out'; });
     if(transfers.length===0){
-      box.innerHTML = '<div class="empty-state">Пока нет переводов.</div>';
+      box.innerHTML = '<div class="empty-state">Пока нет перево��ов.</div>';
       return;
     }
     box.innerHTML = transfers.map(function(h){
@@ -6490,7 +6486,7 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
       });
     });
   });
-  /* Рендер отделён от загрузки: история всех игр приезжает одним запросом. */
+  /* Ренд��р отделён от загрузки: история всех игр приезжает одним запросом. */
   function renderGameHistoryItems(gameCode, items, scope){
     var box = document.getElementById(GAME_HISTORY_MAP[gameCode]);
     if(!box) return;

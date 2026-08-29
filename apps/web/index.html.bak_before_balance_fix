@@ -2579,7 +2579,7 @@ async function restoreServerRound(){
     const api=parentBackend();
     if(!api || !api.slotState) return;
     const data=await api.slotState();
-    if(data &amp;&amp; data.balance!=null){ balance=data.balance; pushSharedBalanceToParent(); }
+    if(data &amp;&amp; data.balance!=null){ balance=data.balance; }
     applyRoundState(data &amp;&amp; data.round);
     updateUI();
   }catch(e){}
@@ -2615,7 +2615,7 @@ async function playServerOutcome(remote){
     await wait(420);
     updateScatterBar(countScatters());
   }
-  if(typeof remote.balance === &#x27;number&#x27;){ balance = remote.balance; pushSharedBalanceToParent(); } else { syncSharedBalanceFromParent(); }
+  syncSharedBalanceFromParent();
   applyRoundState(remote.round);
   const spinWin=spin.win||0;
   if(spin.triggeredFreeSpins){
@@ -2710,7 +2710,6 @@ async function doSpin(){
   const remote = await requestServerSpin();
   if(remote &amp;&amp; remote.spin){
     syncSharedBalanceFromParent();
-    if(!inFreeSpin){ addSharedBalance(-stake); }
     await playServerOutcome(remote);
     return;
   }
@@ -3092,7 +3091,7 @@ document.getElementById(&#x27;bcYes&#x27;).onclick=async ()=&gt;{
   if(balance&lt;cost){ setMsg(`НУЖНО ${cost} ДЛЯ ПОКУПКИ БОНУСА`,&#x27;sc&#x27;); return; }
   try{
     const remote=await requestServerBuy();
-    if(remote &amp;&amp; typeof remote.balance === &#x27;number&#x27;){ balance = remote.balance; pushSharedBalanceToParent(); } else { syncSharedBalanceFromParent(); }
+    syncSharedBalanceFromParent();
     applyRoundState(remote &amp;&amp; remote.round);
     totalWin=0;
     setMsg(`БОНУС КУПЛЕН ЗА ${remote &amp;&amp; remote.cost ? remote.cost : cost}!`,&#x27;mg&#x27;);

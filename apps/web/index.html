@@ -1565,6 +1565,16 @@ body{
 .bs-label{font-size:1em;font-weight:900;letter-spacing:3px;color:#ffd35a;text-shadow:0 0 16px rgba(255,190,60,.8)}
 .bs-hint{font-size:.72em;letter-spacing:3px;color:rgba(230,210,255,.7);animation:bsBlink 1.4s ease-in-out infinite}
 @keyframes bsBlink{0%,100%{opacity:.35}50%{opacity:1}}
+@media (max-width:480px){
+  #bonusStart{gap:16px}
+  .bs-frame{padding:26px 16px 24px;border-radius:16px;max-width:88vw;box-sizing:border-box}
+  .bs-gem{font-size:1.7em;margin-bottom:4px}
+  .bs-title{font-size:clamp(1.3em,7vw,2em);letter-spacing:1px}
+  .bs-sub{margin-top:8px;font-size:.72em;letter-spacing:2px}
+  .bs-count{width:min(64vw,170px);padding:4px 0;margin:8px auto 4px;font-size:clamp(1.6em,9vw,2.2em);border-radius:10px}
+  .bs-label{font-size:.78em;letter-spacing:2px}
+  .bs-hint{font-size:.6em;letter-spacing:2px}
+}
 
 .cell.spinning svg{
   animation:spF 68ms ease-in-out;
@@ -3553,7 +3563,7 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
         <div class="promo-create-grid">
           <input class="input" id="createPromoCode" type="text" placeholder="Название промокода">
           <input class="input" id="createPromoAmount" type="number" min="1" placeholder="Сумма GC">
-          <input class="input" id="createPromoUses" type="number" min="1" placeholder="Количество активаций">
+          <input class="input" id="createPromoUses" type="number" min="1" placeholder="Количество активаци��">
         </div>
         <button class="btn btn-blue btn-block" id="createPromoBtn" style="margin-top:10px;">Создать промокод</button>
         <div class="promo-created-box" id="createdPromoInfo">Созданный промокод смогут активировать другие игроки.</div>
@@ -6115,7 +6125,7 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
         showToast('Промокод активирован: +'+fmt(data.amount)+' GC','success');
       }else{
         var promo=localPromos[code]; if(!promo) throw new Error('Промокод не найден');
-        var p=me(); promo.usedBy=promo.usedBy||[]; if(promo.usedBy.indexOf(p.id)>=0) throw new Error('Ты уже активировал этот промокод'); if(promo.maxUses && promo.usedBy.length>=promo.maxUses) throw new Error('Лимит активаций закончился');
+        var p=me(); promo.usedBy=promo.usedBy||[]; if(promo.usedBy.indexOf(p.id)>=0) throw new Error('Ты уже активировал этот промокод'); if(promo.maxUses && promo.usedBy.length>=promo.maxUses) throw new Error('Лимит активац��й закончился');
         p.balance+=promo.amount; promo.usedBy.push(p.id); saveLocalPromos(); saveState(); renderAll();
         showToast('Промокод активирован: +'+fmt(promo.amount)+' GC','success');
       }

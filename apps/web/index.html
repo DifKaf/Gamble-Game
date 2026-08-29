@@ -2191,8 +2191,6 @@ function setSym(c,r,sym,anim,fall,cascCol){
     const s=symNode(sym.id);
     if(s){ s.style.animationDelay=delay+&#x27;s&#x27;; if(anim===&#x27;drop&#x27;){ s.style.setProperty(&#x27;--fy&#x27;,fy); s.style.animationDuration=dDur+&#x27;s&#x27;; } el.appendChild(s); }
   }
-  // scatter glow
-  if(sym &amp;&amp; sym.isScatter) el.classList.add(&#x27;scatter-glow&#x27;);
 }
 
 function fillGrid(anteBet){
@@ -2554,6 +2552,38 @@ function paintGrid(src, anim){
   grid=decodeGrid(src);
   for(let c=0;c&lt;COLS;c++) for(let r=0;r&lt;ROWS;r++) setSym(c,r,grid[c][r],anim||&#x27;&#x27;);
 }
+// Repaints only what actually changed for one tumble step: winning cells vanish, the
+// symbols that were sitting above them fall down by exactly the number of freed rows to
+// fill the gap, brand-new symbols fall in from above the grid to fill whatever is left at
+// the top, and symbols below the win (already resting) are left completely untouched.
+// Columns with no win this frame are skipped entirely so the board never looks like it is
+// restarting on every cascade step.
+function applyCascadeFrame(fr){
+  const newGrid=decodeGrid(fr.grid);
+  const winCols=new Set();
+  const winRowsByCol={};
+  if(fr.clusters) fr.clusters.forEach(cl=&gt;cl.cells.forEach(([c,r])=&gt;{
+    winCols.add(c);
+    (winRowsByCol[c]=winRowsByCol[c]||new Set()).add(r);
+  }));
+  for(let c=0;c&lt;COLS;c++){
+    if(!winCols.has(c)){ grid[c]=newGrid[c]; continue; }
+    const winRows=winRowsByCol[c]||new Set();
+    const survivorRows=[];
+    for(let r=0;r&lt;ROWS;r++) if(!winRows.has(r)) survivorRows.push(r);
+    const gaps=ROWS-survivorRows.length;
+    // Survivors keep their relative top-to-bottom order; anything that was above a
+    // removed symbol shifts down into the freed space, anything already below stays put.
+    for(let i=0;i&lt;survivorRows.length;i++){
+      const oldR=survivorRows[i], newR=gaps+i;
+      if(newR!==oldR) setSym(c,newR,newGrid[c][newR],&#x27;drop&#x27;,newR-oldR,c);
+    }
+    // Remaining empty slots at the top of the column get brand-new symbols falling in
+    // from above the grid.
+    for(let r=0;r&lt;gaps;r++) setSym(c,r,newGrid[c][r],&#x27;drop&#x27;,null,c);
+    grid[c]=newGrid[c];
+  }
+}
 async function requestServerSpin(){
   const api=parentBackend();
   if(!api || !api.slotSpin || (api.isReady &amp;&amp; !api.isReady())) return null;
@@ -2611,7 +2641,11 @@ async function playServerOutcome(remote){
       sfx((fr.appliedMult||0)&gt;=50?&#x27;mega&#x27;:&#x27;bigwin&#x27;);
       await wait(500);
     }
-    if(fr.grid) paintGrid(fr.grid,&#x27;drop&#x27;);
+    if(fr.grid){
+      if(fr.clusters &amp;&amp; fr.clusters.length) applyCascadeFrame(fr);
+      else if(!(fr.mults &amp;&amp; fr.mults.length)) paintGrid(fr.grid,&#x27;drop&#x27;);
+      else grid=decodeGrid(fr.grid);
+    }
     await wait(420);
     updateScatterBar(countScatters());
   }

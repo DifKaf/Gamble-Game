@@ -2754,7 +2754,7 @@ async function doSpin(){
   const remote = await requestServerSpin();
   if(remote &amp;&amp; remote.spin){
     syncSharedBalanceFromParent();
-    if(!inFreeSpin){ addSharedBalance(-stake); }
+
     await playServerOutcome(remote);
     return;
   }

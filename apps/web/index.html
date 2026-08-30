@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
-<title>Gamble Game 🎰</title>
+<title>Gamble Game</title>
 <meta name="theme-color" content="#2A1454" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
@@ -113,7 +113,7 @@ input,select{font-family:inherit;}
   box-shadow:0 6px 0 var(--shadow-ink);
 }
 .hero::after{
-  content:"🎉";position:absolute;right:-6px;bottom:-16px;font-size:90px;opacity:0.18;transform:rotate(-12deg);
+  content:"";position:absolute;right:-6px;bottom:-16px;font-size:90px;opacity:0.18;transform:rotate(-12deg);
 }
 .hero-top{display:flex;align-items:center;gap:12px;}
 .avatar-badge{
@@ -959,32 +959,32 @@ body{background:#000!important;}
       </button>
 
       <div class="home-rail-block" id="homeRecentBlock" style="display:none;">
-        <div class="home-rail-head"><div class="home-rail-title">🕒 Продолжить играть</div><button class="home-rail-all" data-nav="games">Все игры ›</button></div>
+        <div class="home-rail-head"><div class="home-rail-title">Продолжить играть</div><button class="home-rail-all" data-nav="games">Все игры ›</button></div>
         <div class="home-rail" id="homeRailRecent"></div>
       </div>
 
       <div class="home-rail-block">
-        <div class="home-rail-head"><div class="home-rail-title">🎰 Слоты</div><button class="home-rail-all" data-open="slots">Все игры ›</button></div>
+        <div class="home-rail-head"><div class="home-rail-title">Слоты</div><button class="home-rail-all" data-open="slots">Все игры ›</button></div>
         <div class="home-rail" id="homeRailSlots"></div>
       </div>
 
       <div class="home-rail-block">
-        <div class="home-rail-head"><div class="home-rail-title">🎮 Мини игры</div><button class="home-rail-all" data-open="minigames">Все игры ›</button></div>
+        <div class="home-rail-head"><div class="home-rail-title">Мини игры</div><button class="home-rail-all" data-open="minigames">Все игры ›</button></div>
         <div class="home-rail" id="homeRailMini"></div>
       </div>
 
       <div class="home-rail-block">
-        <div class="home-rail-head"><div class="home-rail-title">🔥 Популярные</div><button class="home-rail-all" data-nav="games">Все игры ›</button></div>
+        <div class="home-rail-head"><div class="home-rail-title">Популярные</div><button class="home-rail-all" data-nav="games">Все игры ›</button></div>
         <div class="home-rail" id="homeRailPopular"></div>
       </div>
 
       <div class="home-rail-block">
-        <div class="home-rail-head"><div class="home-rail-title">🃏 Карты и столы</div><button class="home-rail-all" data-open="minigames">Все игры ›</button></div>
+        <div class="home-rail-head"><div class="home-rail-title">Карты и столы</div><button class="home-rail-all" data-open="minigames">Все игры ›</button></div>
         <div class="home-rail" id="homeRailCards"></div>
       </div>
 
       <div class="home-leaderboard-wrap">
-        <div class="section-title">🏆 Лидеры по балансу</div>
+        <div class="section-title">Лидеры по балансу</div>
         <div class="white-card" id="leaderboardBox"></div>
       </div>
 
@@ -1002,11 +1002,11 @@ body{background:#000!important;}
         <div class="wheel-widget-disc"><span>SPIN<br>TO WIN</span></div>
       </button>
       <div class="panel">
-        <div class="panel-title">👥 Друзья</div>
+        <div class="panel-title">Друзья</div>
         <div id="referralBox">Загрузка...</div>
       </div>
       <div class="panel">
-        <div class="panel-title">🎟️ Промокоды</div>
+        <div class="panel-title">Промокоды</div>
         <div class="custom-bet-row"><input type="text" inputmode="text" placeholder="Введите промокод" id="promoCodeInput"></div>
         <button class="btn btn-gold btn-block" id="promoCodeBtn">Активировать</button>
       </div>
@@ -1014,7 +1014,7 @@ body{background:#000!important;}
 
     <!-- WHEEL OF FORTUNE -->
     <section id="screen-wheel" class="screen">
-      <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>🎡 Колесо фортуны</h2></div>
+      <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>Колесо фортуны</h2></div>
       <div class="wheel-hero">
         <div class="wheel-hero-info">
           <div class="wheel-widget-brand">GAMBLE <span>WHEEL</span></div>
@@ -1036,7 +1036,7 @@ body{background:#000!important;}
           </div>
         </div>
       </div>
-      <button class="btn btn-gold btn-block" id="wheelSpinBtn" style="margin-top:16px;">🎁 Крутить колесо</button>
+      <button class="btn btn-gold btn-block" id="wheelSpinBtn" style="margin-top:16px;">Крутить колесо</button>
       <div class="wheel-timer" id="wheelTimer">Загрузка...</div>
       <div class="wheel-req" id="wheelReq" style="display:none;">
         <div class="panel-title">Условия доступа</div>
@@ -1056,7 +1056,7 @@ body{background:#000!important;}
 
     <!-- GAMES LIST -->
     <section id="screen-games" class="screen">
-      <div class="section-title">🎮 Игры</div>
+      <div class="section-title">Игры</div>
       <div class="game-grid">
         <button class="game-card img-card cat-img-card" data-open="slots" aria-label="Слоты"><img src="assets/card-slots.svg" alt="Слоты" class="img-card-media"></button>
         <button class="game-card img-card cat-img-card" data-open="minigames" aria-label="Мини игры"><img src="assets/card-minigames.svg" alt="Мини игры" class="img-card-media"></button>
@@ -1065,7 +1065,7 @@ body{background:#000!important;}
 
     <!-- SLOTS -->
     <section id="screen-slots" class="screen">
-      <div class="game-header"><button class="back-btn" data-nav="games">←</button><h2>🎰 Слоты</h2></div>
+      <div class="game-header"><button class="back-btn" data-nav="games">←</button><h2>Слоты</h2></div>
       <div class="game-grid">
         <button class="game-card img-card slot-img-card slot-img-card-clear" data-open="slot" aria-label="Drunkard Gate"><img src="assets/card-drunkardgate.png" alt="Drunkard Gate" class="img-card-media"></button>
         <button class="game-card img-card slot-img-card slot-img-card-clear locked-game-card" data-open="doghouse" data-locked="1" aria-label="The Cat House (закрыто)"><img src="assets/card-doghouse.svg" alt="The Cat House" class="img-card-media"><span class="card-lock-badge">🔒</span></button>
@@ -1074,7 +1074,7 @@ body{background:#000!important;}
 
     <!-- MINI GAMES -->
     <section id="screen-minigames" class="screen">
-      <div class="game-header"><button class="back-btn" data-nav="games">←</button><h2>🎮 Мини игры</h2></div>
+      <div class="game-header"><button class="back-btn" data-nav="games">←</button><h2>Мини игры</h2></div>
       <div class="game-grid img-grid">
         <button class="game-card img-card" data-open="dice" aria-label="Dice"><img src="assets/card-dice.jpg" alt="Dice" class="img-card-media"></button>
         <button class="game-card img-card" data-open="coinflip" aria-label="Coin Flip"><img src="assets/card-coinflip.jpg" alt="Coin Flip" class="img-card-media"></button>
@@ -1093,7 +1093,7 @@ body{background:#000!important;}
 
     <!-- SLOT -->
     <section id="screen-slot" class="screen">
-      <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>🎰 Drunkard Gate</h2><div class="game-user-chip"><span class="avatar-badge gameHeaderAvatar">🧑</span><b class="gameHeaderBalance">0 GC</b></div></div>
+      <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>Drunkard Gate</h2><div class="game-user-chip"><span class="avatar-badge gameHeaderAvatar">🧑</span><b class="gameHeaderBalance">0 GC</b></div></div>
       <div class="olympus-embed-wrap"><iframe class="olympus-embed" title="Drunkard Gate" srcdoc="&lt;!DOCTYPE html&gt;
 &lt;html lang=&quot;ru&quot;&gt;
 &lt;head&gt;
@@ -1628,7 +1628,7 @@ body.pay-info-open #autoBtn{display:none!important;pointer-events:none!important
     &lt;div class=&quot;grid&quot; id=&quot;gEl&quot;&gt;&lt;/div&gt;
   &lt;/div&gt;
 
-  &lt;div class=&quot;msg&quot; id=&quot;msgEl&quot;&gt;НАЖМИТЕ SPIN ✦&lt;/div&gt;
+  &lt;div class=&quot;msg&quot; id=&quot;msgEl&quot;&gt;НАЖМИТЕ SPIN&lt;/div&gt;
 
   &lt;div class=&quot;slot-panel&quot;&gt;
     &lt;div class=&quot;slot-win-row&quot;&gt;&lt;span class=&quot;slot-win-lbl&quot;&gt;ВЫИГРЫШ&lt;/span&gt;&lt;span class=&quot;slot-win-val&quot; id=&quot;totalInfoVal&quot;&gt;0&lt;/span&gt;&lt;/div&gt;
@@ -1688,7 +1688,7 @@ body.pay-info-open #autoBtn{display:none!important;pointer-events:none!important
   &lt;/div&gt;
 &lt;/div&gt;
 &lt;div id=&quot;winOverlay&quot;&gt;
-  &lt;div class=&quot;wo-title&quot;&gt;✨ BONUS COMPLETE ✨&lt;/div&gt;
+  &lt;div class=&quot;wo-title&quot;&gt;BONUS COMPLETE&lt;/div&gt;
   &lt;div class=&quot;wo-label&quot;&gt;ИТОГОВЫЙ ВЫИГРЫШ&lt;/div&gt;
   &lt;div class=&quot;wo-amount&quot; id=&quot;woAmount&quot;&gt;0&lt;/div&gt;
   &lt;div class=&quot;wo-mult&quot; id=&quot;woMult&quot;&gt;&lt;/div&gt;
@@ -2682,7 +2682,7 @@ async function doSpin(){
       bonusTriggered=true;
       sfx(&#x27;scatter&#x27;);
       await wait(400);
-      setMsg(`⚡ ${scatterCount} SCATTER! АКТИВАЦИЯ ФРИСПИНОВ!`,&#x27;sc&#x27;);
+      setMsg(`${scatterCount} SCATTER! АКТИВАЦИЯ ФРИСПИНОВ!`,&#x27;sc&#x27;);
       await triggerFreeSpins(15);
       spinning=false;
       document.getElementById(&#x27;spBtn&#x27;).disabled=false;
@@ -2789,9 +2789,9 @@ async function doSpin(){
   if(!spinWin &amp;&amp; !inFreeSpin){ sfx(&#x27;lose&#x27;); setMsg(&#x27;НЕ ПОВЕЗЛО...&#x27;,&#x27;sc&#x27;); }
   else if(spinWin&gt;0){
     const rt=totalWin/stake;
-    if(rt&gt;=80){ setMsg(`🌟 МЕГА ДЖЕКПОТ! +${totalWin}`,&#x27;mg&#x27;); doConfetti(120); }
-    else if(rt&gt;=15){ setMsg(`✨ БОЛЬШОЙ ВЫИГРЫШ! +${totalWin}`,&#x27;bw&#x27;); doConfetti(50); }
-    else setMsg(`⚡ +${spinWin}`,&#x27;w&#x27;);
+    if(rt&gt;=80){ setMsg(`МЕГА ДЖЕКПОТ! +${totalWin}`,&#x27;mg&#x27;); doConfetti(120); }
+    else if(rt&gt;=15){ setMsg(`БОЛЬШОЙ ВЫИГРЫШ! +${totalWin}`,&#x27;bw&#x27;); doConfetti(50); }
+    else setMsg(`+${spinWin}`,&#x27;w&#x27;);
   }
 
   // FS: decrement and loop (AUTO-SPIN)
@@ -2799,7 +2799,7 @@ async function doSpin(){
     freeSpins--;
     if(freeSpins&gt;0){
       updateUI();
-      setMsg(`⚡ ФРИСПИН! Осталось: ${freeSpins}  ×${fsGlobalMult}`,&#x27;w&#x27;);
+      setMsg(`ФРИСПИН! Осталось: ${freeSpins}  ×${fsGlobalMult}`,&#x27;w&#x27;);
       spinning=false;
       setTimeout(doSpin, turboOn?160:700); // AUTO next free spin
       return;
@@ -2854,7 +2854,7 @@ async function triggerFreeSpins(count){
   // Show the &quot;ПОЗДРАВЛЯЕМ! ВЫ В��ИГРАЛИ N БЕСПЛАТНЫХ ВРАЩЕНИЙ&quot; splash and
   // wait for the player to click before the bonus game starts spinning.
   await showBonusStart(count);
-  setMsg(`✨ ${count} ФРИСПИНОВ АКТИВИРОВАНО!`,&#x27;mg&#x27;);
+  setMsg(`${count} ФРИСПИНОВ АКТИВИРОВАНО!`,&#x27;mg&#x27;);
   stopBg(); schedMusic(true);
   await wait(900);
   spinning=false;
@@ -3054,27 +3054,27 @@ updateUI();
 &lt;/script&gt;
 &lt;/body&gt;
 &lt;/html&gt;"></iframe></div>
-      <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>🎰 Gamble Vault</h2><div class="game-user-chip"><span class="avatar-badge gameHeaderAvatar">🧑</span><b class="gameHeaderBalance">0 GC</b></div></div>
+      <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>Gamble Vault</h2><div class="game-user-chip"><span class="avatar-badge gameHeaderAvatar">🧑</span><b class="gameHeaderBalance">0 GC</b></div></div>
       <div class="slot-cabinet" style="display:none;">
         <div class="lever-wrap" id="leverWrap"><div class="lever-arm"></div><div class="lever-knob"></div></div>
-        <div class="jackpot-marquee"><span class="jp-label">🏆 ДЖ��кпот</span><span class="jp-value" id="slotJackpot">5 000</span><span class="jp-label">GC</span></div>
+        <div class="jackpot-marquee"><span class="jp-label">ДЖ��кпот</span><span class="jp-value" id="slotJackpot">5 000</span><span class="jp-label">GC</span></div>
         <div class="marquee">
           <div class="bulb"></div><div class="bulb"></div><div class="bulb"></div><div class="bulb"></div><div class="bulb"></div><div class="bulb"></div><div class="bulb"></div>
         </div>
         <div class="bonus-banner" id="slotBonusBanner">
-          <span>🎁 Бесплатные спины</span><span id="slotBonusRemaining">0</span><span>× <span id="slotBonusMult">2</span></span>
+          <span>Бесплатные спины</span><span id="slotBonusRemaining">0</span><span>× <span id="slotBonusMult">2</span></span>
         </div>
         <div class="reels5" id="slotGrid"></div>
         <div class="slot-lines-feed" id="slotLinesFeed"></div>
         <div class="chip-row" id="slotChips"></div>
         <div class="autoplay-row">
-          <button class="option-btn" data-auto="10">🔁 Авто × 10</button>
-          <button class="option-btn" data-auto="25">🔁 Авто × 25</button>
+          <button class="option-btn" data-auto="10">Авто × 10</button>
+          <button class="option-btn" data-auto="25">Авто × 25</button>
           <button class="autostop-btn" id="slotAutoStop" style="display:none;">⏹ Стоп (<span id="slotAutoLeft">0</span>)</button>
         </div>
-        <button class="btn btn-primary btn-block" id="slotSpinBtn">🎰 Крутить за <span id="slotBetLabel">20</span> GC</button>
+        <button class="btn btn-primary btn-block" id="slotSpinBtn">Крутить за <span id="slotBetLabel">20</span> GC</button>
         <div class="paytable">
-          <div class="paytable-row"><span>🏆🏆🏆🏆🏆 на линии</span><span>ВСЁ ДЖЕКПОТ 💰</span></div>
+          <div class="paytable-row"><span>🏆🏆🏆🏆🏆 на линии</span><span>ВСЁ ДЖЕКПОТ</span></div>
           <div class="paytable-row"><span>🏆 WILD — заменяет любой символ</span><span>x10 / x25 / x60</span></div>
           <div class="paytable-row"><span>🗺️ SCATTER — где угодно, 3+</span><span>бонус + x2/x5/x20</span></div>
           <div class="paytable-row"><span>💎💎💎 Алмаз</span><span>x8 / x20 / x50</span></div>
@@ -3090,7 +3090,7 @@ updateUI();
 
     <!-- DICE -->
     <section id="screen-dice" class="screen">
-      <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>🎲 Кости</h2></div>
+      <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>Кости</h2></div>
       <div class="panel">
         <div class="dice-row"><div class="die" id="die0"></div><div class="die" id="die1"></div></div>
         <div class="dice-sum">Сумма: <b id="diceSum">—</b></div>
@@ -3118,7 +3118,7 @@ updateUI();
 
     <!-- COIN FLIP -->
     <section id="screen-coinflip" class="screen">
-      <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>🪙 Монетка</h2></div>
+      <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>Монетка</h2></div>
       <div class="panel">
         <div class="coin-stage"><div class="coin" id="coinEl"><div class="coin-face front">🦅</div><div class="coin-face back">Ⓣ</div></div></div>
         <div class="mines-status hidden" id="coinStreakStatus"><span>Множитель: <b id="coinMult">x1.00</b></span><span>Выплата: <b id="coinPayout">0</b> GC</span></div>
@@ -3157,7 +3157,7 @@ updateUI();
 
     <!-- ROULETTE -->
     <section id="screen-roulette" class="screen">
-      <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>🎡 Рулетка</h2></div>
+      <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>Рулетка</h2></div>
       <div class="panel">
         <div class="roulette-num-history" id="rouletteNumberHistory"></div>
         <div class="roulette-stage">
@@ -3185,7 +3185,7 @@ updateUI();
 
     <!-- MINES -->
     <section id="screen-mines" class="screen">
-      <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>💣 Мины</h2></div>
+      <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>Мины</h2></div>
       <div class="mines-ladder-wrap" id="minesLadderWrap">
         <div class="mines-ladder" id="minesLadder"></div>
         <button type="button" class="mines-ladder-nav" id="minesLadderNext">›</button>
@@ -3220,7 +3220,7 @@ updateUI();
     </section>
     <!-- BLACKJACK -->
     <section id="screen-blackjack" class="screen">
-      <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>🃏 Blackjack</h2></div>
+      <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>Blackjack</h2></div>
       <div class="bj-table">
         <div class="bj-row bj-dealer-row">
           <div class="bj-label">Дилер <span id="bjDealerTotal">—</span></div>
@@ -3256,12 +3256,12 @@ updateUI();
       </div>
       <div class="panel hidden" id="bjActionsPanel">
         <div class="bj-actions">
-          <button class="btn btn-green" id="bjHitBtn">➕ Ещё карту</button>
-          <button class="btn btn-primary" id="bjStandBtn">✋ Стоп</button>
+          <button class="btn btn-green" id="bjHitBtn">Ещё карту</button>
+          <button class="btn btn-primary" id="bjStandBtn">Стоп</button>
           <button class="btn btn-blue" id="bjDoubleBtn">×2 Удвоить</button>
         </div>
       </div>
-      <button class="btn btn-gold btn-block hidden" id="bjRebetBtn">🔁 Играть ещё раз</button>
+      <button class="btn btn-gold btn-block hidden" id="bjRebetBtn">Играть ещё раз</button>
     </section>
 
 
@@ -3305,19 +3305,19 @@ updateUI();
  
     <!-- WALLET -->
     <section id="screen-wallet" class="screen">
-      <div class="section-title">💸 Кошелёк</div>
+      <div class="section-title">Кошелёк</div>
       <div class="balance-card">
         <div class="label">Баланс Gamble Coin</div>
         <div class="amount" id="walletBalance">0 GC</div>
       </div>
 
       <div class="panel" style="margin-top:16px;">
-        <div class="panel-title">📤 Перевести Gamble Coin</div>
+        <div class="panel-title">Перевести Gamble Coin</div>
         <div class="field-label">Кому:</div>
         <input class="input" id="transferRecipient" type="text" placeholder="@username или ID игрока" autocomplete="off"><div id="transferSuggestBox" class="transfer-suggest-box hidden"></div>
         <div class="field-label">Сумма:</div>
         <input class="input" id="transferAmount" type="number" min="1" placeholder="Введите сумму" />
-        <button class="btn btn-primary btn-block" id="transferBtn" style="margin-top:12px;">📤 Отправить</button>
+        <button class="btn btn-primary btn-block" id="transferBtn" style="margin-top:12px;">Отправить</button>
       </div>
 
       <button class="p2p-widget" data-open="exchange">
@@ -3332,13 +3332,13 @@ updateUI();
         <div class="p2p-widget-orb"><span>P2P</span></div>
       </button>
 
-      <div class="section-title">🧾 История</div>
+      <div class="section-title">История</div>
       <div class="panel" id="historyBox"></div>
     </section>
 
     <!-- P2P EXCHANGE -->
     <section id="screen-exchange" class="screen">
-      <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>💱 P2P Биржа</h2></div>
+      <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>P2P Биржа</h2></div>
       <div class="p2p-hero">
         <div class="p2p-hero-copy">
           <div class="p2p-widget-brand">GAMBLE <span>P2P</span></div>
@@ -3368,7 +3368,7 @@ updateUI();
       <button class="btn btn-blue btn-block hidden" id="openAdminBtn" style="margin-top:16px;">Админка</button>
       <button class="btn btn-blue btn-block" id="togglePromoCreator" style="margin-top:16px;">Создать промокод</button>
       <div class="panel hidden" id="promoCreatorPanel" style="margin-top:12px;">
-        <div class="panel-title">🎟️ Создать промокод</div>
+        <div class="panel-title">Создать промокод</div>
         <div class="promo-create-grid">
           <input class="input" id="createPromoCode" type="text" placeholder="Название промокода">
           <input class="input" id="createPromoAmount" type="number" min="1" placeholder="Сумма GC">
@@ -3384,7 +3384,7 @@ updateUI();
     <section id="screen-promo-create" class="screen">
       <div class="game-header"><button class="back-btn" data-nav="profile">←</button><h2>Создать промокод</h2></div>
       <div class="panel">
-        <div class="panel-title">🎟️ Новый промокод</div>
+        <div class="panel-title">Новый промокод</div>
         <div class="promo-create-grid">
           <input class="input" id="createPromoCode2" type="text" placeholder="Название промокода">
           <input class="input" id="createPromoAmount2" type="number" min="1" placeholder="Сумма GC">
@@ -3425,7 +3425,7 @@ updateUI();
   <div id="confettiLayer"></div>
   <div class="win-overlay" id="winOverlay">
     <div class="win-card">
-      <div class="big">🎉</div>
+      <div class="big"></div>
       <h3>Победа!</h3>
       <p id="winOverlayText">Вы выиграли 0 GC</p>
       <button class="btn btn-gold" id="winOverlayClose">Забрать</button>
@@ -3433,7 +3433,7 @@ updateUI();
   </div>
   <div class="modal-layer" id="modalLayer">
     <div class="modal-card">
-      <div style="font-size:30px;">♻️</div>
+      
       <h3>Сбросить прогресс?</h3>
       <p>Все балансы, история и статистика демо-игроков будут сброшены к начальным значениям.</p>
       <div class="modal-actions">
@@ -4071,7 +4071,7 @@ updateUI();
     if(c === 'sbp') return '<img class="p2p-logo" alt="СБП" src="assets/logo-sbp.png">';
     if(c === 'card') return '<img class="p2p-logo" alt="МИР" src="assets/logo-mir.png">';
     if(c === 'crypto') return '<img class="p2p-logo" alt="USDT" src="assets/logo-usdt.png">';
-    return '<span class="p2p-logo">💱</span>';
+    return '<span class="p2p-logo"></span>';
   }
 
   function money(v, currency){
@@ -4437,12 +4437,12 @@ updateUI();
     if(ov) ov.classList.add('show');
   }
   function showWinOverlay(amount, label){
-    setWinOverlayContent('🎉', 'Победа!', (label||'Вы выиграли') + ' ' + fmt(amount) + ' GC');
+    setWinOverlayContent('', 'Победа!', (label||'Вы выиграли') + ' ' + fmt(amount) + ' GC');
     confettiBurst(26);
     haptic('success');
   }
   function showTieOverlay(amount, label){
-    setWinOverlayContent('🤝', 'Ничья!', (label||'Ставка возвращена') + ' ' + fmt(amount) + ' GC');
+    setWinOverlayContent('', 'Ничья!', (label||'Ставка возвращена') + ' ' + fmt(amount) + ' GC');
     haptic('light');
   }
   document.getElementById('winOverlayClose').addEventListener('click', function(){
@@ -5000,13 +5000,13 @@ updateUI();
       slotBonus.totalWin = 0;
       slotBonus.triggerBet = bet;
       startingBonus = true;
-      showToast('🎁 Бонус! '+FREE_SPINS_AWARD+' бесплатных спинов ×'+BONUS_MULT, 'success');
+      showToast('Бонус! '+FREE_SPINS_AWARD+' бесплатных спинов ×'+BONUS_MULT, 'success');
     } else if(slotBonus.active){
       slotBonus.remaining -= 1;
       slotBonus.totalWin += totalWin;
       if(result.scatterCount>=3){
         slotBonus.remaining += RETRIGGER_SPINS;
-        showToast('🔁 Ре-триггер! +'+RETRIGGER_SPINS+' спинов', 'success');
+        showToast('Ре-триггер! +'+RETRIGGER_SPINS+' спинов', 'success');
       }
     }
     updateBonusBanner();
@@ -5016,8 +5016,8 @@ updateUI();
       addHistory(me(), 'win', totalWin, 'Drunkard Gate: выигрыш');
       var label = 'Победа!';
       if(result.jackpotWin>0) label = WILD.sym+' ДЖЕКПОТ!!!';
-      else if(totalWin >= bet*25) label = '🔥 MEGA WIN!';
-      else if(totalWin >= bet*10) label = '✨ BIG WIN!';
+      else if(totalWin >= bet*25) label = 'MEGA WIN!';
+      else if(totalWin >= bet*10) label = 'BIG WIN!';
       setTimeout(function(){ showWinOverlay(totalWin, label); }, 150);
     } else if(!startingBonus && !slotBonus.active){
       addHistory(me(), 'loss', bet, 'Drunkard Gate: без выигрыша');
@@ -5037,7 +5037,7 @@ updateUI();
       slotBonus.active = false;
       updateBonusBanner();
       if(bonusTotal>0){
-        setTimeout(function(){ showWinOverlay(bonusTotal, '🎁 Итог бонуса'); }, 500);
+        setTimeout(function(){ showWinOverlay(bonusTotal, 'Итог бонуса'); }, 500);
       }
     }
 
@@ -5398,7 +5398,7 @@ updateUI();
       function tick(){
         if(resultEl) resultEl.innerHTML = '<span class="roulette-countdown">Запуск через <b>'+left+'</b> сек.</span>';
         if(btn) btn.textContent = 'Ставки приняты: ' + left + ' сек.';
-        if(left <= 0){ if(btn) btn.textContent = '🎡 Крутить рулетку'; resolve(); return; }
+        if(left <= 0){ if(btn) btn.textContent = 'Крутить рулетку'; resolve(); return; }
         left -= 1;
         setTimeout(tick, 1000);
       }
@@ -5702,7 +5702,7 @@ updateUI();
       var totalBet = data.doubled ? data.betAmount*2 : data.betAmount;
       var profit = data.winAmount - totalBet;
       if(data.outcome==='win'){ resultEl.textContent='Победа! +'+fmt(profit)+' GC'; resultEl.classList.add('win'); }
-      else if(data.outcome==='blackjack'){ resultEl.textContent='🃏 Блэкджек! +'+fmt(profit)+' GC'; resultEl.classList.add('win'); }
+      else if(data.outcome==='blackjack'){ resultEl.textContent='Блэкджек! +'+fmt(profit)+' GC'; resultEl.classList.add('win'); }
       else if(data.outcome==='push'){ resultEl.textContent='Ничья, ставка возвращена'; resultEl.classList.add('push'); }
       else { resultEl.textContent='Дилер выиграл'; resultEl.classList.add('lose'); }
       return;
@@ -6204,9 +6204,9 @@ updateUI();
     var box = document.getElementById('leaderboardBox');
     var list = (backendLeaderboardUsers && backendLeaderboardUsers.length) ? backendLeaderboardUsers.map(function(u){return {id:u.id,playerId:u.playerId||playerPublicId(u.id),name:u.firstName || u.username || 'Игрок',avatar:u.photoUrl || '👤',balance:u.balance};}) : Object.keys(state.players).map(function(id){ return state.players[id]; }).filter(function(p){ return p && p.name !== 'Аня' && p.name !== 'Максим'; });
     list.sort(function(a,b){ return b.balance - a.balance; });
-    var medals = ['🥇','🥈','🥉'];
+    var medals = ['1','2','3'];
     box.innerHTML = list.map(function(p, i){
-      return '<div class="leaderboard-row"><span class="medal">'+(medals[i]||'🎗️')+'</span><span class="name">'+avatarHtml(p.avatar)+'<span>'+escapeHtml(p.name)+(p.id===state.currentPlayerId?' (вы)':'')+'</span>'+(p.playerId?'<small class="leader-id">ID '+escapeHtml(p.playerId)+'</small>':'')+'</span><span class="bal">'+fmt(p.balance)+' GC</span></div>';
+      return '<div class="leaderboard-row"><span class="medal">'+(medals[i]||String(i+1))+'</span><span class="name">'+avatarHtml(p.avatar)+'<span>'+escapeHtml(p.name)+(p.id===state.currentPlayerId?' (вы)':'')+'</span>'+(p.playerId?'<small class="leader-id">ID '+escapeHtml(p.playerId)+'</small>':'')+'</span><span class="bal">'+fmt(p.balance)+' GC</span></div>';
     }).join('');
   }
   // История перевод��в грузится в три шага, чтобы она не пропадала:

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
-<title>Gamble Game 🎰</title>
+<title>Gamble Game</title>
 <meta name="theme-color" content="#2A1454" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
@@ -113,7 +113,7 @@ input,select{font-family:inherit;}
   box-shadow:0 6px 0 var(--shadow-ink);
 }
 .hero::after{
-  content:"🎉";position:absolute;right:-6px;bottom:-16px;font-size:90px;opacity:0.18;transform:rotate(-12deg);
+  content:"";position:absolute;right:-6px;bottom:-16px;font-size:90px;opacity:0.18;transform:rotate(-12deg);
 }
 .hero-top{display:flex;align-items:center;gap:12px;}
 .avatar-badge{
@@ -929,7 +929,7 @@ body{background:#000!important;}
       <div class="gg-logo-wrap" data-nav="home">
         <img src="assets/gamble-logo.png" class="gg-global-logo" alt="Gamble">
       </div>
-      <div class="game-user-chip gg-global-chip"><span class="avatar-badge gameHeaderAvatar">🧑</span><b class="gameHeaderBalance">0 GC</b></div>
+      <div class="game-user-chip gg-global-chip"><span class="avatar-badge gameHeaderAvatar"></span><b class="gameHeaderBalance">0 GC</b></div>
     </div>
   </div>
 
@@ -959,22 +959,22 @@ body{background:#000!important;}
       </button>
 
       <div class="home-rail-block" id="homeRecentBlock" style="display:none;">
-        <div class="home-rail-head"><div class="home-rail-title">🕒 Продолжить играть</div><button class="home-rail-all" data-nav="games">Все игры ›</button></div>
+        <div class="home-rail-head"><div class="home-rail-title">Продолжить играть</div><button class="home-rail-all" data-nav="games">Все игры ›</button></div>
         <div class="home-rail" id="homeRailRecent"></div>
       </div>
 
       <div class="home-rail-block">
-        <div class="home-rail-head"><div class="home-rail-title">🎰 Слоты</div><button class="home-rail-all" data-open="slots">Все игры ›</button></div>
+        <div class="home-rail-head"><div class="home-rail-title">Слоты</div><button class="home-rail-all" data-open="slots">Все игры ›</button></div>
         <div class="home-rail" id="homeRailSlots"></div>
       </div>
 
       <div class="home-rail-block">
-        <div class="home-rail-head"><div class="home-rail-title">🎮 Мини игры</div><button class="home-rail-all" data-open="minigames">Все игры ›</button></div>
+        <div class="home-rail-head"><div class="home-rail-title">Мини игры</div><button class="home-rail-all" data-open="minigames">Все игры ›</button></div>
         <div class="home-rail" id="homeRailMini"></div>
       </div>
 
       <div class="home-rail-block">
-        <div class="home-rail-head"><div class="home-rail-title">🔥 Популярные</div><button class="home-rail-all" data-nav="games">Все игры ›</button></div>
+        <div class="home-rail-head"><div class="home-rail-title">Популярные</div><button class="home-rail-all" data-nav="games">Все игры ›</button></div>
         <div class="home-rail" id="homeRailPopular"></div>
       </div>
 
@@ -984,7 +984,7 @@ body{background:#000!important;}
       </div>
 
       <div class="home-leaderboard-wrap">
-        <div class="section-title">🏆 Лидеры по балансу</div>
+        <div class="section-title">Лидеры по балансу</div>
         <div class="white-card" id="leaderboardBox"></div>
       </div>
 
@@ -1002,11 +1002,11 @@ body{background:#000!important;}
         <div class="wheel-widget-disc"><span>SPIN<br>TO WIN</span></div>
       </button>
       <div class="panel">
-        <div class="panel-title">👥 Друзья</div>
+        <div class="panel-title">Друзья</div>
         <div id="referralBox">Загрузка...</div>
       </div>
       <div class="panel">
-        <div class="panel-title">🎟️ Промокоды</div>
+        <div class="panel-title">Промокоды</div>
         <div class="custom-bet-row"><input type="text" inputmode="text" placeholder="Введите промокод" id="promoCodeInput"></div>
         <button class="btn btn-gold btn-block" id="promoCodeBtn">Активировать</button>
       </div>
@@ -1014,7 +1014,7 @@ body{background:#000!important;}
 
     <!-- WHEEL OF FORTUNE -->
     <section id="screen-wheel" class="screen">
-      <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>🎡 Колесо фортуны</h2></div>
+      <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>Колесо фортуны</h2></div>
       <div class="wheel-hero">
         <div class="wheel-hero-info">
           <div class="wheel-widget-brand">GAMBLE <span>WHEEL</span></div>
@@ -1036,7 +1036,7 @@ body{background:#000!important;}
           </div>
         </div>
       </div>
-      <button class="btn btn-gold btn-block" id="wheelSpinBtn" style="margin-top:16px;">🎁 Крутить колесо</button>
+      <button class="btn btn-gold btn-block" id="wheelSpinBtn" style="margin-top:16px;">Крутить колесо</button>
       <div class="wheel-timer" id="wheelTimer">Загрузка...</div>
       <div class="wheel-req" id="wheelReq" style="display:none;">
         <div class="panel-title">Условия доступа</div>
@@ -1056,7 +1056,7 @@ body{background:#000!important;}
 
     <!-- GAMES LIST -->
     <section id="screen-games" class="screen">
-      <div class="section-title">🎮 Игры</div>
+      <div class="section-title">Игры</div>
       <div class="game-grid">
         <button class="game-card img-card cat-img-card" data-open="slots" aria-label="Слоты"><img src="assets/card-slots.svg" alt="Слоты" class="img-card-media"></button>
         <button class="game-card img-card cat-img-card" data-open="minigames" aria-label="Мини игры"><img src="assets/card-minigames.svg" alt="Мини игры" class="img-card-media"></button>
@@ -1065,16 +1065,16 @@ body{background:#000!important;}
 
     <!-- SLOTS -->
     <section id="screen-slots" class="screen">
-      <div class="game-header"><button class="back-btn" data-nav="games">←</button><h2>🎰 Слоты</h2></div>
+      <div class="game-header"><button class="back-btn" data-nav="games">←</button><h2>Слоты</h2></div>
       <div class="game-grid">
         <button class="game-card img-card slot-img-card slot-img-card-clear" data-open="slot" aria-label="Drunkard Gate"><img src="assets/card-drunkardgate.png" alt="Drunkard Gate" class="img-card-media"></button>
-        <button class="game-card img-card slot-img-card slot-img-card-clear locked-game-card" data-open="doghouse" data-locked="1" aria-label="The Cat House (закрыто)"><img src="assets/card-doghouse.svg" alt="The Cat House" class="img-card-media"><span class="card-lock-badge">🔒</span></button>
+        <button class="game-card img-card slot-img-card slot-img-card-clear locked-game-card" data-open="doghouse" data-locked="1" aria-label="The Cat House (закрыто)"><img src="assets/card-doghouse.svg" alt="The Cat House" class="img-card-media"></button>
       </div>
     </section>
 
     <!-- MINI GAMES -->
     <section id="screen-minigames" class="screen">
-      <div class="game-header"><button class="back-btn" data-nav="games">←</button><h2>🎮 Мини игры</h2></div>
+      <div class="game-header"><button class="back-btn" data-nav="games">←</button><h2>Мини игры</h2></div>
       <div class="game-grid img-grid">
         <button class="game-card img-card" data-open="dice" aria-label="Dice"><img src="assets/card-dice.jpg" alt="Dice" class="img-card-media"></button>
         <button class="game-card img-card" data-open="coinflip" aria-label="Coin Flip"><img src="assets/card-coinflip.jpg" alt="Coin Flip" class="img-card-media"></button>
@@ -1087,13 +1087,13 @@ body{background:#000!important;}
 
     <!-- CAT HOUSE (locked) -->
     <section id="screen-doghouse" class="screen">
-      <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>The Cat House</h2><div class="game-user-chip"><span class="avatar-badge gameHeaderAvatar">🧑</span><b class="gameHeaderBalance">0 GC</b></div></div>
+      <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>The Cat House</h2><div class="game-user-chip"><span class="avatar-badge gameHeaderAvatar"></span><b class="gameHeaderBalance">0 GC</b></div></div>
       <div class="olympus-embed-wrap"><iframe class="olympus-embed" title="The Cat House" src="dog-house.html"></iframe></div>
     </section>
 
     <!-- SLOT -->
     <section id="screen-slot" class="screen">
-      <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>🎰 Drunkard Gate</h2><div class="game-user-chip"><span class="avatar-badge gameHeaderAvatar">🧑</span><b class="gameHeaderBalance">0 GC</b></div></div>
+      <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>Drunkard Gate</h2><div class="game-user-chip"><span class="avatar-badge gameHeaderAvatar"></span><b class="gameHeaderBalance">0 GC</b></div></div>
       <div class="olympus-embed-wrap"><iframe class="olympus-embed" title="Drunkard Gate" srcdoc="&lt;!DOCTYPE html&gt;
 &lt;html lang=&quot;ru&quot;&gt;
 &lt;head&gt;
@@ -1638,7 +1638,7 @@ body.pay-info-open #autoBtn{display:none!important;pointer-events:none!important
     &lt;div class=&quot;grid&quot; id=&quot;gEl&quot;&gt;&lt;/div&gt;
   &lt;/div&gt;
 
-  &lt;div class=&quot;msg&quot; id=&quot;msgEl&quot;&gt;НАЖМИТЕ SPIN ✦&lt;/div&gt;
+  &lt;div class=&quot;msg&quot; id=&quot;msgEl&quot;&gt;НАЖМИТЕ SPIN&lt;/div&gt;
 
   &lt;div class=&quot;slot-panel&quot;&gt;
     &lt;div class=&quot;slot-win-row&quot;&gt;&lt;span class=&quot;slot-win-lbl&quot;&gt;ВЫИГРЫШ&lt;/span&gt;&lt;span class=&quot;slot-win-val&quot; id=&quot;totalInfoVal&quot;&gt;0&lt;/span&gt;&lt;/div&gt;
@@ -1651,8 +1651,8 @@ body.pay-info-open #autoBtn{display:none!important;pointer-events:none!important
       &lt;button class=&quot;spinbtn&quot; id=&quot;spBtn&quot;&gt;&lt;span class=&quot;spin-ic&quot;&gt;↻&lt;/span&gt;&lt;/button&gt;
       &lt;div class=&quot;slot-side-icons&quot;&gt;
         &lt;button class=&quot;ante-btn&quot; id=&quot;anteBtn&quot; title=&quot;ANTE BET +25%&quot;&gt;♦&lt;/button&gt;
-        &lt;button class=&quot;turbo-btn&quot; id=&quot;turboBtn&quot; title=&quot;Turbo Spin&quot;&gt;⚡&lt;/button&gt;
-        &lt;button class=&quot;buy-btn&quot; id=&quot;buyBtn&quot; title=&quot;Купить бонус&quot;&gt;🛒&lt;/button&gt;
+        &lt;button class=&quot;turbo-btn&quot; id=&quot;turboBtn&quot; title=&quot;Turbo Spin&quot;&gt;TURBO&lt;/button&gt;
+        &lt;button class=&quot;buy-btn&quot; id=&quot;buyBtn&quot; title=&quot;Купить бонус&quot;&gt;BUY&lt;/button&gt;
       &lt;/div&gt;
     &lt;/div&gt;
     &lt;div class=&quot;slot-bal-row&quot;&gt;
@@ -1698,7 +1698,7 @@ body.pay-info-open #autoBtn{display:none!important;pointer-events:none!important
   &lt;/div&gt;
 &lt;/div&gt;
 &lt;div id=&quot;winOverlay&quot;&gt;
-  &lt;div class=&quot;wo-title&quot;&gt;✨ BONUS COMPLETE ✨&lt;/div&gt;
+  &lt;div class=&quot;wo-title&quot;&gt;BONUS COMPLETE&lt;/div&gt;
   &lt;div class=&quot;wo-label&quot;&gt;ИТОГОВЫЙ ВЫИГРЫШ&lt;/div&gt;
   &lt;div class=&quot;wo-amount&quot; id=&quot;woAmount&quot;&gt;0&lt;/div&gt;
   &lt;div class=&quot;wo-mult&quot; id=&quot;woMult&quot;&gt;&lt;/div&gt;
@@ -2149,7 +2149,7 @@ function symNode(id){
   return t ? t.cloneNode(true) : null;
 }
 // Высота ячейки замеряется один раз: чтение offsetHeight посреди анимации
-// заставляло брау��ер пересчитывать layout на каждый символ.
+// заставляло браузер пересчитывать layout на каждый символ.
 let CELL_H=0;
 function measureCell(){ const el=cells[0]&amp;&amp;cells[0][0]; if(el&amp;&amp;el.offsetHeight) CELL_H=el.offsetHeight+4; return CELL_H||64; }
 window.addEventListener(&#x27;resize&#x27;,()=&gt;{ CELL_H=0; });
@@ -2670,13 +2670,13 @@ async function playServerOutcome(remote){
   if(!spinWin &amp;&amp; !inFreeSpin){ sfx(&#x27;lose&#x27;); setMsg(&#x27;НЕ ПОВЕЗЛО...&#x27;,&#x27;sc&#x27;); }
   else if(spinWin&gt;0){
     const rt=spin.stake?spinWin/spin.stake:0;
-    if(rt&gt;=80){ setMsg(&#x27;🌟 МЕГА ДЖЕКПОТ! +&#x27;+spinWin,&#x27;mg&#x27;); doConfetti(120); }
-    else if(rt&gt;=15){ setMsg(&#x27;✨ БОЛЬШОЙ ВЫИГРЫШ! +&#x27;+spinWin,&#x27;bw&#x27;); doConfetti(50); }
-    else setMsg(&#x27;⚡ +&#x27;+spinWin,&#x27;w&#x27;);
+    if(rt&gt;=80){ setMsg(&#x27;МЕГА ДЖЕКПОТ! +&#x27;+spinWin,&#x27;mg&#x27;); doConfetti(120); }
+    else if(rt&gt;=15){ setMsg(&#x27;БОЛЬШОЙ ВЫИГРЫШ! +&#x27;+spinWin,&#x27;bw&#x27;); doConfetti(50); }
+    else setMsg(&#x27;+&#x27;+spinWin,&#x27;w&#x27;);
   }
   if(inFreeSpin){
     if(freeSpins&gt;0){
-      setMsg(&#x27;⚡ ФРИСПИН! Осталось: &#x27;+freeSpins+&#x27;  ×&#x27;+fsGlobalMult,&#x27;w&#x27;);
+      setMsg(&#x27;ФРИСПИН! Осталось: &#x27;+freeSpins+&#x27;  ×&#x27;+fsGlobalMult,&#x27;w&#x27;);
       spinning=false; updateUI();
       setTimeout(doSpin, turboOn?160:700);
       return;
@@ -2854,7 +2854,7 @@ async function doSpin(){
       bonusTriggered=true;
       sfx(&#x27;scatter&#x27;);
       await wait(400);
-      setMsg(`⚡ ${scatterCount} SCATTER! АКТИВАЦИЯ ФРИСПИНОВ!`,&#x27;sc&#x27;);
+      setMsg(`${scatterCount} SCATTER! АКТИВАЦИЯ ФРИСПИНОВ!`,&#x27;sc&#x27;);
       await triggerFreeSpins(15);
       spinning=false;
       document.getElementById(&#x27;spBtn&#x27;).disabled=false;
@@ -2924,11 +2924,11 @@ async function doSpin(){
     if(await checkScatterTrigger()) return;
   }
 
-  // Собираем все символы-множители, остав��иеся на поле в конце последовательности
+  // Собираем все символы-множители, оставшиеся на поле в конце последовательности
   const finalMultsPos=gridMultsWithPos();
   const finalMults=finalMultsPos.map(m=&gt;m.mult);
   if(!inFreeSpin &amp;&amp; spinWin&gt;0 &amp;&amp; finalMults.length){
-    // Ба��овая игра: символы-множители улетают к общему выигрышу,
+    // Базовая игра: символы-множители улетают к общему выигрышу,
     // суммируются, и итоговая сумма умножает выигрыш сыгровки.
     const totMult=finalMults.reduce((a,b)=&gt;a+b,0);
     cascMult=totMult;
@@ -2961,8 +2961,8 @@ async function doSpin(){
   if(!spinWin &amp;&amp; !inFreeSpin){ sfx(&#x27;lose&#x27;); setMsg(&#x27;НЕ ПОВЕЗЛО...&#x27;,&#x27;sc&#x27;); }
   else if(spinWin&gt;0){
     const rt=totalWin/stake;
-    if(rt&gt;=80){ setMsg(`🌟 МЕГА ДЖЕКПОТ! +${totalWin}`,&#x27;mg&#x27;); doConfetti(120); }
-    else if(rt&gt;=15){ setMsg(`✨ БОЛЬШОЙ ВЫИГРЫШ! +${totalWin}`,&#x27;bw&#x27;); doConfetti(50); }
+    if(rt&gt;=80){ setMsg(`МЕГА ДЖЕКПОТ! +${totalWin}`,&#x27;mg&#x27;); doConfetti(120); }
+    else if(rt&gt;=15){ setMsg(`БОЛЬШОЙ ВЫИГРЫШ! +${totalWin}`,&#x27;bw&#x27;); doConfetti(50); }
     else setMsg(`WIN +${spinWin}`,&#x27;w&#x27;);
   }
 
@@ -2971,7 +2971,7 @@ async function doSpin(){
     freeSpins--;
     if(freeSpins&gt;0){
       updateUI();
-      setMsg(`⚡ ФРИСПИН! Осталось: ${freeSpins}  ×${fsGlobalMult}`,&#x27;w&#x27;);
+      setMsg(`ФРИСПИН! Осталось: ${freeSpins}  ×${fsGlobalMult}`,&#x27;w&#x27;);
       spinning=false;
       setTimeout(doSpin, turboOn?160:700); // AUTO next free spin
       return;
@@ -3026,7 +3026,7 @@ async function triggerFreeSpins(count){
   // Show the &quot;ПОЗДРАВЛЯЕМ! ВЫ ВЫИГРАЛИ N БЕСПЛАТНЫХ ВРАЩЕНИЙ&quot; splash and
   // wait for the player to click before the bonus game starts spinning.
   await showBonusStart(count);
-  setMsg(`✨ ${count} ФРИСПИНОВ АКТИВИРОВАНО!`,&#x27;mg&#x27;);
+  setMsg(`${count} ФРИСПИНОВ АКТИВИРОВАНО!`,&#x27;mg&#x27;);
   stopBg(); schedMusic(true);
   await wait(900);
   spinning=false;
@@ -3245,25 +3245,25 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
 &lt;/script&gt;
 &lt;/body&gt;
 &lt;/html&gt;"></iframe></div>
-      <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>🎰 Gamble Vault</h2><div class="game-user-chip"><span class="avatar-badge gameHeaderAvatar">🧑</span><b class="gameHeaderBalance">0 GC</b></div></div>
+      <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>Gamble Vault</h2><div class="game-user-chip"><span class="avatar-badge gameHeaderAvatar"></span><b class="gameHeaderBalance">0 GC</b></div></div>
       <div class="slot-cabinet" style="display:none;">
         <div class="lever-wrap" id="leverWrap"><div class="lever-arm"></div><div class="lever-knob"></div></div>
-        <div class="jackpot-marquee"><span class="jp-label">🏆 ДЖ��кпот</span><span class="jp-value" id="slotJackpot">5 000</span><span class="jp-label">GC</span></div>
+        <div class="jackpot-marquee"><span class="jp-label">Джекпот</span><span class="jp-value" id="slotJackpot">5 000</span><span class="jp-label">GC</span></div>
         <div class="marquee">
           <div class="bulb"></div><div class="bulb"></div><div class="bulb"></div><div class="bulb"></div><div class="bulb"></div><div class="bulb"></div><div class="bulb"></div>
         </div>
         <div class="bonus-banner" id="slotBonusBanner">
-          <span>🎁 Бесплатные спины</span><span id="slotBonusRemaining">0</span><span>× <span id="slotBonusMult">2</span></span>
+          <span>Бесплатные спины</span><span id="slotBonusRemaining">0</span><span>× <span id="slotBonusMult">2</span></span>
         </div>
         <div class="reels5" id="slotGrid"></div>
         <div class="slot-lines-feed" id="slotLinesFeed"></div>
         <div class="chip-row" id="slotChips"></div>
         <div class="autoplay-row">
-          <button class="option-btn" data-auto="10">🔁 Авто × 10</button>
-          <button class="option-btn" data-auto="25">🔁 Авто × 25</button>
+          <button class="option-btn" data-auto="10">Авто × 10</button>
+          <button class="option-btn" data-auto="25">Авто × 25</button>
           <button class="autostop-btn" id="slotAutoStop" style="display:none;">⏹ Стоп (<span id="slotAutoLeft">0</span>)</button>
         </div>
-        <button class="btn btn-primary btn-block" id="slotSpinBtn">🎰 Крутить за <span id="slotBetLabel">20</span> GC</button>
+        <button class="btn btn-primary btn-block" id="slotSpinBtn">Крутить за <span id="slotBetLabel">20</span> GC</button>
         <div class="paytable">
           <div class="paytable-row"><span>🏆🏆🏆🏆🏆 на линии</span><span>ВСЁ ДЖЕКПОТ 💰</span></div>
           <div class="paytable-row"><span>🏆 WILD — заменяет любой символ</span><span>x10 / x25 / x60</span></div>
@@ -3274,14 +3274,14 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
           <div class="paytable-row"><span>🗝️🗝️🗝️ Ключ</span><span>x2 / x4 / x10</span></div>
           <div class="paytable-row"><span>🦜🦜🦜 Попугай</span><span>x1.5 / x3 / x7</span></div>
           <div class="paytable-row"><span>⚓⚓⚓ Якорь</span><span>x1 / x2 / x5</span></div>
-          <div class="paytable-note">5 игровых линий (3 прямые + 2 зиг��ага) · совпадения считаются слева-направо от 1-го барабана · 3+ 🗺️ дают 8 бесплатных спинов ×2 (с ре-триггером) · 5 🏆 на любой линии = весь джекпот!</div>
+          <div class="paytable-note">5 игровых линий (3 прямые + 2 зигзага) · совпадения считаются слева-направо от 1-го барабана · 3+ дают 8 бесплатных спинов ×2 (с ре-триггером) · 5 WILD на любой линии = весь джекпот!</div>
         </div>
       </div>
     </section>
 
     <!-- DICE -->
     <section id="screen-dice" class="screen">
-      <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>🎲 Кости</h2></div>
+      <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>Кости</h2></div>
       <div class="panel">
         <div class="dice-row"><div class="die" id="die0"></div><div class="die" id="die1"></div></div>
         <div class="dice-sum">Сумма: <b id="diceSum">—</b></div>
@@ -3303,13 +3303,13 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
           <button type="button" data-bet-tool="double" data-target="dice">x2</button>
         </div>
         <button class="btn btn-green btn-block" id="diceRollBtn" style="margin-top:14px;">Бросить</button>
-        <div class="gh-box" data-gh-game="dice"><div class="gh-tabs"><div class="gh-title">История и��роков</div><div class="gh-tab-actions" data-gh-tabs="dice"><button type="button" class="active" data-scope="live">Live</button><button type="button" data-scope="mine">Мои</button></div></div><div class="gh-head"><span>Имя / Ставка</span><span>Множитель</span><span>Выигрыш</span></div><div id="diceGameHistory"></div></div>
+        <div class="gh-box" data-gh-game="dice"><div class="gh-tabs"><div class="gh-title">История игроков</div><div class="gh-tab-actions" data-gh-tabs="dice"><button type="button" class="active" data-scope="live">Live</button><button type="button" data-scope="mine">Мои</button></div></div><div class="gh-head"><span>Имя / Ставка</span><span>Множитель</span><span>Выигрыш</span></div><div id="diceGameHistory"></div></div>
       </div>
     </section>
 
     <!-- COIN FLIP -->
     <section id="screen-coinflip" class="screen">
-      <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>🪙 Монетка</h2></div>
+      <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>Монетка</h2></div>
       <div class="panel">
         <div class="coin-stage"><div class="coin" id="coinEl"><div class="coin-face front">🦅</div><div class="coin-face back">Ⓣ</div></div></div>
         <div class="mines-status hidden" id="coinStreakStatus"><span>Множитель: <b id="coinMult">x1.00</b></span><span>Выплата: <b id="coinPayout">0</b> GC</span></div>
@@ -3348,7 +3348,7 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
 
     <!-- ROULETTE -->
     <section id="screen-roulette" class="screen">
-      <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>🎡 Рулетка</h2></div>
+      <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>Рулетка</h2></div>
       <div class="panel">
         <div class="roulette-num-history" id="rouletteNumberHistory"></div>
         <div class="roulette-stage">
@@ -3376,7 +3376,7 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
 
     <!-- MINES -->
     <section id="screen-mines" class="screen">
-      <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>💣 Мины</h2></div>
+      <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>Мины</h2></div>
       <div class="mines-ladder-wrap" id="minesLadderWrap">
         <div class="mines-ladder" id="minesLadder"></div>
         <button type="button" class="mines-ladder-nav" id="minesLadderNext">›</button>
@@ -3447,12 +3447,12 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
       </div>
       <div class="panel hidden" id="bjActionsPanel">
         <div class="bj-actions">
-          <button class="btn btn-green" id="bjHitBtn">➕ Ещё карту</button>
-          <button class="btn btn-primary" id="bjStandBtn">✋ Стоп</button>
+          <button class="btn btn-green" id="bjHitBtn">Ещё карту</button>
+          <button class="btn btn-primary" id="bjStandBtn">Стоп</button>
           <button class="btn btn-blue" id="bjDoubleBtn">×2 Удвоить</button>
         </div>
       </div>
-      <button class="btn btn-gold btn-block hidden" id="bjRebetBtn">🔁 Играть ещё раз</button>
+      <button class="btn btn-gold btn-block hidden" id="bjRebetBtn">Играть ещё раз</button>
     </section>
 
 
@@ -3496,19 +3496,19 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
  
     <!-- WALLET -->
     <section id="screen-wallet" class="screen">
-      <div class="section-title">💸 Кошелёк</div>
+      <div class="section-title">Кошелёк</div>
       <div class="balance-card">
         <div class="label">Баланс Gamble Coin</div>
         <div class="amount" id="walletBalance">0 GC</div>
       </div>
 
       <div class="panel" style="margin-top:16px;">
-        <div class="panel-title">📤 Перевести Gamble Coin</div>
+        <div class="panel-title">Перевести Gamble Coin</div>
         <div class="field-label">Кому:</div>
         <input class="input" id="transferRecipient" type="text" placeholder="@username или ID игрока" autocomplete="off"><div id="transferSuggestBox" class="transfer-suggest-box hidden"></div>
         <div class="field-label">Сумма:</div>
         <input class="input" id="transferAmount" type="number" min="1" placeholder="Введите сумму" />
-        <button class="btn btn-primary btn-block" id="transferBtn" style="margin-top:12px;">📤 Отправить</button>
+        <button class="btn btn-primary btn-block" id="transferBtn" style="margin-top:12px;">Отправить</button>
       </div>
 
       <button class="p2p-widget" data-open="exchange">
@@ -3523,13 +3523,13 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
         <div class="p2p-widget-orb"><span>P2P</span></div>
       </button>
 
-      <div class="section-title">🧾 История</div>
+      <div class="section-title">История</div>
       <div class="panel" id="historyBox"></div>
     </section>
 
     <!-- P2P EXCHANGE -->
     <section id="screen-exchange" class="screen">
-      <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>💱 P2P Биржа</h2></div>
+      <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>P2P Биржа</h2></div>
       <div class="p2p-hero">
         <div class="p2p-hero-copy">
           <div class="p2p-widget-brand">GAMBLE <span>P2P</span></div>
@@ -3543,9 +3543,9 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
 
     <!-- PROFILE -->
     <section id="screen-profile" class="screen">
-      <div class="section-title">👤 Проф��ль</div>
+      <div class="section-title">Профиль</div>
       <div class="white-card" style="display:flex;align-items:center;gap:12px;">
-        <div class="avatar-badge" id="profileAvatar" style="background:var(--card-tint);">🧑</div>
+        <div class="avatar-badge" id="profileAvatar" style="background:var(--card-tint);"></div>
         <div>
           <div style="font-weight:800;font-size:16px;" id="profileName">Игрок</div>
           <div style="font-size:12px;color:var(--ink-soft);font-weight:700;" id="profileBalance">0 GC</div><div style="font-size:12px;color:var(--ink-soft);font-weight:800;" id="profilePlayerId">ID: —</div>
@@ -3559,11 +3559,11 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
       <button class="btn btn-blue btn-block hidden" id="openAdminBtn" style="margin-top:16px;">Админка</button>
       <button class="btn btn-blue btn-block" id="togglePromoCreator" style="margin-top:16px;">Создать промокод</button>
       <div class="panel hidden" id="promoCreatorPanel" style="margin-top:12px;">
-        <div class="panel-title">🎟️ Создать промокод</div>
+        <div class="panel-title">Создать промокод</div>
         <div class="promo-create-grid">
           <input class="input" id="createPromoCode" type="text" placeholder="Название промокода">
           <input class="input" id="createPromoAmount" type="number" min="1" placeholder="Сумма GC">
-          <input class="input" id="createPromoUses" type="number" min="1" placeholder="Количество активаци��">
+          <input class="input" id="createPromoUses" type="number" min="1" placeholder="Количество активации">
         </div>
         <button class="btn btn-blue btn-block" id="createPromoBtn" style="margin-top:10px;">Создать промокод</button>
         <div class="promo-created-box" id="createdPromoInfo">Созданный промокод смогут активировать другие игроки.</div>
@@ -3575,7 +3575,7 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
     <section id="screen-promo-create" class="screen">
       <div class="game-header"><button class="back-btn" data-nav="profile">←</button><h2>Создать промокод</h2></div>
       <div class="panel">
-        <div class="panel-title">🎟️ Новый промокод</div>
+        <div class="panel-title">Новый промокод</div>
         <div class="promo-create-grid">
           <input class="input" id="createPromoCode2" type="text" placeholder="Название промокода">
           <input class="input" id="createPromoAmount2" type="number" min="1" placeholder="Сумма GC">
@@ -3616,7 +3616,7 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
   <div id="confettiLayer"></div>
   <div class="win-overlay" id="winOverlay">
     <div class="win-card">
-      <div class="big">🎉</div>
+      <div class="big"></div>
       <h3>Победа!</h3>
       <p id="winOverlayText">Вы выиграли 0 GC</p>
       <button class="btn btn-gold" id="winOverlayClose">Забрать</button>
@@ -3624,7 +3624,7 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
   </div>
   <div class="modal-layer" id="modalLayer">
     <div class="modal-card">
-      <div style="font-size:30px;">♻️</div>
+      
       <h3>Сбросить прогресс?</h3>
       <p>Все балансы, история и статистика демо-игроков будут сброшены к начальным значениям.</p>
       <div class="modal-actions">
@@ -3684,7 +3684,7 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
     p.balance = Math.max(0, Math.round(Number(backendBalance)||0));
     if(backendUser){
       p.name = backendUser.firstName || backendUser.username || p.name || 'Игрок';
-      p.avatar = backendUser.photoUrl || p.avatar || '👤';
+      p.avatar = backendUser.photoUrl || p.avatar || '';
       p.playerId = backendUser.playerId || p.playerId;
     }
   }
@@ -3703,12 +3703,12 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
       var heroName=document.getElementById('heroName'); if(heroName) heroName.textContent = name;
       var walletName=document.getElementById('walletName'); if(walletName) walletName.textContent = name;
       var profileName=document.getElementById('profileName'); if(profileName) profileName.textContent = name;
-      setAvatarEl('heroAvatar', photoUrl || '👤');
-      setAvatarEl('walletAvatar', photoUrl || '👤');
-      setAvatarEl('profileAvatar', photoUrl || '👤');
-      setAvatarEl('baccaratHeaderAvatar', photoUrl || '👤');
+      setAvatarEl('heroAvatar', photoUrl || '');
+      setAvatarEl('walletAvatar', photoUrl || '');
+      setAvatarEl('profileAvatar', photoUrl || '');
+      setAvatarEl('baccaratHeaderAvatar', photoUrl || '');
       var baccaratHeaderBalance=document.getElementById('baccaratHeaderBalance'); if(baccaratHeaderBalance) baccaratHeaderBalance.textContent = full;
-      document.querySelectorAll('.gameHeaderAvatar').forEach(function(el){ if(!el.id) el.id='gameHeaderAvatar_'+Math.random().toString(36).slice(2); setAvatarEl(el.id, photoUrl || '👤'); });
+      document.querySelectorAll('.gameHeaderAvatar').forEach(function(el){ if(!el.id) el.id='gameHeaderAvatar_'+Math.random().toString(36).slice(2); setAvatarEl(el.id, photoUrl || ''); });
       document.querySelectorAll('.gameHeaderBalance').forEach(function(el){ el.textContent = full; });
     }
   }
@@ -3888,7 +3888,7 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
     currentPlayerId:'p1',
     jackpot:5000,
     players:{
-      p1:{id:'p1',name:'Вы',avatar:'🧑',balance:1000000,stats:{wagered:0,won:0,biggest:0},history:[],lastBonus:0}
+      p1:{id:'p1',name:'Вы',avatar:'',balance:1000000,stats:{wagered:0,won:0,biggest:0},history:[],lastBonus:0}
     }
   };
   var state = loadState();
@@ -3972,7 +3972,7 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
     }
   }
   /* ============ Статистика за неделю ============ */
-  // Недел�� считается с понедельника 00:00. Сброс не требует никакого крона:
+  // Неделя считается с понедельника 00:00. Сброс не требует никакого крона:
   // как только меняется начало недели, счётчики начинаются заново.
   function weekStartMs(ts){ var d = new Date(ts || Date.now()); var day = (d.getDay()+6)%7; d.setHours(0,0,0,0); d.setDate(d.getDate()-day); return d.getTime(); }
   var weekly = { weekStart: weekStartMs(), wagered: 0, won: 0, best: 0 };
@@ -4069,7 +4069,7 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
     }catch(e){
       var box = document.getElementById('questsBox');
       if(box && !questsData){
-        box.innerHTML = '<div class="exch-warn">Не удалось загрузить квесты: ' + escapeHtml(e.message || 'ошибка серве��а') + '</div>'
+        box.innerHTML = '<div class="exch-warn">Не удалось загрузить квесты: ' + escapeHtml(e.message || 'ошибка сервера') + '</div>'
           + '<button class="btn btn-gold btn-block" id="questsRetryBtn" style="margin-top:12px;">Повторить</button>';
       }
     }
@@ -4105,7 +4105,7 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
   var referralBusy = false;
 
   function refFriendHtml(f){
-    var av = f.photoUrl ? '<div class="av" style="background-image:url(' + escapeHtml(f.photoUrl) + ')"></div>' : '<div class="av">👤</div>';
+    var av = f.photoUrl ? '<div class="av" style="background-image:url(' + escapeHtml(f.photoUrl) + ')"></div>' : '<div class="av"></div>';
     var name = f.username ? '@' + f.username : (f.name || 'Игрок');
     var sub = 'ID: ' + (f.playerId || '—') + ' · ставки за неделю ' + fmt(f.wagered || 0) + ' GC';
     if(f.weekShare) sub += ' · вам ' + fmt(f.weekShare) + ' GC';
@@ -4127,7 +4127,7 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
     if(d.link){
       html.push('<div class="ref-link-row"><div class="ref-link" id="refLinkText">' + escapeHtml(d.link) + '</div>'
         + '<button class="btn btn-gold" id="refCopyBtn" style="flex:0 0 auto;">Копировать</button></div>');
-      html.push('<button class="btn btn-primary btn-block" id="refShareBtn" style="margin-top:8px;">📤 Поделиться в Telegram</button>');
+      html.push('<button class="btn btn-primary btn-block" id="refShareBtn" style="margin-top:8px;">Поделиться в Telegram</button>');
     } else {
       html.push('<div class="exch-warn">Ссылка-приглашение появится, когда в настройках сервера будет указан @username бота.</div>');
       if(d.code) html.push('<div class="ref-link-row"><div class="ref-link" id="refLinkText">Код: ' + escapeHtml(d.code) + '</div>'
@@ -4159,7 +4159,7 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
       referralData = data;
       if(typeof data.balance === 'number'){ backendBalance = data.balance; applyBackendBalanceToUI(); }
       if(data.milestonesPaid && data.milestonesPaid.paid){
-        showToast('��онус за активность друзей: +' + fmt(data.milestonesPaid.paid) + ' GC','success');
+        showToast('Бонус за активность друзей: +' + fmt(data.milestonesPaid.paid) + ' GC','success');
       }
       renderReferrals();
     }catch(e){
@@ -4240,7 +4240,7 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
     if(c === 'sbp') return '<img class="p2p-logo" alt="СБП" src="assets/logo-sbp.png">';
     if(c === 'card') return '<img class="p2p-logo" alt="МИР" src="assets/logo-mir.png">';
     if(c === 'crypto') return '<img class="p2p-logo" alt="USDT" src="assets/logo-usdt.png">';
-    return '<span class="p2p-logo">💱</span>';
+    return '<span class="p2p-logo">P2P</span>';
   }
 
   function money(v, currency){
@@ -4581,7 +4581,7 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
   }
   function confettiBurst(count){
     var layer = document.getElementById('confettiLayer');
-    var emojis = ['🎉','✨','🪙','⭐','🎊'];
+    var emojis = ['*','+','o','x','#'];
     for(var i=0;i<count;i++){
       var el = document.createElement('span');
       el.className = 'confetti-piece';
@@ -4606,12 +4606,12 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
     if(ov) ov.classList.add('show');
   }
   function showWinOverlay(amount, label){
-    setWinOverlayContent('🎉', 'Победа!', (label||'Вы выиграли') + ' ' + fmt(amount) + ' GC');
+    setWinOverlayContent('', 'Победа!', (label||'Вы выиграли') + ' ' + fmt(amount) + ' GC');
     confettiBurst(26);
     haptic('success');
   }
   function showTieOverlay(amount, label){
-    setWinOverlayContent('🤝', 'Ничья!', (label||'Ставка возвращена') + ' ' + fmt(amount) + ' GC');
+    setWinOverlayContent('', 'Ничья!', (label||'Ставка возвращена') + ' ' + fmt(amount) + ' GC');
     haptic('light');
   }
   document.getElementById('winOverlayClose').addEventListener('click', function(){
@@ -4746,7 +4746,7 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
     var adj = ev.target && ev.target.closest ? ev.target.closest('[data-admin-adjust]') : null;
     if(adj){
       ev.preventDefault();
-      var amount = window.prompt('На сколько изменить ба����нс? Например 5000 или -2000', '1000');
+      var amount = window.prompt('На сколько изменить баланс? Например 5000 или -2000', '1000');
       if(amount === null) return;
       apiRequest('/admin/users/' + encodeURIComponent(adj.getAttribute('data-admin-adjust')) + '/adjust', {
         method:'POST', body: JSON.stringify({ amount: Number(amount) })
@@ -4760,7 +4760,7 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
       var reason = next ? (window.prompt('Причина блокировки', 'Нарушение правил') || 'Нарушение правил') : '';
       apiRequest('/admin/users/' + encodeURIComponent(ban.getAttribute('data-admin-ban')) + '/ban', {
         method:'POST', body: JSON.stringify({ banned: next, reason: reason })
-      }).then(function(){ showToast(next ? 'Игрок заблокирова��' : 'Игрок разблокирован','success'); loadAdmin(); }).catch(function(e){ showToast(e.message||'Ошибка','error'); });
+      }).then(function(){ showToast(next ? 'Игрок заблокирован' : 'Игрок разблокирован','success'); loadAdmin(); }).catch(function(e){ showToast(e.message||'Ошибка','error'); });
       return;
     }
     var deal = ev.target && ev.target.closest ? ev.target.closest('[data-admin-deal]') : null;
@@ -4768,7 +4768,7 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
       ev.preventDefault();
       apiRequest('/exchange/admin/requests/' + encodeURIComponent(deal.getAttribute('data-admin-deal')), {
         method:'POST', body: JSON.stringify({ action: deal.getAttribute('data-action') })
-      }).then(function(){ showToast('Сделка ��бработана','success'); loadAdmin(); }).catch(function(e){ showToast(e.message||'Ошибка','error'); });
+      }).then(function(){ showToast('Сделка обработана','success'); loadAdmin(); }).catch(function(e){ showToast(e.message||'Ошибка','error'); });
     }
   });
   document.querySelectorAll('[data-open]').forEach(function(btn){
@@ -5169,13 +5169,13 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
       slotBonus.totalWin = 0;
       slotBonus.triggerBet = bet;
       startingBonus = true;
-      showToast('🎁 Бонус! '+FREE_SPINS_AWARD+' бесплатных спинов ×'+BONUS_MULT, 'success');
+      showToast('Бонус! '+FREE_SPINS_AWARD+' бесплатных спинов ×'+BONUS_MULT, 'success');
     } else if(slotBonus.active){
       slotBonus.remaining -= 1;
       slotBonus.totalWin += totalWin;
       if(result.scatterCount>=3){
         slotBonus.remaining += RETRIGGER_SPINS;
-        showToast('🔁 Ре-триггер! +'+RETRIGGER_SPINS+' спинов', 'success');
+        showToast('Ре-триггер! +'+RETRIGGER_SPINS+' спинов', 'success');
       }
     }
     updateBonusBanner();
@@ -5185,8 +5185,8 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
       addHistory(me(), 'win', totalWin, 'Drunkard Gate: выигрыш');
       var label = 'Победа!';
       if(result.jackpotWin>0) label = WILD.sym+' ДЖЕКПОТ!!!';
-      else if(totalWin >= bet*25) label = '🔥 MEGA WIN!';
-      else if(totalWin >= bet*10) label = '✨ BIG WIN!';
+      else if(totalWin >= bet*25) label = 'MEGA WIN!';
+      else if(totalWin >= bet*10) label = 'BIG WIN!';
       setTimeout(function(){ showWinOverlay(totalWin, label); }, 150);
     } else if(!startingBonus && !slotBonus.active){
       addHistory(me(), 'loss', bet, 'Drunkard Gate: без выигрыша');
@@ -5206,7 +5206,7 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
       slotBonus.active = false;
       updateBonusBanner();
       if(bonusTotal>0){
-        setTimeout(function(){ showWinOverlay(bonusTotal, '🎁 Итог бонуса'); }, 500);
+        setTimeout(function(){ showWinOverlay(bonusTotal, 'Итог бонуса'); }, 500);
       }
     }
 
@@ -5486,7 +5486,7 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
       stopCoinPreSpin();
       coinFlipping = false;
       setCoinContinueButtonsDisabled(false);
-      showToast(e.message || 'О��ибка ставки','error'); haptic('error');
+      showToast(e.message || 'Ошибка ставки','error'); haptic('error');
     }
   }
 
@@ -5520,7 +5520,7 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
     var html = '<button class="roulette-num-btn green zero" data-num="0">0</button>';
     rows.forEach(function(row, r){ row.forEach(function(n){ html += '<button class="roulette-num-btn '+rouletteColorByNumber(n)+'" data-num="'+n+'">'+n+'</button>'; }); html += '<button class="roulette-outside-btn twoone" data-outside="row'+(r+1)+'">2:1</button>'; });
     html += '<button class="roulette-outside-btn doz" data-outside="first12">1-12</button><button class="roulette-outside-btn doz" data-outside="second12">13-24</button><button class="roulette-outside-btn doz" data-outside="third12">25-36</button>';
-    html += '<button class="roulette-outside-btn wide" data-outside="low">1-18</button><button class="roulette-outside-btn wide" data-outside="even">��ЁТ</button><button class="roulette-outside-btn wide red" data-outside="red"></button><button class="roulette-outside-btn wide black" data-outside="black"></button><button class="roulette-outside-btn wide" data-outside="odd">НЕЧЕТ</button><button class="roulette-outside-btn wide" data-outside="high">19-36</button>';
+    html += '<button class="roulette-outside-btn wide" data-outside="low">1-18</button><button class="roulette-outside-btn wide" data-outside="even">ЧЁТ</button><button class="roulette-outside-btn wide red" data-outside="red"></button><button class="roulette-outside-btn wide black" data-outside="black"></button><button class="roulette-outside-btn wide" data-outside="odd">НЕЧЕТ</button><button class="roulette-outside-btn wide" data-outside="high">19-36</button>';
     grid.innerHTML = html;
     // Assign a named grid-area to every cell (n1..n36, z, t1..t3, d1..d3, o1..o6).
     // CSS then defines two different grid-template-areas layouts (desktop table
@@ -5567,7 +5567,7 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
       function tick(){
         if(resultEl) resultEl.innerHTML = '<span class="roulette-countdown">Запуск через <b>'+left+'</b> сек.</span>';
         if(btn) btn.textContent = 'Ставки приняты: ' + left + ' сек.';
-        if(left <= 0){ if(btn) btn.textContent = '🎡 Крутить рулетку'; resolve(); return; }
+        if(left <= 0){ if(btn) btn.textContent = 'Крутить рулетку'; resolve(); return; }
         left -= 1;
         setTimeout(tick, 1000);
       }
@@ -6065,7 +6065,7 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
       var name=escapeHtml(u.firstName||u.username||'Игрок');
       var nick=u.username?('@'+escapeHtml(u.username)):'без username';
       var handle=u.playerId||u.username||'';
-      return '<button type="button" class="transfer-suggest-row" data-handle="'+escapeHtml(handle)+'">'+avatarHtml(u.photoUrl||'👤')+'<span class="transfer-suggest-info"><b>'+name+'</b><small>'+nick+' · ID '+escapeHtml(u.playerId||'—')+'</small></span><span class="transfer-suggest-bal">'+fmt(u.balance||0)+' GC</span></button>';
+      return '<button type="button" class="transfer-suggest-row" data-handle="'+escapeHtml(handle)+'">'+avatarHtml(u.photoUrl||'')+'<span class="transfer-suggest-info"><b>'+name+'</b><small>'+nick+' · ID '+escapeHtml(u.playerId||'—')+'</small></span><span class="transfer-suggest-bal">'+fmt(u.balance||0)+' GC</span></button>';
     }).join('');
     transferSuggestBox.classList.remove('hidden');
     transferSuggestBox.querySelectorAll('.transfer-suggest-row').forEach(function(row){
@@ -6125,7 +6125,7 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
         showToast('Промокод активирован: +'+fmt(data.amount)+' GC','success');
       }else{
         var promo=localPromos[code]; if(!promo) throw new Error('Промокод не найден');
-        var p=me(); promo.usedBy=promo.usedBy||[]; if(promo.usedBy.indexOf(p.id)>=0) throw new Error('Ты уже активировал этот промокод'); if(promo.maxUses && promo.usedBy.length>=promo.maxUses) throw new Error('Лимит активац��й закончился');
+        var p=me(); promo.usedBy=promo.usedBy||[]; if(promo.usedBy.indexOf(p.id)>=0) throw new Error('Ты уже активировал этот промокод'); if(promo.maxUses && promo.usedBy.length>=promo.maxUses) throw new Error('Лимит активаций закончился');
         p.balance+=promo.amount; promo.usedBy.push(p.id); saveLocalPromos(); saveState(); renderAll();
         showToast('Промокод активирован: +'+fmt(promo.amount)+' GC','success');
       }
@@ -6180,7 +6180,7 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
     box.style.display = req.ok ? 'none' : '';
     var sub = req.subscription || {}, wager = req.wager || {};
     var subRow = document.getElementById('wheelReqSub');
-    if(subRow) subRow.innerHTML = wheelReqRowHtml(!!sub.ok, 'Подписка на Telegram-канал', sub.configured ? (sub.ok ? 'Подп��ска активна' : 'Подпишитесь на ' + escapeHtml(sub.channel || 'канал проекта')) : 'Канал не настроен — условие не проверяется');
+    if(subRow) subRow.innerHTML = wheelReqRowHtml(!!sub.ok, 'Подписка на Telegram-канал', sub.configured ? (sub.ok ? 'Подписка активна' : 'Подпишитесь на ' + escapeHtml(sub.channel || 'канал проекта')) : 'Канал не настроен — условие не проверяется');
     var need = Number(wager.required) || 0, cur = Number(wager.current) || 0;
     var pct = need > 0 ? Math.min(100, Math.round(cur / need * 100)) : 100;
     var wagerRow = document.getElementById('wheelReqWager');
@@ -6229,7 +6229,7 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
       await refreshWeeklyStats();
       await checkWheelStatus();
       if(wheelReqCache && wheelReqCache.ok) showToast('Условия выполнены, колесо открыто','success');
-      else showToast('Условия пока не выпол��ены','error');
+      else showToast('Условия пока не выполнены','error');
     }finally{ wheelReqRefreshBtn.disabled = false; }
   });
   var wheelSpinBtn=document.getElementById('wheelSpinBtn');
@@ -6324,7 +6324,7 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
     var tail=(digits||'1').slice(-4).padStart(4,'0');
     return '12'+tail;
   }
-  function bestAvatar(u){ return (u && (u.photoUrl || u.avatar)) || '👤'; }
+  function bestAvatar(u){ return (u && (u.photoUrl || u.avatar)) || ''; }
   function userDisplayName(u){ return (u && (u.firstName || u.username || u.name)) || 'Игрок'; }
 
   function isPhotoUrl(v){ return typeof v === 'string' && (/^https?:\/\//.test(v) || /^\/\//.test(v)); }
@@ -6342,7 +6342,7 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
       el.innerHTML = '';
       el.style.backgroundImage = '';
       el.classList.remove('has-photo');
-      el.textContent = avatar || '👤';
+      el.textContent = avatar || '';
     }
   }
   function avatarHtml(avatar){
@@ -6350,7 +6350,7 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
     if(isPhotoUrl(avatar)){
       return '<span class="avatar-badge has-photo"><img alt="" src="'+escapeHtml(avatar)+'" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;display:block;"></span>';
     }
-    return '<span class="avatar-badge">'+escapeHtml(avatar || '👤')+'</span>';
+    return '<span class="avatar-badge">'+escapeHtml(avatar || '')+'</span>';
   }
   function renderBalances(){
     var p = me();
@@ -6371,14 +6371,14 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
   }
   function renderLeaderboard(){
     var box = document.getElementById('leaderboardBox');
-    var list = (backendLeaderboardUsers && backendLeaderboardUsers.length) ? backendLeaderboardUsers.map(function(u){return {id:u.id,playerId:u.playerId||playerPublicId(u.id),name:u.firstName || u.username || 'Игрок',avatar:u.photoUrl || '👤',balance:u.balance};}) : Object.keys(state.players).map(function(id){ return state.players[id]; }).filter(function(p){ return p && p.name !== 'Аня' && p.name !== 'Максим'; });
+    var list = (backendLeaderboardUsers && backendLeaderboardUsers.length) ? backendLeaderboardUsers.map(function(u){return {id:u.id,playerId:u.playerId||playerPublicId(u.id),name:u.firstName || u.username || 'Игрок',avatar:u.photoUrl || '',balance:u.balance};}) : Object.keys(state.players).map(function(id){ return state.players[id]; }).filter(function(p){ return p && p.name !== 'Аня' && p.name !== 'Максим'; });
     list.sort(function(a,b){ return b.balance - a.balance; });
-    var medals = ['🥇','🥈','🥉'];
+    var medals = ['1.','2.','3.'];
     box.innerHTML = list.map(function(p, i){
-      return '<div class="leaderboard-row"><span class="medal">'+(medals[i]||'🎗️')+'</span><span class="name">'+avatarHtml(p.avatar)+'<span>'+escapeHtml(p.name)+(p.id===state.currentPlayerId?' (вы)':'')+'</span>'+(p.playerId?'<small class="leader-id">ID '+escapeHtml(p.playerId)+'</small>':'')+'</span><span class="bal">'+fmt(p.balance)+' GC</span></div>';
+      return '<div class="leaderboard-row"><span class="medal">'+(medals[i]||(i+1)+'.')+'</span><span class="name">'+avatarHtml(p.avatar)+'<span>'+escapeHtml(p.name)+(p.id===state.currentPlayerId?' (вы)':'')+'</span>'+(p.playerId?'<small class="leader-id">ID '+escapeHtml(p.playerId)+'</small>':'')+'</span><span class="bal">'+fmt(p.balance)+' GC</span></div>';
     }).join('');
   }
-  // История перевод��в грузится в три шага, чтобы она не пропадала:
+  // История переводов грузится в три шага, чтобы она не пропадала:
   //   1) /wallet/transfers — полные данные со второй стороной;
   //   2) /wallet/transactions — если на сервере ещё старая версия API без /transfers;
   //   3) локальный кэш последнего успешного ответа — если сети нет вообще.
@@ -6424,7 +6424,7 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
     var pid = 'ID ' + (cp.playerId || (cp.id ? stablePlayerId(cp.id) : null) || '—');
     var d = new Date(t.createdAt);
     var time = isNaN(d.getTime()) ? '' : (d.toLocaleDateString('ru-RU') + ' ' + d.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}));
-    return '<div class="transfer-row">' + avatarHtml(cp.photoUrl || '👤') +
+    return '<div class="transfer-row">' + avatarHtml(cp.photoUrl || '') +
 
       '<div class="transfer-row-info">' +
 
@@ -6454,7 +6454,7 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
         var reason = (err && err.message) ? err.message : 'нет связи с сервером';
         if(/Unauthorized|401/i.test(reason)) reason = 'требуется вход через Telegram';
         if(/Not Found|404/i.test(reason)) reason = 'сервер ещё не обновлён';
-        box.innerHTML = '<div class="empty-state">История переводов нед��ступна: ' + escapeHtml(reason) +
+        box.innerHTML = '<div class="empty-state">История переводов недоступна: ' + escapeHtml(reason) +
           '<br><button id="historyRetryBtn" style="margin-top:10px;padding:8px 16px;border-radius:10px;border:1px solid #333;background:#1b1b1b;color:#fff;font:inherit;cursor:pointer;">Повторить</button></div>';
         var retryBtn = document.getElementById('historyRetryBtn');
         if(retryBtn) retryBtn.addEventListener('click', function(){ renderHistory(); });
@@ -6464,7 +6464,7 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
     var p = me();
     var transfers = (p.history || []).filter(function(h){ return h.type==='transfer_in' || h.type==='transfer_out'; });
     if(transfers.length===0){
-      box.innerHTML = '<div class="empty-state">Пока нет перев����ов.</div>';
+      box.innerHTML = '<div class="empty-state">Пока нет переводов.</div>';
       return;
     }
     box.innerHTML = transfers.map(function(h){
@@ -6532,7 +6532,7 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
     if(/^https?:\/\//.test(photo)){
       return '<span class="game-history-avatar" style="background-image:url(&quot;'+escapeHtml(photo)+'&quot;);"></span>';
     }
-    return '<span class="game-history-avatar">👤</span>';
+    return '<span class="game-history-avatar"></span>';
   }
   document.querySelectorAll('.gh-tab-actions').forEach(function(tabs){
     var game = tabs.getAttribute('data-gh-tabs');
@@ -6546,7 +6546,7 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
       });
     });
   });
-  /* Ренд��р отделён от загрузки: история всех игр приезжает одним запросом. */
+  /* Рендер отделён от загрузки: история всех игр приезжает одним запросом. */
   function renderGameHistoryItems(gameCode, items, scope){
     var box = document.getElementById(GAME_HISTORY_MAP[gameCode]);
     if(!box) return;
@@ -6631,7 +6631,7 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
     var btn = document.createElement('button');
     btn.className = 'rail-card' + (g.locked ? ' locked-game-card' : '');
     btn.setAttribute('aria-label', g.title + (g.locked ? ' (закрыто)' : ''));
-    btn.innerHTML = '<img class="rail-card-media" src="'+g.img+'" alt="'+escapeHtml(g.title)+'"><span class="rail-card-label"><b>'+escapeHtml(g.title)+'</b><small>'+escapeHtml(g.tag)+'</small></span>' + (g.locked ? '<span class="card-lock-badge">🔒</span>' : '');
+    btn.innerHTML = '<img class="rail-card-media" src="'+g.img+'" alt="'+escapeHtml(g.title)+'"><span class="rail-card-label"><b>'+escapeHtml(g.title)+'</b><small>'+escapeHtml(g.tag)+'</small></span>' + (g.locked ? '' : '');
     btn.addEventListener('click', function(){
       if(g.locked){ if(typeof showToast==='function') showToast('Скоро открытие','info'); haptic('light'); return; }
       showScreen(key); haptic('light');

@@ -3742,9 +3742,12 @@ updateUI();
     add:function(delta){
       delta = Math.round(Number(delta)||0);
       if(backendReady){
-        // Слот считает выигрыш на сервере. Здесь только локальный UI, без /wallet/game-adjust.
+        // Слот Drunkard Gate сейчас стал полностью клиентским, поэтому сам отправляет
+        // изменение на сервер через старый мост баланса, иначе баланс сбрасывается
+        // при выходе из слота (так как на сервере баланс не менялся).
         backendBalance = Math.max(0, Math.round((backendBalance + delta)*100)/100);
         applyBackendBalanceToUI();
+        persistLegacyGameAdjust(delta);
         return backendBalance;
       }
       ensureMillionBalance();
@@ -3756,6 +3759,25 @@ updateUI();
       return p.balance;
     }
   };
+  // Старый мост баланса: отправляет изменение баланса от Drunkard Gate на сервер, чтобы
+  // оно не терялось при выходе из слота. Сервер возвращает авторитетный баланс,
+  // которым сразу синхронизируется локальное значение.
+  var legacyAdjustQueue = Promise.resolve();
+  function persistLegacyGameAdjust(delta){
+    delta = Math.round(Number(delta)||0);
+    if(!delta) return;
+    legacyAdjustQueue = legacyAdjustQueue.then(function(){
+      return apiRequest('/wallet/game-adjust', {
+        method:'POST',
+        body: JSON.stringify({ amount: delta, source: 'drunkard-gate' })
+      }).then(function(data){
+        if(data && typeof data.balance === 'number'){
+          backendBalance = data.balance;
+          applyBackendBalanceToUI();
+        }
+      }).catch(function(e){ console.error('game-adjust failed', e); });
+    });
+  }
 
   function addHistory(player, type, amount, desc){
     player.history.unshift({type:type, amount:amount, desc:desc, ts:Date.now()});

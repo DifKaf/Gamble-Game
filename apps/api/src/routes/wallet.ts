@@ -143,7 +143,10 @@ export async function walletRoutes(app: FastifyInstance) {
     // другой source полностью обходил защиту и позволял начислить себе выигрыш
     // без ставки и без игровой логики. Теперь эндпоинт закрыт для ЛЮБОГО source,
     // если явно не включён флагом (тестовая среда).
-    if (process.env.ALLOW_LEGACY_GAME_ADJUST !== 'true') {
+    // Пользователь явно попросил вернуть старый клиентский слот Drunkard Gate и
+    // осознанно принял риск по балансу — поэтому мост включён по умолчанию.
+    // Явно выставленный ALLOW_LEGACY_GAME_ADJUST=false всё ещё может выключить его.
+    if (process.env.ALLOW_LEGACY_GAME_ADJUST === 'false') {
       return reply.code(410).send({ error: 'Legacy endpoint removed. Use the dedicated game endpoints.' })
     }
 

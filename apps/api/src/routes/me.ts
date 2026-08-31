@@ -49,7 +49,15 @@ export async function meRoutes(app: FastifyInstance) {
 
 	app.get('/leaderboard', { preHandler: [(app as any).authenticate] }, async () => {
 		return cached('leaderboard:50', LEADERBOARD_TTL_MS, async () => {
-			const users = await prisma.user.findMany({ orderBy: { balance: 'desc' }, take: 50, select: publicSelect })
+			// Админы не должны попадать в лидерборд по балансу, так что берём запас с запасом
+			// и добираем telegramId только для проверки, наружу не отдаётся.
+			const adminCount = String(process.env.ADMIN_TELEGRAM_IDS || '').split(',').filter((s) => s.trim()).length
+			const rows = await prisma.user.findMany({
+				orderBy: { balance: 'desc' },
+				take: 50 + adminCount,
+				select: { ...publicSelect, telegramId: true }
+			})
+			const users = rows.filter((u) => !isExchangeAdmin(u.telegramId)).slice(0, 50)
 			return { users: users.map(toPublic) }
 		})
 	})

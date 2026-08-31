@@ -39,7 +39,7 @@ model User {
   firstName  String?
   lastName   String?
   photoUrl   String?
-  balance    BigInt @default(1000000)
+  balance    BigInt @default(0)
   gamesPlayed Int @default(0)
   lastWheelSpinAt DateTime?
   banned     Boolean @default(false)

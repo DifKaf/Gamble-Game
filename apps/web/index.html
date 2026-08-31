@@ -1635,7 +1635,7 @@ body.pay-info-open #autoBtn{display:none!important;pointer-events:none!important
     &lt;div class=&quot;controls&quot;&gt;
       &lt;div class=&quot;betbox&quot;&gt;
         &lt;button class=&quot;bb&quot; id=&quot;bDn&quot;&gt;−&lt;/button&gt;
-        &lt;div class=&quot;betcol&quot;&gt;&lt;div class=&quot;betlbl&quot;&gt;СТАВК��&lt;/div&gt;&lt;div class=&quot;betv&quot; id=&quot;betEl&quot;&gt;100&lt;/div&gt;&lt;/div&gt;
+        &lt;div class=&quot;betcol&quot;&gt;&lt;div class=&quot;betlbl&quot;&gt;СТАВКА&lt;/div&gt;&lt;div class=&quot;betv&quot; id=&quot;betEl&quot;&gt;100&lt;/div&gt;&lt;/div&gt;
         &lt;button class=&quot;bb&quot; id=&quot;bUp&quot;&gt;+&lt;/button&gt;
       &lt;/div&gt;
       &lt;button class=&quot;spinbtn&quot; id=&quot;spBtn&quot;&gt;&lt;span class=&quot;spin-ic&quot;&gt;↻&lt;/span&gt;&lt;/button&gt;
@@ -1670,7 +1670,7 @@ body.pay-info-open #autoBtn{display:none!important;pointer-events:none!important
   &lt;div class=&quot;msec&quot;&gt;&amp;#9881; Механика&lt;/div&gt;
   &lt;div class=&quot;mech&quot;&gt;&lt;div class=&quot;mico&quot;&gt;&amp;#128203;&lt;/div&gt;&lt;div class=&quot;mtxt&quot;&gt;&lt;b&gt;6×5, Pay Anywhere.&lt;/b&gt; Кластер от &lt;b&gt;8+ одинаковых символов&lt;/b&gt; в любом месте поля (горизонталь + вертикаль).&lt;/div&gt;&lt;/div&gt;
   &lt;div class=&quot;mech&quot;&gt;&lt;div class=&quot;mico&quot;&gt;&amp;#128175;&lt;/div&gt;&lt;div class=&quot;mtxt&quot;&gt;&lt;b&gt;Падение (Tumble).&lt;/b&gt; После каждого спина выигрышные символы исчезают, сверху падают новые. Падение продолжается, пока есть выигрыши (без ограничений).&lt;/div&gt;&lt;/div&gt;
-  &lt;div class=&quot;mech&quot;&gt;&lt;div class=&quot;mico&quot;&gt;&amp;#127384;&lt;/div&gt;&lt;div class=&quot;mtxt&quot;&gt;&lt;b&gt;Символы-множители.&lt;/b&gt; Падают на поле &lt;b&gt;как символы&lt;/b&gt; (×2 — ×1000) во время вращений и пад��ний — как в основной игре, так и в фриспинах. В конце последовательности все множители на поле &lt;b&gt;суммируются&lt;/b&gt; и умножают общий выигрыш. В фриспинах множитель &lt;b&gt;накапливается глобально&lt;/b&gt;.&lt;/div&gt;&lt;/div&gt;
+  &lt;div class=&quot;mech&quot;&gt;&lt;div class=&quot;mico&quot;&gt;&amp;#127384;&lt;/div&gt;&lt;div class=&quot;mtxt&quot;&gt;&lt;b&gt;Символы-множители.&lt;/b&gt; Падают на поле &lt;b&gt;как символы&lt;/b&gt; (×2 — ×1000) во время вращений и падений — как в основной игре, так и в фриспинах. В конце последовательности все множители на поле &lt;b&gt;суммируются&lt;/b&gt; и умножают общий выигрыш. В фриспинах множитель &lt;b&gt;накапливается глобально&lt;/b&gt;.&lt;/div&gt;&lt;/div&gt;
   &lt;div class=&quot;mech&quot;&gt;&lt;div class=&quot;mico&quot;&gt;&amp;#129347;&lt;/div&gt;&lt;div class=&quot;mtxt&quot;&gt;&lt;b&gt;Scatter (Стакан).&lt;/b&gt; 4+ = &lt;b&gt;15 фриспинов&lt;/b&gt;. В FS: 3+ Scatter = &lt;b&gt;+5 спинов&lt;/b&gt;.&lt;/div&gt;&lt;/div&gt;
   &lt;div class=&quot;mech&quot;&gt;&lt;div class=&quot;mico&quot;&gt;&amp;#128176;&lt;/div&gt;&lt;div class=&quot;mtxt&quot;&gt;&lt;b&gt;Ante Bet&lt;/b&gt; +25% к ставке — повышает шанс Scatter.&lt;/div&gt;&lt;/div&gt;
   &lt;div class=&quot;mech&quot;&gt;&lt;div class=&quot;mico&quot;&gt;&amp;#128722;&lt;/div&gt;&lt;div class=&quot;mtxt&quot;&gt;&lt;b&gt;Купить бонус&lt;/b&gt; — мгновенные 15 фриспинов за &lt;b&gt;100× ставки&lt;/b&gt;.&lt;/div&gt;&lt;/div&gt;
@@ -1698,7 +1698,7 @@ body.pay-info-open #autoBtn{display:none!important;pointer-events:none!important
 &lt;div id=&quot;bonusStart&quot;&gt;
   &lt;div class=&quot;bs-frame&quot;&gt;
     &lt;div class=&quot;bs-gem&quot;&gt;◆&lt;/div&gt;
-    &lt;div class=&quot;bs-title&quot;&gt;ПОЗ������РАВЛЯЕМ!&lt;/div&gt;
+    &lt;div class=&quot;bs-title&quot;&gt;ПОЗДРАВЛЯЕМ!&lt;/div&gt;
     &lt;div class=&quot;bs-sub&quot; id=&quot;bsSub&quot;&gt;ВЫ ВЫИГРАЛИ&lt;/div&gt;
     &lt;div class=&quot;bs-count&quot; id=&quot;bsCount&quot;&gt;15&lt;/div&gt;
     &lt;div class=&quot;bs-label&quot; id=&quot;bsLabel&quot;&gt;БЕСПЛАТНЫХ ВРАЩЕНИЙ&lt;/div&gt;
@@ -2712,7 +2712,7 @@ async function doSpin(){
   let spinWin=0, cc=0;
   // ПАДЕНИЕ (Tumble): выигрышные символы исчезают, сверху падают новые.
   // Символы-множители падают на поле вместе с обычными. В базовой игре в конце
-  // Последовательности все множители на п��ле суммируются и умножают общий выигрыш.
+  // Последовательности все множители на поле суммируются и умножают общий выигрыш.
   // В фриспинах множитель накапливается глобально на весь бонусный раунд.
   while(true){
     const clusters=findClusters();
@@ -2851,7 +2851,7 @@ async function triggerFreeSpins(count){
   const fl=document.getElementById(&#x27;fsFlash&#x27;);
   fl.style.opacity=&#x27;1&#x27;; setTimeout(()=&gt;fl.style.opacity=&#x27;0&#x27;,500);
   sfx(&#x27;fsstart&#x27;); doConfetti(60);
-  // Show the &quot;ПОЗДРАВЛЯЕМ! ВЫ В��ИГРАЛИ N БЕСПЛАТНЫХ ВРАЩЕНИЙ&quot; splash and
+  // Show the &quot;ПОЗДРАВЛЯЕМ! ВЫ ВЫИГРАЛИ N БЕСПЛАТНЫХ ВРАЩЕНИЙ&quot; splash and
   // wait for the player to click before the bonus game starts spinning.
   await showBonusStart(count);
   setMsg(`${count} ФРИСПИНОВ АКТИВИРОВАНО!`,&#x27;mg&#x27;);
@@ -2865,7 +2865,7 @@ async function triggerFreeSpins(count){
 function showWinOverlay(amount, mult) {
   const ov = document.getElementById(&#x27;winOverlay&#x27;);
   document.getElementById(&#x27;woAmount&#x27;).textContent = amount;
-  document.getElementById(&#x27;woMult&#x27;).textContent = mult &gt; 1 ? `Макс. множите��ь: ×${mult}` : &#x27;&#x27;;
+  document.getElementById(&#x27;woMult&#x27;).textContent = mult &gt; 1 ? `Макс. множитель: ×${mult}` : &#x27;&#x27;;
   document.getElementById(&#x27;woSpins&#x27;).textContent = `Баланс: ${balance}`;
   ov.classList.add(&#x27;show&#x27;);
   doConfetti(150); sfx(&#x27;mega&#x27;);
@@ -3057,7 +3057,7 @@ updateUI();
       <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>Gamble Vault</h2><div class="game-user-chip"><span class="avatar-badge gameHeaderAvatar">🧑</span><b class="gameHeaderBalance">0 GC</b></div></div>
       <div class="slot-cabinet" style="display:none;">
         <div class="lever-wrap" id="leverWrap"><div class="lever-arm"></div><div class="lever-knob"></div></div>
-        <div class="jackpot-marquee"><span class="jp-label">ДЖ��кпот</span><span class="jp-value" id="slotJackpot">5 000</span><span class="jp-label">GC</span></div>
+        <div class="jackpot-marquee"><span class="jp-label">Джекпот</span><span class="jp-value" id="slotJackpot">5 000</span><span class="jp-label">GC</span></div>
         <div class="marquee">
           <div class="bulb"></div><div class="bulb"></div><div class="bulb"></div><div class="bulb"></div><div class="bulb"></div><div class="bulb"></div><div class="bulb"></div>
         </div>
@@ -3083,7 +3083,7 @@ updateUI();
           <div class="paytable-row"><span>🗝️🗝️🗝️ Ключ</span><span>x2 / x4 / x10</span></div>
           <div class="paytable-row"><span>🦜🦜🦜 Попугай</span><span>x1.5 / x3 / x7</span></div>
           <div class="paytable-row"><span>⚓⚓⚓ Якорь</span><span>x1 / x2 / x5</span></div>
-          <div class="paytable-note">5 игровых линий (3 прямые + 2 зиг��ага) · совпадения считаются слева-направо от 1-го барабана · 3+ 🗺️ дают 8 бесплатных спинов ×2 (с ре-триггером) · 5 🏆 на любой линии = весь джекпот!</div>
+          <div class="paytable-note">5 игровых линий (3 прямые + 2 зигзага) · совпадения считаются слева-направо от 1-го барабана · 3+ 🗺️ дают 8 бесплатных спинов ×2 (с ре-триггером) · 5 🏆 на любой линии = весь джекпот!</div>
         </div>
       </div>
     </section>
@@ -3112,7 +3112,7 @@ updateUI();
           <button type="button" data-bet-tool="double" data-target="dice">x2</button>
         </div>
         <button class="btn btn-green btn-block" id="diceRollBtn" style="margin-top:14px;">Бросить</button>
-        <div class="gh-box" data-gh-game="dice"><div class="gh-tabs"><div class="gh-title">История и��роков</div><div class="gh-tab-actions" data-gh-tabs="dice"><button type="button" class="active" data-scope="live">Live</button><button type="button" data-scope="mine">Мои</button></div></div><div class="gh-head"><span>Имя / Ставка</span><span>Множитель</span><span>Выигрыш</span></div><div id="diceGameHistory"></div></div>
+        <div class="gh-box" data-gh-game="dice"><div class="gh-tabs"><div class="gh-title">История игроков</div><div class="gh-tab-actions" data-gh-tabs="dice"><button type="button" class="active" data-scope="live">Live</button><button type="button" data-scope="mine">Мои</button></div></div><div class="gh-head"><span>Имя / Ставка</span><span>Множитель</span><span>Выигрыш</span></div><div id="diceGameHistory"></div></div>
       </div>
     </section>
 
@@ -3352,7 +3352,7 @@ updateUI();
 
     <!-- PROFILE -->
     <section id="screen-profile" class="screen">
-      <div class="section-title">👤 Проф��ль</div>
+      <div class="section-title">👤 Профиль</div>
       <div class="white-card" style="display:flex;align-items:center;gap:12px;">
         <div class="avatar-badge" id="profileAvatar" style="background:var(--card-tint);">🧑</div>
         <div>
@@ -3803,7 +3803,7 @@ updateUI();
     }
   }
   /* ============ Статистика за неделю ============ */
-  // Недел�� считается с понедельника 00:00. Сброс не требует никакого крона:
+  // Неделя считается с понедельника 00:00. Сброс не требует никакого крона:
   // как только меняется начало недели, счётчики начинаются заново.
   function weekStartMs(ts){ var d = new Date(ts || Date.now()); var day = (d.getDay()+6)%7; d.setHours(0,0,0,0); d.setDate(d.getDate()-day); return d.getTime(); }
   var weekly = { weekStart: weekStartMs(), wagered: 0, won: 0, best: 0 };
@@ -3900,7 +3900,7 @@ updateUI();
     }catch(e){
       var box = document.getElementById('questsBox');
       if(box && !questsData){
-        box.innerHTML = '<div class="exch-warn">Не удалось загрузить квесты: ' + escapeHtml(e.message || 'ошибка серве��а') + '</div>'
+        box.innerHTML = '<div class="exch-warn">Не удалось загрузить квесты: ' + escapeHtml(e.message || 'ошибка сервера') + '</div>'
           + '<button class="btn btn-gold btn-block" id="questsRetryBtn" style="margin-top:12px;">Повторить</button>';
       }
     }
@@ -3990,7 +3990,7 @@ updateUI();
       referralData = data;
       if(typeof data.balance === 'number'){ backendBalance = data.balance; applyBackendBalanceToUI(); }
       if(data.milestonesPaid && data.milestonesPaid.paid){
-        showToast('��онус за активность друзей: +' + fmt(data.milestonesPaid.paid) + ' GC','success');
+        showToast('Бонус за активность друзей: +' + fmt(data.milestonesPaid.paid) + ' GC','success');
       }
       renderReferrals();
     }catch(e){
@@ -4577,7 +4577,7 @@ updateUI();
     var adj = ev.target && ev.target.closest ? ev.target.closest('[data-admin-adjust]') : null;
     if(adj){
       ev.preventDefault();
-      var amount = window.prompt('На сколько изменить ба����нс? Например 5000 или -2000', '1000');
+      var amount = window.prompt('На сколько изменить баланс? Например 5000 или -2000', '1000');
       if(amount === null) return;
       apiRequest('/admin/users/' + encodeURIComponent(adj.getAttribute('data-admin-adjust')) + '/adjust', {
         method:'POST', body: JSON.stringify({ amount: Number(amount) })
@@ -4591,7 +4591,7 @@ updateUI();
       var reason = next ? (window.prompt('Причина блокировки', 'Нарушение правил') || 'Нарушение правил') : '';
       apiRequest('/admin/users/' + encodeURIComponent(ban.getAttribute('data-admin-ban')) + '/ban', {
         method:'POST', body: JSON.stringify({ banned: next, reason: reason })
-      }).then(function(){ showToast(next ? 'Игрок заблокирова��' : 'Игрок разблокирован','success'); loadAdmin(); }).catch(function(e){ showToast(e.message||'Ошибка','error'); });
+      }).then(function(){ showToast(next ? 'Игрок заблокирован' : 'Игрок разблокирован','success'); loadAdmin(); }).catch(function(e){ showToast(e.message||'Ошибка','error'); });
       return;
     }
     var deal = ev.target && ev.target.closest ? ev.target.closest('[data-admin-deal]') : null;
@@ -4599,7 +4599,7 @@ updateUI();
       ev.preventDefault();
       apiRequest('/exchange/admin/requests/' + encodeURIComponent(deal.getAttribute('data-admin-deal')), {
         method:'POST', body: JSON.stringify({ action: deal.getAttribute('data-action') })
-      }).then(function(){ showToast('Сделка ��бработана','success'); loadAdmin(); }).catch(function(e){ showToast(e.message||'Ошибка','error'); });
+      }).then(function(){ showToast('Сделка обработана','success'); loadAdmin(); }).catch(function(e){ showToast(e.message||'Ошибка','error'); });
     }
   });
   document.querySelectorAll('[data-open]').forEach(function(btn){
@@ -5317,7 +5317,7 @@ updateUI();
       stopCoinPreSpin();
       coinFlipping = false;
       setCoinContinueButtonsDisabled(false);
-      showToast(e.message || 'О��ибка ставки','error'); haptic('error');
+      showToast(e.message || 'Ошибка ставки','error'); haptic('error');
     }
   }
 
@@ -5351,7 +5351,7 @@ updateUI();
     var html = '<button class="roulette-num-btn green zero" data-num="0">0</button>';
     rows.forEach(function(row, r){ row.forEach(function(n){ html += '<button class="roulette-num-btn '+rouletteColorByNumber(n)+'" data-num="'+n+'">'+n+'</button>'; }); html += '<button class="roulette-outside-btn twoone" data-outside="row'+(r+1)+'">2:1</button>'; });
     html += '<button class="roulette-outside-btn doz" data-outside="first12">1-12</button><button class="roulette-outside-btn doz" data-outside="second12">13-24</button><button class="roulette-outside-btn doz" data-outside="third12">25-36</button>';
-    html += '<button class="roulette-outside-btn wide" data-outside="low">1-18</button><button class="roulette-outside-btn wide" data-outside="even">��ЁТ</button><button class="roulette-outside-btn wide red" data-outside="red"></button><button class="roulette-outside-btn wide black" data-outside="black"></button><button class="roulette-outside-btn wide" data-outside="odd">НЕЧЕТ</button><button class="roulette-outside-btn wide" data-outside="high">19-36</button>';
+    html += '<button class="roulette-outside-btn wide" data-outside="low">1-18</button><button class="roulette-outside-btn wide" data-outside="even">ЧЁТ</button><button class="roulette-outside-btn wide red" data-outside="red"></button><button class="roulette-outside-btn wide black" data-outside="black"></button><button class="roulette-outside-btn wide" data-outside="odd">НЕЧЕТ</button><button class="roulette-outside-btn wide" data-outside="high">19-36</button>';
     grid.innerHTML = html;
     // Assign a named grid-area to every cell (n1..n36, z, t1..t3, d1..d3, o1..o6).
     // CSS then defines two different grid-template-areas layouts (desktop table
@@ -6011,7 +6011,7 @@ updateUI();
     box.style.display = req.ok ? 'none' : '';
     var sub = req.subscription || {}, wager = req.wager || {};
     var subRow = document.getElementById('wheelReqSub');
-    if(subRow) subRow.innerHTML = wheelReqRowHtml(!!sub.ok, 'Подписка на Telegram-канал', sub.configured ? (sub.ok ? 'Подп��ска активна' : 'Подпишитесь на ' + escapeHtml(sub.channel || 'канал проекта')) : 'Канал не настроен — условие не проверяется');
+    if(subRow) subRow.innerHTML = wheelReqRowHtml(!!sub.ok, 'Подписка на Telegram-канал', sub.configured ? (sub.ok ? 'Подписка активна' : 'Подпишитесь на ' + escapeHtml(sub.channel || 'канал проекта')) : 'Канал не настроен — условие не проверяется');
     var need = Number(wager.required) || 0, cur = Number(wager.current) || 0;
     var pct = need > 0 ? Math.min(100, Math.round(cur / need * 100)) : 100;
     var wagerRow = document.getElementById('wheelReqWager');
@@ -6060,7 +6060,7 @@ updateUI();
       await refreshWeeklyStats();
       await checkWheelStatus();
       if(wheelReqCache && wheelReqCache.ok) showToast('Условия выполнены, колесо открыто','success');
-      else showToast('Условия пока не выпол��ены','error');
+      else showToast('Условия пока не выполнены','error');
     }finally{ wheelReqRefreshBtn.disabled = false; }
   });
   var wheelSpinBtn=document.getElementById('wheelSpinBtn');
@@ -6209,7 +6209,7 @@ updateUI();
       return '<div class="leaderboard-row"><span class="medal">'+(medals[i]||String(i+1))+'</span><span class="name">'+avatarHtml(p.avatar)+'<span>'+escapeHtml(p.name)+(p.id===state.currentPlayerId?' (вы)':'')+'</span>'+(p.playerId?'<small class="leader-id">ID '+escapeHtml(p.playerId)+'</small>':'')+'</span><span class="bal">'+fmt(p.balance)+' GC</span></div>';
     }).join('');
   }
-  // История перевод��в грузится в три шага, чтобы она не пропадала:
+  // История переводов грузится в три шага, чтобы она не пропадала:
   //   1) /wallet/transfers — полные данные со второй стороной;
   //   2) /wallet/transactions — если на сервере ещё старая версия API без /transfers;
   //   3) локальный кэш последнего успешного ответа — если сети нет вообще.
@@ -6285,7 +6285,7 @@ updateUI();
         var reason = (err && err.message) ? err.message : 'нет связи с сервером';
         if(/Unauthorized|401/i.test(reason)) reason = 'требуется вход через Telegram';
         if(/Not Found|404/i.test(reason)) reason = 'сервер ещё не обновлён';
-        box.innerHTML = '<div class="empty-state">История переводов нед��ступна: ' + escapeHtml(reason) +
+        box.innerHTML = '<div class="empty-state">История переводов недоступна: ' + escapeHtml(reason) +
           '<br><button id="historyRetryBtn" style="margin-top:10px;padding:8px 16px;border-radius:10px;border:1px solid #333;background:#1b1b1b;color:#fff;font:inherit;cursor:pointer;">Повторить</button></div>';
         var retryBtn = document.getElementById('historyRetryBtn');
         if(retryBtn) retryBtn.addEventListener('click', function(){ renderHistory(); });
@@ -6295,7 +6295,7 @@ updateUI();
     var p = me();
     var transfers = (p.history || []).filter(function(h){ return h.type==='transfer_in' || h.type==='transfer_out'; });
     if(transfers.length===0){
-      box.innerHTML = '<div class="empty-state">Пока нет перев����ов.</div>';
+      box.innerHTML = '<div class="empty-state">Пока нет переводов.</div>';
       return;
     }
     box.innerHTML = transfers.map(function(h){
@@ -6377,7 +6377,7 @@ updateUI();
       });
     });
   });
-  /* Ренд��р отделён от загрузки: история всех игр приезжает одним запросом. */
+  /* Рендер отделён от загрузки: история всех игр приезжает одним запросом. */
   function renderGameHistoryItems(gameCode, items, scope){
     var box = document.getElementById(GAME_HISTORY_MAP[gameCode]);
     if(!box) return;

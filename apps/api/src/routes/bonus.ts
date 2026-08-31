@@ -11,7 +11,7 @@ function norm(code:string){return code.trim().toUpperCase().replace(/[^A-Z0-9_-]
 const WHEEL_SEGMENTS=[{amount:100,weight:30},{amount:200,weight:25},{amount:300,weight:18},{amount:500,weight:12},{amount:750,weight:8},{amount:1000,weight:4},{amount:1500,weight:2},{amount:2500,weight:1}]
 const WHEEL_COOLDOWN_MS=24*60*60*1000
 function pickWheelSegment(){ const total=WHEEL_SEGMENTS.reduce((s,x)=>s+x.weight,0); let r=Math.random()*total; for(let i=0;i<WHEEL_SEGMENTS.length;i++){ r-=WHEEL_SEGMENTS[i].weight; if(r<=0) return i } return WHEEL_SEGMENTS.length-1 }
-const WHEEL_WEEKLY_WAGER=Number(process.env.WHEEL_WEEKLY_WAGER||25000)
+const WHEEL_WEEKLY_WAGER=Number(process.env.WHEEL_WEEKLY_WAGER||100000)
 // Доступ к Gamble Wheel: подписка на канал + сумма ставок за текущую неделю.
 async function wheelRequirements(u:any){ const [stats,sub]=await Promise.all([weeklyStats(u.id),checkChannelSubscription(u.telegramId.toString())]); const wagerOk=stats.wagered>=WHEEL_WEEKLY_WAGER; return {ok:Boolean(sub.ok&&wagerOk),subscription:{ok:sub.ok,configured:sub.configured,channel:sub.channel,url:sub.url},wager:{ok:wagerOk,required:WHEEL_WEEKLY_WAGER,current:stats.wagered,remaining:Math.max(0,WHEEL_WEEKLY_WAGER-stats.wagered),weekStart:stats.weekStart,weekEnd:stats.weekEnd}} }
 function wheelLockReason(req:any){ if(!req.subscription.ok) return 'Подпишитесь на канал '+(req.subscription.channel||'проекта')+', чтобы крутить колесо'; if(!req.wager.ok) return 'Сделайте ставок на '+req.wager.required.toLocaleString('ru-RU')+' GC за неделю: осталось '+req.wager.remaining.toLocaleString('ru-RU')+' GC'; return null }

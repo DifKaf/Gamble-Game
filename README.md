@@ -17,7 +17,7 @@
 ## Что нужно от тебя
 1. Telegram Bot Token от @BotFather.
 2. Домен/URL frontend для Telegram Mini App.
-3. Где деплоим: Railway/Render/VPS + Neon/Supabase/PostgreSQL.
+3. Где деплоим: Railway (API) + Railway Postgres (БД, добавляется как отдельный сервис в том же проекте).
 
 ## Локальный запуск
 ```bash

@@ -899,6 +899,45 @@ body{background:#000!important;}
 .baccarat-side{background:#111;border:1px solid #2a2a2a;border-radius:18px;padding:16px;text-align:center;min-height:150px;}
 .baccarat-label{font-size:18px;font-weight:900;color:#fff;margin-bottom:12px;}.baccarat-cards{display:flex;gap:8px;justify-content:center;min-height:56px}.bac-card{width:40px;height:56px;border-radius:8px;background:#f4f4f5;color:#111;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:18px}.baccarat-score{margin-top:10px;font-size:30px;font-weight:950;color:#0b9dff}.baccarat-vs{font-weight:950;color:#858585}
 
+/* ---------- Settings screen ---------- */
+.settings-gear-btn{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10);border-radius:12px;width:36px;height:36px;font-size:17px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink);}
+.settings-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.06);}
+.settings-row:last-child{border-bottom:0;}
+.settings-hint{font-size:11px;color:var(--ink-soft);margin-top:8px;font-weight:600;line-height:1.4;}
+.settings-version{text-align:center;font-size:11px;color:var(--ink-soft);font-weight:700;margin:18px 0 8px;opacity:.7;}
+.toggle-switch{position:relative;display:inline-block;width:46px;height:26px;flex:0 0 auto;}
+.toggle-switch input{opacity:0;width:0;height:0;}
+.toggle-slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:rgba(255,255,255,.14);border-radius:999px;transition:.2s;}
+.toggle-slider:before{position:absolute;content:"";height:20px;width:20px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.2s;box-shadow:0 2px 6px rgba(0,0,0,.3);}
+.toggle-switch input:checked + .toggle-slider{background:var(--blue-500);}
+.toggle-switch input:checked + .toggle-slider:before{transform:translateX(20px);}
+
+/* ---------- Light theme (settings toggle) ---------- */
+body.theme-light{background:#F2F3F8!important;color:#15171D!important;}
+body.theme-light:before{background:#F2F3F8!important;}
+body.theme-light #app{background:#F2F3F8!important;}
+body.theme-light .topbar{background:rgba(255,255,255,.85)!important;border-bottom:1px solid rgba(0,0,0,.06)!important;}
+body.theme-light .brand-title,body.theme-light .game-header h2,body.theme-light .section-title,body.theme-light .panel-title,body.theme-light .home-hero h1{color:#15171D!important;}
+body.theme-light .muted,body.theme-light .sub,body.theme-light .time,body.theme-light .small,body.theme-light .asset-sub{color:#6B7280!important;}
+body.theme-light .panel,body.theme-light .home-hero,body.theme-light .wallet-card,body.theme-light .profile-card,body.theme-light .modal-card,body.theme-light .history-item,body.theme-light .leaderboard-row,body.theme-light .promo-box,body.theme-light .white-card{
+  background:#FFFFFF!important;border:1px solid rgba(0,0,0,.06)!important;color:#15171D!important;box-shadow:0 6px 16px rgba(15,23,42,.06)!important;
+}
+body.theme-light .game-card,body.theme-light .category-card,body.theme-light .service-card,body.theme-light .bonus-card,body.theme-light .asset-row{
+  background:#FFFFFF!important;border:1px solid rgba(0,0,0,.06)!important;color:#15171D!important;box-shadow:0 6px 16px rgba(15,23,42,.06)!important;
+}
+body.theme-light .leaderboard-row .name,body.theme-light .leaderboard-row .bal,body.theme-light .asset-name{color:#15171D!important;}
+body.theme-light .btn{color:#15171D!important;background:#EEF0F5!important;border-color:rgba(0,0,0,.06)!important;}
+body.theme-light .btn-primary,body.theme-light .btn-blue{background:#3390EC!important;color:#fff!important;}
+body.theme-light .btn-green{background:#1C9C6B!important;color:#fff!important;}
+body.theme-light .chip,body.theme-light .option-btn{background:#EEF0F5!important;color:#15171D!important;border-color:rgba(0,0,0,.08)!important;}
+body.theme-light .chip.active,body.theme-light .option-btn.active{background:#3390EC!important;color:#fff!important;}
+body.theme-light input,body.theme-light select{background:#FFFFFF!important;color:#15171D!important;border-color:rgba(0,0,0,.12)!important;}
+body.theme-light .bottom-nav{background:rgba(255,255,255,.9)!important;border-top:1px solid rgba(0,0,0,.06)!important;}
+body.theme-light .nav-btn{color:#8A8F99!important;}
+body.theme-light .nav-btn.active{color:#15171D!important;background:#EEF0F5!important;}
+body.theme-light .toast{background:#15171D!important;color:#fff!important;}
+body.theme-light .settings-gear-btn{background:#EEF0F5!important;border-color:rgba(0,0,0,.08)!important;color:#15171D!important;}
+
 /* ---------- Speed Baccarat live table polish + promo creator ---------- */
 .baccarat-panel{background:linear-gradient(180deg,#111 0%,#070707 100%)!important;border-color:#2a2a2a!important;}
 .bac-live-stage{position:relative;border-radius:22px;overflow:hidden;background:radial-gradient(circle at 50% 0%,#26302b 0%,#111 58%,#050505 100%);border:1px solid #2b2b2b;margin-bottom:14px;min-height:210px;display:flex;align-items:center;justify-content:center;}
@@ -3355,7 +3394,7 @@ updateUI();
 
     <!-- PROFILE -->
     <section id="screen-profile" class="screen">
-      <div class="section-title">👤 Профиль</div>
+      <div class="section-title" style="display:flex;align-items:center;justify-content:space-between;">👤 Профиль <button class="settings-gear-btn" id="openSettingsBtn" aria-label="Настройки">⚙️</button></div>
       <div class="white-card" style="display:flex;align-items:center;gap:12px;">
         <div class="avatar-badge" id="profileAvatar" style="background:var(--card-tint);">🧑</div>
         <div>
@@ -3398,6 +3437,58 @@ updateUI();
       </div>
       <div class="section-title">Созданные промокоды</div>
       <div class="panel" id="createdPromosList"><div class="empty-state">Пока нет созданных промокодов.</div></div>
+    </section>
+
+    <section id="screen-settings" class="screen">
+      <div class="game-header"><button class="back-btn" data-nav="profile">←</button><h2>Настройки</h2></div>
+
+      <div class="panel">
+        <div class="panel-title">Аккаунт</div>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div class="avatar-badge" id="settingsAvatar" style="background:var(--card-tint);">🧑</div>
+          <div>
+            <div style="font-weight:800;font-size:15px;" id="settingsName">Игрок</div>
+            <div style="font-size:12px;color:var(--ink-soft);font-weight:700;" id="settingsPlayerId">ID: —</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">Язык</div>
+        <select class="input" id="settingsLanguage">
+          <option value="ru">Русский</option>
+          <option value="en">English</option>
+        </select>
+        <div class="settings-hint">Полный перевод интерфейса появится в следующем обновлении.</div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">Звук и вибрация</div>
+        <div class="settings-row">
+          <span>Звуковые эффекты</span>
+          <label class="toggle-switch"><input type="checkbox" id="settingsSound" checked><span class="toggle-slider"></span></label>
+        </div>
+        <div class="settings-row">
+          <span>Вибрация (Telegram)</span>
+          <label class="toggle-switch"><input type="checkbox" id="settingsHaptics" checked><span class="toggle-slider"></span></label>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">Тема оформления</div>
+        <div class="option-row">
+          <button class="option-btn active" id="themeDarkBtn" data-theme="dark">🌙<small>Тёмная</small></button>
+          <button class="option-btn" id="themeLightBtn" data-theme="light">☀️<small>Светлая</small></button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">Поддержка</div>
+        <button class="btn btn-blue btn-block" id="settingsSupportBtn" style="margin-bottom:8px;">Написать в поддержку</button>
+        <button class="btn btn-ghost btn-block" id="settingsRulesBtn">Правила и условия</button>
+      </div>
+
+      <div class="settings-version">Gamble Game · версия интерфейса 2.0</div>
     </section>
 
     <section id="screen-admin" class="screen">
@@ -4531,6 +4622,53 @@ updateUI();
   });
   var openAdminBtn = document.getElementById('openAdminBtn');
   if(openAdminBtn) openAdminBtn.addEventListener('click', function(){ showScreen('admin'); haptic('light'); });
+
+  var openSettingsBtn = document.getElementById('openSettingsBtn');
+  if(openSettingsBtn) openSettingsBtn.addEventListener('click', function(){ showScreen('settings'); haptic('light'); });
+
+  /* ================= Settings ================= */
+  (function initSettings(){
+    var prefs = {};
+    try{ prefs = JSON.parse(localStorage.getItem('gg_settings') || '{}') || {}; }catch(e){ prefs = {}; }
+    if(typeof prefs.sound !== 'boolean') prefs.sound = true;
+    if(typeof prefs.haptics !== 'boolean') prefs.haptics = true;
+    if(prefs.theme !== 'light' && prefs.theme !== 'dark') prefs.theme = 'dark';
+    if(prefs.lang !== 'en') prefs.lang = 'ru';
+    function savePrefs(){ try{ localStorage.setItem('gg_settings', JSON.stringify(prefs)); }catch(e){} }
+    window.ggSettings = prefs;
+
+    function applyTheme(){
+      document.body.classList.toggle('theme-light', prefs.theme === 'light');
+      var darkBtn = document.getElementById('themeDarkBtn'), lightBtn = document.getElementById('themeLightBtn');
+      if(darkBtn) darkBtn.classList.toggle('active', prefs.theme === 'dark');
+      if(lightBtn) lightBtn.classList.toggle('active', prefs.theme === 'light');
+    }
+    applyTheme();
+
+    var soundToggle = document.getElementById('settingsSound');
+    if(soundToggle){ soundToggle.checked = prefs.sound; soundToggle.addEventListener('change', function(){ prefs.sound = soundToggle.checked; savePrefs(); }); }
+    var hapticsToggle = document.getElementById('settingsHaptics');
+    if(hapticsToggle){ hapticsToggle.checked = prefs.haptics; hapticsToggle.addEventListener('change', function(){ prefs.haptics = hapticsToggle.checked; savePrefs(); haptic('light'); }); }
+
+    var langSelect = document.getElementById('settingsLanguage');
+    if(langSelect){ langSelect.value = prefs.lang; langSelect.addEventListener('change', function(){ prefs.lang = langSelect.value; savePrefs(); showToast && showToast(prefs.lang === 'en' ? 'Full English translation is coming soon' : 'Полный перевод скоро будет доступен'); }); }
+
+    var themeDarkBtn = document.getElementById('themeDarkBtn'), themeLightBtn = document.getElementById('themeLightBtn');
+    if(themeDarkBtn) themeDarkBtn.addEventListener('click', function(){ prefs.theme = 'dark'; savePrefs(); applyTheme(); haptic('light'); });
+    if(themeLightBtn) themeLightBtn.addEventListener('click', function(){ prefs.theme = 'light'; savePrefs(); applyTheme(); haptic('light'); });
+
+    var supportBtn = document.getElementById('settingsSupportBtn');
+    if(supportBtn) supportBtn.addEventListener('click', function(){
+      haptic('light');
+      try{ if(tg && tg.openTelegramLink){ tg.openTelegramLink('https://t.me/gamblegame_support'); return; } }catch(e){}
+      window.open('https://t.me/gamblegame_support', '_blank');
+    });
+    var rulesBtn = document.getElementById('settingsRulesBtn');
+    if(rulesBtn) rulesBtn.addEventListener('click', function(){
+      haptic('light');
+      showToast && showToast('Страница с правилами скоро появится');
+    });
+  })();
 
   async function loadAdmin(){
     if(!backendReady || !(backendUser && backendUser.admin)) return;
@@ -6313,9 +6451,12 @@ updateUI();
   function renderProfile(){
     var p = me();
     setAvatarEl('profileAvatar', p.avatar);
+    setAvatarEl('settingsAvatar', p.avatar);
     var profileNameEl=document.getElementById('profileName'); if(profileNameEl) profileNameEl.textContent = p.name;
+    var settingsNameEl=document.getElementById('settingsName'); if(settingsNameEl) settingsNameEl.textContent = p.name;
     var profileBalanceEl=document.getElementById('profileBalance'); if(profileBalanceEl) profileBalanceEl.textContent = fmt(p.balance)+' GC';
     var profilePlayerIdEl=document.getElementById('profilePlayerId'); if(profilePlayerIdEl) profilePlayerIdEl.textContent = 'ID: '+(resolvePlayerId() || '—');
+    var settingsPlayerIdEl=document.getElementById('settingsPlayerId'); if(settingsPlayerIdEl) settingsPlayerIdEl.textContent = 'ID: '+(resolvePlayerId() || '—');
     var statWageredEl=document.getElementById('statWagered'); if(statWageredEl) statWageredEl.textContent = fmt(weekly.wagered);
     var statWonEl=document.getElementById('statWon'); if(statWonEl) statWonEl.textContent = fmt(p.stats.won);
     var statBiggestEl=document.getElementById('statBiggest'); if(statBiggestEl) statBiggestEl.textContent = fmt(p.stats.biggest);

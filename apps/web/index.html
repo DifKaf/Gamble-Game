@@ -1067,6 +1067,37 @@ body.theme-light .settings-gear-btn{background:#EEF0F5!important;border-color:rg
   }
 }
 
+/* ---------- Clean desktop home layout (fixes broken 2-col grid) ---------- */
+@media (min-width:900px){
+  #screen-home.active{
+    display:grid!important;
+    grid-template-columns:1fr 1fr!important;
+    grid-auto-flow:row!important;
+    gap:22px!important;
+    max-width:1180px!important;
+    margin:0 auto!important;
+    padding-top:0!important;
+    align-items:start!important;
+  }
+  #screen-home > .shot-ticker{grid-column:1 / -1!important;margin-bottom:2px!important;}
+  #screen-home > .wheel-widget{grid-column:1 / 2!important;}
+  #screen-home > .p2p-widget{grid-column:2 / 3!important;}
+  #screen-home > .home-rail-block{grid-column:1 / -1!important;}
+  #screen-home > .home-leaderboard-wrap{grid-column:1 / -1!important;margin-top:6px!important;}
+  #screen-home .home-rail{display:grid!important;grid-auto-flow:column!important;grid-auto-columns:minmax(148px,1fr)!important;gap:14px!important;overflow-x:auto!important;padding-bottom:4px!important;}
+  #screen-home .home-rail-head{display:flex!important;align-items:center!important;justify-content:space-between!important;margin-bottom:12px!important;}
+  #screen-home .home-rail-title{font-size:17px!important;font-weight:800!important;}
+  #screen-home .wheel-widget,#screen-home .p2p-widget{width:100%!important;min-height:104px!important;}
+  .home-leaderboard-wrap #leaderboardBox{display:block!important;width:100%!important;}
+  .home-leaderboard-wrap .leaderboard-row{width:100%!important;}
+}
+@media (min-width:1200px){
+  #screen-home.active{max-width:1320px!important;grid-template-columns:1fr 1fr 1fr!important;}
+  #screen-home > .shot-ticker,#screen-home > .home-rail-block,#screen-home > .home-leaderboard-wrap{grid-column:1 / -1!important;}
+  #screen-home > .wheel-widget{grid-column:1 / 3!important;}
+  #screen-home > .p2p-widget{grid-column:3 / 4!important;}
+}
+
 </style>
 </head>
 <body>

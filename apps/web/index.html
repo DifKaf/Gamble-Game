@@ -423,6 +423,15 @@ footer,.slot-controls{margin-top:6px;}
 .mine-tile.safe{background:linear-gradient(150deg,#6EE79B,var(--green-500));}
 .mine-tile.boom{background:linear-gradient(150deg,#FF6B6B,var(--red-500));animation:shake .4s ease;}
 .mine-tile:disabled{pointer-events:none;}
+.mines-streak-meter{position:relative;height:22px;border-radius:11px;background:#1E212B;border:1px solid #262a36;overflow:hidden;margin:10px 0 14px;}
+.mines-streak-fill{position:absolute;left:0;top:0;bottom:0;width:0%;background:linear-gradient(90deg,#3390EC,#31D0AA,#F5B93D);transition:width .35s cubic-bezier(.2,.8,.2,1);box-shadow:0 0 14px rgba(51,144,236,.6);}
+.mines-streak-label{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:#F2F3F7;letter-spacing:.02em;text-shadow:0 1px 2px rgba(0,0,0,.6);}
+@keyframes minesRevealPulse{0%{transform:scale(.86);box-shadow:0 0 0 rgba(49,208,170,0);}55%{transform:scale(1.08);box-shadow:0 0 22px rgba(49,208,170,.75);}100%{transform:scale(1);box-shadow:0 0 10px rgba(49,208,170,.35);}}
+.mine-tile.safe{animation:minesRevealPulse .42s ease-out;}
+@keyframes minesBoomShock{0%{transform:scale(1);}25%{transform:scale(1.18) rotate(-4deg);}50%{transform:scale(.92) rotate(3deg);}75%{transform:scale(1.05) rotate(-1deg);}100%{transform:scale(1);}}
+.mine-tile.boom{animation:minesBoomShock .5s ease-out!important;box-shadow:0 0 26px rgba(255,92,114,.85)!important;}
+.mines-grid.mines-shake{animation:minesGridShake .4s ease;}
+@keyframes minesGridShake{0%,100%{transform:translateX(0);}20%{transform:translateX(-6px);}40%{transform:translateX(6px);}60%{transform:translateX(-4px);}80%{transform:translateX(4px);}}
 .mines-status{display:flex;justify-content:space-between;color:#fff;font-weight:800;font-size:13px;margin-bottom:6px;}
 .mines-status b{color:var(--gold-300);}
 
@@ -899,6 +908,35 @@ body{background:#000!important;}
 .baccarat-side{background:#111;border:1px solid #2a2a2a;border-radius:18px;padding:16px;text-align:center;min-height:150px;}
 .baccarat-label{font-size:18px;font-weight:900;color:#fff;margin-bottom:12px;}.baccarat-cards{display:flex;gap:8px;justify-content:center;min-height:56px}.bac-card{width:40px;height:56px;border-radius:8px;background:#f4f4f5;color:#111;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:18px}.baccarat-score{margin-top:10px;font-size:30px;font-weight:950;color:#0b9dff}.baccarat-vs{font-weight:950;color:#858585}
 
+/* ---------- SHOT-style elevated cards (desktop) ---------- */
+@media (min-width:900px){
+  .panel,.white-card,.balance-card,.game-card,.category-card,.service-card,.bonus-card,.modal-card,.history-item,.leaderboard-row{
+    border-radius:18px!important;
+    box-shadow:0 14px 32px rgba(0,0,0,.38),0 1px 0 rgba(255,255,255,.03) inset!important;
+  }
+  .game-card,.category-card,.service-card{transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease!important;}
+  .game-card:hover,.category-card:hover,.service-card:hover{transform:translateY(-3px)!important;box-shadow:0 20px 40px rgba(0,0,0,.48)!important;}
+  .btn{transition:transform .12s ease,filter .12s ease!important;}
+  .btn:active{transform:scale(.97)!important;}
+}
+
+/* ---------- Live drops ticker rail (SHOT-style top strip, desktop) ---------- */
+.shot-ticker{display:none;}
+@media (min-width:900px){
+  .shot-ticker{
+    display:flex;gap:10px;align-items:center;overflow-x:auto;scrollbar-width:none;
+    padding:10px 6px 14px;margin:0 0 18px;border-bottom:1px solid #1c1c1c;
+  }
+  .shot-ticker::-webkit-scrollbar{display:none;}
+  .shot-ticker-item{
+    flex:0 0 auto;width:78px;background:#171922;border:1px solid #262a36;border-radius:14px;padding:8px 6px 7px;text-align:center;
+    box-shadow:0 8px 18px rgba(0,0,0,.3);
+  }
+  .shot-ticker-item .ico{font-size:26px;line-height:1;margin-bottom:4px;}
+  .shot-ticker-item .name{font-size:10px;font-weight:800;color:#9BA1AE;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .shot-ticker-item .amt{font-size:11px;font-weight:900;color:#F5B93D;margin-top:2px;}
+}
+
 /* ---------- Settings screen ---------- */
 .settings-gear-btn{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10);border-radius:12px;width:36px;height:36px;font-size:17px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink);}
 .settings-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.06);}
@@ -979,6 +1017,7 @@ body.theme-light .settings-gear-btn{background:#EEF0F5!important;border-color:rg
 
     <!-- HOME -->
     <section id="screen-home" class="screen active">
+      <div class="shot-ticker" id="shotTicker"></div>
       <button class="wheel-widget" data-open="wheel">
         <div class="wheel-widget-text">
           <div class="wheel-widget-brand">GAMBLE <span>WHEEL</span></div>
@@ -3255,6 +3294,7 @@ updateUI();
       </div>
       <div class="panel hidden" id="minesGamePanel">
         <div class="mines-status"><span>Множитель: <b id="minesMult">x1.00</b></span><span>Выплата: <b id="minesPayout">0</b> GC</span></div>
+        <div class="mines-streak-meter" id="minesStreakMeter"><div class="mines-streak-fill" id="minesStreakFill"></div><div class="mines-streak-label" id="minesStreakLabel">Серия: 0</div></div>
         <div class="mines-grid" id="minesGrid"></div>
         <button class="btn btn-gold btn-block" id="minesCashoutBtn" disabled>Забрать выигрыш</button>
         <button class="btn btn-primary btn-block hidden" id="minesContinueBtn">Продолжить</button>
@@ -4606,7 +4646,7 @@ updateUI();
       });
     }
     refreshBackendBalanceForScreen();
-    if(name==='home') loadLeaderboardFromBackend();
+    if(name==='home'){ loadLeaderboardFromBackend(); renderShotTicker(); }
     if(name==='promo-create') loadCreatedPromos();
     if((name==='bonuses'||name==='wheel'||name==='home') && typeof checkWheelStatus==='function') checkWheelStatus();
     if((name==='profile'||name==='wheel'||name==='bonuses') && typeof refreshWeeklyStats==='function') refreshWeeklyStats();
@@ -5724,6 +5764,10 @@ updateUI();
       if(data.hitMine){
         minesState.ended = true;
         tile.classList.add('boom'); tile.textContent = '💣'; haptic('error');
+        var minesGridShakeEl = document.getElementById('minesGrid'); if(minesGridShakeEl){ minesGridShakeEl.classList.add('mines-shake'); setTimeout(function(){ minesGridShakeEl.classList.remove('mines-shake'); }, 420); }
+        var streakFillReset = document.getElementById('minesStreakFill'), streakLabelReset = document.getElementById('minesStreakLabel');
+        if(streakFillReset) streakFillReset.style.width = '0%';
+        if(streakLabelReset) streakLabelReset.textContent = 'Серия прервана';
         revealFullMinesBoard(data.mines || [], data.openedCells || minesState.openedCells || []);
         addHistory(me(),'loss', minesState.bet, 'Мины: подрыв'); syncProfileStats(minesState.bet, 0); renderProfile(); refreshMiniGameHistories();
         var cash = document.getElementById('minesCashoutBtn');
@@ -5736,6 +5780,11 @@ updateUI();
         minesState.revealed = minesState.openedCells.length;
         minesState.multiplier = data.multiplier || 1;
         updateMinesLadder(minesState.revealed);
+        var streakFill = document.getElementById('minesStreakFill'), streakLabel = document.getElementById('minesStreakLabel');
+        var safeLeft = Math.max(1, 25 - (minesState.mineCount||1));
+        var streakPct = Math.min(100, Math.round((minesState.revealed / safeLeft) * 100));
+        if(streakFill) streakFill.style.width = streakPct + '%';
+        if(streakLabel) streakLabel.textContent = 'Серия: ' + minesState.revealed + (minesState.revealed>=5 ? ' 🔥' : '');
         var minesMultEl=document.getElementById('minesMult'); if(minesMultEl) minesMultEl.textContent = 'x'+minesState.multiplier.toFixed(2);
         var minesPayoutEl=document.getElementById('minesPayout'); if(minesPayoutEl) minesPayoutEl.textContent = fmt(data.payout || 0);
         document.getElementById('minesCashoutBtn').disabled = false;
@@ -5768,6 +5817,9 @@ updateUI();
   function endMinesRound(){
     minesState = null;
     updateMinesLadder(0);
+    var streakFillEnd = document.getElementById('minesStreakFill'), streakLabelEnd = document.getElementById('minesStreakLabel');
+    if(streakFillEnd) streakFillEnd.style.width = '0%';
+    if(streakLabelEnd) streakLabelEnd.textContent = 'Серия: 0';
     var minesSetupPanel = document.getElementById('minesSetupPanel');
     var minesGamePanel = document.getElementById('minesGamePanel');
     var cash = document.getElementById('minesCashoutBtn');
@@ -6577,6 +6629,28 @@ updateUI();
   }
 
   /* ================= HOME: списки игр по группам ================= */
+  function renderShotTicker(){
+    var rail = document.getElementById('shotTicker');
+    if(!rail || !backendReady) return;
+    apiRequest('/games/history?scope=live&codes=' + GAME_HISTORY_CODES.join(',')).then(function(data){
+      var histories = (data && data.histories) || {};
+      var items = [];
+      GAME_HISTORY_CODES.forEach(function(code){
+        ((histories[code] || {}).items || []).slice(0,3).forEach(function(it){ items.push(Object.assign({ code:code }, it)); });
+      });
+      if(!items.length){ return; }
+      items.sort(function(a,b){ return new Date(b.createdAt||0) - new Date(a.createdAt||0); });
+      rail.innerHTML = items.slice(0,16).map(function(it){
+        var g = GAME_CATALOG[it.code] || { title: it.code };
+        var win = Number(it.winAmount||0);
+        var plus = win > 0;
+        var amt = plus ? ('+'+fmt(win)) : ('−'+fmt(Number(it.betAmount||0)));
+        return '<div class="shot-ticker-item"><div class="ico">'+(g.tag==='Слот'?'🎰':g.tag==='Карты'?'🃏':'🎲')+'</div><div class="name">'+escapeHtml(g.title||'')+'</div><div class="amt" style="color:'+(plus?'#31D0AA':'#FF5C72')+'">'+amt+' GC</div></div>';
+      }).join('');
+    }).catch(function(){});
+  }
+  setInterval(renderShotTicker, 15000);
+
   var GAME_CATALOG = {
     slot:{ title:'Drunkard Gate', tag:'Слот', img:'assets/card-drunkardgate.png' },
     doghouse:{ title:'The Cat House', tag:'Слот', img:'assets/card-doghouse.svg', locked:true },

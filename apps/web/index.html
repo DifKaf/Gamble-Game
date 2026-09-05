@@ -937,6 +937,22 @@ body{background:#000!important;}
   .shot-ticker-item .amt{font-size:11px;font-weight:900;color:#F5B93D;margin-top:2px;}
 }
 
+/* ---------- Roulette authorial upgrade ---------- */
+.roulette-hotcold{display:flex;gap:10px;margin:8px 0 4px;font-size:11px;flex-wrap:wrap;}
+.roulette-hotcold .rhc-group{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:5px 9px;}
+.roulette-hotcold .rhc-label{font-weight:900;color:#9BA1AE;text-transform:uppercase;letter-spacing:.04em;font-size:10px;}
+.roulette-hotcold .rhc-chip{width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:900;font-size:11px;color:#fff;}
+.roulette-hotcold .rhc-chip.red{background:#c0392b;} .roulette-hotcold .rhc-chip.black{background:#1a1a1a;border:1px solid #444;} .roulette-hotcold .rhc-chip.green{background:#1C9C6B;}
+#wheelEl{transition:transform 4.2s cubic-bezier(.12,.72,.14,1);}
+
+/* ---------- Dice authorial upgrade ---------- */
+.dice-streak-badge{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,#FFD873,#F5B93D);color:#3a2a00;font-weight:900;font-size:12px;padding:6px 12px;border-radius:999px;margin-bottom:10px;box-shadow:0 6px 14px rgba(245,185,61,.35);}
+@keyframes dieRoll3d{0%{transform:rotateX(0) rotateY(0);}50%{transform:rotateX(220deg) rotateY(140deg);}100%{transform:rotateX(360deg) rotateY(360deg);}}
+.die.rolling{animation:dieRoll3d .45s linear infinite;}
+.die{transition:transform .25s ease;}
+@keyframes diceSettle{0%{transform:scale(1.22);}60%{transform:scale(.94);}100%{transform:scale(1);}}
+.die.settle{animation:diceSettle .3s ease-out;}
+
 /* ---------- Settings screen ---------- */
 .settings-gear-btn{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10);border-radius:12px;width:36px;height:36px;font-size:17px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink);}
 .settings-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.06);}
@@ -997,6 +1013,58 @@ body.theme-light .settings-gear-btn{background:#EEF0F5!important;border-color:rg
   .bottom-nav:before{content:none!important;}
   .nav-btn{pointer-events:auto!important;}
   .screen-container{padding-top:24px!important;}
+}
+
+/* ---------- SHOT-style persistent desktop sidebar (applies to ALL screens) ---------- */
+@media (min-width:900px){
+  .gg-global-bar{z-index:1003!important;}
+  .bottom-nav{
+    position:fixed!important;top:47px!important;left:0!important;right:auto!important;bottom:0!important;top:47px!important;
+    width:236px!important;height:calc(100vh - 47px)!important;
+    display:flex!important;flex-direction:column!important;align-items:stretch!important;justify-content:flex-start!important;
+    gap:4px!important;padding:22px 14px!important;background:#12131a!important;
+    border-right:1px solid #232430!important;border-top:0!important;border-bottom:0!important;
+    box-shadow:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+    z-index:1002!important;pointer-events:auto!important;overflow-y:auto!important;
+  }
+  .bottom-nav:before{
+    content:'Меню'!important;position:relative!important;left:0!important;top:0!important;
+    display:block!important;font-size:11px!important;font-weight:900!important;color:#585d6b!important;
+    text-transform:uppercase!important;letter-spacing:.08em!important;margin:2px 10px 10px!important;
+  }
+  .nav-btn{
+    width:100%!important;min-width:0!important;height:46px!important;border-radius:12px!important;
+    padding:0 14px!important;display:flex!important;flex-direction:row!important;align-items:center!important;
+    justify-content:flex-start!important;gap:12px!important;font-size:14px!important;font-weight:700!important;
+    background:transparent!important;color:#9BA1AE!important;
+  }
+  .nav-btn .ic{order:0!important;margin:0!important;width:20px!important;height:20px!important;flex:0 0 auto!important;}
+  .nav-btn span:last-child{order:1!important;font-size:14px!important;}
+  .nav-btn.active{background:#1E212B!important;color:#fff!important;box-shadow:inset 3px 0 0 #3390EC!important;}
+  .nav-btn:hover{background:#171922!important;color:#F2F3F7!important;}
+
+  #app{margin-left:0!important;padding-top:47px!important;max-width:none!important;width:100%!important;}
+  .screen-container{
+    margin-left:236px!important;max-width:none!important;width:auto!important;
+    padding:32px 40px 56px!important;padding-top:32px!important;
+  }
+  #screen-home.active,#screen-games.active,#screen-minigames.active,#screen-slots.active,
+  #screen-dice.active,#screen-coinflip.active,#screen-roulette.active,#screen-mines.active,
+  #screen-blackjack.active,#screen-baccarat.active,#screen-wallet.active,#screen-exchange.active,
+  #screen-profile.active,#screen-bonuses.active,#screen-settings.active,#screen-admin.active{
+    max-width:1180px!important;margin:0 auto!important;
+  }
+  #app.drunkard-standalone .bottom-nav{display:none!important;}
+  #app.drunkard-standalone .screen-container{margin-left:0!important;}
+}
+@media (min-width:1200px){
+  .screen-container{padding-left:56px!important;padding-right:56px!important;}
+  #screen-home.active,#screen-games.active,#screen-minigames.active,#screen-slots.active,
+  #screen-dice.active,#screen-coinflip.active,#screen-roulette.active,#screen-mines.active,
+  #screen-blackjack.active,#screen-baccarat.active,#screen-wallet.active,#screen-exchange.active,
+  #screen-profile.active,#screen-bonuses.active,#screen-settings.active,#screen-admin.active{
+    max-width:1320px!important;
+  }
 }
 
 </style>
@@ -3173,6 +3241,7 @@ updateUI();
     <section id="screen-dice" class="screen">
       <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>Кости</h2></div>
       <div class="panel">
+        <div class="dice-streak-badge" id="diceStreakBadge" style="display:none;">🔥 Серия побед: <b id="diceStreakVal">0</b></div>
         <div class="dice-row"><div class="die" id="die0"></div><div class="die" id="die1"></div></div>
         <div class="dice-sum">Сумма: <b id="diceSum">—</b></div>
         <div class="panel-title">Ставка на:</div>
@@ -3193,6 +3262,16 @@ updateUI();
           <button type="button" data-bet-tool="double" data-target="dice">x2</button>
         </div>
         <button class="btn btn-green btn-block" id="diceRollBtn" style="margin-top:14px;">Бросить</button>
+        <button type="button" class="btn btn-blue btn-block" id="diceAutoToggleBtn" style="margin-top:8px;">Автоброски ⚙️</button>
+        <div class="panel hidden" id="diceAutoPanel" style="margin-top:10px;">
+          <div class="panel-title">Автоброски</div>
+          <div class="settings-row"><span>Количество бросков</span><input class="input" style="max-width:110px;text-align:center;" type="number" min="1" max="200" value="10" id="diceAutoCount"></div>
+          <div class="settings-row"><span>Стоп при проигрыше, GC (0 = выкл.)</span><input class="input" style="max-width:110px;text-align:center;" type="number" min="0" value="0" id="diceAutoStopLoss"></div>
+          <div class="settings-row"><span>Стоп при выигрыше, GC (0 = выкл.)</span><input class="input" style="max-width:110px;text-align:center;" type="number" min="0" value="0" id="diceAutoStopWin"></div>
+          <button type="button" class="btn btn-gold btn-block" id="diceAutoStartBtn" style="margin-top:8px;">Запустить автоброски</button>
+          <button type="button" class="btn btn-red btn-block hidden" id="diceAutoStopBtn" style="margin-top:8px;">Остановить (<span id="diceAutoRemaining">0</span> осталось)</button>
+          <div class="settings-hint" id="diceAutoSummary"></div>
+        </div>
         <div class="gh-box" data-gh-game="dice"><div class="gh-tabs"><div class="gh-title">История игроков</div><div class="gh-tab-actions" data-gh-tabs="dice"><button type="button" class="active" data-scope="live">Live</button><button type="button" data-scope="mine">Мои</button></div></div><div class="gh-head"><span>Имя / Ставка</span><span>Множитель</span><span>Выигрыш</span></div><div id="diceGameHistory"></div></div>
       </div>
     </section>
@@ -3241,6 +3320,7 @@ updateUI();
       <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>Рулетка</h2></div>
       <div class="panel">
         <div class="roulette-num-history" id="rouletteNumberHistory"></div>
+        <div class="roulette-hotcold" id="rouletteHotCold"></div>
         <div class="roulette-stage">
           <div class="roulette-wheel-wrap">
             <div class="roulette-ball-track" id="rouletteBallTrack"><div class="roulette-ball"></div></div>
@@ -3295,6 +3375,7 @@ updateUI();
       <div class="panel hidden" id="minesGamePanel">
         <div class="mines-status"><span>Множитель: <b id="minesMult">x1.00</b></span><span>Выплата: <b id="minesPayout">0</b> GC</span></div>
         <div class="mines-streak-meter" id="minesStreakMeter"><div class="mines-streak-fill" id="minesStreakFill"></div><div class="mines-streak-label" id="minesStreakLabel">Серия: 0</div></div>
+        <div class="settings-row" style="margin-bottom:8px;"><span>Авто-кэшаут при множителе x</span><input class="input" style="max-width:90px;text-align:center;" type="number" min="1.1" step="0.1" id="minesAutoCashTarget" placeholder="выкл."></div>
         <div class="mines-grid" id="minesGrid"></div>
         <button class="btn btn-gold btn-block" id="minesCashoutBtn" disabled>Забрать выигрыш</button>
         <button class="btn btn-primary btn-block hidden" id="minesContinueBtn">Продолжить</button>
@@ -5262,43 +5343,119 @@ updateUI();
     return pairs[sum] || [1,1];
   }
   var diceRolling = false;
+  var diceWinStreak = 0;
+  var diceAuto = { active:false, remaining:0, count:10, stopLoss:0, stopWin:0, netChange:0 };
   renderDie(document.getElementById('die0'), 1);
   renderDie(document.getElementById('die1'), 1);
-  document.getElementById('diceRollBtn').addEventListener('click', async function(){
-    if(diceRolling) return;
-    var choice = diceOptCtl.get();
-    if(!choice){ showToast('Выбери вариант ставки','error'); return; }
-    var bet = diceBetCtl.get();
-    if(backendReady && backendBalance < bet){ showToast('Недостаточно Gamble Coin!','error'); haptic('error'); return; }
-    diceRolling = true;
-    document.getElementById('diceRollBtn').disabled = true;
-    haptic('medium');
-    var d0 = document.getElementById('die0'), d1 = document.getElementById('die1');
-    d0.classList.add('rolling'); d1.classList.add('rolling');
-    var iv = setInterval(function(){
-      renderDie(d0, 1+Math.floor(Math.random()*6));
-      renderDie(d1, 1+Math.floor(Math.random()*6));
-    }, 45);
-    try{
-      var result = await serverBet('dice', bet, { mode: choice==='exact' ? 'exact' : (choice==='under' ? 'under' : 'over'), target: 7 });
-      setTimeout(function(){
-        clearInterval(iv);
-        d0.classList.remove('rolling'); d1.classList.remove('rolling');
-        var roll = Number(result.roll)||7;
-        var diceVals = Array.isArray(result.dice) && result.dice.length>=2 ? [Number(result.dice[0])||1, Number(result.dice[1])||1] : (Number(result.d1) && Number(result.d2) ? [Number(result.d1), Number(result.d2)] : diceValuesFromSum(roll));
-        renderDie(d0, diceVals[0]); renderDie(d1, diceVals[1]);
-        var diceSumEl=document.getElementById('diceSum'); if(diceSumEl) diceSumEl.textContent = roll;
-        if(result.winAmount>0){ addHistory(me(),'win', result.winAmount, 'Кости: сумма '+roll); showWinOverlay(result.winAmount); haptic('success'); }
-        else { addHistory(me(),'loss', bet, 'Кости: сумма '+roll); haptic('error'); }
-        renderAll();
-        diceRolling = false;
-        document.getElementById('diceRollBtn').disabled = false;
-      }, 2000);
-    }catch(e){
-      clearInterval(iv); d0.classList.remove('rolling'); d1.classList.remove('rolling');
-      showToast(e.message || 'Ошибка ставки','error'); haptic('error');
-      diceRolling = false; document.getElementById('diceRollBtn').disabled = false;
+
+  function updateDiceStreakBadge(){
+    var badge = document.getElementById('diceStreakBadge'), val = document.getElementById('diceStreakVal');
+    if(!badge || !val) return;
+    if(diceWinStreak >= 2){ badge.style.display = 'inline-flex'; val.textContent = diceWinStreak; }
+    else { badge.style.display = 'none'; }
+  }
+
+  function performDiceRoll(){
+    return new Promise(function(resolve){
+      var choice = diceOptCtl.get();
+      if(!choice){ showToast('Выбери вариант ставки','error'); resolve(null); return; }
+      var bet = diceBetCtl.get();
+      if(backendReady && backendBalance < bet){ showToast('Недостаточно Gamble Coin!','error'); haptic('error'); resolve(null); return; }
+      diceRolling = true;
+      document.getElementById('diceRollBtn').disabled = true;
+      haptic('medium');
+      var d0 = document.getElementById('die0'), d1 = document.getElementById('die1');
+      d0.classList.add('rolling'); d1.classList.add('rolling');
+      var iv = setInterval(function(){
+        renderDie(d0, 1+Math.floor(Math.random()*6));
+        renderDie(d1, 1+Math.floor(Math.random()*6));
+      }, 45);
+      serverBet('dice', bet, { mode: choice==='exact' ? 'exact' : (choice==='under' ? 'under' : 'over'), target: 7 }).then(function(result){
+        setTimeout(function(){
+          clearInterval(iv);
+          d0.classList.remove('rolling'); d1.classList.remove('rolling');
+          d0.classList.add('settle'); d1.classList.add('settle');
+          setTimeout(function(){ d0.classList.remove('settle'); d1.classList.remove('settle'); }, 320);
+          var roll = Number(result.roll)||7;
+          var diceVals = Array.isArray(result.dice) && result.dice.length>=2 ? [Number(result.dice[0])||1, Number(result.dice[1])||1] : (Number(result.d1) && Number(result.d2) ? [Number(result.d1), Number(result.d2)] : diceValuesFromSum(roll));
+          renderDie(d0, diceVals[0]); renderDie(d1, diceVals[1]);
+          var diceSumEl=document.getElementById('diceSum'); if(diceSumEl) diceSumEl.textContent = roll;
+          var won = result.winAmount > 0;
+          if(won){ diceWinStreak += 1; addHistory(me(),'win', result.winAmount, 'Кости: сумма '+roll); showWinOverlay(result.winAmount); haptic('success'); }
+          else { diceWinStreak = 0; addHistory(me(),'loss', bet, 'Кости: сумма '+roll); haptic('error'); }
+          updateDiceStreakBadge();
+          renderAll();
+          diceRolling = false;
+          document.getElementById('diceRollBtn').disabled = false;
+          resolve({ won: won, winAmount: Number(result.winAmount||0), bet: bet });
+        }, 2000);
+      }).catch(function(e){
+        clearInterval(iv); d0.classList.remove('rolling'); d1.classList.remove('rolling');
+        showToast(e.message || 'Ошибка ставки','error'); haptic('error');
+        diceRolling = false; document.getElementById('diceRollBtn').disabled = false;
+        resolve(null);
+      });
+    });
+  }
+
+  document.getElementById('diceRollBtn').addEventListener('click', function(){
+    if(diceRolling || diceAuto.active) return;
+    performDiceRoll();
+  });
+
+  /* ---- Dice auto-roll (new authorial mechanic) ---- */
+  var diceAutoToggleBtn = document.getElementById('diceAutoToggleBtn');
+  var diceAutoPanel = document.getElementById('diceAutoPanel');
+  if(diceAutoToggleBtn) diceAutoToggleBtn.addEventListener('click', function(){
+    if(diceAutoPanel) diceAutoPanel.classList.toggle('hidden');
+    haptic('light');
+  });
+
+  function stopDiceAuto(summaryText){
+    diceAuto.active = false;
+    var startBtn = document.getElementById('diceAutoStartBtn'), stopBtn = document.getElementById('diceAutoStopBtn');
+    if(startBtn) startBtn.classList.remove('hidden');
+    if(stopBtn) stopBtn.classList.add('hidden');
+    var summary = document.getElementById('diceAutoSummary');
+    if(summary && summaryText) summary.textContent = summaryText;
+  }
+
+  async function runDiceAutoStep(){
+    if(!diceAuto.active) return;
+    if(diceAuto.remaining <= 0){ stopDiceAuto('Автоброски завершены. Итог: ' + (diceAuto.netChange>=0?'+':'') + fmt(diceAuto.netChange) + ' GC'); return; }
+    var remainEl = document.getElementById('diceAutoRemaining'); if(remainEl) remainEl.textContent = diceAuto.remaining;
+    var res = await performDiceRoll();
+    if(!diceAuto.active) return;
+    if(res){
+      diceAuto.netChange += res.won ? (res.winAmount - res.bet) : -res.bet;
+      diceAuto.remaining -= 1;
+      if(diceAuto.stopLoss > 0 && diceAuto.netChange <= -Math.abs(diceAuto.stopLoss)){ stopDiceAuto('Остановлено по стоп-лосс. Итог: ' + fmt(diceAuto.netChange) + ' GC'); return; }
+      if(diceAuto.stopWin > 0 && diceAuto.netChange >= Math.abs(diceAuto.stopWin)){ stopDiceAuto('Стоп-выигрыш достигнут! Итог: +' + fmt(diceAuto.netChange) + ' GC'); return; }
+    } else {
+      stopDiceAuto('Автоброски остановлены'); return;
     }
+    setTimeout(runDiceAutoStep, 550);
+  }
+
+  var diceAutoStartBtn = document.getElementById('diceAutoStartBtn');
+  if(diceAutoStartBtn) diceAutoStartBtn.addEventListener('click', function(){
+    if(diceRolling || diceAuto.active) return;
+    diceAuto.count = Math.max(1, Math.min(200, parseInt(document.getElementById('diceAutoCount').value,10) || 10));
+    diceAuto.stopLoss = Math.max(0, parseInt(document.getElementById('diceAutoStopLoss').value,10) || 0);
+    diceAuto.stopWin = Math.max(0, parseInt(document.getElementById('diceAutoStopWin').value,10) || 0);
+    diceAuto.remaining = diceAuto.count;
+    diceAuto.netChange = 0;
+    diceAuto.active = true;
+    var startBtn = document.getElementById('diceAutoStartBtn'), stopBtn = document.getElementById('diceAutoStopBtn');
+    if(startBtn) startBtn.classList.add('hidden');
+    if(stopBtn) stopBtn.classList.remove('hidden');
+    var summary = document.getElementById('diceAutoSummary'); if(summary) summary.textContent = '';
+    haptic('medium');
+    runDiceAutoStep();
+  });
+  var diceAutoStopBtn = document.getElementById('diceAutoStopBtn');
+  if(diceAutoStopBtn) diceAutoStopBtn.addEventListener('click', function(){
+    stopDiceAuto('Остановлено вручную. Итог: ' + (diceAuto.netChange>=0?'+':'') + fmt(diceAuto.netChange) + ' GC');
   });
 
   /* ================= COIN FLIP ================= */
@@ -5561,7 +5718,21 @@ updateUI();
   var ROULETTE_NUMBERS = [0,32,15,19,4,21,2,25,17,34,6,27,13,36,11,30,8,23,10,5,24,16,33,1,20,14,31,9,22,18,29,7,28,12,35,3,26];
   function rouletteColorByNumber(n){ var reds=[1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]; if(n===0) return 'green'; return reds.indexOf(Number(n))!==-1 ? 'red' : 'black'; }
   var rouletteNumberHistoryArr = [];
-  function renderRouletteNumberHistory(){ var box=document.getElementById('rouletteNumberHistory'); if(!box) return; var arr=rouletteNumberHistoryArr.slice(0,18); box.innerHTML=arr.map(function(x){ return '<span class="roulette-num-history-cell '+x.color+'">'+x.number+'</span>'; }).join(''); }
+  function renderRouletteNumberHistory(){ var box=document.getElementById('rouletteNumberHistory'); if(!box) return; var arr=rouletteNumberHistoryArr.slice(0,18); box.innerHTML=arr.map(function(x){ return '<span class="roulette-num-history-cell '+x.color+'">'+x.number+'</span>'; }).join(''); renderRouletteHotCold(); }
+  function renderRouletteHotCold(){
+    var box = document.getElementById('rouletteHotCold'); if(!box) return;
+    if(rouletteNumberHistoryArr.length < 5){ box.innerHTML=''; return; }
+    var counts = {};
+    rouletteNumberHistoryArr.forEach(function(x){ counts[x.number] = (counts[x.number]||0) + 1; });
+    var seen = Object.keys(counts).map(function(n){ return { number:Number(n), count:counts[n], color: rouletteColorByNumber(Number(n)) }; });
+    seen.sort(function(a,b){ return b.count - a.count; });
+    var hot = seen.slice(0,3);
+    var allNums = ROULETTE_NUMBERS.filter(function(n){ return !counts[n]; });
+    var cold = allNums.slice(0,3).map(function(n){ return { number:n, color: rouletteColorByNumber(n) }; });
+    function chips(arr){ return arr.map(function(x){ return '<span class="rhc-chip '+x.color+'">'+x.number+'</span>'; }).join(''); }
+    box.innerHTML = '<div class="rhc-group"><span class="rhc-label">🔥 Горячие</span>'+chips(hot)+'</div>'+
+      '<div class="rhc-group"><span class="rhc-label">❄️ Холодные</span>'+chips(cold)+'</div>';
+  }
   function buildRouletteWheel(){
     var wheel = document.getElementById('wheelEl'); if(!wheel || wheel.dataset.ready) return;
     wheel.dataset.ready = '1';
@@ -5785,6 +5956,12 @@ updateUI();
         var streakPct = Math.min(100, Math.round((minesState.revealed / safeLeft) * 100));
         if(streakFill) streakFill.style.width = streakPct + '%';
         if(streakLabel) streakLabel.textContent = 'Серия: ' + minesState.revealed + (minesState.revealed>=5 ? ' 🔥' : '');
+        var autoTargetInput = document.getElementById('minesAutoCashTarget');
+        var autoTarget = autoTargetInput ? parseFloat(autoTargetInput.value) : NaN;
+        if(!isNaN(autoTarget) && autoTarget > 1 && minesState.multiplier >= autoTarget){
+          showToast('Авто-кэшаут: цель x'+autoTarget.toFixed(2)+' достигнута!','success');
+          setTimeout(function(){ var cashBtn=document.getElementById('minesCashoutBtn'); if(cashBtn && !cashBtn.disabled) cashBtn.click(); }, 250);
+        }
         var minesMultEl=document.getElementById('minesMult'); if(minesMultEl) minesMultEl.textContent = 'x'+minesState.multiplier.toFixed(2);
         var minesPayoutEl=document.getElementById('minesPayout'); if(minesPayoutEl) minesPayoutEl.textContent = fmt(data.payout || 0);
         document.getElementById('minesCashoutBtn').disabled = false;

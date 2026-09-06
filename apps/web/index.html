@@ -1019,10 +1019,10 @@ body.theme-light .settings-gear-btn{background:#EEF0F5!important;border-color:rg
 @media (min-width:900px){
   .gg-global-bar{z-index:1003!important;}
   .bottom-nav{
-    position:fixed!important;top:47px!important;left:0!important;right:auto!important;bottom:0!important;top:47px!important;
-    width:236px!important;height:calc(100vh - 47px)!important;
+    position:fixed!important;top:60px!important;left:0!important;right:auto!important;bottom:0!important;
+    width:236px!important;height:calc(100vh - 60px)!important;
     display:flex!important;flex-direction:column!important;align-items:stretch!important;justify-content:flex-start!important;
-    gap:4px!important;padding:22px 14px!important;background:#12131a!important;
+    gap:3px!important;padding:22px 0!important;background:#12131a!important;
     border-right:1px solid #232430!important;border-top:0!important;border-bottom:0!important;
     box-shadow:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
     z-index:1002!important;pointer-events:auto!important;overflow-y:auto!important;
@@ -1030,20 +1030,24 @@ body.theme-light .settings-gear-btn{background:#EEF0F5!important;border-color:rg
   .bottom-nav:before{
     content:'Меню'!important;position:relative!important;left:0!important;top:0!important;
     display:block!important;font-size:11px!important;font-weight:900!important;color:#585d6b!important;
-    text-transform:uppercase!important;letter-spacing:.08em!important;margin:2px 10px 10px!important;
+    text-transform:uppercase!important;letter-spacing:.08em!important;margin:2px 0 10px 18px!important;
   }
   .nav-btn{
-    width:100%!important;min-width:0!important;height:46px!important;border-radius:12px!important;
-    padding:0 14px!important;display:flex!important;flex-direction:row!important;align-items:center!important;
+    width:100%!important;min-width:0!important;height:46px!important;border-radius:0 14px 14px 0!important;
+    padding:0 16px 0 18px!important;display:flex!important;flex-direction:row!important;align-items:center!important;
     justify-content:flex-start!important;gap:12px!important;font-size:14px!important;font-weight:700!important;
-    background:transparent!important;color:#9BA1AE!important;
+    background:transparent!important;color:#9BA1AE!important;margin-left:0!important;
   }
   .nav-btn .ic{order:0!important;margin:0!important;width:20px!important;height:20px!important;flex:0 0 auto!important;}
   .nav-btn span:last-child{order:1!important;font-size:14px!important;}
-  .nav-btn.active{background:#1E212B!important;color:#fff!important;box-shadow:inset 3px 0 0 #3390EC!important;}
+  .nav-btn.active{background:#1E212B!important;color:#fff!important;box-shadow:inset 4px 0 0 #3390EC!important;}
   .nav-btn:hover{background:#171922!important;color:#F2F3F7!important;}
 
-  #app{margin-left:0!important;padding-top:47px!important;max-width:none!important;width:100%!important;}
+  .gg-global-bar-inner{padding-left:10px!important;max-width:none!important;}
+  .gg-logo-wrap{margin-left:0!important;}
+  .gg-global-logo{height:42px!important;}
+
+  #app{margin-left:0!important;padding-top:60px!important;max-width:none!important;width:100%!important;}
   .screen-container{
     margin-left:236px!important;max-width:none!important;width:auto!important;
     padding:32px 40px 56px!important;padding-top:32px!important;
@@ -3416,13 +3420,15 @@ updateUI();
     <section id="screen-blackjack" class="screen">
       <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>Blackjack</h2></div>
       <div class="bj-table">
+        <div class="bj-burst" id="bjBurst"></div>
+        <div class="bj-chip-fly" id="bjChipFly"></div>
         <div class="bj-row bj-dealer-row">
-          <div class="bj-label">Дилер <span id="bjDealerTotal">—</span></div>
+          <div class="bj-label">Дилер <span id="bjDealerTotal" class="bj-total-badge">—</span></div>
           <div class="bj-hand" id="bjDealerHand"></div>
         </div>
         <div class="bj-result" id="bjResult"></div>
         <div class="bj-row bj-player-row">
-          <div class="bj-label">Игрок <span id="bjPlayerTotal">—</span></div>
+          <div class="bj-label">Игрок <span id="bjPlayerTotal" class="bj-total-badge">—</span></div>
           <div class="bj-hand" id="bjPlayerHand"></div>
         </div>
       </div>
@@ -6057,34 +6063,77 @@ updateUI();
   var bjBetCtl = wireBetStepTools('bjCustomBet', 'bjMinusBtn', 'bjPlusBtn', 'blackjack', 10, 5000000);
   var bjState = null;
 
-  function bjCardEl(card){
-    if(!card){ return bjHiddenCardEl(); }
+  function bjCardEl(card, animate){
+    if(!card){ return bjHiddenCardEl(animate); }
     var suitMap = {S:'♠',H:'♥',D:'♦',C:'♣'};
     var red = card.suit==='H'||card.suit==='D';
     var el = document.createElement('div');
-    el.className = 'bj-card ' + (red?'red':'black');
+    el.className = 'bj-card ' + (red?'red':'black') + (animate?' deal-in':'');
     var s = suitMap[card.suit] || '';
     el.innerHTML = '<div>'+card.rank+s+'</div><div class="suit-center">'+s+'</div><div style="align-self:flex-end;transform:rotate(180deg);">'+card.rank+s+'</div>';
     return el;
   }
-  function bjHiddenCardEl(){
+  function bjHiddenCardEl(animate){
     var el = document.createElement('div');
-    el.className = 'bj-card hidden-card';
+    el.className = 'bj-card hidden-card' + (animate?' deal-in':'');
     el.textContent = '🂠';
+    el.dataset.hidden = '1';
     return el;
+  }
+  function bjPopTotal(id){
+    var el = document.getElementById(id);
+    if(!el) return;
+    el.classList.add('bj-total-badge');
+    el.classList.remove('pop');
+    void el.offsetWidth;
+    el.classList.add('pop');
+  }
+  function bjRenderSide(handEl, cards, opts){
+    opts = opts || {};
+    var existing = handEl.children.length;
+    var wasHiddenLast = existing>0 && handEl.children[existing-1].dataset.hidden==='1';
+    var targetCount = cards.length + (opts.holeHidden ? 1 : 0);
+    if(wasHiddenLast && !opts.holeHidden && existing===targetCount){
+      var last = handEl.children[existing-1];
+      var real = bjCardEl(cards[cards.length-1], false);
+      real.classList.add('flip-reveal');
+      handEl.replaceChild(real, last);
+      return;
+    }
+    if(existing > targetCount){
+      handEl.innerHTML='';
+      existing = 0;
+      wasHiddenLast = false;
+    }
+    if(existing>0 && wasHiddenLast && (cards.length >= existing)){
+      handEl.removeChild(handEl.children[existing-1]);
+      existing -= 1;
+    }
+    for(var i=existing;i<cards.length;i++){
+      handEl.appendChild(bjCardEl(cards[i], true));
+    }
+    if(opts.holeHidden && handEl.children.length < targetCount){
+      handEl.appendChild(bjHiddenCardEl(true));
+    }
   }
   function renderBlackjackHands(data){
     var dHand = document.getElementById('bjDealerHand');
     var pHand = document.getElementById('bjPlayerHand');
     if(!dHand || !pHand) return;
-    dHand.innerHTML=''; pHand.innerHTML='';
-    (data.dealerCards||[]).filter(Boolean).forEach(function(c){ dHand.appendChild(bjCardEl(c)); });
-    if(data.dealerHoleHidden){ dHand.appendChild(bjHiddenCardEl()); }
-    (data.playerCards||[]).filter(Boolean).forEach(function(c){ pHand.appendChild(bjCardEl(c)); });
+    var dealerCards = (data.dealerCards||[]).filter(Boolean);
+    var playerCards = (data.playerCards||[]).filter(Boolean);
+    bjRenderSide(dHand, dealerCards, { holeHidden: !!data.dealerHoleHidden });
+    bjRenderSide(pHand, playerCards, {});
     var dealerTotalEl = document.getElementById('bjDealerTotal');
     var playerTotalEl = document.getElementById('bjPlayerTotal');
-    if(dealerTotalEl) dealerTotalEl.textContent = data.dealerHoleHidden ? ((data.dealerTotal||0)+' + ?') : (data.dealerTotal||0);
-    if(playerTotalEl) playerTotalEl.textContent = data.playerTotal || 0;
+    var dealerTotalTxt = data.dealerHoleHidden ? ((data.dealerTotal||0)+' + ?') : String(data.dealerTotal||0);
+    var playerTotalTxt = String(data.playerTotal || 0);
+    if(dealerTotalEl && dealerTotalEl.textContent !== dealerTotalTxt){ dealerTotalEl.textContent = dealerTotalTxt; bjPopTotal('bjDealerTotal'); }
+    if(playerTotalEl && playerTotalEl.textContent !== playerTotalTxt){ playerTotalEl.textContent = playerTotalTxt; bjPopTotal('bjPlayerTotal'); }
+    if((data.playerTotal||0) > 21){
+      Array.prototype.forEach.call(pHand.children, function(c){ c.classList.add('bust-shake'); });
+      haptic('error');
+    }
   }
   function renderBlackjackPanels(data){
     var betPanel = document.getElementById('bjBetPanel');
@@ -6114,6 +6163,30 @@ updateUI();
     document.getElementById('bjStandBtn').disabled = !data.canStand;
     document.getElementById('bjDoubleBtn').disabled = !data.canDouble || (backendReady && backendBalance < data.betAmount);
   }
+  function bjShowBurst(text){
+    var el = document.getElementById('bjBurst');
+    if(!el) return;
+    el.textContent = text;
+    el.classList.remove('show');
+    void el.offsetWidth;
+    el.classList.add('show');
+  }
+  function bjFlyChip(){
+    var chip = document.getElementById('bjChipFly');
+    if(!chip) return;
+    chip.classList.remove('fly');
+    void chip.offsetWidth;
+    chip.classList.add('fly');
+  }
+  function bjGlowWinningHand(outcome){
+    var pHand = document.getElementById('bjPlayerHand');
+    var dHand = document.getElementById('bjDealerHand');
+    if(outcome==='win' || outcome==='blackjack'){
+      if(pHand) Array.prototype.forEach.call(pHand.children, function(c){ c.classList.add('win-glow'); });
+    } else if(outcome==='loss' || outcome==='dealer'){
+      if(dHand) Array.prototype.forEach.call(dHand.children, function(c){ c.classList.add('win-glow'); });
+    }
+  }
   function renderBlackjack(data){
     bjState = { sessionId:data.sessionId, betAmount:data.betAmount, doubled:data.doubled };
     renderBlackjackHands(data);
@@ -6123,12 +6196,15 @@ updateUI();
       var totalBet = data.doubled ? data.betAmount*2 : data.betAmount;
       if(data.winAmount>totalBet){
         addHistory(me(),'win', data.winAmount, 'Блэкджек: '+(data.outcome==='blackjack'?'натуральный блэкджек':'победа')); syncProfileStats(totalBet, data.winAmount); renderProfile(); refreshMiniGameHistories();
+        if(data.outcome==='blackjack'){ bjShowBurst('BLACKJACK!'); }
+        bjGlowWinningHand('win');
         showWinOverlay(data.winAmount); haptic('success');
       } else if(data.outcome==='push'){
         addHistory(me(),'win', 0, 'Блэкджек: ничья'); syncProfileStats(totalBet, data.winAmount); renderProfile(); refreshMiniGameHistories();
         showTieOverlay(totalBet); haptic('light');
       } else {
         addHistory(me(),'loss', totalBet, 'Блэкджек: проигрыш'); syncProfileStats(totalBet, data.winAmount || 0); renderProfile(); refreshMiniGameHistories();
+        bjGlowWinningHand('loss');
         haptic('error');
       }
     }
@@ -6138,6 +6214,7 @@ updateUI();
     var bet = bjBetCtl.get();
     if(backendReady && backendBalance < bet){ showToast('Недостаточно Gamble Coin!','error'); haptic('error'); return; }
     var prevBackendBalance = backendBalance;
+    bjFlyChip();
     if(backendReady){ backendBalance = Math.max(0, backendBalance - bet); applyBackendBalanceToUI(); renderBalances(); bumpBalanceChip(); }
     try{
       var data = await apiRequest('/games/blackjack/start', { method:'POST', body:JSON.stringify({ betAmount:bet }) });

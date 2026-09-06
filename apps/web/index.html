@@ -1128,7 +1128,7 @@ body.theme-light .settings-gear-btn{background:#EEF0F5!important;border-color:rg
           <div class="wheel-widget-title">Забирайте крутые бонусы каждый день</div>
           <div class="wheel-widget-timer-row"><span class="wheel-widget-label">Следующий спин через</span><span class="wheel-widget-timer wheelWidgetTimer">--:--:--</span></div>
         </div>
-        <div class="wheel-widget-disc"><span>SPIN<br>TO WIN</span></div>
+        <div class="wheel-widget-disc"><img src="assets/gamble-logo.png" alt="Gamble"></div>
       </button>
 
       <button class="p2p-widget" data-open="exchange">
@@ -1140,7 +1140,7 @@ body.theme-light .settings-gear-btn{background:#EEF0F5!important;border-color:rg
             <span class="p2p-widget-chip">Без кассы</span>
           </div>
         </div>
-        <div class="p2p-widget-orb"><span>P2P</span></div>
+        <div class="p2p-widget-orb"><img src="assets/p2p.png" alt="P2P"></div>
       </button>
 
       <div class="home-rail-block" id="homeRecentBlock" style="display:none;">
@@ -1184,7 +1184,7 @@ body.theme-light .settings-gear-btn{background:#EEF0F5!important;border-color:rg
           <div class="wheel-widget-title">Забирайте крутые бонусы каждый день</div>
           <div class="wheel-widget-timer-row"><span class="wheel-widget-label">Следующий спин через</span><span class="wheel-widget-timer wheelWidgetTimer">--:--:--</span></div>
         </div>
-        <div class="wheel-widget-disc"><span>SPIN<br>TO WIN</span></div>
+        <div class="wheel-widget-disc"><img src="assets/gamble-logo.png" alt="Gamble"></div>
       </button>
       <div class="panel">
         <div class="panel-title">Друзья</div>
@@ -1209,15 +1209,15 @@ body.theme-light .settings-gear-btn{background:#EEF0F5!important;border-color:rg
         <div class="wheel-stage">
           <div class="wheel-pointer">▼</div>
           <div class="wheel-disc" id="wheelDisc">
-            <span class="wheel-label" style="transform:translate(-50%,-50%) rotate(22.5deg) translateY(-112px);">100</span>
-            <span class="wheel-label" style="transform:translate(-50%,-50%) rotate(67.5deg) translateY(-112px);">200</span>
-            <span class="wheel-label" style="transform:translate(-50%,-50%) rotate(112.5deg) translateY(-112px);">300</span>
-            <span class="wheel-label" style="transform:translate(-50%,-50%) rotate(157.5deg) translateY(-112px);">500</span>
-            <span class="wheel-label" style="transform:translate(-50%,-50%) rotate(202.5deg) translateY(-112px);">750</span>
-            <span class="wheel-label" style="transform:translate(-50%,-50%) rotate(247.5deg) translateY(-112px);">1000</span>
-            <span class="wheel-label" style="transform:translate(-50%,-50%) rotate(292.5deg) translateY(-112px);">1500</span>
-            <span class="wheel-label" style="transform:translate(-50%,-50%) rotate(337.5deg) translateY(-112px);">2500</span>
-            <div class="wheel-center"><b>SPIN</b><small>TO WIN</small></div>
+            <span class="wheel-label" style="transform:translate(-50%,-50%) rotate(22.5deg) translateY(-112px);">100 GC</span>
+            <span class="wheel-label" style="transform:translate(-50%,-50%) rotate(67.5deg) translateY(-112px);">200 GC</span>
+            <span class="wheel-label" style="transform:translate(-50%,-50%) rotate(112.5deg) translateY(-112px);">300 GC</span>
+            <span class="wheel-label" style="transform:translate(-50%,-50%) rotate(157.5deg) translateY(-112px);">500 GC</span>
+            <span class="wheel-label" style="transform:translate(-50%,-50%) rotate(202.5deg) translateY(-112px);">750 GC</span>
+            <span class="wheel-label" style="transform:translate(-50%,-50%) rotate(247.5deg) translateY(-112px);">1000 GC</span>
+            <span class="wheel-label" style="transform:translate(-50%,-50%) rotate(292.5deg) translateY(-112px);">1500 GC</span>
+            <span class="wheel-label" style="transform:translate(-50%,-50%) rotate(337.5deg) translateY(-112px);">2500 GC</span>
+            <div class="wheel-center"><img src="assets/gamble-logo.png" alt="Gamble"></div>
           </div>
         </div>
       </div>
@@ -3375,6 +3375,7 @@ updateUI();
           <button type="button" data-bet-tool="half" data-target="roulette">/2</button>
           <button type="button" data-bet-tool="double" data-target="roulette">x2</button>
         </div>
+        <button type="button" class="game-cancel-bet-btn" id="rouletteCancelBetBtn" disabled>Отменить ставку</button>
         <div class="roulette-number-grid" id="rouletteNumberGrid"></div>
         <div class="gh-box" data-gh-game="roulette"><div class="gh-tabs"><div class="gh-title">История игроков</div><div class="gh-tab-actions" data-gh-tabs="roulette"><button type="button" class="active" data-scope="live">Live</button><button type="button" data-scope="mine">Мои</button></div></div><div class="gh-head"><span>Имя / Ставка</span><span>Множитель</span><span>Выигрыш</span></div><div id="rouletteGameHistory"></div></div>
       </div>
@@ -3496,6 +3497,7 @@ updateUI();
             <button class="bac-bet-zone bac-tie" data-val="tie">TIE<small>x8</small><span class="bac-chip-on-zone" id="bacChipTie"></span></button>
             <button class="bac-bet-zone bac-banker" data-val="banker">BANKER<small>x1.95</small><span class="bac-chip-on-zone" id="bacChipBanker"></span></button>
           </div>
+          <button type="button" class="game-cancel-bet-btn" id="baccaratCancelBetBtn" disabled>Отменить ставку</button>
           <div class="bac-countdown hidden" id="baccaratCountdown">Старт через 10</div>
           <div class="bac-roadmap" id="baccaratRoadmap"></div>
           <div class="roulette-result" id="baccaratResult"></div>
@@ -3530,7 +3532,7 @@ updateUI();
             <span class="p2p-widget-chip">Без кассы</span>
           </div>
         </div>
-        <div class="p2p-widget-orb"><span>P2P</span></div>
+        <div class="p2p-widget-orb"><img src="assets/p2p.png" alt="P2P"></div>
       </button>
 
       <div class="section-title">История</div>
@@ -3546,7 +3548,7 @@ updateUI();
           <div class="p2p-hero-title">Обменивай GC с игроками напрямую</div>
           <div class="p2p-hero-sub" id="p2pHeroSub">Без кассы. Монеты в эскроу, деньги — между вами.</div>
         </div>
-        <div class="p2p-hero-orb"><span>P2P</span></div>
+        <div class="p2p-hero-orb"><img src="assets/p2p.png" alt="P2P"></div>
       </div>
       <div id="exchangeBox">Загрузка...</div>
     </section>
@@ -5751,6 +5753,8 @@ updateUI();
   var rouletteCountdownActive = false;
   var rouletteBetsClosed = false;
   var roulettePendingBets = [];
+  var rouletteLockTimer = null;
+  var ROULETTE_CANCEL_WINDOW_MS = 3000;
   var wheelRotation = 0;
   var ballRotation = 0;
   var ROULETTE_NUMBERS = [0,32,15,19,4,21,2,25,17,34,6,27,13,36,11,30,8,23,10,5,24,16,33,1,20,14,31,9,22,18,29,7,28,12,35,3,26];
@@ -5827,8 +5831,33 @@ updateUI();
     }
     haptic('light'); startRouletteCountdownIfNeeded();
   }
-  function startRouletteCountdownIfNeeded(){
-    if(rouletteCountdownActive) return; rouletteCountdownActive=true; rouletteBetsClosed=false; var left=10;
+  function setRouletteCancelState(enabled, label){
+    var btn=document.getElementById('rouletteCancelBetBtn');
+    if(!btn) return;
+    btn.disabled=!enabled;
+    btn.textContent=label || 'Отменить ставку';
+  }
+  function clearRouletteBoardBets(){
+    document.querySelectorAll('.roulette-chip-on-board').forEach(function(chip){ chip.remove(); });
+    document.querySelectorAll('.roulette-num-btn,.roulette-outside-btn').forEach(function(b){ b.classList.remove('active'); });
+    rouletteSelectedNumber=null; rouletteSelectedOutside=null;
+  }
+  function cancelRouletteBet(){
+    if(rouletteCountdownActive || rouletteBetsClosed || rouletteSpinning){ showToast('Таймер уже запущен — ставка невозвратная','error'); return; }
+    if(!roulettePendingBets.length){ showToast('Нет ставки для отмены','error'); return; }
+    if(rouletteLockTimer){ clearTimeout(rouletteLockTimer); rouletteLockTimer=null; }
+    var refund=roulettePendingBets.reduce(function(sum,b){ return sum + Number(b.amount||0); },0);
+    roulettePendingBets=[];
+    if(backendReady){ backendBalance+=refund; applyBackendBalanceToUI(); renderBalances(); }
+    clearRouletteBoardBets();
+    setRouletteCancelState(false,'Ставка отменена');
+    var resultEl=document.getElementById('rouletteResult'); if(resultEl) resultEl.textContent='Ставка отменена. Выбери новое поле.';
+    showToast('Ставка отменена','success'); haptic('light');
+  }
+  function beginRouletteCountdown(){
+    rouletteLockTimer=null;
+    if(!roulettePendingBets.length) return;
+    rouletteCountdownActive=true; rouletteBetsClosed=false; setRouletteCancelState(false,'Ставка зафиксирована'); var left=10;
     var resultEl=document.getElementById('rouletteResult'), btn=document.getElementById('rouletteSpinBtn');
     function tick(){
       if(resultEl) resultEl.innerHTML='<span class="roulette-countdown">До запуска <b>'+left+'</b> сек.</span>';
@@ -5838,6 +5867,14 @@ updateUI();
     }
     tick();
   }
+  function startRouletteCountdownIfNeeded(){
+    if(rouletteCountdownActive || rouletteLockTimer) return;
+    setRouletteCancelState(true,'Отменить ставку');
+    var resultEl=document.getElementById('rouletteResult'); if(resultEl) resultEl.textContent='Ставка принята. Отмена доступна 3 секунды.';
+    rouletteLockTimer=setTimeout(beginRouletteCountdown,ROULETTE_CANCEL_WINDOW_MS);
+  }
+  var rouletteCancelBetBtn=document.getElementById('rouletteCancelBetBtn');
+  if(rouletteCancelBetBtn) rouletteCancelBetBtn.addEventListener('click',cancelRouletteBet);
   async function runRouletteRound(){
     if(rouletteSpinning || !roulettePendingBets.length) return; rouletteSpinning=true;
     var resultEl=document.getElementById('rouletteResult'); if(resultEl) resultEl.textContent='Шарик крутится...';
@@ -5856,11 +5893,11 @@ updateUI();
         rouletteNumberHistoryArr.unshift({number:result.number, color:result.color}); rouletteNumberHistoryArr=rouletteNumberHistoryArr.slice(0,18); renderRouletteNumberHistory();
         if(result.winAmount>0){ addHistory(me(),'win', result.winAmount, 'Рулетка'); showWinOverlay(result.winAmount); haptic('success'); } else { addHistory(me(),'loss', totalBetAmount, 'Рулетка'); haptic('error'); }
         roulettePendingBets=[]; setRouletteBoardDisabled(false); document.querySelectorAll('.roulette-chip-on-board').forEach(function(chip){ chip.remove(); }); document.querySelectorAll('.roulette-num-btn,.roulette-outside-btn').forEach(function(b){ b.classList.remove('active'); });
-        rouletteSelectedNumber=null; rouletteSelectedOutside=null; renderAll(); rouletteSpinning=false; rouletteCountdownActive=false; rouletteBetsClosed=false; var btn=document.getElementById('rouletteSpinBtn'); if(btn) btn.textContent='Ожидание ставки';
+        rouletteSelectedNumber=null; rouletteSelectedOutside=null; setRouletteCancelState(false,'Отменить ставку'); renderAll(); rouletteSpinning=false; rouletteCountdownActive=false; rouletteBetsClosed=false; var btn=document.getElementById('rouletteSpinBtn'); if(btn) btn.textContent='Ожидание ставки';
       },1800);
     }catch(e){
       showToast(e.message || 'Ошибка ставки','error');
-      rouletteSpinning=false; rouletteCountdownActive=false; rouletteBetsClosed=false;
+      rouletteSpinning=false; rouletteCountdownActive=false; rouletteBetsClosed=false; setRouletteCancelState(false,'Отменить ставку');
       setRouletteBoardDisabled(false);
       var btn=document.getElementById('rouletteSpinBtn'); if(btn) btn.textContent='Ожидание ставки';
       var resultEl2=document.getElementById('rouletteResult'); if(resultEl2) resultEl2.textContent='Ошибка ставки. Можно поставить заново.';
@@ -6286,7 +6323,10 @@ updateUI();
   var baccaratSelected='player';
   var baccaratPendingBets={player:0,tie:0,banker:0};
   var baccaratCountdownTimer=null;
+  var baccaratLockTimer=null;
+  var baccaratCountdownScheduled=false;
   var baccaratRoundActive=false;
+  var BACCARAT_CANCEL_WINDOW_MS=3000;
   function setBaccaratSide(v){ baccaratSelected=v; document.querySelectorAll('#baccaratOptions [data-val]').forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-val')===v); }); }
   setBaccaratSide('player');
   var baccaratBetCtl = { get:function(){ var el=document.getElementById('baccaratCustomBet'); var v=Math.floor(Number(el && el.value)||10); return Math.max(10, Math.min(5000000, v)); } };
@@ -6336,15 +6376,40 @@ updateUI();
       if(isPush){ showTieOverlay(shownWin); haptic('light'); } else if(shownWin>0){ showWinOverlay(shownWin); haptic('success'); } else { haptic('error'); }
       baccaratPendingBets={player:0,tie:0,banker:0}; renderBaccaratChips(); renderAll();
     }catch(e){ showToast(e.message || 'Ошибка Baccarat','error'); haptic('error'); }
-    baccaratRoundActive=false;
+    baccaratRoundActive=false; setBaccaratCancelState(false,'Отменить ставку');
+  }
+  function setBaccaratCancelState(enabled,label){
+    var btn=document.getElementById('baccaratCancelBetBtn');
+    if(!btn) return;
+    btn.disabled=!enabled;
+    btn.textContent=label || 'Отменить ставку';
+  }
+  function cancelBaccaratBet(){
+    if(baccaratRoundActive){ showToast('Таймер уже запущен — ставка невозвратная','error'); return; }
+    if(!totalBaccaratBet()){ showToast('Нет ставки для отмены','error'); return; }
+    if(baccaratLockTimer){ clearTimeout(baccaratLockTimer); baccaratLockTimer=null; }
+    baccaratCountdownScheduled=false;
+    baccaratPendingBets={player:0,tie:0,banker:0}; renderBaccaratChips();
+    setBaccaratCancelState(false,'Ставка отменена');
+    var res=document.getElementById('baccaratResult'); if(res) res.textContent='Ставка отменена. Выбери сторону заново.';
+    showToast('Ставка отменена','success'); haptic('light');
   }
   function startBaccaratCountdown(){
-    if(baccaratRoundActive) return;
-    baccaratRoundActive=true;
+    if(baccaratRoundActive || !totalBaccaratBet()) return;
+    baccaratCountdownScheduled=false; baccaratLockTimer=null; baccaratRoundActive=true;
+    setBaccaratCancelState(false,'Ставка зафиксирована');
     var left=10, el=document.getElementById('baccaratCountdown');
     if(el){ el.classList.remove('hidden'); el.textContent='Старт через '+left; }
     baccaratCountdownTimer=setInterval(function(){ left--; if(el) el.textContent='Старт через '+left; if(left<=0){ clearInterval(baccaratCountdownTimer); if(el) el.classList.add('hidden'); finishBaccaratRound(); } },1000);
   }
+  function scheduleBaccaratCountdown(){
+    if(baccaratRoundActive || baccaratCountdownScheduled) return;
+    baccaratCountdownScheduled=true; setBaccaratCancelState(true,'Отменить ставку');
+    var res=document.getElementById('baccaratResult'); if(res) res.textContent='Ставка принята. Отмена доступна 3 секунды.';
+    baccaratLockTimer=setTimeout(startBaccaratCountdown,BACCARAT_CANCEL_WINDOW_MS);
+  }
+  var baccaratCancelBetBtn=document.getElementById('baccaratCancelBetBtn');
+  if(baccaratCancelBetBtn) baccaratCancelBetBtn.addEventListener('click',cancelBaccaratBet);
   document.querySelectorAll('#baccaratOptions [data-val]').forEach(function(b){ b.addEventListener('click', function(){
     var side=b.getAttribute('data-val'); setBaccaratSide(side);
     var amount=baccaratBetCtl.get();
@@ -6352,7 +6417,7 @@ updateUI();
     baccaratPendingBets[side]=(baccaratPendingBets[side]||0)+amount;
     renderBaccaratChips();
     var res=document.getElementById('baccaratResult'); if(res) res.textContent='Поставлено: '+fmt(totalBaccaratBet())+' GC';
-    startBaccaratCountdown(); haptic('light');
+    scheduleBaccaratCountdown(); haptic('light');
   }); });
   var bacDeal=document.getElementById('baccaratDealBtn'); if(bacDeal) bacDeal.addEventListener('click', function(){ var side=baccaratSelected||'player'; var btn=document.querySelector('#baccaratOptions [data-val="'+side+'"]'); if(btn) btn.click(); });
 
@@ -7473,4 +7538,21 @@ updateUI();
 #screen-slot,.olympus-embed-wrap,.olympus-embed{background:#050110!important;}
 /* ===== Логотип без белого фона ===== */
 .gg-global-logo{height:30px!important;background:transparent!important;}
+</style>
+<style id="gamble-v8-updates">
+/* Gamble Wheel: monochrome sectors and rotating brand mark. */
+#screen-wheel .wheel-disc{background:conic-gradient(#111 0 45deg,#272727 45deg 90deg,#151515 90deg 135deg,#303030 135deg 180deg,#111 180deg 225deg,#272727 225deg 270deg,#151515 270deg 315deg,#303030 315deg 360deg)!important;}
+#screen-wheel .wheel-label{color:#fff!important;font-size:12px!important;text-shadow:0 2px 4px rgba(0,0,0,.9)!important;white-space:nowrap;}
+#screen-wheel .wheel-center{background:#050505!important;border-color:#3b3b3b!important;overflow:hidden;}
+#screen-wheel .wheel-center img{display:block;width:68px;height:auto;object-fit:contain;filter:drop-shadow(0 2px 5px rgba(0,0,0,.8));}
+.wheel-widget-disc{background:conic-gradient(#111 0 45deg,#292929 45deg 90deg,#151515 90deg 135deg,#333 135deg 180deg,#111 180deg 225deg,#292929 225deg 270deg,#151515 270deg 315deg,#333 315deg 360deg)!important;}
+.wheel-widget-disc img{display:block;width:58px;height:auto;object-fit:contain;position:relative;z-index:2;filter:drop-shadow(0 2px 5px rgba(0,0,0,.75));}
+/* P2P artwork fills the complete square. */
+.p2p-widget-orb,.p2p-hero-orb{padding:0!important;overflow:hidden!important;background:#eaf8ff!important;}
+.p2p-widget-orb img,.p2p-hero-orb img{display:block;width:100%;height:100%;object-fit:cover;border-radius:inherit;}
+#screen-exchange .p2p-hero-orb{border-radius:22px!important;background:#eaf8ff!important;}
+/* Reversible bet controls. Once the countdown starts, JavaScript disables them. */
+.game-cancel-bet-btn{display:block;width:100%;margin:10px 0 14px;padding:11px 14px;border-radius:13px;border:1px solid #ff5f6d;background:rgba(255,95,109,.12);color:#ff8e98;font-size:13px;font-weight:900;cursor:pointer;transition:opacity .2s ease,transform .15s ease,background .2s ease;}
+.game-cancel-bet-btn:not(:disabled):active{transform:translateY(1px) scale(.995);background:rgba(255,95,109,.2);}
+.game-cancel-bet-btn:disabled{cursor:not-allowed;opacity:.48;border-color:#4a4a4a;background:#1b1b1b;color:#8a8a8a;}
 </style>

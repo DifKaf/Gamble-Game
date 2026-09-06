@@ -1088,7 +1088,7 @@ body.theme-light .settings-gear-btn{background:#EEF0F5!important;border-color:rg
   #screen-home > .p2p-widget{grid-column:2 / 3!important;}
   #screen-home > .home-rail-block{grid-column:1 / -1!important;}
   #screen-home > .home-leaderboard-wrap{grid-column:1 / -1!important;margin-top:6px!important;}
-  #screen-home .home-rail{display:grid!important;grid-auto-flow:column!important;grid-auto-columns:minmax(148px,1fr)!important;gap:14px!important;overflow-x:auto!important;padding-bottom:4px!important;}
+  #screen-home .home-rail{display:grid!important;grid-auto-flow:column!important;grid-auto-columns:minmax(148px,1fr)!important;gap:0!important;overflow-x:auto!important;padding-bottom:4px!important;}
   #screen-home .home-rail-head{display:flex!important;align-items:center!important;justify-content:space-between!important;margin-bottom:12px!important;}
   #screen-home .home-rail-title{font-size:17px!important;font-weight:800!important;}
   #screen-home .wheel-widget,#screen-home .p2p-widget{width:100%!important;min-height:104px!important;}
@@ -7457,6 +7457,17 @@ updateUI();
 .bottom-nav .nav-btn[data-nav="games"] .ic svg{width:23px;height:23px;}
 .bottom-nav .nav-btn[data-nav="games"].active .ic{background:linear-gradient(150deg,#ffffff,#d8d8d8);border-color:#fff;color:#111;transform:translateY(-1px) scale(1.04);}
 .bottom-nav .nav-btn[data-nav="games"].active{background:transparent!important;}
+@media (min-width:900px){
+  .bottom-nav{padding-left:0!important;}
+  .bottom-nav:before{margin-left:14px!important;}
+  .nav-btn{padding:0 14px 0 14px!important;gap:10px!important;justify-content:flex-start!important;}
+  .bottom-nav .nav-btn .ic{margin:0!important;width:20px!important;height:20px!important;flex:0 0 auto!important;font-size:0!important;}
+  .bottom-nav .nav-btn .ic svg{width:20px!important;height:20px!important;}
+  .bottom-nav .nav-btn[data-nav="games"] .ic{width:20px!important;height:20px!important;margin-top:0!important;border-radius:6px!important;}
+  .bottom-nav .nav-btn[data-nav="games"] .ic svg{width:16px!important;height:16px!important;}
+  .bottom-nav .nav-btn[data-nav="games"].active .ic{transform:none!important;}
+  .nav-btn span:last-child{order:1!important;white-space:nowrap!important;}
+}
 /* ===== Слот: никаких белых подложек ни до, ни после загрузки ===== */
 #screen-slot,.olympus-embed-wrap,.olympus-embed{background:#050110!important;}
 /* ===== Логотип без белого фона ===== */

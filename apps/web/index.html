@@ -3717,7 +3717,18 @@ updateUI();
       else { tg.HapticFeedback.impactOccurred(kind||'light'); }
     }catch(e){}
   }
-  if(tg){ try{ tg.ready(); tg.expand(); if(tg.setHeaderColor) tg.setHeaderColor('#2A1454'); }catch(e){} }
+  if(tg){ try{
+    tg.ready();
+    tg.expand();
+    // Максимально доступный fullscreen для Telegram Mini App.
+    // Полностью убрать системную верхнюю панель Telegram можно только если клиент/версия Telegram
+    // поддерживает requestFullscreen; иначе Telegram оставляет свою шапку принудительно.
+    if(tg.requestFullscreen) tg.requestFullscreen();
+    if(tg.disableVerticalSwipes) tg.disableVerticalSwipes();
+    if(tg.setHeaderColor) tg.setHeaderColor('#000000');
+    if(tg.setBackgroundColor) tg.setBackgroundColor('#000000');
+    if(tg.setBottomBarColor) tg.setBottomBarColor('#000000');
+  }catch(e){} }
 
 
   /* ================= Backend API / Telegram auth ================= */

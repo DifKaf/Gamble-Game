@@ -7566,3 +7566,27 @@ updateUI();
 .game-cancel-bet-btn:not(:disabled):active{transform:translateY(1px) scale(.995);background:rgba(255,95,109,.2);}
 .game-cancel-bet-btn:disabled{cursor:not-allowed;opacity:.48;border-color:#4a4a4a;background:#1b1b1b;color:#8a8a8a;}
 </style>
+<style id="fullscreen-mobile-fix">
+/* ===== Fullscreen app layout: remove mobile/desktop side frames ===== */
+html,body{width:100%!important;min-width:0!important;min-height:100%!important;margin:0!important;padding:0!important;overflow-x:hidden!important;background:#000!important;}
+body{min-height:100vh!important;min-height:100dvh!important;}
+#app{width:100%!important;max-width:none!important;min-height:100vh!important;min-height:100dvh!important;margin:0!important;border-radius:0!important;box-shadow:none!important;background:#000!important;}
+.screen-container{width:100%!important;max-width:none!important;box-sizing:border-box!important;}
+@media (max-width:899px){
+  html,body{height:auto!important;}
+  #app{padding-top:0!important;padding-left:0!important;padding-right:0!important;padding-bottom:calc(92px + env(safe-area-inset-bottom,0px))!important;}
+  .screen-container{margin:0!important;padding:14px 14px calc(104px + env(safe-area-inset-bottom,0px))!important;}
+  #screen-home.active,#screen-games.active,#screen-minigames.active,#screen-slots.active,
+  #screen-dice.active,#screen-coinflip.active,#screen-roulette.active,#screen-mines.active,
+  #screen-blackjack.active,#screen-baccarat.active,#screen-wallet.active,#screen-exchange.active,
+  #screen-profile.active,#screen-bonuses.active,#screen-settings.active,#screen-admin.active{
+    width:100%!important;max-width:none!important;margin:0!important;
+  }
+  .bottom-nav{left:0!important;right:0!important;bottom:0!important;width:100%!important;max-width:none!important;margin:0!important;border-left:0!important;border-right:0!important;border-bottom:0!important;border-radius:18px 18px 0 0!important;padding-bottom:calc(12px + env(safe-area-inset-bottom,0px))!important;}
+  .modal-card{max-width:calc(100vw - 28px)!important;}
+}
+@media (min-width:900px){
+  #app{padding-top:60px!important;}
+}
+</style>
+

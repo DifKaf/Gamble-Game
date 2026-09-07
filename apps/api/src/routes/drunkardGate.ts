@@ -201,18 +201,8 @@ export async function drunkardGateRoutes(app: FastifyInstance) {
 						globalMult: active.globalMult,
 					})
 
+					// Во время бонусной игры баланс не меняется: копим выигрыш раунда.
 					let balance = Number((await tx.user.findUniqueOrThrow({ where: { id: user.id } })).balance)
-					if (outcome.win > 0) {
-						const updated = await applyBalanceChange({
-							tx,
-							userId: user.id,
-							amount: BigInt(outcome.win),
-							type: 'WIN',
-							source: SOURCE,
-							metadata: { mode: 'free', roundId: active.id, nonce, win: outcome.win },
-						})
-						balance = Number(updated.balance)
-					}
 
 					const roundWin = active.roundWin + BigInt(outcome.win)
 					const finished = outcome.freeSpinsLeft <= 0
@@ -237,6 +227,18 @@ export async function drunkardGateRoutes(app: FastifyInstance) {
 							lastSpin: record as any,
 						},
 					})
+
+					if (finished && roundWin > 0n) {
+						const paid = await applyBalanceChange({
+							tx,
+							userId: user.id,
+							amount: roundWin,
+							type: 'WIN',
+							source: SOURCE,
+							metadata: { mode: 'free-round', roundId: active.id, spins: updatedRound.freeSpinsTotal },
+						})
+						balance = Number(paid.balance)
+					}
 
 					if (finished) {
 						const roundResult = {

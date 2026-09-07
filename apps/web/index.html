@@ -2748,7 +2748,7 @@ function updateUI(){
   document.getElementById(&#x27;bDn&#x27;).disabled=inFreeSpin;
   document.getElementById(&#x27;bUp&#x27;).disabled=inFreeSpin;
   if(inFreeSpin) document.getElementById(&#x27;anteBtn&#x27;).disabled=true;
-  document.getElementById(&#x27;modeEl&#x27;).innerHTML=inFreeSpin?`ОСТАЛОСЬ БЕСПЛАТНЫХ СПИНОВ:&lt;span class=&quot;fsNum&quot;&gt;${freeSpins}&lt;/span&gt;`:&#x27;Обычный&#x27;;
+  document.getElementById(&#x27;modeEl&#x27;).innerHTML=inFreeSpin?`ОСТАЛОСЬ БЕСПЛАТНЫХ ВРАЩЕНИЙ:&lt;span class=&quot;fsNum&quot;&gt;${freeSpins}&lt;/span&gt;`:&#x27;Обычный&#x27;;
   if(inFreeSpin){
     document.getElementById(&#x27;modeEl&#x27;).classList.add(&#x27;fs-active&#x27;);
     document.getElementById(&#x27;gWrap&#x27;).classList.add(&#x27;fs-mode&#x27;);
@@ -2770,6 +2770,7 @@ async function doSpin(){
   document.getElementById(&#x27;spBtn&#x27;).disabled=true;
   document.getElementById(&#x27;anteBtn&#x27;).disabled=true;
   document.getElementById(&#x27;buyBtn&#x27;).disabled=true;
+  if(inFreeSpin){ freeSpins=Math.max(0,freeSpins-1); }
   try{
   if(!inFreeSpin){ addSharedBalance(-stake); totalWin=0; }
   tumbleWin=0;
@@ -2921,7 +2922,7 @@ async function doSpin(){
 
     await wait(1200);
 
-    spinWin+=rWin; tumbleWin=spinWin; totalWin+=rWin; addSharedBalance(rWin);
+    spinWin+=rWin; tumbleWin=spinWin; totalWin+=rWin;
     // Отражаем текущие множители-символы на поле в интерфейсе
     { const gm=gridMults(); cascMult = gm.length ? gm.reduce((a,b)=&gt;a+b,0) : 1; }
     updateUI();
@@ -2947,7 +2948,7 @@ async function doSpin(){
     cascMult=totMult;
     const winBefore=spinWin;
     const bonus=Math.round(spinWin*(totMult-1));
-    spinWin+=bonus; totalWin+=bonus; addSharedBalance(bonus);
+    spinWin+=bonus; totalWin+=bonus;
     sfx(totMult&gt;=50?&#x27;mega&#x27;:&#x27;bigwin&#x27;);
     await playMultiplySequence(winBefore, finalMultsPos, 0, spinWin);
     updateUI();
@@ -2962,13 +2963,16 @@ async function doSpin(){
       fsGlobalMult+=add;
       const winBefore=spinWin;
       const bonus=Math.round(spinWin*(fsGlobalMult-1));
-      spinWin+=bonus; totalWin+=bonus; addSharedBalance(bonus);
+      spinWin+=bonus; totalWin+=bonus;
       sfx(fsGlobalMult&gt;=50?&#x27;mega&#x27;:&#x27;bigwin&#x27;);
       await playMultiplySequence(winBefore, finalMultsPos, prevGlobalMult, spinWin);
     }
     updateUI();
     await wait(add&gt;0?300:200);
   }
+
+  // Обычный спин зачисляется одной итоговой суммой после всех каскадов и множителей.
+  if(!inFreeSpin &amp;&amp; spinWin&gt;0){ addSharedBalance(spinWin); updateUI(); }
 
   // Report result
   if(!spinWin &amp;&amp; !inFreeSpin){ sfx(&#x27;lose&#x27;); setMsg(&#x27;НЕ ПОВЕЗЛО...&#x27;,&#x27;sc&#x27;); }
@@ -2979,9 +2983,8 @@ async function doSpin(){
     else setMsg(`+${spinWin}`,&#x27;w&#x27;);
   }
 
-  // FS: decrement and loop (AUTO-SPIN)
+  // FS: вращение уже списано в начале спина; запускаем следующее или завершаем бонус.
   if(inFreeSpin){
-    freeSpins--;
     if(freeSpins&gt;0){
       updateUI();
       setMsg(`ФРИСПИН! Осталось: ${freeSpins}  ×${fsGlobalMult}`,&#x27;w&#x27;);
@@ -2991,6 +2994,8 @@ async function doSpin(){
     } else {
       inFreeSpin=false;
       stopBg(); schedMusic(false);
+      // Весь бонусный выигрыш зачисляется только после окончания последнего вращения.
+      if(totalWin&gt;0){ addSharedBalance(totalWin); updateUI(); }
       showWinOverlay(totalWin, fsGlobalMult);
     }
   }
@@ -3817,7 +3822,21 @@ updateUI();
     }
   }
 
-  async function serverBet(gameCode, betAmount, payload){
+  function commitAuthoritativeGameBalance(balanceValue, betAmount, winAmount){
+    if(typeof balanceValue==='number'){
+      backendBalance=balanceValue;
+      applyBackendBalanceToUI(); renderBalances();
+    }
+    if(Number(betAmount)>0) syncProfileStats(Number(betAmount)||0, Number(winAmount)||0);
+    renderProfile(); saveState(); refreshMiniGameHistories(true); loadLeaderboardFromBackend();
+  }
+  function commitServerBetResult(result){
+    if(!result || !result.__deferredUi) return;
+    var settlement=result.__deferredUi;
+    try{ delete result.__deferredUi; }catch(e){}
+    commitAuthoritativeGameBalance(settlement.balance, settlement.betAmount, settlement.winAmount);
+  }
+  async function serverBet(gameCode, betAmount, payload, options){
     if(betAmount < 10 || betAmount > 5000000){ showToast('Ставка от 10 до 5 000 000 GC','error'); throw new Error('Ставка от 10 до 5 000 000 GC'); }
     if(!backendReady) await initBackendAuth();
     var optimisticBet = Math.round(Number(betAmount)||0);
@@ -3832,11 +3851,11 @@ updateUI();
           payload: payload || {}
         })
       });
-      backendBalance = data.balance;
-      applyBackendBalanceToUI();
-      renderBalances();
-      if(data.result) syncProfileStats(betAmount, data.result.winAmount || 0);
-      renderProfile(); saveState(); refreshMiniGameHistories(true); loadLeaderboardFromBackend();
+      if(options && options.deferBalance && data.result){
+        Object.defineProperty(data.result,'__deferredUi',{value:{balance:data.balance,betAmount:betAmount,winAmount:data.result.winAmount||0},configurable:true});
+      }else{
+        commitAuthoritativeGameBalance(data.balance, betAmount, data.result ? (data.result.winAmount||0) : 0);
+      }
       return data.result;
     }catch(e){ backendBalance = prevBackendBalance; applyBackendBalanceToUI(); renderBalances(); throw e; }
   }
@@ -3899,14 +3918,7 @@ updateUI();
         clientSeed: opts.clientSeed || ''
       })
     });
-    backendBalance = data.balance;
-    applyBackendBalanceToUI();
-    renderBalances();
-    saveState();
-    if(data.spin) syncProfileStats(data.spin.stake || opts.betAmount || 0, data.spin.win || 0);
-    renderProfile();
-    refreshMiniGameHistories(true);
-    loadLeaderboardFromBackend();
+    // Баланс уже рассчитан сервером, но интерфейс применит его только после остановки барабанов.
     return data;
   }
   async function dogHouseBuyBonus(opts){
@@ -3943,6 +3955,7 @@ updateUI();
     dogHouseSpin:dogHouseSpin,
     dogHouseBuyBonus:dogHouseBuyBonus,
     dogHouseState:dogHouseState,
+    commitGameBalance:commitAuthoritativeGameBalance,
     isReady:function(){return backendReady;}
   };
 
@@ -5410,12 +5423,13 @@ updateUI();
         renderDie(d0, 1+Math.floor(Math.random()*6));
         renderDie(d1, 1+Math.floor(Math.random()*6));
       }, 45);
-      serverBet('dice', bet, { mode: choice==='exact' ? 'exact' : (choice==='under' ? 'under' : 'over'), target: 7 }).then(function(result){
+      serverBet('dice', bet, { mode: choice==='exact' ? 'exact' : (choice==='under' ? 'under' : 'over'), target: 7 }, {deferBalance:true}).then(function(result){
         setTimeout(function(){
           clearInterval(iv);
           d0.classList.remove('rolling'); d1.classList.remove('rolling');
           d0.classList.add('settle'); d1.classList.add('settle');
           setTimeout(function(){ d0.classList.remove('settle'); d1.classList.remove('settle'); }, 320);
+          commitServerBetResult(result);
           var roll = Number(result.roll)||7;
           var diceVals = Array.isArray(result.dice) && result.dice.length>=2 ? [Number(result.dice[0])||1, Number(result.dice[1])||1] : (Number(result.d1) && Number(result.d2) ? [Number(result.d1), Number(result.d2)] : diceValuesFromSum(roll));
           renderDie(d0, diceVals[0]); renderDie(d1, diceVals[1]);
@@ -5633,9 +5647,9 @@ updateUI();
       if(!backendReady) await initBackendAuth();
       if(backendReady){ backendBalance = Math.max(0, backendBalance - bet); applyBackendBalanceToUI(); renderBalances(); }
       var data = await apiRequest('/games/coinflip/start', { method:'POST', body:JSON.stringify({ betAmount:bet, side:choice }) });
-      backendBalance = data.balance; applyBackendBalanceToUI(); renderBalances();
       stopCoinPreSpin();
       animateCoinTo(data.result, function(){
+        commitAuthoritativeGameBalance(data.balance, 0, 0);
         coinFlipping = false;
         setCoinBetButtonsDisabled(false);
         if(data.win){
@@ -5669,9 +5683,9 @@ updateUI();
     startCoinPreSpin();
     try{
       var data = await apiRequest('/games/coinflip/continue', { method:'POST', body:JSON.stringify({ sessionId:coinState.sessionId, side:choice }) });
-      backendBalance = data.balance; applyBackendBalanceToUI();
       stopCoinPreSpin();
       animateCoinTo(data.result, function(){
+        commitAuthoritativeGameBalance(data.balance, 0, 0);
         coinFlipping = false;
         setCoinContinueButtonsDisabled(false);
         if(data.win){
@@ -5753,8 +5767,7 @@ updateUI();
   var rouletteCountdownActive = false;
   var rouletteBetsClosed = false;
   var roulettePendingBets = [];
-  var rouletteLockTimer = null;
-  var ROULETTE_CANCEL_WINDOW_MS = 3000;
+  var rouletteCountdownTimer = null;
   var wheelRotation = 0;
   var ballRotation = 0;
   var ROULETTE_NUMBERS = [0,32,15,19,4,21,2,25,17,34,6,27,13,36,11,30,8,23,10,5,24,16,33,1,20,14,31,9,22,18,29,7,28,12,35,3,26];
@@ -5843,9 +5856,10 @@ updateUI();
     rouletteSelectedNumber=null; rouletteSelectedOutside=null;
   }
   function cancelRouletteBet(){
-    if(rouletteCountdownActive || rouletteBetsClosed || rouletteSpinning){ showToast('Таймер уже запущен — ставка невозвратная','error'); return; }
+    if(rouletteBetsClosed || rouletteSpinning){ showToast('Игра уже началась — ставка невозвратная','error'); return; }
     if(!roulettePendingBets.length){ showToast('Нет ставки для отмены','error'); return; }
-    if(rouletteLockTimer){ clearTimeout(rouletteLockTimer); rouletteLockTimer=null; }
+    if(rouletteCountdownTimer){ clearTimeout(rouletteCountdownTimer); rouletteCountdownTimer=null; }
+    rouletteCountdownActive=false;
     var refund=roulettePendingBets.reduce(function(sum,b){ return sum + Number(b.amount||0); },0);
     roulettePendingBets=[];
     if(backendReady){ backendBalance+=refund; applyBackendBalanceToUI(); renderBalances(); }
@@ -5854,24 +5868,18 @@ updateUI();
     var resultEl=document.getElementById('rouletteResult'); if(resultEl) resultEl.textContent='Ставка отменена. Выбери новое поле.';
     showToast('Ставка отменена','success'); haptic('light');
   }
-  function beginRouletteCountdown(){
-    rouletteLockTimer=null;
-    if(!roulettePendingBets.length) return;
-    rouletteCountdownActive=true; rouletteBetsClosed=false; setRouletteCancelState(false,'Ставка зафиксирована'); var left=10;
+  function startRouletteCountdownIfNeeded(){
+    if(rouletteCountdownActive) return;
+    rouletteCountdownActive=true; rouletteBetsClosed=false; setRouletteCancelState(true,'Отменить ставку'); var left=10;
     var resultEl=document.getElementById('rouletteResult'), btn=document.getElementById('rouletteSpinBtn');
     function tick(){
-      if(resultEl) resultEl.innerHTML='<span class="roulette-countdown">До запуска <b>'+left+'</b> сек.</span>';
+      if(!rouletteCountdownActive) return;
+      if(resultEl) resultEl.innerHTML='<span class="roulette-countdown">До запуска <b>'+left+'</b> сек. · ставку можно отменить</span>';
       if(btn) btn.textContent='Ставки открыты: '+left+' сек.';
-      if(left<=0){ rouletteBetsClosed=true; setRouletteBoardDisabled(true); if(btn) btn.textContent='Шарик крутится...'; runRouletteRound(); return; }
-      left--; setTimeout(tick,1000);
+      if(left<=0){ rouletteBetsClosed=true; setRouletteCancelState(false,'Ставка зафиксирована'); setRouletteBoardDisabled(true); if(btn) btn.textContent='Шарик крутится...'; runRouletteRound(); return; }
+      left--; rouletteCountdownTimer=setTimeout(tick,1000);
     }
     tick();
-  }
-  function startRouletteCountdownIfNeeded(){
-    if(rouletteCountdownActive || rouletteLockTimer) return;
-    setRouletteCancelState(true,'Отменить ставку');
-    var resultEl=document.getElementById('rouletteResult'); if(resultEl) resultEl.textContent='Ставка принята. Отмена доступна 3 секунды.';
-    rouletteLockTimer=setTimeout(beginRouletteCountdown,ROULETTE_CANCEL_WINDOW_MS);
   }
   var rouletteCancelBetBtn=document.getElementById('rouletteCancelBetBtn');
   if(rouletteCancelBetBtn) rouletteCancelBetBtn.addEventListener('click',cancelRouletteBet);
@@ -5882,12 +5890,13 @@ updateUI();
       var first=roulettePendingBets[0];
       var totalBetAmount = roulettePendingBets.reduce(function(sum,b){ return sum + Number(b.amount||0); }, 0);
       if(backendReady){ backendBalance += totalBetAmount; }
-      var result=await serverBet('roulette', totalBetAmount, { bets: roulettePendingBets.map(function(b){ return { amount:b.amount, payload:b.payload }; }) });
+      var result=await serverBet('roulette', totalBetAmount, { bets: roulettePendingBets.map(function(b){ return { amount:b.amount, payload:b.payload }; }) }, {deferBalance:true});
       var idx=Math.max(0, ROULETTE_NUMBERS.indexOf(Number(result.number))); var step=360/ROULETTE_NUMBERS.length; var targetAngle=idx*step;
       wheelRotation=0; var finalBallAngle=targetAngle; ballRotation += 360*6 + ((finalBallAngle - (ballRotation % 360) + 360) % 360);
       var wheelWrap=document.querySelector('#screen-roulette .roulette-wheel-wrap'), wheelEl=document.getElementById('wheelEl'), ballTrack=document.getElementById('rouletteBallTrack');
       if(wheelWrap) wheelWrap.classList.add('spinning'); if(wheelEl) wheelEl.style.transform='rotate(0deg)'; if(ballTrack) ballTrack.style.transform='rotate('+ballRotation+'deg)';
       setTimeout(function(){
+        commitServerBetResult(result);
         if(wheelWrap) wheelWrap.classList.remove('spinning'); var colorNames={red:'Красное',black:'Чёрное',green:'Зелёное'};
         if(resultEl) resultEl.innerHTML='Выпало: '+colorNames[result.color]+' <span class="roulette-result-number '+result.color+'">'+result.number+'</span>';
         rouletteNumberHistoryArr.unshift({number:result.number, color:result.color}); rouletteNumberHistoryArr=rouletteNumberHistoryArr.slice(0,18); renderRouletteNumberHistory();
@@ -6323,10 +6332,8 @@ updateUI();
   var baccaratSelected='player';
   var baccaratPendingBets={player:0,tie:0,banker:0};
   var baccaratCountdownTimer=null;
-  var baccaratLockTimer=null;
-  var baccaratCountdownScheduled=false;
   var baccaratRoundActive=false;
-  var BACCARAT_CANCEL_WINDOW_MS=3000;
+  var baccaratBetsClosed=false;
   function setBaccaratSide(v){ baccaratSelected=v; document.querySelectorAll('#baccaratOptions [data-val]').forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-val')===v); }); }
   setBaccaratSide('player');
   var baccaratBetCtl = { get:function(){ var el=document.getElementById('baccaratCustomBet'); var v=Math.floor(Number(el && el.value)||10); return Math.max(10, Math.min(5000000, v)); } };
@@ -6365,8 +6372,9 @@ updateUI();
     try{
       var primary=entries[0];
       var placed=Object.assign({}, baccaratPendingBets);
-      var result=await serverBet('baccarat', total, {side:primary,bets:entries.map(function(k){return {side:k,amount:placed[k]};})});
+      var result=await serverBet('baccarat', total, {side:primary,bets:entries.map(function(k){return {side:k,amount:placed[k]};})}, {deferBalance:true});
       await renderBaccarat(result);
+      commitServerBetResult(result);
       var names={player:'Игрок',banker:'Банкир',tie:'Ничья'};
       var refund = result.refundAmount || 0;
       var isPush = result.winner==='tie' && !placed.tie;
@@ -6376,7 +6384,7 @@ updateUI();
       if(isPush){ showTieOverlay(shownWin); haptic('light'); } else if(shownWin>0){ showWinOverlay(shownWin); haptic('success'); } else { haptic('error'); }
       baccaratPendingBets={player:0,tie:0,banker:0}; renderBaccaratChips(); renderAll();
     }catch(e){ showToast(e.message || 'Ошибка Baccarat','error'); haptic('error'); }
-    baccaratRoundActive=false; setBaccaratCancelState(false,'Отменить ставку');
+    baccaratRoundActive=false; baccaratBetsClosed=false; setBaccaratCancelState(false,'Отменить ставку');
   }
   function setBaccaratCancelState(enabled,label){
     var btn=document.getElementById('baccaratCancelBetBtn');
@@ -6385,28 +6393,30 @@ updateUI();
     btn.textContent=label || 'Отменить ставку';
   }
   function cancelBaccaratBet(){
-    if(baccaratRoundActive){ showToast('Таймер уже запущен — ставка невозвратная','error'); return; }
+    if(baccaratBetsClosed){ showToast('Игра уже началась — ставка невозвратная','error'); return; }
     if(!totalBaccaratBet()){ showToast('Нет ставки для отмены','error'); return; }
-    if(baccaratLockTimer){ clearTimeout(baccaratLockTimer); baccaratLockTimer=null; }
-    baccaratCountdownScheduled=false;
+    if(baccaratCountdownTimer){ clearInterval(baccaratCountdownTimer); baccaratCountdownTimer=null; }
+    baccaratRoundActive=false;
     baccaratPendingBets={player:0,tie:0,banker:0}; renderBaccaratChips();
+    var el=document.getElementById('baccaratCountdown'); if(el) el.classList.add('hidden');
     setBaccaratCancelState(false,'Ставка отменена');
     var res=document.getElementById('baccaratResult'); if(res) res.textContent='Ставка отменена. Выбери сторону заново.';
     showToast('Ставка отменена','success'); haptic('light');
   }
   function startBaccaratCountdown(){
     if(baccaratRoundActive || !totalBaccaratBet()) return;
-    baccaratCountdownScheduled=false; baccaratLockTimer=null; baccaratRoundActive=true;
-    setBaccaratCancelState(false,'Ставка зафиксирована');
+    baccaratRoundActive=true; baccaratBetsClosed=false; setBaccaratCancelState(true,'Отменить ставку');
     var left=10, el=document.getElementById('baccaratCountdown');
-    if(el){ el.classList.remove('hidden'); el.textContent='Старт через '+left; }
-    baccaratCountdownTimer=setInterval(function(){ left--; if(el) el.textContent='Старт через '+left; if(left<=0){ clearInterval(baccaratCountdownTimer); if(el) el.classList.add('hidden'); finishBaccaratRound(); } },1000);
-  }
-  function scheduleBaccaratCountdown(){
-    if(baccaratRoundActive || baccaratCountdownScheduled) return;
-    baccaratCountdownScheduled=true; setBaccaratCancelState(true,'Отменить ставку');
-    var res=document.getElementById('baccaratResult'); if(res) res.textContent='Ставка принята. Отмена доступна 3 секунды.';
-    baccaratLockTimer=setTimeout(startBaccaratCountdown,BACCARAT_CANCEL_WINDOW_MS);
+    if(el){ el.classList.remove('hidden'); el.textContent='Старт через '+left+' · отмена доступна'; }
+    baccaratCountdownTimer=setInterval(function(){
+      left--;
+      if(el) el.textContent='Старт через '+left+' · отмена доступна';
+      if(left<=0){
+        clearInterval(baccaratCountdownTimer); baccaratCountdownTimer=null; baccaratBetsClosed=true;
+        setBaccaratCancelState(false,'Ставка зафиксирована');
+        if(el) el.classList.add('hidden'); finishBaccaratRound();
+      }
+    },1000);
   }
   var baccaratCancelBetBtn=document.getElementById('baccaratCancelBetBtn');
   if(baccaratCancelBetBtn) baccaratCancelBetBtn.addEventListener('click',cancelBaccaratBet);
@@ -6417,7 +6427,7 @@ updateUI();
     baccaratPendingBets[side]=(baccaratPendingBets[side]||0)+amount;
     renderBaccaratChips();
     var res=document.getElementById('baccaratResult'); if(res) res.textContent='Поставлено: '+fmt(totalBaccaratBet())+' GC';
-    scheduleBaccaratCountdown(); haptic('light');
+    startBaccaratCountdown(); haptic('light');
   }); });
   var bacDeal=document.getElementById('baccaratDealBtn'); if(bacDeal) bacDeal.addEventListener('click', function(){ var side=baccaratSelected||'player'; var btn=document.querySelector('#baccaratOptions [data-val="'+side+'"]'); if(btn) btn.click(); });
 
@@ -7551,7 +7561,7 @@ updateUI();
 .p2p-widget-orb,.p2p-hero-orb{padding:0!important;overflow:hidden!important;background:#eaf8ff!important;}
 .p2p-widget-orb img,.p2p-hero-orb img{display:block;width:100%;height:100%;object-fit:cover;border-radius:inherit;}
 #screen-exchange .p2p-hero-orb{border-radius:22px!important;background:#eaf8ff!important;}
-/* Reversible bet controls. Once the countdown starts, JavaScript disables them. */
+/* Reversible bet controls stay active during the 10-second countdown and lock when the game starts. */
 .game-cancel-bet-btn{display:block;width:100%;margin:10px 0 14px;padding:11px 14px;border-radius:13px;border:1px solid #ff5f6d;background:rgba(255,95,109,.12);color:#ff8e98;font-size:13px;font-weight:900;cursor:pointer;transition:opacity .2s ease,transform .15s ease,background .2s ease;}
 .game-cancel-bet-btn:not(:disabled):active{transform:translateY(1px) scale(.995);background:rgba(255,95,109,.2);}
 .game-cancel-bet-btn:disabled{cursor:not-allowed;opacity:.48;border-color:#4a4a4a;background:#1b1b1b;color:#8a8a8a;}

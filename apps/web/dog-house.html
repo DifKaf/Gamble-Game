@@ -333,11 +333,11 @@ svg.icon{width:72%;height:72%;filter:drop-shadow(0 2px 3px rgba(0,0,0,.5));displ
     try{
       var data = await api.dogHouseSpin({ betAmount: bet });
       if(!data || !data.spin) throw new Error('Пустой ответ сервера');
-      if(typeof data.balance==='number') setBal(data.balance);
       var spin=data.spin;
       document.getElementById('winLab').textContent = fmt(spin.win||0);
       var wasFree = spin.mode==='free';
       animateSpin(spin.grid, spin.wildMults, spin.lines, spin.stickyWilds, function(){
+        if(typeof data.balance==='number'){ setBal(data.balance); if(api.commitGameBalance) api.commitGameBalance(data.balance, spin.stake||0, spin.win||0); }
         if(spin.win>0) document.getElementById('msg').textContent='WIN +'+fmt(spin.win)+' GC';
         else document.getElementById('msg').textContent = data.round && data.round.freeSpinsLeft>0 ? 'Крути дальше — бонус активен' : 'Не повезло';
         round = data.round;

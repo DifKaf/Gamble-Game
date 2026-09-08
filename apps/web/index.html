@@ -7600,85 +7600,68 @@ body{min-height:100vh!important;min-height:100dvh!important;}
   #app{padding-top:60px!important;}
 }
 </style>
-<style id="telegram-top-right-chip-fix">
-/* ===== Telegram top buttons safe zone: top balance/avatar must not sit under Close/Menu ===== */
-@media (max-width:899px){
-  .gg-global-bar{
-    position:fixed!important;top:0!important;left:0!important;right:0!important;
-    height:calc(50px + env(safe-area-inset-top,0px))!important;
-    background:transparent!important;border:0!important;pointer-events:none!important;z-index:1005!important;
-  }
-  .gg-global-bar-inner{
-    position:relative!important;width:100%!important;max-width:none!important;height:100%!important;
-    margin:0!important;padding:0!important;display:block!important;
-  }
-  .gg-logo-wrap{display:none!important;}
-  .gg-global-chip{
-    position:absolute!important;
-    top:calc(8px + env(safe-area-inset-top,0px))!important;
-    /* Telegram keeps Close/Menu on the far right. Reserve a wide safe zone. */
-    right:138px!important;
-    left:auto!important;margin:0!important;transform:none!important;pointer-events:auto!important;
-    width:auto!important;max-width:148px!important;min-width:0!important;
-    height:36px!important;padding:4px 7px!important;gap:5px!important;
-    display:flex!important;align-items:center!important;justify-content:flex-start!important;
-    border-radius:999px!important;background:rgba(17,20,25,.9)!important;
-    border:1px solid rgba(255,255,255,.1)!important;backdrop-filter:blur(12px)!important;
-    overflow:hidden!important;white-space:nowrap!important;
-  }
-  .gg-global-chip .avatar-badge{width:26px!important;height:26px!important;min-width:26px!important;flex:0 0 26px!important;}
-  .gg-global-chip b{
-    display:block!important;min-width:0!important;max-width:102px!important;
-    font-size:13px!important;line-height:1!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;
-  }
+<style id="top-balance-position-and-bg-fix">
+/* ===== Background + exact top balance/avatar position ===== */
+html,body{
+  background-color:#050303!important;
+  background-image:
+    linear-gradient(180deg,rgba(0,0,0,.42),rgba(0,0,0,.72)),
+    radial-gradient(circle at 50% 18%,rgba(255,120,36,.10),transparent 42%),
+    url("assets/ginger-kittens-bg.jpeg")!important;
+  background-position:center top!important;
+  background-size:cover!important;
+  background-repeat:no-repeat!important;
+  background-attachment:fixed!important;
 }
-@media (max-width:390px){
-  .gg-global-chip{right:128px!important;max-width:136px!important;}
-  .gg-global-chip b{max-width:90px!important;font-size:12px!important;}
-}
-@media (max-width:340px){
-  .gg-global-chip{right:116px!important;max-width:124px!important;}
-  .gg-global-chip b{max-width:78px!important;}
-}
-</style>
-<style id="ginger-kittens-app-bg">
-/* ===== Subtle ginger kittens background ===== */
-html,body,#app{background:#050303!important;}
-body:before{
-  content:""!important;
-  position:fixed!important;
-  inset:0!important;
-  z-index:-3!important;
-  pointer-events:none!important;
-  background:
-    linear-gradient(180deg,rgba(0,0,0,.50),rgba(0,0,0,.74)),
-    radial-gradient(circle at 50% 18%,rgba(255,130,45,.07),transparent 38%),
-    url('assets/ginger-kittens-bg.jpeg') center center / cover no-repeat fixed!important;
-  opacity:1!important;
-}
-body:after{
-  content:"";
-  position:fixed;
-  inset:0;
-  z-index:-2;
-  pointer-events:none;
-  background:rgba(0,0,0,.22);
-}
-#app{background:transparent!important;}
-.gg-global-bar,.bottom-nav{background:rgba(0,0,0,.82)!important;}
-.panel,.home-hero,.wallet-card,.profile-card,.modal-card,.history-item,.leaderboard-row,.promo-box,.white-card,.game-card,.category-card,.service-card,.bonus-card,.asset-row{
-  background:rgba(17,19,25,.88)!important;
-  backdrop-filter:blur(10px)!important;
-}
+body:before{display:none!important;content:none!important;}
+body:after{content:""!important;position:fixed!important;inset:0!important;z-index:-1!important;pointer-events:none!important;background:rgba(0,0,0,.14)!important;}
+#app,.screen-container{background:transparent!important;}
+.panel,.home-hero,.wallet-card,.profile-card,.modal-card,.history-item,.leaderboard-row,.promo-box,.white-card,.game-card,.category-card,.service-card,.bonus-card,.asset-row{background:rgba(17,19,25,.86)!important;backdrop-filter:blur(10px)!important;}
 #screen-slot,.olympus-embed-wrap,.olympus-embed{background:#050110!important;}
-@media (max-width:899px){
-  body:before{background:
-    linear-gradient(180deg,rgba(0,0,0,.46),rgba(0,0,0,.76)),
-    radial-gradient(circle at 50% 16%,rgba(255,130,45,.08),transparent 42%),
-    url('assets/ginger-kittens-bg.jpeg') center top / cover no-repeat fixed!important;
-  }
+
+/* Верхняя плашка баланса/аватарки: переносим из правого угла в зону левее кнопок Telegram/браузера */
+.gg-global-bar{position:fixed!important;top:0!important;left:0!important;right:0!important;height:64px!important;background:rgba(0,0,0,.82)!important;border-bottom:1px solid #242424!important;z-index:1005!important;pointer-events:none!important;}
+.gg-global-bar-inner{position:relative!important;width:100%!important;max-width:none!important;height:100%!important;margin:0!important;padding:0!important;display:block!important;}
+.gg-logo-wrap{position:absolute!important;left:10px!important;top:50%!important;transform:translateY(-50%)!important;pointer-events:auto!important;}
+.gg-global-chip{
+  position:absolute!important;
+  top:50%!important;
+  right:270px!important; /* место, которое пользователь отметил красным */
+  left:auto!important;
+  transform:translateY(-50%)!important;
+  margin:0!important;
+  pointer-events:auto!important;
+  width:auto!important;
+  max-width:180px!important;
+  min-width:0!important;
+  height:38px!important;
+  padding:5px 10px!important;
+  gap:7px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  overflow:hidden!important;
+  white-space:nowrap!important;
 }
+.gg-global-chip .avatar-badge{width:26px!important;height:26px!important;min-width:26px!important;flex:0 0 26px!important;}
+.gg-global-chip b{display:block!important;min-width:0!important;max-width:132px!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;}
+
+@media (max-width:899px){
+  html,body{background-image:linear-gradient(180deg,rgba(0,0,0,.36),rgba(0,0,0,.70)),radial-gradient(circle at 50% 16%,rgba(255,120,36,.12),transparent 44%),url("assets/ginger-kittens-bg.jpeg")!important;background-position:center top!important;background-size:auto 100vh!important;}
+  .gg-global-bar{height:calc(50px + env(safe-area-inset-top,0px))!important;background:transparent!important;border:0!important;}
+  .gg-logo-wrap{display:none!important;}
+  .gg-global-chip{top:calc(8px + env(safe-area-inset-top,0px))!important;right:126px!important;transform:none!important;max-width:150px!important;height:36px!important;padding:4px 8px!important;}
+  .gg-global-chip b{max-width:104px!important;font-size:13px!important;line-height:1!important;}
+}
+@media (min-width:1200px){.gg-global-chip{right:300px!important;}}
+@media (max-width:390px){.gg-global-chip{right:118px!important;max-width:136px!important}.gg-global-chip b{max-width:90px!important;font-size:12px!important}}
+@media (max-width:340px){.gg-global-chip{right:108px!important;max-width:124px!important}.gg-global-chip b{max-width:78px!important}}
 </style>
+
+
+
+
+
 
 
 

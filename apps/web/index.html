@@ -3750,6 +3750,24 @@ updateUI();
     if(tg.setBottomBarColor) tg.setBottomBarColor('#000000');
   }catch(e){} }
 
+  function updateTelegramBackButton(){
+    try{
+      if(!tg || !tg.BackButton) return;
+      var isRoot = mainTabs.indexOf(currentScreen) !== -1;
+      if(isRoot){ tg.BackButton.hide(); }
+      else { tg.BackButton.show(); }
+    }catch(e){}
+  }
+  if(tg && tg.BackButton){
+    try{
+      tg.BackButton.onClick(function(){
+        var prev = screenHistory.pop() || 'home';
+        showScreen(prev,{skipHistory:true});
+        haptic('light');
+      });
+    }catch(e){}
+  }
+
 
   /* ================= Backend API / Telegram auth ================= */
   var API_URL = 'https://gamble-game-production.up.railway.app';
@@ -4804,12 +4822,13 @@ updateUI();
     document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
     var el = document.getElementById('screen-'+name);
     if(el) el.classList.add('active');
-    var appEl = document.getElementById('app'); if(appEl) appEl.classList.toggle('drunkard-standalone', name === 'slot' || name === 'doghouse'); document.documentElement.classList.toggle('slot-open', name === 'slot' || name === 'doghouse'); document.body.classList.toggle('slot-open', name === 'slot' || name === 'doghouse');
+    var appEl = document.getElementById('app'); if(appEl){ appEl.classList.toggle('drunkard-standalone', name === 'slot' || name === 'doghouse'); appEl.classList.toggle('sub-screen-open', mainTabs.indexOf(name)===-1); } document.documentElement.classList.toggle('slot-open', name === 'slot' || name === 'doghouse'); document.body.classList.toggle('slot-open', name === 'slot' || name === 'doghouse');
     if(mainTabs.indexOf(name)!==-1){
       document.querySelectorAll('.nav-btn').forEach(function(b){
         b.classList.toggle('active', b.getAttribute('data-nav')===name);
       });
     }
+    updateTelegramBackButton();
     refreshBackendBalanceForScreen();
     if(name==='home'){ loadLeaderboardFromBackend(); renderShotTicker(); }
     if(name==='promo-create') loadCreatedPromos();
@@ -7756,15 +7775,27 @@ html,body,#app{max-width:100vw!important;overflow-x:hidden!important;}
 </style>
 <style id="mobile-telegram-safe-area-fix">
 @media (max-width:899px){
-  #app{padding-top:calc(54px + env(safe-area-inset-top,0px))!important;}
-  .screen-container{padding-top:calc(18px + env(safe-area-inset-top,0px))!important;}
-  .gg-global-bar{height:calc(54px + env(safe-area-inset-top,0px))!important;}
-  .gg-global-chip{top:calc(10px + env(safe-area-inset-top,0px))!important;}
+  #app{padding-top:calc(28px + env(safe-area-inset-top,0px))!important;}
+  .screen-container{padding-top:calc(8px + env(safe-area-inset-top,0px))!important;}
+  .gg-global-bar{height:calc(46px + env(safe-area-inset-top,0px))!important;}
+  .gg-global-chip{top:calc(6px + env(safe-area-inset-top,0px))!important;}
   #screen-catclicker .game-header,#screen-dice .game-header,#screen-coinflip .game-header,#screen-roulette .game-header,#screen-mines .game-header,#screen-blackjack .game-header,#screen-baccarat .game-header,#screen-wallet .game-header,#screen-bonuses .game-header,#screen-profile .game-header,#screen-exchange .game-header{
-    margin-top:8px!important;
+    margin-top:2px!important;
   }
 }
 </style>
+<style id="mobile-raise-and-telegram-back-fix">
+@media (max-width:899px){
+  /* Поднимаем контент ближе к красной линии, но оставляем запас под Telegram header */
+  #app{padding-top:calc(28px + env(safe-area-inset-top,0px))!important;}
+  .screen-container{padding-top:calc(8px + env(safe-area-inset-top,0px))!important;}
+  .gg-global-chip{top:calc(6px + env(safe-area-inset-top,0px))!important;}
+  /* На внутренних экранах нижнее меню скрыто, а Telegram Close превращается в BackButton */
+  #app.sub-screen-open .bottom-nav{display:none!important;visibility:hidden!important;pointer-events:none!important;}
+  #app.sub-screen-open{padding-bottom:16px!important;}
+}
+</style>
+
 
 
 

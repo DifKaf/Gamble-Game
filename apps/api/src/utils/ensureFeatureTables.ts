@@ -162,7 +162,27 @@ const STATEMENTS: Array<string> = [
 		"createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 		CONSTRAINT "ReferralWeeklyPayout_pkey" PRIMARY KEY ("id")
 	)`,
-	`CREATE UNIQUE INDEX IF NOT EXISTS "ReferralWeeklyPayout_referrerId_referredId_weekKey_key" ON "ReferralWeeklyPayout"("referrerId", "referredId", "weekKey")`
+	`CREATE UNIQUE INDEX IF NOT EXISTS "ReferralWeeklyPayout_referrerId_referredId_weekKey_key" ON "ReferralWeeklyPayout"("referrerId", "referredId", "weekKey")`,
+
+	// CatClicker: серверное сохранение прогресса, чтобы ПК и телефон видели один прогресс.
+	`CREATE TABLE IF NOT EXISTS "CatClickerState" (
+		"userId" TEXT NOT NULL,
+		"paws" BIGINT NOT NULL DEFAULT 0,
+		"mood" DOUBLE PRECISION NOT NULL DEFAULT 50,
+		"gcToday" BIGINT NOT NULL DEFAULT 0,
+		"dayKey" TEXT NOT NULL DEFAULT '',
+		"upgrades" JSONB NOT NULL DEFAULT '{"food":0,"toy":0,"scratch":0,"bed":0}'::jsonb,
+		"lastAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+		"updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+		CONSTRAINT "CatClickerState_pkey" PRIMARY KEY ("userId")
+	)`,
+	`ALTER TABLE "CatClickerState" ADD COLUMN IF NOT EXISTS "paws" BIGINT NOT NULL DEFAULT 0`,
+	`ALTER TABLE "CatClickerState" ADD COLUMN IF NOT EXISTS "mood" DOUBLE PRECISION NOT NULL DEFAULT 50`,
+	`ALTER TABLE "CatClickerState" ADD COLUMN IF NOT EXISTS "gcToday" BIGINT NOT NULL DEFAULT 0`,
+	`ALTER TABLE "CatClickerState" ADD COLUMN IF NOT EXISTS "dayKey" TEXT NOT NULL DEFAULT ''`,
+	`ALTER TABLE "CatClickerState" ADD COLUMN IF NOT EXISTS "upgrades" JSONB NOT NULL DEFAULT '{"food":0,"toy":0,"scratch":0,"bed":0}'::jsonb`,
+	`ALTER TABLE "CatClickerState" ADD COLUMN IF NOT EXISTS "lastAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP`,
+	`ALTER TABLE "CatClickerState" ADD COLUMN IF NOT EXISTS "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP`
 ]
 
 export async function ensureFeatureTables(log?: { info: (msg: string) => void; warn: (msg: string) => void }) {

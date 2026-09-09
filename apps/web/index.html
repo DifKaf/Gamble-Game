@@ -4816,7 +4816,7 @@ updateUI();
     if((name==='bonuses'||name==='wheel'||name==='home') && typeof checkWheelStatus==='function') checkWheelStatus();
     if((name==='profile'||name==='wheel'||name==='bonuses') && typeof refreshWeeklyStats==='function') refreshWeeklyStats();
     if(name==='admin' && typeof loadAdmin==='function') loadAdmin();
-    if(name==='catclicker' && typeof renderCat==='function') renderCat();
+    if(name==='catclicker' && typeof renderCat==='function'){ pullCatFromServer(); renderCat(); }
     if(name==='bonuses'){ if(typeof loadReferrals==='function') loadReferrals(); }
     if((name==='exchange'||name==='wallet'||name==='home') && typeof loadExchange==='function') loadExchange();
     if(name==='wallet' && typeof renderHistory==='function') renderHistory();
@@ -4953,6 +4953,8 @@ updateUI();
   /* ================= Cat Clicker MVP ================= */
   var CAT_KEY='gg_cat_clicker_v1';
   var catState=null;
+  var catSyncTimer=null;
+  var catSyncBusy=false;
   var catUpgrades=[
     {key:'food',icon:'🥣',name:'Корм',desc:'Больше лапок за тап',base:50},
     {key:'toy',icon:'🐭',name:'Игрушечная мышь',desc:'Шанс мур-крита x3',base:120},
@@ -4960,20 +4962,25 @@ updateUI();
     {key:'bed',icon:'🛏️',name:'Лежанка',desc:'Больше настроения',base:220}
   ];
   function todayKey(){var d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();}
-  function loadCat(){try{catState=JSON.parse(localStorage.getItem(CAT_KEY)||'null')}catch(e){} if(!catState) catState={paws:0,mood:50,gcToday:0,day:todayKey(),up:{food:0,toy:0,scratch:0,bed:0},last:Date.now()}; if(catState.day!==todayKey()){catState.day=todayKey();catState.gcToday=0;} var now=Date.now(); var passive=(catState.up.scratch||0); if(passive>0&&catState.last){catState.paws+=Math.min(7200,Math.floor((now-catState.last)/1000))*passive;} catState.last=now; saveCat();}
-  function saveCat(){try{localStorage.setItem(CAT_KEY,JSON.stringify(catState));}catch(e){}}
+  function defaultCat(){return {paws:0,mood:50,gcToday:0,day:todayKey(),up:{food:0,toy:0,scratch:0,bed:0},last:Date.now()};}
+  function normalizeCat(c){c=c||defaultCat(); c.paws=Math.max(0,Math.floor(Number(c.paws)||0)); c.mood=Math.max(0,Math.min(100,Number(c.mood)||50)); c.gcToday=Math.max(0,Math.floor(Number(c.gcToday)||0)); c.up=c.up||{}; ['food','toy','scratch','bed'].forEach(function(k){c.up[k]=Math.max(0,Math.floor(Number(c.up[k])||0));}); if(c.day!==todayKey()){c.day=todayKey();c.gcToday=0;} c.last=Number(c.last)||Date.now(); return c;}
+  function loadCat(){try{catState=normalizeCat(JSON.parse(localStorage.getItem(CAT_KEY)||'null'));}catch(e){catState=defaultCat();} var now=Date.now(); var passive=(catState.up.scratch||0); if(passive>0&&catState.last){catState.paws+=Math.min(7200,Math.floor((now-catState.last)/1000))*passive;} catState.last=now; saveCat(false);}
+  function saveCat(sync){try{localStorage.setItem(CAT_KEY,JSON.stringify(catState));}catch(e){} if(sync!==false) scheduleCatSync();}
+  async function pullCatFromServer(){ if(!backendReady) return; try{ var srv=await apiRequest('/me/cat-clicker'); if(srv&&typeof srv.paws==='number'){ catState=normalizeCat(srv); saveCat(false); renderCat(); } }catch(e){ console.warn('cat sync pull failed',e); } }
+  function scheduleCatSync(){ if(!backendReady||!catState) return; clearTimeout(catSyncTimer); catSyncTimer=setTimeout(pushCatToServer,650); }
+  async function pushCatToServer(){ if(!backendReady||!catState||catSyncBusy) return; catSyncBusy=true; try{ await apiRequest('/me/cat-clicker',{method:'POST',body:JSON.stringify({paws:catState.paws,mood:catState.mood,gcToday:catState.gcToday,day:catState.day,up:catState.up})}); }catch(e){ console.warn('cat sync push failed',e); } finally{ catSyncBusy=false; } }
   function catPerTap(){return 1+(catState.up.food||0)*2+Math.floor((catState.up.bed||0)/2);}
   function catLevelName(){var lvl=(catState.up.food||0)+(catState.up.toy||0)+(catState.up.scratch||0)+(catState.up.bed||0); if(lvl>=18)return'Кото-магнат'; if(lvl>=12)return'Кот в домике'; if(lvl>=7)return'Игровой кот'; if(lvl>=3)return'Сытый кот'; return'Уличный котёнок';}
   function upgradeCost(u){return Math.round(u.base*Math.pow(1.7,catState.up[u.key]||0));}
   function renderCat(){ if(!catState) loadCat(); var el; if(el=document.getElementById('catPaws')) el.textContent=fmt(catState.paws); if(el=document.getElementById('catPerTap')) el.textContent='+'+fmt(catPerTap()); if(el=document.getElementById('catMood')) el.textContent=Math.round(catState.mood)+'%'; if(el=document.getElementById('catLevelName')) el.textContent=catLevelName(); if(el=document.getElementById('catDailyLimit')) el.textContent='Сегодня получено: '+fmt(catState.gcToday||0)+' / 100 GC'; if(el=document.getElementById('catMoodEmoji')) el.textContent=catState.mood>75?'😻':(catState.mood>35?'🐱':'😿'); var box=document.getElementById('catUpgrades'); if(box){box.innerHTML=catUpgrades.map(function(u){var lvl=catState.up[u.key]||0,c=upgradeCost(u);return '<div class="cat-upgrade"><div class="cat-upgrade-info"><b>'+u.icon+' '+u.name+' ур. '+lvl+'</b><small>'+u.desc+' · цена '+fmt(c)+' 🐾</small></div><button class="btn btn-primary" data-cat-up="'+u.key+'">Купить</button></div>';}).join(''); box.querySelectorAll('[data-cat-up]').forEach(function(b){b.addEventListener('click',function(){buyCatUpgrade(b.getAttribute('data-cat-up'));});});}}
   function catFloat(txt,x,y){var d=document.createElement('div');d.className='cat-float';d.textContent=txt;d.style.left=x+'px';d.style.top=y+'px';document.body.appendChild(d);setTimeout(function(){d.remove();},850);}
-  function tapCat(ev){loadCat(); var gain=catPerTap(); var critChance=Math.min(.35,(catState.up.toy||0)*.035); if(Math.random()<critChance){gain*=3; haptic('success');} else haptic('light'); catState.paws+=gain; catState.mood=Math.min(100,catState.mood+.25+(catState.up.bed||0)*.03); catState.last=Date.now(); saveCat(); renderCat(); var r=ev.currentTarget.getBoundingClientRect(); catFloat('+'+fmt(gain)+' 🐾', (ev.clientX||r.left+r.width/2), (ev.clientY||r.top+80));}
-  function buyCatUpgrade(key){loadCat(); var u=catUpgrades.find(function(x){return x.key===key}); if(!u)return; var c=upgradeCost(u); if(catState.paws<c){showToast('Не хватает лапок','error');return;} catState.paws-=c; catState.up[key]=(catState.up[key]||0)+1; catState.mood=Math.min(100,catState.mood+4); saveCat(); renderCat(); showToast('Прокачка куплена','success');}
-  function exchangeCat(){loadCat(); if(catState.paws<1000){showToast('Нужно 1 000 лапок','error');return;} if((catState.gcToday||0)>=100){showToast('Дневной лимит GC исчерпан','error');return;} catState.paws-=1000; catState.gcToday=(catState.gcToday||0)+10; window.GambleSharedBalance.add(10); saveCat(); renderCat(); renderBalances(); showToast('+10 GC за лапки','success');}
-  loadCat(); setInterval(function(){ if(catState){catState.paws+=(catState.up.scratch||0); catState.mood=Math.max(5,catState.mood-.03); catState.last=Date.now(); saveCat(); if(currentScreen==='catclicker')renderCat();}},1000);
+  function tapCat(ev){loadCat(); var gain=catPerTap(); var critChance=Math.min(.35,(catState.up.toy||0)*.035); if(Math.random()<critChance){gain*=3; haptic('success');} else haptic('light'); catState.paws+=gain; catState.mood=Math.min(100,catState.mood+.25+(catState.up.bed||0)*.03); catState.last=Date.now(); saveCat(true); renderCat(); var r=ev.currentTarget.getBoundingClientRect(); catFloat('+'+fmt(gain)+' 🐾', (ev.clientX||r.left+r.width/2), (ev.clientY||r.top+80));}
+  function buyCatUpgrade(key){loadCat(); var u=catUpgrades.find(function(x){return x.key===key}); if(!u)return; var c=upgradeCost(u); if(catState.paws<c){showToast('Не хватает лапок','error');return;} catState.paws-=c; catState.up[key]=(catState.up[key]||0)+1; catState.mood=Math.min(100,catState.mood+4); saveCat(true); renderCat(); showToast('Прокачка куплена','success');}
+  function exchangeCat(){loadCat(); if(catState.paws<1000){showToast('Нужно 1 000 лапок','error');return;} if((catState.gcToday||0)>=100){showToast('Дневной лимит GC исчерпан','error');return;} catState.paws-=1000; catState.gcToday=(catState.gcToday||0)+10; window.GambleSharedBalance.add(10); saveCat(true); renderCat(); renderBalances(); showToast('+10 GC за лапки','success');}
+  loadCat(); setInterval(function(){ if(catState){catState.paws+=(catState.up.scratch||0); catState.mood=Math.max(5,catState.mood-.03); catState.last=Date.now(); saveCat(true); if(currentScreen==='catclicker')renderCat();}},1000);
   var catTapBtn=document.getElementById('catTapBtn'); if(catTapBtn) catTapBtn.addEventListener('click',tapCat);
   var catExchangeBtn=document.getElementById('catExchangeBtn'); if(catExchangeBtn) catExchangeBtn.addEventListener('click',exchangeCat);
-
+  document.addEventListener('visibilitychange',function(){ if(document.hidden) pushCatToServer(); else pullCatFromServer(); });
   document.querySelectorAll('[data-open]').forEach(function(btn){
     btn.addEventListener('click', function(){
       if(btn.getAttribute('data-locked')==='1'){ if(typeof showToast==='function') showToast('Скоро открытие','info'); haptic('light'); return; }
@@ -7747,6 +7754,18 @@ html,body,#app{max-width:100vw!important;overflow-x:hidden!important;}
   .cat-upgrade{padding:14px!important;}
 }
 </style>
+<style id="mobile-telegram-safe-area-fix">
+@media (max-width:899px){
+  #app{padding-top:calc(54px + env(safe-area-inset-top,0px))!important;}
+  .screen-container{padding-top:calc(18px + env(safe-area-inset-top,0px))!important;}
+  .gg-global-bar{height:calc(54px + env(safe-area-inset-top,0px))!important;}
+  .gg-global-chip{top:calc(10px + env(safe-area-inset-top,0px))!important;}
+  #screen-catclicker .game-header,#screen-dice .game-header,#screen-coinflip .game-header,#screen-roulette .game-header,#screen-mines .game-header,#screen-blackjack .game-header,#screen-baccarat .game-header,#screen-wallet .game-header,#screen-bonuses .game-header,#screen-profile .game-header,#screen-exchange .game-header{
+    margin-top:8px!important;
+  }
+}
+</style>
+
 
 
 

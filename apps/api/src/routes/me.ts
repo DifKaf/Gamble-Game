@@ -108,4 +108,26 @@ export async function meRoutes(app: FastifyInstance) {
 		}
 		return { users: users.slice(0, 8) }
 	})
+
+	// CatClicker progress is stored on server, so PC and phone stay synced.
+	app.get('/cat-clicker', { preHandler: [(app as any).authenticate] }, async (req) => {
+		const u = await getAuthUser(req)
+		const rows = await prisma.$queryRawUnsafe<any[]>('SELECT "paws", "mood", "gcToday", "dayKey", "upgrades", "lastAt" FROM "CatClickerState" WHERE "userId"=$1 LIMIT 1', u.id)
+		if (!rows.length) return { paws: 0, mood: 50, gcToday: 0, day: '', up: { food: 0, toy: 0, scratch: 0, bed: 0 }, last: Date.now() }
+		const r = rows[0]
+		return { paws: Number(r.paws || 0), mood: Number(r.mood || 50), gcToday: Number(r.gcToday || 0), day: r.dayKey || '', up: r.upgrades || { food: 0, toy: 0, scratch: 0, bed: 0 }, last: r.lastAt ? new Date(r.lastAt).getTime() : Date.now() }
+	})
+
+	app.post('/cat-clicker', { preHandler: [(app as any).authenticate] }, async (req) => {
+		const u = await getAuthUser(req)
+		const b: any = (req as any).body || {}
+		const up = b.up && typeof b.up === 'object' ? b.up : { food: 0, toy: 0, scratch: 0, bed: 0 }
+		const paws = Math.max(0, Math.floor(Number(b.paws) || 0))
+		const mood = Math.max(0, Math.min(100, Number(b.mood) || 50))
+		const gcToday = Math.max(0, Math.floor(Number(b.gcToday) || 0))
+		const dayKey = String(b.day || '')
+		await prisma.$executeRawUnsafe('INSERT INTO "CatClickerState" ("userId","paws","mood","gcToday","dayKey","upgrades","lastAt","updatedAt") VALUES ($1,$2,$3,$4,$5,$6::jsonb,NOW(),NOW()) ON CONFLICT ("userId") DO UPDATE SET "paws"=EXCLUDED."paws", "mood"=EXCLUDED."mood", "gcToday"=EXCLUDED."gcToday", "dayKey"=EXCLUDED."dayKey", "upgrades"=EXCLUDED."upgrades", "lastAt"=NOW(), "updatedAt"=NOW()', u.id, paws, mood, gcToday, dayKey, JSON.stringify(up))
+		return { ok: true }
+	})
+
 }

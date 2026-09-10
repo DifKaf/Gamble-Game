@@ -182,7 +182,15 @@ const STATEMENTS: Array<string> = [
 	`ALTER TABLE "CatClickerState" ADD COLUMN IF NOT EXISTS "dayKey" TEXT NOT NULL DEFAULT ''`,
 	`ALTER TABLE "CatClickerState" ADD COLUMN IF NOT EXISTS "upgrades" JSONB NOT NULL DEFAULT '{"food":0,"toy":0,"scratch":0,"bed":0}'::jsonb`,
 	`ALTER TABLE "CatClickerState" ADD COLUMN IF NOT EXISTS "lastAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP`,
-	`ALTER TABLE "CatClickerState" ADD COLUMN IF NOT EXISTS "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP`
+	`ALTER TABLE "CatClickerState" ADD COLUMN IF NOT EXISTS "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP`,
+
+	// App settings: maintenance mode switch controlled by admin panel.
+	`CREATE TABLE IF NOT EXISTS "AppSetting" (
+		"key" TEXT NOT NULL,
+		"value" JSONB NOT NULL DEFAULT '{}'::jsonb,
+		"updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+		CONSTRAINT "AppSetting_pkey" PRIMARY KEY ("key")
+	)`
 ]
 
 export async function ensureFeatureTables(log?: { info: (msg: string) => void; warn: (msg: string) => void }) {

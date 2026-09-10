@@ -68,6 +68,12 @@ export async function meRoutes(app: FastifyInstance) {
 		return weeklyStats(u.id)
 	})
 
+	app.get('/maintenance', { preHandler: [(app as any).authenticate] }, async () => {
+		const rows = await prisma.$queryRawUnsafe<any[]>('SELECT "value" FROM "AppSetting" WHERE "key"=$1 LIMIT 1', 'maintenance')
+		const value = rows[0]?.value || {}
+		return { enabled: Boolean(value.enabled), message: value.message || 'Технические работы' }
+	})
+
 	// Поиск получателя перевода: по @username ИЛИ по началу цифрового ID.
 	app.get('/users/search', { preHandler: [(app as any).authenticate] }, async (req) => {
 		const q = String((req.query as any).q || '').replace(/^@/, '').trim()

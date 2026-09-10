@@ -1245,7 +1245,6 @@ body.theme-light .settings-gear-btn{background:#EEF0F5!important;border-color:rg
       <div class="game-grid">
         <button class="game-card img-card cat-img-card" data-open="slots" aria-label="Слоты"><img src="assets/card-slots.svg" alt="Слоты" class="img-card-media"></button>
         <button class="game-card img-card cat-img-card" data-open="minigames" aria-label="Мини игры"><img src="assets/card-minigames.svg" alt="Мини игры" class="img-card-media"></button>
-        <button class="game-card cat-clicker-open" data-open="catclicker" aria-label="CatClicker"><span class="cat-clicker-card-emoji">🐱</span><span><b>CatClicker</b><small>Тапай кота и прокачивай питомца</small></span></button>
       </div>
     </section>
 
@@ -3681,6 +3680,13 @@ updateUI();
       <div class="game-header"><button class="back-btn" data-nav="profile">←</button><h2>Админка</h2></div>
       <div class="stat-grid" id="adminOverview"></div>
       <div class="panel" style="margin-top:12px;">
+        <div class="panel-title">Тех. работы</div>
+        <div class="admin-maintenance-box">
+          <div><b id="maintenanceStatus">Проверяем статус...</b><small>При включении игроки увидят экран “Тех. работы”. Админы смогут пользоваться приложением.</small></div>
+          <button class="btn btn-primary" id="maintenanceToggleBtn">Включить</button>
+        </div>
+      </div>
+      <div class="panel" style="margin-top:12px;">
         <div class="panel-title">Игроки</div>
         <input class="input" id="adminUserQuery" type="text" placeholder="Ник или ID">
         <div id="adminUsers" class="admin-list"></div>
@@ -3701,6 +3707,13 @@ updateUI();
     <button class="nav-btn" data-nav="profile"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="8.4" r="3.6"/><path d="M4.9 20c.7-3.8 3.6-5.8 7.1-5.8s6.4 2 7.1 5.8"/></svg></span><span>Профиль</span></button>
   </nav>
 
+  <div class="maintenance-overlay hidden" id="maintenanceOverlay">
+    <div class="maintenance-card">
+      <div class="maintenance-icon">🛠️</div>
+      <h2>Тех. работы</h2>
+      <p id="maintenanceMessage">Скоро вернёмся. Идёт обновление приложения.</p>
+    </div>
+  </div>
   <div id="toastLayer"></div>
   <div id="confettiLayer"></div>
   <div class="win-overlay" id="winOverlay">
@@ -3775,6 +3788,7 @@ updateUI();
   var backendUser = JSON.parse(localStorage.getItem('gg_backend_user') || 'null');
   var backendBalance = 0;
   var backendReady = false;
+  var maintenanceEnabled = false;
 
   async function apiRequest(path, options){
     options = options || {};
@@ -3863,6 +3877,7 @@ updateUI();
       if(typeof refreshWeeklyStats==='function') refreshWeeklyStats();
       if(typeof loadReferrals==='function') loadReferrals();
       if(typeof loadExchange==='function') loadExchange();
+      checkMaintenance();
       if(typeof checkWheelStatus==='function') checkWheelStatus();
       console.log('Backend auth success', auth.user);
     }catch(e){
@@ -4242,6 +4257,9 @@ updateUI();
   }
 
   document.addEventListener('click', function(ev){
+
+    var maint = ev.target && ev.target.closest ? ev.target.closest('#maintenanceToggleBtn') : null;
+    if(maint){ ev.preventDefault(); toggleMaintenance(); return; }
     var btn = ev.target && ev.target.closest ? ev.target.closest('[data-quest-claim]') : null;
     if(!btn) return;
     ev.preventDefault();
@@ -4895,9 +4913,37 @@ updateUI();
     });
   })();
 
+
+  function applyMaintenanceOverlay(data){
+    maintenanceEnabled = Boolean(data && data.enabled);
+    var isAdmin = Boolean(backendUser && backendUser.admin);
+    var overlay = document.getElementById('maintenanceOverlay');
+    var msg = document.getElementById('maintenanceMessage');
+    if(msg) msg.textContent = (data && data.message) || 'Скоро вернёмся. Идёт обновление приложения.';
+    if(overlay) overlay.classList.toggle('hidden', !maintenanceEnabled || isAdmin);
+    var st = document.getElementById('maintenanceStatus');
+    if(st) st.textContent = maintenanceEnabled ? 'Тех. работы включены' : 'Тех. работы выключены';
+    var btn = document.getElementById('maintenanceToggleBtn');
+    if(btn) btn.textContent = maintenanceEnabled ? 'Выключить' : 'Включить';
+  }
+  async function checkMaintenance(){
+    if(!backendReady) return;
+    try{ applyMaintenanceOverlay(await apiRequest('/me/maintenance')); }catch(e){}
+  }
+  async function toggleMaintenance(){
+    if(!backendReady || !(backendUser && backendUser.admin)) return;
+    try{
+      var next = !maintenanceEnabled;
+      var data = await apiRequest('/admin/maintenance',{method:'POST',body:JSON.stringify({enabled:next,message:'Технические работы'})});
+      applyMaintenanceOverlay(data);
+      showToast(next ? 'Тех. работы включены' : 'Тех. работы выключены','success');
+    }catch(e){ showToast(e.message||'Ошибка техработ','error'); }
+  }
+
   async function loadAdmin(){
     if(!backendReady || !(backendUser && backendUser.admin)) return;
     try{
+      checkMaintenance();
       var ov = await apiRequest('/admin/overview');
       var box = document.getElementById('adminOverview');
       if(box){
@@ -7827,6 +7873,12 @@ html,body,#app{max-width:100vw!important;overflow-x:hidden!important;}
 #catClickerCatImg{width:118%!important;height:118%!important;object-fit:contain!important;display:block!important;transform:translate(-4%,2%)!important;filter:drop-shadow(0 14px 24px rgba(0,0,0,.45));pointer-events:none!important;user-select:none!important;}
 .cat-main:active #catClickerCatImg{transform:translate(-4%,2%) scale(.96)!important;}
 </style>
+<style id="maintenance-mode-style">
+.maintenance-overlay{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 30%,rgba(255,170,80,.16),rgba(0,0,0,.94) 58%),#050505;padding:24px;text-align:center;}
+.maintenance-card{width:min(420px,100%);border-radius:28px;border:1px solid rgba(255,255,255,.12);background:rgba(18,18,22,.92);box-shadow:0 28px 80px rgba(0,0,0,.58);padding:34px 22px;}
+.maintenance-icon{font-size:52px;margin-bottom:12px}.maintenance-card h2{font-size:32px;margin:0 0 10px;font-weight:950}.maintenance-card p{margin:0;color:#cfcfcf;font-weight:800;line-height:1.45}.admin-maintenance-box{display:flex;align-items:center;justify-content:space-between;gap:12px}.admin-maintenance-box small{display:block;color:#999;font-weight:800;margin-top:4px;line-height:1.35}.admin-maintenance-box .btn{min-width:132px}@media(max-width:620px){.admin-maintenance-box{align-items:stretch;flex-direction:column}.admin-maintenance-box .btn{width:100%}}
+</style>
+
 
 
 

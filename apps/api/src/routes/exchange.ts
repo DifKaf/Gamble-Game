@@ -448,6 +448,53 @@ export async function exchangeRoutes(app: FastifyInstance) {
 		})
 	})
 
+
+	// Скупка GC: игрок создаёт заявку на покупку, другой игрок продаёт ему GC.
+	app.get('/buy-requests', { preHandler: [(app as any).authenticate] }, async (request) => {
+		const user = await getAuthUser(request)
+		const rows = await prisma.$queryRawUnsafe<any[]>('SELECT * FROM "ExchangeRequest" WHERE "kind" = $1 AND "status" = $2 ORDER BY "createdAt" DESC LIMIT 80', 'BUY', 'OPEN')
+		const offers = await enrichOffers(rows, user.id)
+		return { offers, requests: offers }
+	})
+
+	app.post('/buy-requests', { preHandler: [(app as any).authenticate] }, async (request, reply) => {
+		const user = await getAuthUser(request)
+		const cfg = exchangeConfig()
+		if (!cfg.enabled) return reply.code(403).send({ error: 'Биржа временно закрыта' })
+		const parsed = offerSchema.safeParse(request.body)
+		if (!parsed.success) return reply.code(400).send({ error: 'Укажите сумму GC, цену, способ и реквизиты' })
+		const amountGc = parsed.data.amountGc
+		const method = parsed.data.method.toLowerCase()
+		const destination = parsed.data.destination.trim()
+		const priceMinor = Math.round(parsed.data.price * 100)
+		if (!cfg.methods.some((m) => m.code === method)) return reply.code(400).send({ error: 'Недоступный способ оплаты' })
+		if (amountGc < cfg.minGc) return reply.code(400).send({ error: `Минимальная сумма — ${cfg.minGc} GC` })
+		if (priceMinor < 100) return reply.code(400).send({ error: 'Минимальная цена — 1 ' + cfg.currency })
+		const row = await createExchangeRequest({ userId:user.id, amountGc:BigInt(amountGc), payoutMinor:BigInt(priceMinor), currency:cfg.currency, rateGcPerUnit:quoteExchange(amountGc, priceMinor).rateGcPerUnit, feePercent:cfg.feePercent, method, destination, contact:null, status:'OPEN' })
+		await prisma.$executeRawUnsafe('UPDATE "ExchangeRequest" SET "kind"=$2 WHERE "id"=$1', row.id, 'BUY')
+		const fresh = await findExchangeRequest(row.id); const [offer] = await enrichOffers([fresh], user.id)
+		return { ok:true, offer, request:offer, balance:Number(user.balance) }
+	})
+
+	app.post('/buy-requests/:id/take', { preHandler: [(app as any).authenticate] }, async (request, reply) => {
+		const seller = await getAuthUser(request)
+		const id = String((request.params as any).id || '')
+		const row = await loadOfferOr404(id, reply); if(!row) return
+		if (row.userId === seller.id) return reply.code(400).send({ error: 'Нельзя принять свою заявку' })
+		if (row.status !== 'OPEN') return reply.code(409).send({ error: 'Заявка уже занята' })
+		if (Number(seller.balance) < Number(row.amountGc)) return reply.code(400).send({ error: 'Недостаточно GC для продажи' })
+		const ok = await prisma.$transaction(async (tx) => {
+			const upd = await updateOffer(row.id, ['OPEN','PENDING'], { status:'PAID', buyerId:seller.id, takenAt:new Date(), paidAt:new Date() }, tx)
+			if(!upd.count) return false
+			await applyBalanceChange({ tx, userId:seller.id, amount:-BigInt(row.amountGc), type:'ADMIN_ADJUSTMENT', source:'p2p-buy-sell-hold', metadata:{ offerId:row.id } })
+			return true
+		})
+		if(!ok) return reply.code(409).send({ error:'Заявка уже занята' })
+		const updated = await findExchangeRequest(row.id); const [offer] = await enrichOffers([updated], seller.id)
+		const fresh = await prisma.user.findUniqueOrThrow({ where:{ id:seller.id } })
+		return { ok:true, offer, balance:Number(fresh.balance) }
+	})
+
 	app.get('/admin/requests', { preHandler: [(app as any).authenticate] }, async (request, reply) => {
 		const user = await getAuthUser(request)
 		if (!isExchangeAdmin(user.telegramId)) return reply.code(403).send({ error: 'Нет доступа' })

@@ -3380,7 +3380,6 @@ updateUI();
       <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>Рулетка</h2></div>
       <div class="panel">
         <div class="roulette-num-history" id="rouletteNumberHistory"></div>
-        <div class="roulette-hotcold" id="rouletteHotCold"></div>
         <div class="roulette-stage">
           <div class="roulette-wheel-wrap">
             <div class="roulette-ball-track" id="rouletteBallTrack"><div class="roulette-ball"></div></div>
@@ -5319,7 +5318,7 @@ updateUI();
     document.getElementById('slotSpinBtn').disabled = true;
 
     if(!isBonusSpin){
-      placeBet(bet); renderBalances(); bumpBalanceChip();
+      /* Баланс Drunkard Gate списывает backend, локально не списываем чтобы не было x2. */
       state.jackpot = Math.round((state.jackpot + bet*JACKPOT_GROWTH)*100)/100;
       updateJackpotDisplay();
       saveState();
@@ -5454,7 +5453,7 @@ updateUI();
     updateBonusBanner();
 
     if(totalWin>0){
-      registerWin(totalWin);
+      /* Выигрыш Drunkard Gate зачисляет backend, локально не дублируем. */
       addHistory(me(), 'win', totalWin, 'Drunkard Gate: выигрыш');
       var label = 'Победа!';
       if(result.jackpotWin>0) label = WILD.sym+' ДЖЕКПОТ!!!';
@@ -5900,21 +5899,8 @@ updateUI();
   var ROULETTE_NUMBERS = [0,32,15,19,4,21,2,25,17,34,6,27,13,36,11,30,8,23,10,5,24,16,33,1,20,14,31,9,22,18,29,7,28,12,35,3,26];
   function rouletteColorByNumber(n){ var reds=[1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]; if(n===0) return 'green'; return reds.indexOf(Number(n))!==-1 ? 'red' : 'black'; }
   var rouletteNumberHistoryArr = [];
-  function renderRouletteNumberHistory(){ var box=document.getElementById('rouletteNumberHistory'); if(!box) return; var arr=rouletteNumberHistoryArr.slice(0,18); box.innerHTML=arr.map(function(x){ return '<span class="roulette-num-history-cell '+x.color+'">'+x.number+'</span>'; }).join(''); renderRouletteHotCold(); }
-  function renderRouletteHotCold(){
-    var box = document.getElementById('rouletteHotCold'); if(!box) return;
-    if(rouletteNumberHistoryArr.length < 5){ box.innerHTML=''; return; }
-    var counts = {};
-    rouletteNumberHistoryArr.forEach(function(x){ counts[x.number] = (counts[x.number]||0) + 1; });
-    var seen = Object.keys(counts).map(function(n){ return { number:Number(n), count:counts[n], color: rouletteColorByNumber(Number(n)) }; });
-    seen.sort(function(a,b){ return b.count - a.count; });
-    var hot = seen.slice(0,3);
-    var allNums = ROULETTE_NUMBERS.filter(function(n){ return !counts[n]; });
-    var cold = allNums.slice(0,3).map(function(n){ return { number:n, color: rouletteColorByNumber(n) }; });
-    function chips(arr){ return arr.map(function(x){ return '<span class="rhc-chip '+x.color+'">'+x.number+'</span>'; }).join(''); }
-    box.innerHTML = '<div class="rhc-group"><span class="rhc-label">🔥 Горячие</span>'+chips(hot)+'</div>'+
-      '<div class="rhc-group"><span class="rhc-label">❄️ Холодные</span>'+chips(cold)+'</div>';
-  }
+  function renderRouletteNumberHistory(){ var box=document.getElementById('rouletteNumberHistory'); if(!box) return; var arr=rouletteNumberHistoryArr.slice(0,18); box.innerHTML=arr.map(function(x){ return '<span class="roulette-num-history-cell '+x.color+'">'+x.number+'</span>'; }).join('');  }
+  function renderRouletteHotCold(){ var box=document.getElementById('rouletteHotCold'); if(box) box.innerHTML=''; }
   function buildRouletteWheel(){
     var wheel = document.getElementById('wheelEl'); if(!wheel || wheel.dataset.ready) return;
     wheel.dataset.ready = '1';
@@ -6001,7 +5987,7 @@ updateUI();
     var resultEl=document.getElementById('rouletteResult'), btn=document.getElementById('rouletteSpinBtn');
     function tick(){
       if(!rouletteCountdownActive) return;
-      if(resultEl) resultEl.innerHTML='<span class="roulette-countdown">До запуска <b>'+left+'</b> сек. · ставку можно отменить</span>';
+      if(resultEl) resultEl.innerHTML='<span class="roulette-countdown">До запуска <b>'+left+'</b> сек.</span>';
       if(btn) btn.textContent='Ставки открыты: '+left+' сек.';
       if(left<=0){ rouletteBetsClosed=true; setRouletteCancelState(false,'Ставка зафиксирована'); setRouletteBoardDisabled(true); if(btn) btn.textContent='Шарик крутится...'; runRouletteRound(); return; }
       left--; rouletteCountdownTimer=setTimeout(tick,1000);
@@ -6019,7 +6005,7 @@ updateUI();
       if(backendReady){ backendBalance += totalBetAmount; }
       var result=await serverBet('roulette', totalBetAmount, { bets: roulettePendingBets.map(function(b){ return { amount:b.amount, payload:b.payload }; }) }, {deferBalance:true});
       var idx=Math.max(0, ROULETTE_NUMBERS.indexOf(Number(result.number))); var step=360/ROULETTE_NUMBERS.length; var targetAngle=idx*step;
-      wheelRotation=0; var finalBallAngle=targetAngle; ballRotation += 360*6 + ((finalBallAngle - (ballRotation % 360) + 360) % 360);
+      wheelRotation=0; var finalBallAngle=targetAngle; ballRotation += 360*10 + ((finalBallAngle - (ballRotation % 360) + 360) % 360);
       var wheelWrap=document.querySelector('#screen-roulette .roulette-wheel-wrap'), wheelEl=document.getElementById('wheelEl'), ballTrack=document.getElementById('rouletteBallTrack');
       if(wheelWrap) wheelWrap.classList.add('spinning'); if(wheelEl) wheelEl.style.transform='rotate(0deg)'; if(ballTrack) ballTrack.style.transform='rotate('+ballRotation+'deg)';
       setTimeout(function(){
@@ -6030,7 +6016,7 @@ updateUI();
         if(result.winAmount>0){ addHistory(me(),'win', result.winAmount, 'Рулетка'); showWinOverlay(result.winAmount); haptic('success'); } else { addHistory(me(),'loss', totalBetAmount, 'Рулетка'); haptic('error'); }
         roulettePendingBets=[]; setRouletteBoardDisabled(false); document.querySelectorAll('.roulette-chip-on-board').forEach(function(chip){ chip.remove(); }); document.querySelectorAll('.roulette-num-btn,.roulette-outside-btn').forEach(function(b){ b.classList.remove('active'); });
         rouletteSelectedNumber=null; rouletteSelectedOutside=null; setRouletteCancelState(false,'Отменить ставку'); renderAll(); rouletteSpinning=false; rouletteCountdownActive=false; rouletteBetsClosed=false; var btn=document.getElementById('rouletteSpinBtn'); if(btn) btn.textContent='Ожидание ставки';
-      },1800);
+      },4200);
     }catch(e){
       showToast(e.message || 'Ошибка ставки','error');
       rouletteSpinning=false; rouletteCountdownActive=false; rouletteBetsClosed=false; setRouletteCancelState(false,'Отменить ставку');
@@ -6140,12 +6126,13 @@ updateUI();
     if(!minesState || minesState.ended || tile.disabled) return;
     var idx = parseInt(tile.dataset.idx,10);
     tile.disabled = true;
+    tile.classList.add('pending'); tile.textContent='…'; haptic('light');
     try{
       var data = await apiRequest('/games/mines/open', { method:'POST', body:JSON.stringify({ sessionId:minesState.sessionId, cellIndex:idx }) });
       backendBalance = data.balance; applyBackendBalanceToUI();
       if(data.hitMine){
         minesState.ended = true;
-        tile.classList.add('boom'); tile.textContent = '💣'; haptic('error');
+        tile.classList.remove('pending'); tile.classList.add('boom'); tile.textContent = '💣'; haptic('error');
         var minesGridShakeEl = document.getElementById('minesGrid'); if(minesGridShakeEl){ minesGridShakeEl.classList.add('mines-shake'); setTimeout(function(){ minesGridShakeEl.classList.remove('mines-shake'); }, 420); }
         var streakFillReset = document.getElementById('minesStreakFill'), streakLabelReset = document.getElementById('minesStreakLabel');
         if(streakFillReset) streakFillReset.style.width = '0%';
@@ -6157,7 +6144,7 @@ updateUI();
         if(cash) cash.classList.add('hidden');
         if(cont) cont.classList.remove('hidden');
       } else {
-        tile.classList.add('safe'); tile.textContent = '💎';
+        tile.classList.remove('pending'); tile.classList.add('safe'); tile.textContent = '💎';
         minesState.openedCells = data.openedCells || [];
         minesState.revealed = minesState.openedCells.length;
         minesState.multiplier = data.multiplier || 1;
@@ -6178,7 +6165,7 @@ updateUI();
         document.getElementById('minesCashoutBtn').disabled = false;
         haptic('light');
       }
-    }catch(e){ tile.disabled = false; showToast(e.message || 'Ошибка клетки','error'); haptic('error'); }
+    }catch(e){ tile.classList.remove('pending'); tile.textContent='❔'; tile.disabled = false; showToast(e.message || 'Ошибка клетки','error'); haptic('error'); }
   }
 
   function revealFullMinesBoard(mines, opened){
@@ -6398,14 +6385,16 @@ updateUI();
   });
 
   document.getElementById('bjInsuranceYes').addEventListener('click', async function(){
+    var __btn=this; if(__btn.disabled) return; __btn.disabled=true;
     if(!bjState) return;
     try{
       var data = await apiRequest('/games/blackjack/insurance', { method:'POST', body:JSON.stringify({ sessionId:bjState.sessionId, take:true }) });
       backendBalance = data.balance; applyBackendBalanceToUI();
       renderBlackjack(data);
-    }catch(e){ showToast(e.message || 'Ошибка страховки','error'); haptic('error'); }
+    }catch(e){ showToast(e.message || 'Ошибка страховки','error'); haptic('error'); } finally{ if(typeof __btn!=='undefined') __btn.disabled=false; }
   });
   document.getElementById('bjInsuranceNo').addEventListener('click', async function(){
+    var __btn=this; if(__btn.disabled) return; __btn.disabled=true;
     if(!bjState) return;
     try{
       var data = await apiRequest('/games/blackjack/insurance', { method:'POST', body:JSON.stringify({ sessionId:bjState.sessionId, take:false }) });
@@ -6414,14 +6403,16 @@ updateUI();
     }catch(e){ showToast(e.message || 'Ошибка страховки','error'); haptic('error'); }
   });
   document.getElementById('bjHitBtn').addEventListener('click', async function(){
+    var __btn=this; if(__btn.disabled) return; __btn.disabled=true;
     if(!bjState) return;
     try{
       var data = await apiRequest('/games/blackjack/hit', { method:'POST', body:JSON.stringify({ sessionId:bjState.sessionId }) });
       backendBalance = data.balance; applyBackendBalanceToUI();
       renderBlackjack(data);
-    }catch(e){ showToast(e.message || 'Ошибка хода','error'); haptic('error'); }
+    }catch(e){ showToast(e.message || 'Ошибка хода','error'); haptic('error'); } finally{ if(typeof __btn!=='undefined') __btn.disabled=false; }
   });
   document.getElementById('bjStandBtn').addEventListener('click', async function(){
+    var __btn=this; if(__btn.disabled) return; __btn.disabled=true;
     if(!bjState) return;
     try{
       var data = await apiRequest('/games/blackjack/stand', { method:'POST', body:JSON.stringify({ sessionId:bjState.sessionId }) });
@@ -6430,6 +6421,7 @@ updateUI();
     }catch(e){ showToast(e.message || 'Ошибка хода','error'); haptic('error'); }
   });
   document.getElementById('bjDoubleBtn').addEventListener('click', async function(){
+    var __btn=this; if(__btn.disabled) return; __btn.disabled=true;
     if(!bjState) return;
     var doubleBet = Number(bjState.betAmount || bjState.bet || 0);
     var prevBackendBalance = backendBalance;
@@ -6438,7 +6430,7 @@ updateUI();
       var data = await apiRequest('/games/blackjack/double', { method:'POST', body:JSON.stringify({ sessionId:bjState.sessionId }) });
       backendBalance = data.balance; applyBackendBalanceToUI(); renderBalances();
       renderBlackjack(data);
-    }catch(e){ backendBalance = prevBackendBalance; applyBackendBalanceToUI(); renderBalances(); showToast(e.message || 'Ошибка удвоения','error'); haptic('error'); }
+    }catch(e){ backendBalance = prevBackendBalance; applyBackendBalanceToUI(); renderBalances(); showToast(e.message || 'Ошибка удвоения','error'); haptic('error'); } finally{ if(typeof __btn!=='undefined') __btn.disabled=false; }
   });
   document.getElementById('bjRebetBtn').addEventListener('click', function(){
     bjState = null;
@@ -6534,10 +6526,10 @@ updateUI();
     if(baccaratRoundActive || !totalBaccaratBet()) return;
     baccaratRoundActive=true; baccaratBetsClosed=false; setBaccaratCancelState(true,'Отменить ставку');
     var left=10, el=document.getElementById('baccaratCountdown');
-    if(el){ el.classList.remove('hidden'); el.textContent='Старт через '+left+' · отмена доступна'; }
+    if(el){ el.classList.remove('hidden'); el.textContent='Старт через '+left; }
     baccaratCountdownTimer=setInterval(function(){
       left--;
-      if(el) el.textContent='Старт через '+left+' · отмена доступна';
+      if(el) el.textContent='Старт через '+left;
       if(left<=0){
         clearInterval(baccaratCountdownTimer); baccaratCountdownTimer=null; baccaratBetsClosed=true;
         setBaccaratCancelState(false,'Ставка зафиксирована');
@@ -7094,7 +7086,7 @@ updateUI();
   var batchHistoryOk = true;
   function refreshMiniGameHistories(force){
     var now = Date.now();
-    if(!force && now - lastHistoryRefresh < 8000) return;
+    if(!force && now - lastHistoryRefresh < 2500) return;
     lastHistoryRefresh = now;
     if(!backendReady) return;
     if(!batchHistoryOk){ GAME_HISTORY_CODES.forEach(renderGameHistory); return; }
@@ -7878,6 +7870,21 @@ html,body,#app{max-width:100vw!important;overflow-x:hidden!important;}
 .maintenance-card{width:min(420px,100%);border-radius:28px;border:1px solid rgba(255,255,255,.12);background:rgba(18,18,22,.92);box-shadow:0 28px 80px rgba(0,0,0,.58);padding:34px 22px;}
 .maintenance-icon{font-size:52px;margin-bottom:12px}.maintenance-card h2{font-size:32px;margin:0 0 10px;font-weight:950}.maintenance-card p{margin:0;color:#cfcfcf;font-weight:800;line-height:1.45}.admin-maintenance-box{display:flex;align-items:center;justify-content:space-between;gap:12px}.admin-maintenance-box small{display:block;color:#999;font-weight:800;margin-top:4px;line-height:1.35}.admin-maintenance-box .btn{min-width:132px}@media(max-width:620px){.admin-maintenance-box{align-items:stretch;flex-direction:column}.admin-maintenance-box .btn{width:100%}}
 </style>
+<style id="gameplay-speed-and-mobile-fixes">
+@media(max-width:899px){
+  #screen-roulette .chip-row,#rouletteChips{display:flex!important;flex-direction:row!important;flex-wrap:nowrap!important;overflow-x:auto!important;gap:8px!important;align-items:center!important;padding-bottom:6px!important;}
+  #screen-roulette .chip-row button,#rouletteChips button{flex:0 0 auto!important;min-width:58px!important;white-space:nowrap!important;}
+  .roulette-chip-on-board{min-width:34px!important;height:22px!important;border-radius:999px!important;padding:0 6px!important;font-size:9px!important;white-space:nowrap!important;}
+  .mines-grid{grid-template-columns:repeat(5,52px)!important;gap:9px!important;margin:18px auto!important;}
+  .mine-tile{width:52px!important;height:52px!important;font-size:22px!important;border-radius:15px!important;}
+  #screen-mines .panel{padding:18px!important;}
+}
+.mine-tile.pending{background:#2b3344!important;transform:scale(.96);opacity:.86;}
+.roulette-hotcold{display:none!important;}
+.roulette-ball-track{transition:transform 4.2s cubic-bezier(.08,.72,.05,1)!important;}
+.roulette-wheel-wrap.spinning .roulette-ball{animation:rouletteBallBounce .32s ease-in-out infinite!important;}
+</style>
+
 
 
 

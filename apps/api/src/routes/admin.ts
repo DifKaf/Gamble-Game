@@ -14,24 +14,6 @@ function requireAdmin(user: any, reply: any) {
 		return false
 	}
 	return true
-	app.get('/maintenance', { preHandler: [(app as any).authenticate] }, async (request, reply) => {
-		const admin = await getAuthUser(request)
-		if (!requireAdmin(admin, reply)) return
-		const rows = await prisma.$queryRawUnsafe<any[]>('SELECT "value" FROM "AppSetting" WHERE "key"=$1 LIMIT 1', 'maintenance')
-		const value = rows[0]?.value || {}
-		return { enabled: Boolean(value.enabled), message: value.message || 'Технические работы' }
-	})
-
-	app.post('/maintenance', { preHandler: [(app as any).authenticate] }, async (request, reply) => {
-		const admin = await getAuthUser(request)
-		if (!requireAdmin(admin, reply)) return
-		const parsed = z.object({ enabled: z.boolean(), message: z.string().max(200).optional() }).safeParse(request.body)
-		if (!parsed.success) return reply.code(400).send({ error: 'Укажите статус техработ' })
-		const value = { enabled: parsed.data.enabled, message: parsed.data.message || 'Технические работы' }
-		await prisma.$executeRawUnsafe('INSERT INTO "AppSetting" ("key","value","updatedAt") VALUES ($1,$2::jsonb,NOW()) ON CONFLICT ("key") DO UPDATE SET "value"=EXCLUDED."value", "updatedAt"=NOW()', 'maintenance', JSON.stringify(value))
-		return value
-	})
-
 }
 
 function publicAdminUser(u: any) {
@@ -48,24 +30,6 @@ function publicAdminUser(u: any) {
 		banReason: u.banReason || null,
 		createdAt: u.createdAt
 	}
-	app.get('/maintenance', { preHandler: [(app as any).authenticate] }, async (request, reply) => {
-		const admin = await getAuthUser(request)
-		if (!requireAdmin(admin, reply)) return
-		const rows = await prisma.$queryRawUnsafe<any[]>('SELECT "value" FROM "AppSetting" WHERE "key"=$1 LIMIT 1', 'maintenance')
-		const value = rows[0]?.value || {}
-		return { enabled: Boolean(value.enabled), message: value.message || 'Технические работы' }
-	})
-
-	app.post('/maintenance', { preHandler: [(app as any).authenticate] }, async (request, reply) => {
-		const admin = await getAuthUser(request)
-		if (!requireAdmin(admin, reply)) return
-		const parsed = z.object({ enabled: z.boolean(), message: z.string().max(200).optional() }).safeParse(request.body)
-		if (!parsed.success) return reply.code(400).send({ error: 'Укажите статус техработ' })
-		const value = { enabled: parsed.data.enabled, message: parsed.data.message || 'Технические работы' }
-		await prisma.$executeRawUnsafe('INSERT INTO "AppSetting" ("key","value","updatedAt") VALUES ($1,$2::jsonb,NOW()) ON CONFLICT ("key") DO UPDATE SET "value"=EXCLUDED."value", "updatedAt"=NOW()', 'maintenance', JSON.stringify(value))
-		return value
-	})
-
 }
 
 export async function adminRoutes(app: FastifyInstance) {

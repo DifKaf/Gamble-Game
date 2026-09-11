@@ -3796,7 +3796,25 @@ updateUI();
     // на POST без body (именно из-за этого не работало колесо фортуны и ежедневный бонус).
     if(options.body && !headers['Content-Type']) headers['Content-Type'] = 'application/json';
     if(backendToken) headers.Authorization = 'Bearer ' + backendToken;
-    var res = await fetch(API_URL + path, Object.assign({}, options, { headers: headers }));
+    var controller = null;
+    var timeoutId = null;
+    if(window.AbortController){
+      controller = new AbortController();
+      timeoutId = setTimeout(function(){ try{ controller.abort(); }catch(e){} }, Number(options.timeout || 12000));
+    }
+    var res;
+    try{
+      res = await fetch(API_URL + path, Object.assign({}, options, { headers: headers, signal: controller ? controller.signal : options.signal }));
+    }catch(fetchErr){
+      var msg = (fetchErr && fetchErr.name === 'AbortError')
+        ? 'Сервер долго не отвечает. Попробуйте ещё раз через несколько секунд.'
+        : 'Нет соединения с сервером. Проверьте деплой Railway и домен API.';
+      var netErr = new Error(msg);
+      netErr.original = fetchErr;
+      throw netErr;
+    }finally{
+      if(timeoutId) clearTimeout(timeoutId);
+    }
     var data = await res.json().catch(function(){ return {}; });
     if(!res.ok){
       var apiErr = new Error(data.error || 'API error');
@@ -4645,7 +4663,7 @@ updateUI();
     if(destination.length < 4){ showToast('Укажите реквизиты','error'); return; }
     exchangeBusy = true;
     try{
-      var res = await apiRequest('/exchange/offers', { method:'POST', body: JSON.stringify({
+      var res = await apiRequest('/exchange/offers', { method:'POST', timeout:15000, body: JSON.stringify({
         amountGc: amount,
         price: totalPrice,
         method: exchangeMethod,
@@ -4688,7 +4706,7 @@ updateUI();
     if(!exchangeMethod){showToast('Выберите способ оплаты','error');return;}
     if(destination.length<4){showToast('Укажите реквизиты','error');return;}
     exchangeBusy=true;
-    try{await apiRequest('/exchange/buy-requests',{method:'POST',body:JSON.stringify({amountGc:amount,price:totalPrice,method:exchangeMethod,destination:destination})}); haptic('success'); showToast('Заявка на скупку создана','success'); exchangeBuyDraft={amount:'',price:'',destination:'',contact:''}; await loadExchange();}
+    try{await apiRequest('/exchange/buy-requests',{method:'POST',timeout:15000,body:JSON.stringify({amountGc:amount,price:totalPrice,method:exchangeMethod,destination:destination})}); haptic('success'); showToast('Заявка на скупку создана','success'); exchangeBuyDraft={amount:'',price:'',destination:'',contact:''}; await loadExchange();}
     catch(e){showToast(e.message||'Не удалось создать скупку','error');}
     finally{exchangeBusy=false; if(submitBuyBtn){ submitBuyBtn.disabled=false; submitBuyBtn.textContent='Создать заявку на скупку'; }}
   }

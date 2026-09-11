@@ -106,9 +106,13 @@ function isMissingRelation(err: any) {
 }
 
 let ensuring: Promise<void> | null = null
+let exchangeReady = false
 export async function ensureExchangeReady() {
+	if (exchangeReady) return
 	if (!ensuring) {
-		ensuring = ensureFeatureTables().catch(() => undefined).finally(() => {
+		ensuring = ensureFeatureTables().catch(() => undefined).then(() => {
+			exchangeReady = true
+		}).finally(() => {
 			ensuring = null
 		})
 	}

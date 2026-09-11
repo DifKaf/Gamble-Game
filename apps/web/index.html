@@ -1134,7 +1134,7 @@ body.theme-light .settings-gear-btn{background:#EEF0F5!important;border-color:rg
       <button class="p2p-widget" data-open="exchange">
         <div class="p2p-widget-text">
           <div class="p2p-widget-brand">GAMBLE <span>P2P</span></div>
-          <div class="p2p-widget-title">Обменивай GC с игроками напрямую</div>
+          <div class="p2p-widget-title">Покупай и продавай GC напрямую</div>
           <div class="p2p-widget-meta">
             <span class="p2p-widget-chip p2pWidgetOffers">Витрина</span>
             <span class="p2p-widget-chip">Без кассы</span>
@@ -3549,7 +3549,7 @@ updateUI();
       <button class="p2p-widget" data-open="exchange">
         <div class="p2p-widget-text">
           <div class="p2p-widget-brand">GAMBLE <span>P2P</span></div>
-          <div class="p2p-widget-title">Обменивай GC с игроками напрямую</div>
+          <div class="p2p-widget-title">Покупай и продавай GC напрямую</div>
           <div class="p2p-widget-meta">
             <span class="p2p-widget-chip p2pWidgetOffers">Витрина</span>
             <span class="p2p-widget-chip">Без кассы</span>
@@ -3568,7 +3568,7 @@ updateUI();
       <div class="p2p-hero">
         <div class="p2p-hero-copy">
           <div class="p2p-widget-brand">GAMBLE <span>P2P</span></div>
-          <div class="p2p-hero-title">Обменивай GC с игроками напрямую</div>
+          <div class="p2p-hero-title">Покупай и продавай GC напрямую</div>
           <div class="p2p-hero-sub" id="p2pHeroSub">Без кассы. Монеты в эскроу, деньги — между вами.</div>
         </div>
         <div class="p2p-hero-orb"><img src="assets/p2p.png" alt="P2P"></div>
@@ -4414,11 +4414,12 @@ updateUI();
   var exchangeOffers = [];
   var exchangeBuyRequests = [];
   var exchangeMine = [];
-  var exchangeTab = 'market';
+  var exchangeTab = 'buy';
   var exchangeMethod = '';
   var exchangeDraft = { amount:'', price:'', destination:'', contact:'' };
   var exchangeBuyDraft = { amount:'', price:'', destination:'', contact:'' };
   var exchangeBusy = false;
+  var exchangeCreateMode = '';
 
   function methodLogoHtml(code){
     var c = String(code || '').toLowerCase();
@@ -4528,8 +4529,9 @@ updateUI();
 
 
   function p2pLimitAvailableHtml(c){
-    var maxSell = Math.min(Number(c.maxGcPerWeek||0) || Number(backendBalance||0), Number(backendBalance||0));
-    return '<div class="p2p-limit-available"><div><small>ЛИМИТ</small><b>' + fmt(c.minGc||0) + ' — ' + fmt(maxSell) + ' GC</b></div><div><small>ДОСТУПНО</small><b>' + fmt(backendBalance||0) + ' GC</b></div></div>';
+    var min = Number(c.minGc || 0);
+    var max = Number(c.maxGcPerWeek || 0) || Number(c.maxGc || 0) || Number(c.maxSellGc || 5000000);
+    return '<div class="p2p-limit-available"><div><small>ЛИМИТ</small><b>от ' + fmt(min) + ' до ' + fmt(max) + ' GC</b></div><div><small>ДОСТУПНО</small><b>' + fmt(backendBalance||0) + ' GC</b></div></div>';
   }
   function renderBuyForm(c){
     var html=[];
@@ -4564,24 +4566,23 @@ updateUI();
     }
     var html = [];
     html.push('<div class="p2p-tabs">'
-      + '<button class="p2p-tab' + (exchangeTab==='market'?' active':'') + '" data-exch-tab="market">Витрина</button>'
-      + '<button class="p2p-tab' + (exchangeTab==='sell'?' active':'') + '" data-exch-tab="sell">Продать</button>'
-      + '<button class="p2p-tab' + (exchangeTab==='buy'?' active':'') + '" data-exch-tab="buy">Скупка</button>'
+      + '<button class="p2p-tab' + (exchangeTab==='buy'?' active':'') + '" data-exch-tab="buy">Купить</button>'
+      + '<button class="p2p-tab' + (exchangeTab==='sellList'?' active':'') + '" data-exch-tab="sellList">Продать</button>'
       + '<button class="p2p-tab' + (exchangeTab==='mine'?' active':'') + '" data-exch-tab="mine">Мои сделки</button></div>');
     html.push('<div class="p2p-body">');
     if(!c.enabled){
       html.push('<div class="p2p-empty"><b>Биржа временно закрыта</b><p>Откроем позже — следите за новостями.</p></div>');
-    } else if(exchangeTab === 'sell'){
-      html.push(renderSellForm(c));
     } else if(exchangeTab === 'buy'){
-      html.push(renderBuyForm(c));
-      var buys = exchangeBuyRequests.filter(function(o){ return o.status === 'OPEN' || o.status === 'PENDING'; });
-      html.push(buys.length ? '<div class="p2p-list" style="margin-top:12px">' + buys.map(function(o){ o.kind='BUY'; return offerCardHtml(o, false); }).join('') + '</div>' : '<div class="p2p-empty" style="margin-top:12px"><b>Скупок пока нет</b><p>Создайте первую заявку на покупку GC у игроков.</p></div>');
-    } else if(exchangeTab === 'mine'){
-      html.push(exchangeMine.length ? '<div class="p2p-list">' + exchangeMine.map(function(o){ return offerCardHtml(o, true); }).join('') + '</div>' : '<div class="p2p-empty"><b>Сделок пока нет</b><p>Купите лот на витрине или выставьте свой.</p></div>');
-    } else {
       var market = exchangeOffers.filter(function(o){ return o.status === 'OPEN' || o.status === 'PENDING'; });
-      html.push(market.length ? '<div class="p2p-list">' + market.map(function(o){ return offerCardHtml(o, false); }).join('') + '</div>' : '<div class="p2p-empty"><b>Витрина пустая</b><p>Выставьте первые GC и откройте торги.</p><button class="btn btn-gold" data-exch-tab="sell">Продать GC</button></div>');
+      html.push(market.length ? '<div class="p2p-list">' + market.map(function(o){ o.kind=o.kind||'SELL'; return offerCardHtml(o, false); }).join('') + '</div>' : '<div class="p2p-empty"><b>Пока нечего купить</b><p>Открытых предложений на продажу GC сейчас нет.</p></div>');
+    } else if(exchangeTab === 'sellList'){
+      var buys = exchangeBuyRequests.filter(function(o){ return o.status === 'OPEN' || o.status === 'PENDING'; });
+      html.push(buys.length ? '<div class="p2p-list">' + buys.map(function(o){ o.kind='BUY'; return offerCardHtml(o, false); }).join('') + '</div>' : '<div class="p2p-empty"><b>Пока некому продать</b><p>Открытых заявок на скупку GC сейчас нет.</p></div>');
+    } else if(exchangeTab === 'mine'){
+      html.push('<div class="p2p-create-actions"><button type="button" class="btn btn-gold" data-exch-create="sell">Создать продажу</button><button type="button" class="btn btn-green" data-exch-create="buy">Создать скупку</button></div>');
+      if(exchangeCreateMode==='sell') html.push(renderSellForm(c));
+      if(exchangeCreateMode==='buy') html.push(renderBuyForm(c));
+      html.push(exchangeMine.length ? '<div class="p2p-list" style="margin-top:12px">' + exchangeMine.map(function(o){ return offerCardHtml(o, true); }).join('') + '</div>' : '<div class="p2p-empty" style="margin-top:12px"><b>Сделок пока нет</b><p>Нажмите “Создать продажу” или “Создать скупку”, либо примите предложение в разделах Купить/Продать.</p></div>');
     }
     html.push('</div>');
     box.innerHTML = html.join('');
@@ -4676,6 +4677,7 @@ updateUI();
       if(typeof res.balance === 'number'){ backendBalance = res.balance; applyBackendBalanceToUI(); }
       exchangeDraft = { amount:'', price:'', destination:'', contact:'' };
       exchangeTab = 'mine';
+      exchangeCreateMode = '';
       await loadExchange();
       if(typeof loadTransferHistory === 'function') loadTransferHistory(true);
     }catch(e){ showToast(e.message || 'Не удалось выставить','error'); }
@@ -4708,7 +4710,7 @@ updateUI();
     if(!exchangeMethod){showToast('Выберите способ оплаты','error');return;}
     if(destination.length<4){showToast('Укажите реквизиты','error');return;}
     exchangeBusy=true;
-    try{await apiRequest('/exchange/buy-requests',{method:'POST',timeout:15000,body:JSON.stringify({amountGc:amount,price:totalPrice,method:exchangeMethod,destination:destination})}); haptic('success'); showToast('Заявка на скупку создана','success'); exchangeBuyDraft={amount:'',price:'',destination:'',contact:''}; await loadExchange();}
+    try{await apiRequest('/exchange/buy-requests',{method:'POST',timeout:15000,body:JSON.stringify({amountGc:amount,price:totalPrice,method:exchangeMethod,destination:destination})}); haptic('success'); showToast('Заявка на скупку создана','success'); exchangeBuyDraft={amount:'',price:'',destination:'',contact:''}; exchangeTab='mine'; exchangeCreateMode=''; await loadExchange();}
     catch(e){showToast(e.message||'Не удалось создать скупку','error');}
     finally{exchangeBusy=false; if(submitBuyBtn){ submitBuyBtn.disabled=false; submitBuyBtn.textContent='Создать заявку на скупку'; }}
   }
@@ -4758,7 +4760,7 @@ updateUI();
     if(tab){
       ev.preventDefault();
       readExchangeDraft();
-      exchangeTab = tab.getAttribute('data-exch-tab') || 'market';
+      exchangeTab = tab.getAttribute('data-exch-tab') || 'buy';
       renderExchange();
       return;
     }
@@ -4770,6 +4772,8 @@ updateUI();
       renderExchange();
       return;
     }
+    var createBtn = ev.target.closest('[data-exch-create]');
+    if(createBtn){ ev.preventDefault(); exchangeCreateMode=createBtn.getAttribute('data-exch-create')||''; renderExchange(); return; }
     if(ev.target.closest('#exchRetryBtn')){ ev.preventDefault(); loadExchange(); return; }
     if(ev.target.closest('#exchSubmitBtn')){ ev.preventDefault(); submitExchange(); return; }
     if(ev.target.closest('#exchBuySubmitBtn')){ ev.preventDefault(); submitExchangeBuy(); return; }
@@ -8025,6 +8029,12 @@ html,body,#app{max-width:100vw!important;overflow-x:hidden!important;}
 #screen-exchange .p2p-limit-available b{display:block;color:#fff;margin-top:4px;font-size:14px;}
 @media(max-width:520px){#screen-exchange .p2p-limit-available{grid-template-columns:1fr;}}
 </style>
+<style id="p2p-new-tabs-create-actions-fix">
+#screen-exchange .p2p-create-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
+#screen-exchange .p2p-create-actions .btn{width:100%;}
+@media(max-width:520px){#screen-exchange .p2p-create-actions{grid-template-columns:1fr;}}
+</style>
+
 
 
 

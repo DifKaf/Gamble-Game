@@ -4616,18 +4616,21 @@ updateUI();
       exchangeCfg = cfg;
       if(typeof cfg.balance === 'number'){ backendBalance = cfg.balance; applyBackendBalanceToUI(); }
       if(!exchangeMethod && cfg.methods && cfg.methods.length) exchangeMethod = cfg.methods[0].code;
-      var results = await Promise.allSettled([
-        apiRequest('/exchange/offers', { timeout: 18000 }),
-        apiRequest('/exchange/buy-requests', { timeout: 18000 }),
-        apiRequest('/exchange/my', { timeout: 18000 })
-      ]);
-      if(results[0].status === 'fulfilled') exchangeOffers = (results[0].value && (results[0].value.offers || results[0].value.requests)) || [];
-      if(results[1].status === 'fulfilled') { exchangeBuyRequests = (results[1].value && (results[1].value.offers || results[1].value.requests)) || []; exchangeBuyRequests.forEach(function(o){o.kind='BUY';}); }
-      if(results[2].status === 'fulfilled') exchangeMine = (results[2].value && (results[2].value.offers || results[2].value.requests)) || [];
-      var chips = document.querySelectorAll('.p2pWidgetOffers');
-      var n = exchangeOffers.filter(function(o){ return o.status === 'OPEN' || o.status === 'PENDING'; }).length;
-      chips.forEach(function(chip){ chip.textContent = n ? (n + ' на витрине') : 'Витрина'; });
+      // Сначала показываем экран, затем догружаем списки — так P2P не висит на старте.
       renderExchange();
+      Promise.allSettled([
+        apiRequest('/exchange/offers', { timeout: 25000 }),
+        apiRequest('/exchange/buy-requests', { timeout: 25000 }),
+        apiRequest('/exchange/my', { timeout: 25000 })
+      ]).then(function(results){
+        if(results[0].status === 'fulfilled') exchangeOffers = (results[0].value && (results[0].value.offers || results[0].value.requests)) || [];
+        if(results[1].status === 'fulfilled') { exchangeBuyRequests = (results[1].value && (results[1].value.offers || results[1].value.requests)) || []; exchangeBuyRequests.forEach(function(o){o.kind='BUY';}); }
+        if(results[2].status === 'fulfilled') exchangeMine = (results[2].value && (results[2].value.offers || results[2].value.requests)) || [];
+        var chips = document.querySelectorAll('.p2pWidgetOffers');
+        var n = exchangeOffers.filter(function(o){ return o.status === 'OPEN' || o.status === 'PENDING'; }).length;
+        chips.forEach(function(chip){ chip.textContent = n ? (n + ' на витрине') : 'Витрина'; });
+        renderExchange();
+      });
     }catch(e){
       var box = document.getElementById('exchangeBox');
       if(box && !exchangeCfg){

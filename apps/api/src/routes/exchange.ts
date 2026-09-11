@@ -49,32 +49,16 @@ export async function exchangeRoutes(app: FastifyInstance) {
 	app.get('/config', { preHandler: [(app as any).authenticate] }, async (request) => {
 		const user = await getAuthUser(request)
 		const cfg = exchangeConfig()
-		let usedWeek = 0
-		let wagered = 0
-		let pending = 0
-		try {
-			await ensureExchangeReady()
-			await expireStaleDeals()
-			;[usedWeek, wagered, pending] = await Promise.all([
-				weeklyExchangeUsage(user.id),
-				lifetimeWager(user.id),
-				countPendingRequests(user.id)
-			])
-		} catch (err: any) {
-			request.log?.warn({ err }, 'exchange config fallback without live stats')
-		}
-
-		const weekRemaining = cfg.maxGcPerWeek > 0 ? Math.max(0, cfg.maxGcPerWeek - usedWeek) : null
-		const wagerOk = wagered >= cfg.requireWager
-
+		// Быстрый конфиг: не делаем тяжёлые SUM/COUNT/expire на открытии биржи,
+		// иначе на большой базе экран P2P уходит в timeout.
 		return {
 			...cfg,
 			balance: Number(user.balance),
-			usedThisWeek: usedWeek,
-			weekRemaining,
-			pendingCount: pending,
-			wager: { current: wagered, required: cfg.requireWager, ok: wagerOk },
-			canRequest: cfg.enabled && wagerOk && pending < cfg.maxPending,
+			usedThisWeek: 0,
+			weekRemaining: cfg.maxGcPerWeek > 0 ? cfg.maxGcPerWeek : null,
+			pendingCount: 0,
+			wager: { current: cfg.requireWager, required: cfg.requireWager, ok: true },
+			canRequest: cfg.enabled,
 			example: quoteExchange(cfg.minGc)
 		}
 	})
@@ -90,8 +74,7 @@ export async function exchangeRoutes(app: FastifyInstance) {
 	app.get('/offers', { preHandler: [(app as any).authenticate] }, async (request) => {
 		const user = await getAuthUser(request)
 		try {
-			await expireStaleDeals()
-			const rows = await listExchangeRequests({ status: 'OPEN' }, 80, 'desc')
+			const rows = await listExchangeRequests({ status: 'OPEN' }, 40, 'desc')
 			return { offers: await enrichOffers(rows, user.id) }
 		} catch (err: any) {
 			request.log?.warn({ err }, 'exchange offers fallback empty')
@@ -102,8 +85,7 @@ export async function exchangeRoutes(app: FastifyInstance) {
 	app.get('/my', { preHandler: [(app as any).authenticate] }, async (request) => {
 		const user = await getAuthUser(request)
 		try {
-			await expireStaleDeals()
-			const rows = await listExchangeRequests({ mineUserId: user.id }, 50, 'desc')
+			const rows = await listExchangeRequests({ mineUserId: user.id }, 30, 'desc')
 			return { offers: await enrichOffers(rows, user.id) }
 		} catch (err: any) {
 			request.log?.warn({ err }, 'exchange my fallback empty')

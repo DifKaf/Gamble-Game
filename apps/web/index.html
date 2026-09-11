@@ -4515,7 +4515,7 @@ updateUI();
     html.push('<div class="p2p-split"><div><label class="p2p-label">Минимум покупки</label><input class="p2p-input" id="exchMin" type="number" min="' + c.minGc + '" placeholder="От ' + c.minGc + '" value="' + escapeHtml(exchangeDraft.min) + '"></div><div><label class="p2p-label">Максимум покупки</label><input class="p2p-input" id="exchMax" type="number" min="' + c.minGc + '" placeholder="До всей суммы" value="' + escapeHtml(exchangeDraft.max) + '"></div></div>');
     html.push('<div class="p2p-hint">Покупатель сможет купить у вас сумму в этом диапазоне, а не обязательно весь лот сразу.</div>');
     html.push('<label class="p2p-label">Цена за 100 GC</label>');
-    html.push('<input class="p2p-input" id="exchPrice" type="number" min="1" step="1" placeholder="Сколько за 100 GC, например 10" value="' + escapeHtml(exchangeDraft.price) + '">');
+    html.push('<input class="p2p-input" id="exchPrice" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="Например 0.9" value="' + escapeHtml(exchangeDraft.price) + '">');
     html.push('<label class="p2p-label">Куда покупатель переводит деньги</label>');
     html.push('<div class="p2p-methods">' + (c.methods || []).map(function(m){
       return '<button class="p2p-method' + (m.code === exchangeMethod ? ' active' : '') + '" data-exch-method="' + escapeHtml(m.code) + '">' + methodLogoHtml(m.code) + '<span>' + escapeHtml(m.title) + '</span></button>';
@@ -4542,7 +4542,7 @@ updateUI();
     html.push('<label class="p2p-label">Сколько GC хотите купить</label>');
     html.push('<input class="p2p-input" id="exchBuyAmount" type="number" min="'+c.minGc+'" placeholder="От '+c.minGc+' GC" value="'+escapeHtml(exchangeBuyDraft.amount)+'">');
     html.push('<label class="p2p-label">Цена за 100 GC</label>');
-    html.push('<input class="p2p-input" id="exchBuyPrice" type="number" min="1" step="1" placeholder="Сколько платите за 100 GC" value="'+escapeHtml(exchangeBuyDraft.price)+'">');
+    html.push('<input class="p2p-input" id="exchBuyPrice" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="Например 0.9" value="'+escapeHtml(exchangeBuyDraft.price)+'">');
     html.push('<label class="p2p-label">Как продавец получит деньги</label>');
     html.push('<div class="p2p-methods">'+(c.methods||[]).map(function(m){return '<button class="p2p-method'+(m.code===exchangeMethod?' active':'')+'" data-exch-method="'+escapeHtml(m.code)+'">'+methodLogoHtml(m.code)+'<span>'+escapeHtml(m.title)+'</span></button>';}).join('')+'</div>');
     var active=(c.methods||[]).filter(function(m){return m.code===exchangeMethod;})[0];
@@ -4663,13 +4663,13 @@ updateUI();
     if(submitBtn){ submitBtn.disabled = true; submitBtn.textContent = 'Выставляем...'; }
     readExchangeDraft();
     var amount = Math.floor(Number(exchangeDraft.amount || 0));
-    var price = Number(exchangeDraft.price || 0);
+    var price = Number(String(exchangeDraft.price || 0).replace(',', '.'));
     var minGc = Math.floor(Number(exchangeDraft.min || exchangeCfg.minGc || 0));
     var maxGc = Math.floor(Number(exchangeDraft.max || amount || 0));
     var destination = String(exchangeDraft.destination || '').trim();
     var totalPrice = Math.round((amount / 100) * price * 100) / 100;
     if(!Number.isFinite(amount) || amount < exchangeCfg.minGc){ showToast('Минимум ' + fmt(exchangeCfg.minGc) + ' GC','error'); return; }
-    if(!Number.isFinite(price) || price < 1){ showToast('Укажите цену за 100 GC','error'); return; }
+    if(!Number.isFinite(price) || price <= 0){ showToast('Укажите цену за 100 GC','error'); return; }
     if(!Number.isFinite(minGc) || minGc < exchangeCfg.minGc){ showToast('Минимум покупки от ' + fmt(exchangeCfg.minGc) + ' GC','error'); return; }
     if(!Number.isFinite(maxGc) || maxGc < minGc || maxGc > amount){ showToast('Максимум покупки должен быть от минимума до общей суммы лота','error'); return; }
     if(!exchangeMethod){ showToast('Выберите способ оплаты','error'); return; }
@@ -4715,10 +4715,10 @@ updateUI();
     var submitBuyBtn = document.getElementById('exchBuySubmitBtn');
     if(submitBuyBtn){ submitBuyBtn.disabled = true; submitBuyBtn.textContent = 'Создаём...'; }
     readExchangeBuyDraft();
-    var amount=Math.floor(Number(exchangeBuyDraft.amount||0)), price=Number(exchangeBuyDraft.price||0), destination=String(exchangeBuyDraft.destination||'').trim();
+    var amount=Math.floor(Number(exchangeBuyDraft.amount||0)), price=Number(String(exchangeBuyDraft.price||0).replace(',','.')), destination=String(exchangeBuyDraft.destination||'').trim();
     var totalPrice=Math.round((amount/100)*price*100)/100;
     if(!Number.isFinite(amount)||amount<exchangeCfg.minGc){showToast('Минимум '+fmt(exchangeCfg.minGc)+' GC','error');return;}
-    if(!Number.isFinite(price)||price<1){showToast('Укажите цену за 100 GC','error');return;}
+    if(!Number.isFinite(price)||price<=0){showToast('Укажите цену за 100 GC','error');return;}
     if(!exchangeMethod){showToast('Выберите способ оплаты','error');return;}
     if(destination.length<4){showToast('Укажите реквизиты','error');return;}
     exchangeBusy=true;
@@ -4982,7 +4982,7 @@ updateUI();
     if((name==='bonuses'||name==='wheel'||name==='home') && typeof checkWheelStatus==='function') checkWheelStatus();
     if((name==='profile'||name==='wheel'||name==='bonuses') && typeof refreshWeeklyStats==='function') refreshWeeklyStats();
     if(name==='admin' && typeof loadAdmin==='function') loadAdmin();
-    if(name==='catclicker' && typeof renderCat==='function'){ pullCatFromServer(); renderCat(); }
+    if(false && name==='catclicker' && typeof renderCat==='function'){ pullCatFromServer(); renderCat(); }
     if(name==='bonuses'){ if(typeof loadReferrals==='function') loadReferrals(); }
     if((name==='exchange'||name==='wallet'||name==='home') && typeof loadExchange==='function') loadExchange();
     if(name==='wallet' && typeof renderHistory==='function') renderHistory();
@@ -5178,9 +5178,9 @@ updateUI();
   function normalizeCat(c){c=c||defaultCat(); c.paws=Math.max(0,Math.floor(Number(c.paws)||0)); c.mood=Math.max(0,Math.min(100,Number(c.mood)||50)); c.gcToday=Math.max(0,Math.floor(Number(c.gcToday)||0)); c.up=c.up||{}; ['food','toy','scratch','bed'].forEach(function(k){c.up[k]=Math.max(0,Math.floor(Number(c.up[k])||0));}); if(c.day!==todayKey()){c.day=todayKey();c.gcToday=0;} c.last=Number(c.last)||Date.now(); return c;}
   function loadCat(){try{catState=normalizeCat(JSON.parse(localStorage.getItem(CAT_KEY)||'null'));}catch(e){catState=defaultCat();} var now=Date.now(); var passive=(catState.up.scratch||0); if(passive>0&&catState.last){catState.paws+=Math.min(7200,Math.floor((now-catState.last)/1000))*passive;} catState.last=now; saveCat(false);}
   function saveCat(sync){try{localStorage.setItem(CAT_KEY,JSON.stringify(catState));}catch(e){} if(sync!==false) scheduleCatSync();}
-  async function pullCatFromServer(){ if(!backendReady) return; try{ var srv=await apiRequest('/me/cat-clicker'); if(srv&&typeof srv.paws==='number'){ catState=normalizeCat(srv); saveCat(false); renderCat(); } }catch(e){ console.warn('cat sync pull failed',e); } }
+  async function pullCatFromServer(){ return; }
   function scheduleCatSync(){ if(!backendReady||!catState) return; clearTimeout(catSyncTimer); catSyncTimer=setTimeout(pushCatToServer,650); }
-  async function pushCatToServer(){ if(!backendReady||!catState||catSyncBusy) return; catSyncBusy=true; try{ await apiRequest('/me/cat-clicker',{method:'POST',body:JSON.stringify({paws:catState.paws,mood:catState.mood,gcToday:catState.gcToday,day:catState.day,up:catState.up})}); }catch(e){ console.warn('cat sync push failed',e); } finally{ catSyncBusy=false; } }
+  async function pushCatToServer(){ return; }
   function catPerTap(){return 1+(catState.up.food||0)*2;}
   function catLevelName(){var lvl=(catState.up.food||0)+(catState.up.toy||0)+(catState.up.scratch||0)+(catState.up.bed||0); if(lvl>=18)return'Кото-магнат'; if(lvl>=12)return'Кот в домике'; if(lvl>=7)return'Игровой кот'; if(lvl>=3)return'Сытый кот'; return'Уличный котёнок';}
   function upgradeCost(u){return Math.round(u.base*Math.pow(1.7,catState.up[u.key]||0));}
@@ -5189,7 +5189,8 @@ updateUI();
   function tapCat(ev){loadCat(); var gain=catPerTap(); haptic('light'); catState.paws+=gain; catState.last=Date.now(); saveCat(true); renderCat(); var r=ev.currentTarget.getBoundingClientRect(); catFloat('+'+fmt(gain)+' 🐾', (ev.clientX||r.left+r.width/2), (ev.clientY||r.top+80));}
   function buyCatUpgrade(key){loadCat(); var u=catUpgrades.find(function(x){return x.key===key}); if(!u)return; var c=upgradeCost(u); if(catState.paws<c){showToast('Не хватает лапок','error');return;} catState.paws-=c; catState.up[key]=(catState.up[key]||0)+1; saveCat(true); renderCat(); showToast('Прокачка куплена','success');}
   function exchangeCat(){loadCat(); if(catState.paws<1000){showToast('Нужно 1 000 лапок','error');return;} if((catState.gcToday||0)>=100){showToast('Дневной лимит GC исчерпан','error');return;} catState.paws-=1000; catState.gcToday=(catState.gcToday||0)+10; window.GambleSharedBalance.add(10); saveCat(true); renderCat(); renderBalances(); showToast('+10 GC за лапки','success');}
-  loadCat(); setInterval(function(){ if(catState){catState.paws+=(catState.up.scratch||0); catState.last=Date.now(); saveCat(true); if(currentScreen==='catclicker')renderCat();}},1000);
+  // CatClicker hidden: disabled background timer/server sync so it does not spam /me/cat-clicker.
+  // loadCat();
   var catTapBtn=document.getElementById('catTapBtn'); if(catTapBtn) catTapBtn.addEventListener('click',tapCat);
   var catExchangeBtn=document.getElementById('catExchangeBtn'); if(catExchangeBtn) catExchangeBtn.addEventListener('click',exchangeCat);
   document.addEventListener('visibilitychange',function(){ if(document.hidden) pushCatToServer(); else pullCatFromServer(); });
@@ -6374,6 +6375,26 @@ updateUI();
   var bjBetCtl = wireBetStepTools('bjCustomBet', 'bjMinusBtn', 'bjPlusBtn', 'blackjack', 10, 5000000);
   var bjState = null;
 
+
+  function bjCardValue(card){
+    if(!card) return 0;
+    var r = String(card.rank || '').toUpperCase();
+    if(r === 'A') return 11;
+    if(r === 'K' || r === 'Q' || r === 'J') return 10;
+    var n = parseInt(r, 10);
+    return Number.isFinite(n) ? n : 0;
+  }
+  function bjHandTotal(cards){
+    var total = 0, aces = 0;
+    (cards || []).filter(Boolean).forEach(function(card){
+      var r = String(card.rank || '').toUpperCase();
+      total += bjCardValue(card);
+      if(r === 'A') aces += 1;
+    });
+    while(total > 21 && aces > 0){ total -= 10; aces -= 1; }
+    return total;
+  }
+
   function bjCardEl(card, animate){
     if(!card){ return bjHiddenCardEl(animate); }
     var suitMap = {S:'♠',H:'♥',D:'♦',C:'♣'};
@@ -6437,8 +6458,11 @@ updateUI();
     bjRenderSide(pHand, playerCards, {});
     var dealerTotalEl = document.getElementById('bjDealerTotal');
     var playerTotalEl = document.getElementById('bjPlayerTotal');
-    var dealerTotalTxt = data.dealerHoleHidden ? ((data.dealerTotal||0)+' + ?') : String(data.dealerTotal||0);
-    var playerTotalTxt = String(data.playerTotal || 0);
+    var localPlayerTotal = bjHandTotal(playerCards);
+    var localDealerTotal = bjHandTotal(dealerCards);
+    var dealerOpenTotal = dealerCards.length ? bjCardValue(dealerCards[0]) : 0;
+    var dealerTotalTxt = data.dealerHoleHidden ? (dealerOpenTotal + ' + ?') : String(localDealerTotal || data.dealerTotal || 0);
+    var playerTotalTxt = String(localPlayerTotal || data.playerTotal || 0);
     if(dealerTotalEl && dealerTotalEl.textContent !== dealerTotalTxt){ dealerTotalEl.textContent = dealerTotalTxt; bjPopTotal('bjDealerTotal'); }
     if(playerTotalEl && playerTotalEl.textContent !== playerTotalTxt){ playerTotalEl.textContent = playerTotalTxt; bjPopTotal('bjPlayerTotal'); }
     if((data.playerTotal||0) > 21){

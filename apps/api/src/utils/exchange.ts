@@ -140,7 +140,10 @@ function mapRow(row: any) {
 		paidAt: row.paidAt ?? row.paidat ?? null,
 		receiptUrl: row.receiptUrl ?? row.receipturl ?? null,
 		disputeReason: row.disputeReason ?? row.disputereason ?? null,
-		processedAt: row.processedAt ?? row.processedat ?? null
+		processedAt: row.processedAt ?? row.processedat ?? null,
+		kind: row.kind || 'SELL',
+		minGc: row.minGc ?? row.mingc ?? 0,
+		maxGc: row.maxGc ?? row.maxgc ?? row.amountGc ?? row.amountgc ?? 0
 	}
 }
 
@@ -271,6 +274,9 @@ export async function createExchangeRequest(data: {
 	destination: string
 	contact: string | null
 	status?: string
+	kind?: string
+	minGc?: bigint
+	maxGc?: bigint
 }, tx?: any) {
 	await ensureExchangeReady()
 	const client = tx || prisma
@@ -287,13 +293,16 @@ export async function createExchangeRequest(data: {
 				method: data.method,
 				destination: data.destination,
 				contact: data.contact,
-				status: data.status || 'OPEN'
+				status: data.status || 'OPEN',
+				kind: data.kind || 'SELL',
+				minGc: data.minGc || data.amountGc,
+				maxGc: data.maxGc || data.amountGc
 			}
 		}))
 	}
 	const id = randomUUID()
 	await client.$executeRawUnsafe(
-		`INSERT INTO "ExchangeRequest" ("id","userId","amountGc","payoutMinor","currency","rateGcPerUnit","feePercent","method","destination","contact","status","createdAt") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,NOW())`,
+		`INSERT INTO "ExchangeRequest" ("id","userId","amountGc","payoutMinor","currency","rateGcPerUnit","feePercent","method","destination","contact","status","kind","minGc","maxGc","createdAt") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,NOW())`,
 		id,
 		data.userId,
 		data.amountGc,
@@ -304,7 +313,10 @@ export async function createExchangeRequest(data: {
 		data.method,
 		data.destination,
 		data.contact,
-		data.status || 'OPEN'
+		data.status || 'OPEN',
+		data.kind || 'SELL',
+		data.minGc || data.amountGc,
+		data.maxGc || data.amountGc
 	)
 	return findExchangeRequest(id)
 }
@@ -417,6 +429,9 @@ export function serializeRequest(row: any, opts?: { full?: boolean; viewerId?: s
 		receiptUrl: showFull ? (mapped.receiptUrl || null) : null,
 		disputeReason: mapped.disputeReason || null,
 		processedAt: mapped.processedAt || null,
+		kind: mapped.kind || 'SELL',
+		minGc: Number(mapped.minGc || mapped.amountGc || 0),
+		maxGc: Number(mapped.maxGc || mapped.amountGc || 0),
 		role,
 		mine: role !== 'viewer',
 		seller: publicUser(opts?.seller),

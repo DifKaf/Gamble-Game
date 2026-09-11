@@ -4416,7 +4416,7 @@ updateUI();
   var exchangeMine = [];
   var exchangeTab = 'buy';
   var exchangeMethod = '';
-  var exchangeDraft = { amount:'', price:'', destination:'', contact:'' };
+  var exchangeDraft = { amount:'', min:'', max:'', price:'', destination:'', contact:'' };
   var exchangeBuyDraft = { amount:'', price:'', destination:'', contact:'' };
   var exchangeBusy = false;
   var exchangeCreateMode = '';
@@ -4510,8 +4510,10 @@ updateUI();
     if(c.weekRemaining !== null && typeof c.weekRemaining !== 'undefined'){
       html.push('<div class="p2p-limit">Лимит на неделю: <b>' + fmt(c.weekRemaining) + ' GC</b></div>');
     }
-    html.push('<label class="p2p-label">Сколько GC продаёте</label>');
-    html.push('<input class="p2p-input" id="exchAmount" type="number" min="' + c.minGc + '" placeholder="От ' + c.minGc + ' GC" value="' + escapeHtml(exchangeDraft.amount) + '">');
+    html.push('<label class="p2p-label">Всего GC выставляете</label>');
+    html.push('<input class="p2p-input" id="exchAmount" type="number" min="' + c.minGc + '" placeholder="Например 10000 GC" value="' + escapeHtml(exchangeDraft.amount) + '">');
+    html.push('<div class="p2p-split"><div><label class="p2p-label">Минимум покупки</label><input class="p2p-input" id="exchMin" type="number" min="' + c.minGc + '" placeholder="От ' + c.minGc + '" value="' + escapeHtml(exchangeDraft.min) + '"></div><div><label class="p2p-label">Максимум покупки</label><input class="p2p-input" id="exchMax" type="number" min="' + c.minGc + '" placeholder="До всей суммы" value="' + escapeHtml(exchangeDraft.max) + '"></div></div>');
+    html.push('<div class="p2p-hint">Покупатель сможет купить у вас сумму в этом диапазоне, а не обязательно весь лот сразу.</div>');
     html.push('<label class="p2p-label">Цена за 100 GC</label>');
     html.push('<input class="p2p-input" id="exchPrice" type="number" min="1" step="1" placeholder="Сколько за 100 GC, например 10" value="' + escapeHtml(exchangeDraft.price) + '">');
     html.push('<label class="p2p-label">Куда покупатель переводит деньги</label>');
@@ -4644,9 +4646,13 @@ updateUI();
   function readExchangeDraft(){
     var a = document.getElementById('exchAmount');
     var p = document.getElementById('exchPrice');
+    var min = document.getElementById('exchMin');
+    var max = document.getElementById('exchMax');
     var d = document.getElementById('exchDest');
     exchangeDraft.amount = a ? String(a.value || '') : exchangeDraft.amount;
     exchangeDraft.price = p ? String(p.value || '') : exchangeDraft.price;
+    exchangeDraft.min = min ? String(min.value || '') : exchangeDraft.min;
+    exchangeDraft.max = max ? String(max.value || '') : exchangeDraft.max;
     exchangeDraft.destination = d ? String(d.value || '') : exchangeDraft.destination;
   }
 
@@ -4658,10 +4664,14 @@ updateUI();
     readExchangeDraft();
     var amount = Math.floor(Number(exchangeDraft.amount || 0));
     var price = Number(exchangeDraft.price || 0);
+    var minGc = Math.floor(Number(exchangeDraft.min || exchangeCfg.minGc || 0));
+    var maxGc = Math.floor(Number(exchangeDraft.max || amount || 0));
     var destination = String(exchangeDraft.destination || '').trim();
     var totalPrice = Math.round((amount / 100) * price * 100) / 100;
     if(!Number.isFinite(amount) || amount < exchangeCfg.minGc){ showToast('Минимум ' + fmt(exchangeCfg.minGc) + ' GC','error'); return; }
     if(!Number.isFinite(price) || price < 1){ showToast('Укажите цену за 100 GC','error'); return; }
+    if(!Number.isFinite(minGc) || minGc < exchangeCfg.minGc){ showToast('Минимум покупки от ' + fmt(exchangeCfg.minGc) + ' GC','error'); return; }
+    if(!Number.isFinite(maxGc) || maxGc < minGc || maxGc > amount){ showToast('Максимум покупки должен быть от минимума до общей суммы лота','error'); return; }
     if(!exchangeMethod){ showToast('Выберите способ оплаты','error'); return; }
     if(destination.length < 4){ showToast('Укажите реквизиты','error'); return; }
     exchangeBusy = true;
@@ -4669,13 +4679,15 @@ updateUI();
       var res = await apiRequest('/exchange/offers', { method:'POST', timeout:15000, body: JSON.stringify({
         amountGc: amount,
         price: totalPrice,
+        minGc: minGc,
+        maxGc: maxGc,
         method: exchangeMethod,
         destination: destination
       }) });
       haptic('success');
       showToast('Объявление на витрине','success');
       if(typeof res.balance === 'number'){ backendBalance = res.balance; applyBackendBalanceToUI(); }
-      exchangeDraft = { amount:'', price:'', destination:'', contact:'' };
+      exchangeDraft = { amount:'', min:'', max:'', price:'', destination:'', contact:'' };
       exchangeTab = 'mine';
       exchangeCreateMode = '';
       await loadExchange();
@@ -4750,7 +4762,7 @@ updateUI();
 
   document.addEventListener('input', function(ev){
     if(!ev.target) return;
-    if(ev.target.id === 'exchAmount' || ev.target.id === 'exchPrice') updateExchangeQuote();
+    if(ev.target.id === 'exchAmount' || ev.target.id === 'exchPrice' || ev.target.id === 'exchMin' || ev.target.id === 'exchMax') updateExchangeQuote();
     if(ev.target.id === 'exchBuyAmount' || ev.target.id === 'exchBuyPrice') updateExchangeBuyQuote();
   });
 
@@ -8034,6 +8046,11 @@ html,body,#app{max-width:100vw!important;overflow-x:hidden!important;}
 #screen-exchange .p2p-create-actions .btn{width:100%;}
 @media(max-width:520px){#screen-exchange .p2p-create-actions{grid-template-columns:1fr;}}
 </style>
+<style id="p2p-order-min-max-fix">
+#screen-exchange .p2p-split{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+@media(max-width:520px){#screen-exchange .p2p-split{grid-template-columns:1fr;}}
+</style>
+
 
 
 

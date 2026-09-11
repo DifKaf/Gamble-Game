@@ -28,7 +28,9 @@ const offerSchema = z.object({
 	price: z.number().positive().max(100000000),
 	method: z.string().min(2).max(20),
 	destination: z.string().min(4).max(120),
-	contact: z.string().max(80).optional()
+	contact: z.string().max(80).optional(),
+	minGc: z.number().int().positive().optional(),
+	maxGc: z.number().int().positive().optional()
 })
 
 const adminActionSchema = z.object({
@@ -115,6 +117,8 @@ export async function exchangeRoutes(app: FastifyInstance) {
 		if (!parsed.success) return reply.code(400).send({ error: 'Укажите сумму GC, цену, способ и реквизиты' })
 
 		const amountGc = parsed.data.amountGc
+		const minGc = parsed.data.minGc || cfg.minGc
+		const maxGc = parsed.data.maxGc || amountGc
 		const method = parsed.data.method.toLowerCase()
 		const destination = parsed.data.destination.trim()
 		const contact = parsed.data.contact ? parsed.data.contact.trim() : null
@@ -122,6 +126,7 @@ export async function exchangeRoutes(app: FastifyInstance) {
 
 		if (!cfg.methods.some((m) => m.code === method)) return reply.code(400).send({ error: 'Недоступный способ оплаты' })
 		if (amountGc < cfg.minGc) return reply.code(400).send({ error: `Минимальная сумма — ${cfg.minGc} GC` })
+		if (minGc < cfg.minGc || minGc > amountGc || maxGc < minGc || maxGc > amountGc) return reply.code(400).send({ error: 'Укажите корректный лимит покупки' })
 		if (priceMinor < 100) return reply.code(400).send({ error: 'Минимальная цена — 1 ' + cfg.currency })
 		if (amountGc > Number(user.balance)) return reply.code(400).send({ error: 'Недостаточно Gamble Coin' })
 		try { await assertCanSellP2p(user, amountGc, destination) } catch (e: any) {
@@ -446,14 +451,15 @@ export async function exchangeRoutes(app: FastifyInstance) {
 		const parsed = offerSchema.safeParse(request.body)
 		if (!parsed.success) return reply.code(400).send({ error: 'Укажите сумму GC, цену, способ и реквизиты' })
 		const amountGc = parsed.data.amountGc
+		const minGc = parsed.data.minGc || cfg.minGc
+		const maxGc = parsed.data.maxGc || amountGc
 		const method = parsed.data.method.toLowerCase()
 		const destination = parsed.data.destination.trim()
 		const priceMinor = Math.round(parsed.data.price * 100)
 		if (!cfg.methods.some((m) => m.code === method)) return reply.code(400).send({ error: 'Недоступный способ оплаты' })
 		if (amountGc < cfg.minGc) return reply.code(400).send({ error: `Минимальная сумма — ${cfg.minGc} GC` })
 		if (priceMinor < 100) return reply.code(400).send({ error: 'Минимальная цена — 1 ' + cfg.currency })
-		const row = await createExchangeRequest({ userId:user.id, amountGc:BigInt(amountGc), payoutMinor:BigInt(priceMinor), currency:cfg.currency, rateGcPerUnit:quoteExchange(amountGc, priceMinor).rateGcPerUnit, feePercent:cfg.feePercent, method, destination, contact:null, status:'OPEN' })
-		await prisma.$executeRawUnsafe('UPDATE "ExchangeRequest" SET "kind"=$2 WHERE "id"=$1', row.id, 'BUY')
+		const row = await createExchangeRequest({ userId:user.id, amountGc:BigInt(amountGc), payoutMinor:BigInt(priceMinor), currency:cfg.currency, rateGcPerUnit:quoteExchange(amountGc, priceMinor).rateGcPerUnit, feePercent:cfg.feePercent, method, destination, contact:null, status:'OPEN', kind:'BUY', minGc:BigInt(minGc), maxGc:BigInt(maxGc) })
 		const fresh = await findExchangeRequest(row.id); const [offer] = await enrichOffers([fresh], user.id)
 		return { ok:true, offer, request:offer, balance:Number(user.balance) }
 	})

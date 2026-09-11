@@ -4503,7 +4503,7 @@ updateUI();
     html.push('<label class="p2p-label">' + escapeHtml(active ? active.hint : 'Реквизиты') + '</label>');
     html.push('<input class="p2p-input" id="exchDest" type="text" placeholder="Номер карты, кошелёк или телефон" autocomplete="off" value="' + escapeHtml(exchangeDraft.destination) + '">');
     html.push('<div class="p2p-quote" id="exchQuote">Курс: —</div>');
-    html.push('<button class="btn btn-gold btn-block" id="exchSubmitBtn">Выставить на витрину</button>');
+    html.push('<button type="button" class="btn btn-gold btn-block" id="exchSubmitBtn">Выставить на витрину</button>');
     html.push('</div>');
     return html.join('');
   }
@@ -4527,7 +4527,7 @@ updateUI();
     html.push('<label class="p2p-label">'+escapeHtml(active ? active.hint : 'Реквизиты')+'</label>');
     html.push('<input class="p2p-input" id="exchBuyDest" type="text" placeholder="Ваши реквизиты для сделки" autocomplete="off" value="'+escapeHtml(exchangeBuyDraft.destination)+'">');
     html.push('<div class="p2p-quote" id="exchBuyQuote">Курс: —</div>');
-    html.push('<button class="btn btn-green btn-block" id="exchBuySubmitBtn">Создать заявку на скупку</button>');
+    html.push('<button type="button" class="btn btn-green btn-block" id="exchBuySubmitBtn">Создать заявку на скупку</button>');
     html.push('</div>');
     return html.join('');
   }
@@ -4630,7 +4630,10 @@ updateUI();
   }
 
   async function submitExchange(){
-    if(exchangeBusy || !exchangeCfg) return;
+    if(exchangeBusy) return;
+    if(!exchangeCfg){ showToast('Биржа ещё загружается, попробуйте через секунду','error'); return; }
+    var submitBtn = document.getElementById('exchSubmitBtn');
+    if(submitBtn){ submitBtn.disabled = true; submitBtn.textContent = 'Выставляем...'; }
     readExchangeDraft();
     var amount = Math.floor(Number(exchangeDraft.amount || 0));
     var price = Number(exchangeDraft.price || 0);
@@ -4656,7 +4659,7 @@ updateUI();
       await loadExchange();
       if(typeof loadTransferHistory === 'function') loadTransferHistory(true);
     }catch(e){ showToast(e.message || 'Не удалось выставить','error'); }
-    finally{ exchangeBusy = false; }
+    finally{ exchangeBusy = false; if(submitBtn){ submitBtn.disabled = false; submitBtn.textContent = 'Выставить на витрину'; } }
   }
 
 
@@ -4673,7 +4676,11 @@ updateUI();
     exchangeBuyDraft.amount=a?String(a.value||''):exchangeBuyDraft.amount; exchangeBuyDraft.price=p?String(p.value||''):exchangeBuyDraft.price; exchangeBuyDraft.destination=d?String(d.value||''):exchangeBuyDraft.destination;
   }
   async function submitExchangeBuy(){
-    if(exchangeBusy||!exchangeCfg) return; readExchangeBuyDraft();
+    if(exchangeBusy) return;
+    if(!exchangeCfg){ showToast('Биржа ещё загружается, попробуйте через секунду','error'); return; }
+    var submitBuyBtn = document.getElementById('exchBuySubmitBtn');
+    if(submitBuyBtn){ submitBuyBtn.disabled = true; submitBuyBtn.textContent = 'Создаём...'; }
+    readExchangeBuyDraft();
     var amount=Math.floor(Number(exchangeBuyDraft.amount||0)), price=Number(exchangeBuyDraft.price||0), destination=String(exchangeBuyDraft.destination||'').trim();
     var totalPrice=Math.round((amount/100)*price*100)/100;
     if(!Number.isFinite(amount)||amount<exchangeCfg.minGc){showToast('Минимум '+fmt(exchangeCfg.minGc)+' GC','error');return;}
@@ -4683,7 +4690,7 @@ updateUI();
     exchangeBusy=true;
     try{await apiRequest('/exchange/buy-requests',{method:'POST',body:JSON.stringify({amountGc:amount,price:totalPrice,method:exchangeMethod,destination:destination})}); haptic('success'); showToast('Заявка на скупку создана','success'); exchangeBuyDraft={amount:'',price:'',destination:'',contact:''}; await loadExchange();}
     catch(e){showToast(e.message||'Не удалось создать скупку','error');}
-    finally{exchangeBusy=false;}
+    finally{exchangeBusy=false; if(submitBuyBtn){ submitBuyBtn.disabled=false; submitBuyBtn.textContent='Создать заявку на скупку'; }}
   }
 
   async function exchangeAction(path, okMsg, extra){
@@ -4698,6 +4705,26 @@ updateUI();
     }catch(e){ showToast(e.message || 'Не удалось','error'); }
     finally{ exchangeBusy = false; }
   }
+
+
+  // P2P submit safety handler: catches the button before any other global click listener.
+  document.addEventListener('click', function(ev){
+    if(!ev.target || !ev.target.closest) return;
+    var sellBtn = ev.target.closest('#exchSubmitBtn');
+    if(sellBtn){
+      ev.preventDefault();
+      ev.stopPropagation();
+      if(!exchangeBusy) submitExchange();
+      return;
+    }
+    var buyBtn = ev.target.closest('#exchBuySubmitBtn');
+    if(buyBtn){
+      ev.preventDefault();
+      ev.stopPropagation();
+      if(!exchangeBusy) submitExchangeBuy();
+      return;
+    }
+  }, true);
 
   document.addEventListener('input', function(ev){
     if(!ev.target) return;
@@ -5044,6 +5071,26 @@ updateUI();
       }
     }catch(e){ showToast(e.message || 'Нет доступа к админке','error'); }
   }
+
+
+  // P2P submit safety handler: catches the button before any other global click listener.
+  document.addEventListener('click', function(ev){
+    if(!ev.target || !ev.target.closest) return;
+    var sellBtn = ev.target.closest('#exchSubmitBtn');
+    if(sellBtn){
+      ev.preventDefault();
+      ev.stopPropagation();
+      if(!exchangeBusy) submitExchange();
+      return;
+    }
+    var buyBtn = ev.target.closest('#exchBuySubmitBtn');
+    if(buyBtn){
+      ev.preventDefault();
+      ev.stopPropagation();
+      if(!exchangeBusy) submitExchangeBuy();
+      return;
+    }
+  }, true);
 
   document.addEventListener('input', function(ev){
     if(ev.target && ev.target.id === 'adminUserQuery'){

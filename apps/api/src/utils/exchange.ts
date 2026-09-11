@@ -282,23 +282,26 @@ export async function createExchangeRequest(data: {
 	const client = tx || prisma
 	const del = exchangeDelegate(client)
 	if (del) {
-		return mapRow(await del.create({
-			data: {
-				userId: data.userId,
-				amountGc: data.amountGc,
-				payoutMinor: data.payoutMinor,
-				currency: data.currency,
-				rateGcPerUnit: BigInt(data.rateGcPerUnit),
-				feePercent: data.feePercent,
-				method: data.method,
-				destination: data.destination,
-				contact: data.contact,
-				status: data.status || 'OPEN',
-				kind: data.kind || 'SELL',
-				minGc: data.minGc || data.amountGc,
-				maxGc: data.maxGc || data.amountGc
-			}
-		}))
+		try {
+			return mapRow(await del.create({
+				data: {
+					userId: data.userId,
+					amountGc: data.amountGc,
+					payoutMinor: data.payoutMinor,
+					currency: data.currency,
+					rateGcPerUnit: BigInt(data.rateGcPerUnit),
+					feePercent: data.feePercent,
+					method: data.method,
+					destination: data.destination,
+					contact: data.contact,
+					status: data.status || 'OPEN'
+				} as any
+			}))
+		} catch (err) {
+			// If Prisma Client was generated before kind/minGc/maxGc existed,
+			// use raw SQL below instead of failing creation.
+			if (!isMissingRelation(err)) throw err
+		}
 	}
 	const id = randomUUID()
 	await client.$executeRawUnsafe(

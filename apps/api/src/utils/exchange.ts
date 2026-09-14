@@ -300,7 +300,7 @@ export async function createExchangeRequest(data: {
 		data.minGc || data.amountGc,
 		data.maxGc || data.amountGc
 	)
-	const rows = await client.$queryRawUnsafe<any[]>(`SELECT * FROM "ExchangeRequest" WHERE "id" = $1 LIMIT 1`, id)
+	const rows = await client.$queryRawUnsafe(`SELECT * FROM "ExchangeRequest" WHERE "id" = $1 LIMIT 1`, id)
 	return mapRow(rows?.[0]) || {
 		id,
 		userId: data.userId,

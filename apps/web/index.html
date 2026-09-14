@@ -4580,7 +4580,7 @@ updateUI();
     html.push('<div class="p2p-form">');
     html.push('<label class="p2p-label">Всего GC выставляете</label>');
     html.push('<input class="p2p-input" id="exchAmount" type="number" min="' + c.minGc + '" placeholder="Например 10000 GC" value="' + escapeHtml(exchangeDraft.amount) + '">');
-    html.push('<div class="p2p-split"><div><label class="p2p-label">Мин. сумма в RUB</label><input class="p2p-input" id="exchMin" type="number" min="' + c.minGc + '" placeholder="От ' + c.minGc + '" value="' + escapeHtml(exchangeDraft.min) + '"></div><div><label class="p2p-label">Макс. сумма в RUB</label><input class="p2p-input" id="exchMax" type="number" min="' + c.minGc + '" placeholder="До всей суммы" value="' + escapeHtml(exchangeDraft.max) + '"></div></div>');
+    html.push('<div class="p2p-split"><div><label class="p2p-label">Мин. сумма в RUB</label><input class="p2p-input" id="exchMin" type="number" min="1" step="0.01" inputmode="decimal" placeholder="Например 50" value="' + escapeHtml(exchangeDraft.min) + '"></div><div><label class="p2p-label">Макс. сумма в RUB</label><input class="p2p-input" id="exchMax" type="number" min="1" step="0.01" inputmode="decimal" placeholder="Например 250" value="' + escapeHtml(exchangeDraft.max) + '"></div></div>');
     html.push('<div class="p2p-hint">Это лимиты для покупателя в рублях: сколько минимум и максимум RUB он может оплатить за одну сделку.</div>');
     html.push('<label class="p2p-label">Цена за 100 GC</label>');
     html.push('<input class="p2p-input" id="exchPrice" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="Например 0.9" value="' + escapeHtml(exchangeDraft.price) + '">');
@@ -4743,7 +4743,7 @@ updateUI();
     if(!Number.isFinite(amount) || amount < exchangeCfg.minGc){ showToast('Минимум ' + fmt(exchangeCfg.minGc) + ' GC','error'); resetSellBtn(); return; }
     if(!Number.isFinite(price) || price <= 0){ showToast('Укажите цену за 100 GC','error'); resetSellBtn(); return; }
     if(!Number.isFinite(minGc) || minGc <= 0){ showToast('Укажите минимальную сумму в RUB','error'); resetSellBtn(); return; }
-    if(!Number.isFinite(maxGc) || maxGc < minGc || maxGc > totalPrice){ showToast('Максимум RUB должен быть от минимума до общей цены лота','error'); resetSellBtn(); return; }
+    if(!Number.isFinite(maxGc) || maxGc < minGc){ showToast('Максимум RUB должен быть больше минимума','error'); resetSellBtn(); return; }
     if(!exchangeMethod){ showToast('Выберите способ оплаты','error'); resetSellBtn(); return; }
     if(destination.length < 4){ showToast('Укажите реквизиты','error'); resetSellBtn(); return; }
     exchangeBusy = true;

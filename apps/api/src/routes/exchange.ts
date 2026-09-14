@@ -133,7 +133,7 @@ export async function exchangeRoutes(app: FastifyInstance) {
 
 		if (!cfg.methods.some((m) => m.code === method)) return reply.code(400).send({ error: 'Недоступный способ оплаты' })
 		if (amountGc < cfg.minGc) return reply.code(400).send({ error: `Минимальная сумма — ${cfg.minGc} GC` })
-		if (minRubMinor <= 0 || maxRubMinor < minRubMinor || maxRubMinor > priceMinor) return reply.code(400).send({ error: 'Укажите корректный лимит в RUB' })
+		if (minRubMinor <= 0 || maxRubMinor < minRubMinor) return reply.code(400).send({ error: 'Укажите корректный лимит покупки' })
 		if (priceMinor < 1) return reply.code(400).send({ error: 'Минимальная цена — 0.01 ' + cfg.currency })
 		if (amountGc > Number(user.balance)) return reply.code(400).send({ error: 'Недостаточно Gamble Coin' })
 
@@ -489,7 +489,7 @@ export async function exchangeRoutes(app: FastifyInstance) {
 		const priceMinor = Math.round(parsed.data.price * 100)
 		if (!cfg.methods.some((m) => m.code === method)) return reply.code(400).send({ error: 'Недоступный способ оплаты' })
 		if (amountGc < cfg.minGc) return reply.code(400).send({ error: `Минимальная сумма — ${cfg.minGc} GC` })
-		if (minGc < cfg.minGc || minGc > amountGc || maxGc < minGc || maxGc > amountGc) return reply.code(400).send({ error: 'Укажите корректный лимит покупки' })
+		if (minGc <= 0 || maxGc < minGc) return reply.code(400).send({ error: 'Укажите корректный лимит покупки' })
 		if (priceMinor < 1) return reply.code(400).send({ error: 'Минимальная цена — 0.01 ' + cfg.currency })
 		const row = await createExchangeRequest({ userId:user.id, amountGc:BigInt(amountGc), payoutMinor:BigInt(priceMinor), currency:cfg.currency, rateGcPerUnit:quoteExchange(amountGc, priceMinor).rateGcPerUnit, feePercent:cfg.feePercent, method, destination, contact:null, status:'OPEN', kind:'BUY', minGc:BigInt(minGc), maxGc:BigInt(maxGc) })
 		const fresh = await findExchangeRequest(row.id); const [offer] = await enrichOffers([fresh], user.id)

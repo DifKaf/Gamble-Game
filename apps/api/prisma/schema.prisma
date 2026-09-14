@@ -261,6 +261,9 @@ model ExchangeRequest {
   destination String
   contact String?
   status String @default("OPEN")
+  kind String @default("SELL")
+  minGc BigInt @default(0)
+  maxGc BigInt @default(0)
   adminNote String?
   createdAt DateTime @default(now())
   takenAt DateTime?

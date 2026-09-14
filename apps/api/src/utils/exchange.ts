@@ -280,30 +280,9 @@ export async function createExchangeRequest(data: {
 }, tx?: any) {
 	await ensureExchangeReady()
 	const client = tx || prisma
-	const del = exchangeDelegate(client)
-	if (del) {
-		try {
-			return mapRow(await del.create({
-				data: {
-					userId: data.userId,
-					amountGc: data.amountGc,
-					payoutMinor: data.payoutMinor,
-					currency: data.currency,
-					rateGcPerUnit: BigInt(data.rateGcPerUnit),
-					feePercent: data.feePercent,
-					method: data.method,
-					destination: data.destination,
-					contact: data.contact,
-					status: data.status || 'OPEN'
-				} as any
-			}))
-		} catch (err) {
-			// If Prisma Client was generated before kind/minGc/maxGc existed,
-			// use raw SQL below instead of failing creation.
-			if (!isMissingRelation(err)) throw err
-		}
-	}
 	const id = randomUUID()
+	// Always use raw SQL here because Prisma Client on Railway may be generated
+	// from an older schema and silently omit/ignore new P2P fields.
 	await client.$executeRawUnsafe(
 		`INSERT INTO "ExchangeRequest" ("id","userId","amountGc","payoutMinor","currency","rateGcPerUnit","feePercent","method","destination","contact","status","kind","minGc","maxGc","createdAt") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,NOW())`,
 		id,

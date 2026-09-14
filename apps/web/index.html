@@ -4636,7 +4636,7 @@ updateUI();
     var a = document.getElementById('exchAmount');
     var p = document.getElementById('exchPrice');
     var amount = a ? Number(a.value || 0) : 0;
-    var price = p ? Number(p.value || 0) : 0;
+    var price = p ? Number(String(p.value || 0).replace(',', '.')) : 0;
     if(!Number.isFinite(price) || price <= 0){
       out.innerHTML = 'Курс: —';
       return;

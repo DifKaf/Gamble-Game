@@ -204,12 +204,45 @@ export async function exchangeRoutes(app: FastifyInstance) {
 		if (row.userId === user.id) return reply.code(400).send({ error: 'Нельзя купить своё объявление' })
 		if (row.status !== 'OPEN') return reply.code(409).send({ error: 'Объявление уже занято' })
 
+		const body: any = request.body || {}
+		const requestedGc = Math.floor(Number(body.amountGc || row.amountGc))
+		const minDeal = Number(row.minGc || row.amountGc)
+		const maxDeal = Number(row.maxGc || row.amountGc)
+		const available = Number(row.amountGc)
+		if (!Number.isFinite(requestedGc) || requestedGc < minDeal || requestedGc > maxDeal || requestedGc > available) {
+			return reply.code(400).send({ error: `Введите сумму от ${minDeal} до ${Math.min(maxDeal, available)} GC` })
+		}
+		const unitPrice = Number(row.payoutMinor) / Math.max(1, available)
+		const dealPayoutMinor = BigInt(Math.max(1, Math.round(requestedGc * unitPrice)))
+		const remainingGc = available - requestedGc
+
 		const upd = await updateOffer(row.id, ['OPEN', 'PENDING'], {
 			status: 'DEAL',
 			buyerId: user.id,
+			amountGc: BigInt(requestedGc),
+			payoutMinor: dealPayoutMinor,
+			minGc: BigInt(requestedGc),
+			maxGc: BigInt(requestedGc),
 			takenAt: new Date()
 		})
 		if (!upd.count) return reply.code(409).send({ error: 'Объявление уже занято' })
+		if (remainingGc >= minDeal) {
+			await createExchangeRequest({
+				userId: row.userId,
+				amountGc: BigInt(remainingGc),
+				payoutMinor: BigInt(Math.max(1, Number(row.payoutMinor) - Number(dealPayoutMinor))),
+				currency: row.currency,
+				rateGcPerUnit: row.rateGcPerUnit,
+				feePercent: row.feePercent,
+				method: row.method,
+				destination: row.destination,
+				contact: row.contact || null,
+				status: 'OPEN',
+				kind: 'SELL',
+				minGc: BigInt(minDeal),
+				maxGc: BigInt(Math.min(maxDeal, remainingGc))
+			})
+		}
 
 		const updated = await findExchangeRequest(row.id)
 		const [offer] = await enrichOffers([updated], user.id)

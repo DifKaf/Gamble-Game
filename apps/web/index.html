@@ -4420,6 +4420,9 @@ updateUI();
   var exchangeBuyDraft = { amount:'', price:'', destination:'', contact:'' };
   var exchangeBusy = false;
   var exchangeCreateMode = '';
+  var p2pDealOffer = null;
+  var p2pDealGc = '';
+  var p2pDealRub = '';
   var exchangePayFilter = 'all';
   var exchangeAmountFilter = '';
   var exchangeStatusFilter = 'active';
@@ -4453,11 +4456,41 @@ updateUI();
     return p.name || ('ID ' + (p.playerId || '—'));
   }
 
+
+  function p2pFindOffer(id){
+    return (exchangeOffers || []).concat(exchangeBuyRequests || [], exchangeMine || []).filter(function(o){ return String(o.id) === String(id); })[0] || null;
+  }
+  function p2pPricePerGc(o){ return Number(o.payout || 0) / Math.max(1, Number(o.amountGc || 1)); }
+  function p2pDealModalHtml(){
+    var o = p2pDealOffer; if(!o) return '';
+    var min = Number(o.minGc || o.amountGc || 0), max = Math.min(Number(o.maxGc || o.amountGc || 0), Number(o.amountGc || 0));
+    var gc = Number(String(p2pDealGc || max || 0).replace(',','.')) || 0;
+    var rub = gc * p2pPricePerGc(o);
+    var maker = o.seller || o.buyer;
+    return '<div class="p2p-modal-backdrop" data-p2p-close="1"><div class="p2p-modal" role="dialog" aria-modal="true" onclick="event.stopPropagation()">'
+      + '<button type="button" class="p2p-modal-x" data-p2p-close="1">×</button>'
+      + '<div class="p2p-modal-title">Покупка GC</div><div class="p2p-secure">ⓘ ПОКУПКА ЗАЩИЩЕНА ЭСКРОУ</div>'
+      + '<div class="p2p-modal-grid"><div><h3>Покупка Gamble Coin</h3><div class="p2p-modal-rate">Цена покупки: <b>' + escapeHtml(money(p2pPricePerGc(o)*100, o.currency)) + ' за 100 GC</b></div>'
+      + '<div class="p2p-modal-rate">Метод оплаты: <b>' + methodLogoHtml(o.method) + ' ' + escapeHtml(o.methodTitle || o.method || '') + '</b></div>'
+      + '<label class="p2p-label">Плачу ' + escapeHtml(o.currency || 'RUB') + '</label><input class="p2p-input" id="p2pDealRub" inputmode="decimal" value="' + escapeHtml(money(rub, '').trim()) + '">'
+      + '<label class="p2p-label">Получаю GC</label><input class="p2p-input" id="p2pDealGc" inputmode="numeric" value="' + escapeHtml(String(Math.floor(gc))) + '">'
+      + '<div class="p2p-modal-note">После покупки переведите деньги по реквизитам продавца и нажмите “Я оплатил”.</div>'
+      + '<button type="button" class="btn btn-blue btn-block" data-p2p-confirm-buy="' + escapeHtml(o.id) + '">Обменять</button></div>'
+      + '<div><div class="p2p-maker big"><div class="p2p-avatar">' + escapeHtml((partyName(maker)||'И').slice(0,1).replace('@','').toUpperCase()) + '</div><div><div class="p2p-maker-name">' + escapeHtml(partyName(maker)) + '</div><div class="p2p-maker-sub">Мейкер · сделок 17 · 98%</div></div></div>'
+      + '<div class="p2p-side-stat"><span>Лимит</span><b>' + fmt(min) + ' - ' + fmt(max) + ' GC</b></div><div class="p2p-side-stat"><span>Доступно</span><b>' + fmt(o.amountGc||0) + ' GC</b></div>'
+      + '<div class="p2p-side-title">Статистика сделок</div><div class="p2p-side-row"><span>всего сделок</span><b>17</b></div><div class="p2p-side-row"><span>выполнено</span><b>98%</b></div><div class="p2p-comment"><span>Комментарий</span><b>Оплата по выбранному методу. Чек после оплаты.</b></div></div></div></div></div>';
+  }
+  function renderP2pDealModal(){
+    var old=document.getElementById('p2pDealModalRoot'); if(old) old.remove();
+    if(!p2pDealOffer) return;
+    var root=document.createElement('div'); root.id='p2pDealModalRoot'; root.innerHTML=p2pDealModalHtml(); document.body.appendChild(root);
+  }
+
   function offerActions(o){
     var btns = [];
     if(o.status === 'OPEN' && o.role === 'viewer'){
       if(o.kind === 'BUY') btns.push('<button class="btn btn-green" data-exch-buy-take="' + escapeHtml(o.id) + '">Продать этому игроку</button>');
-      else btns.push('<button class="btn btn-gold" data-exch-take="' + escapeHtml(o.id) + '">Купить</button>');
+      else btns.push('<button class="btn btn-gold" data-exch-open-deal="' + escapeHtml(o.id) + '">Купить</button>');
     }
     if(o.status === 'OPEN' && o.role === 'seller'){
       btns.push('<button class="p2p-ghost" data-exch-cancel="' + escapeHtml(o.id) + '">Снять с витрины</button>');
@@ -4798,6 +4831,8 @@ updateUI();
     if(!ev.target) return;
     if(ev.target.id === 'exchAmount' || ev.target.id === 'exchPrice' || ev.target.id === 'exchMin' || ev.target.id === 'exchMax') updateExchangeQuote();
     if(ev.target.id === 'p2pAmountFilter'){ exchangeAmountFilter = String(ev.target.value || ''); renderExchange(); }
+    if(ev.target.id === 'p2pDealGc' && p2pDealOffer){ p2pDealGc=String(ev.target.value||''); var rubEl=document.getElementById('p2pDealRub'); if(rubEl){ var gc=Number(String(p2pDealGc).replace(',','.'))||0; rubEl.value=money(gc*p2pPricePerGc(p2pDealOffer),'').trim(); } }
+    if(ev.target.id === 'p2pDealRub' && p2pDealOffer){ p2pDealRub=String(ev.target.value||''); var gcEl=document.getElementById('p2pDealGc'); if(gcEl){ var rub=Number(String(p2pDealRub).replace(',','.'))||0; gcEl.value=String(Math.floor(rub/Math.max(0.000001,p2pPricePerGc(p2pDealOffer)))); p2pDealGc=gcEl.value; } }
     if(ev.target.id === 'exchBuyAmount' || ev.target.id === 'exchBuyPrice') updateExchangeBuyQuote();
   });
 
@@ -4824,6 +4859,11 @@ updateUI();
     if(ev.target.closest('#exchRetryBtn')){ ev.preventDefault(); loadExchange(); return; }
     if(ev.target.closest('#exchSubmitBtn')){ ev.preventDefault(); submitExchange(); return; }
     if(ev.target.closest('#exchBuySubmitBtn')){ ev.preventDefault(); submitExchangeBuy(); return; }
+    var openDeal = ev.target.closest('[data-exch-open-deal]');
+    if(openDeal){ ev.preventDefault(); p2pDealOffer=p2pFindOffer(openDeal.getAttribute('data-exch-open-deal')); p2pDealGc=String((p2pDealOffer&&(p2pDealOffer.minGc||p2pDealOffer.amountGc))||''); renderP2pDealModal(); return; }
+    if(ev.target.closest('[data-p2p-close]')){ ev.preventDefault(); p2pDealOffer=null; renderP2pDealModal(); return; }
+    var confirmBuy = ev.target.closest('[data-p2p-confirm-buy]');
+    if(confirmBuy){ ev.preventDefault(); var gcEl=document.getElementById('p2pDealGc'); var gc=Math.floor(Number(String(gcEl&&gcEl.value||p2pDealGc||0).replace(',','.'))); p2pDealOffer=null; renderP2pDealModal(); exchangeTab='mine'; exchangeAction('/exchange/offers/' + encodeURIComponent(confirmBuy.getAttribute('data-p2p-confirm-buy')) + '/take', 'Сделка начата — переведите деньги продавцу', { amountGc: gc }); return; }
     var buyTake = ev.target.closest('[data-exch-buy-take]');
     if(buyTake){ ev.preventDefault(); exchangeTab='mine'; exchangeAction('/exchange/buy-requests/' + encodeURIComponent(buyTake.getAttribute('data-exch-buy-take')) + '/take', 'GC отправлены покупателю — ждите оплату'); return; }
     var take = ev.target.closest('[data-exch-take]');
@@ -7426,6 +7466,12 @@ updateUI();
 @media(max-width:760px){#screen-exchange .p2p-filters{grid-template-columns:1fr;}#screen-exchange .p2p-grid-info{grid-template-columns:1fr 1fr;}#screen-exchange .p2p-create-panel{display:block}#screen-exchange .p2p-create-actions{margin-top:12px!important;display:grid!important;grid-template-columns:1fr!important}.p2p-card-top{align-items:flex-start}}
 </style>
 <!-- p2p-minmax-schema-fix-2026-09-14 -->
+
+<style id="p2p-gamble-buy-modal">
+.p2p-modal-backdrop{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;padding:18px;backdrop-filter:blur(8px)}
+.p2p-modal{width:min(860px,100%);max-height:92vh;overflow:auto;background:linear-gradient(145deg,#101827,#0b111b 55%,#17120a);border:1px solid rgba(80,170,255,.35);border-radius:24px;padding:22px;box-shadow:0 30px 90px rgba(0,0,0,.55);position:relative;color:#fff}.p2p-modal-x{position:absolute;right:18px;top:14px;border:0;background:transparent;color:#ff5a5a;font-size:34px;font-weight:900}.p2p-modal-title{font-size:24px;font-weight:950;margin-bottom:18px}.p2p-secure{color:#9bd7ff;font-weight:900;font-size:12px;margin-bottom:20px}.p2p-modal-grid{display:grid;grid-template-columns:1fr 360px;gap:28px}.p2p-modal h3{font-size:22px;margin:0 0 16px}.p2p-modal-rate{font-size:14px;font-weight:800;margin:10px 0;color:#c9d7ea}.p2p-modal-note{color:#29b6ff;font-size:12px;font-weight:800;margin:18px 0}.p2p-maker.big{margin-bottom:22px}.p2p-side-stat,.p2p-side-row{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid rgba(255,255,255,.12);padding:10px 0}.p2p-side-stat span,.p2p-side-row span,.p2p-comment span{color:#c2d4ee;font-weight:800}.p2p-side-stat b,.p2p-side-row b{color:#fff}.p2p-side-title{font-size:17px;font-weight:950;margin:20px 0 8px}.p2p-comment{margin-top:18px}.p2p-comment b{display:block;margin-top:8px;border:1px solid rgba(255,255,255,.14);border-radius:14px;padding:14px;color:#fff;min-height:54px;background:rgba(0,0,0,.18)}
+@media(max-width:760px){.p2p-modal{padding:18px}.p2p-modal-grid{grid-template-columns:1fr}.p2p-modal-title{font-size:20px}}
+</style>
 </body>
 </html>
 

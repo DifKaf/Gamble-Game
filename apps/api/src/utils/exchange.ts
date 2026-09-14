@@ -300,7 +300,25 @@ export async function createExchangeRequest(data: {
 		data.minGc || data.amountGc,
 		data.maxGc || data.amountGc
 	)
-	return findExchangeRequest(id)
+	const rows = await client.$queryRawUnsafe<any[]>(`SELECT * FROM "ExchangeRequest" WHERE "id" = $1 LIMIT 1`, id)
+	return mapRow(rows?.[0]) || {
+		id,
+		userId: data.userId,
+		buyerId: null,
+		amountGc: data.amountGc,
+		payoutMinor: data.payoutMinor,
+		currency: data.currency,
+		rateGcPerUnit: data.rateGcPerUnit,
+		feePercent: data.feePercent,
+		method: data.method,
+		destination: data.destination,
+		contact: data.contact,
+		status: data.status || 'OPEN',
+		kind: data.kind || 'SELL',
+		minGc: data.minGc || data.amountGc,
+		maxGc: data.maxGc || data.amountGc,
+		createdAt: new Date()
+	}
 }
 
 export async function updateOffer(id: string, expectedStatus: string | string[], data: Record<string, any>, tx?: any) {

@@ -3569,7 +3569,7 @@ updateUI();
         <div class="p2p-hero-copy">
           <div class="p2p-widget-brand">GAMBLE <span>P2P</span></div>
           <div class="p2p-hero-title">Покупай и продавай GC напрямую</div>
-          <div class="p2p-hero-sub" id="p2pHeroSub">Без кассы. Монеты в эскроу, деньги — между вами.</div>
+          <div class="p2p-hero-sub" id="p2pHeroSub">Маркет как в FK Wallet: мейкеры, лимиты, доступно, сделки через эскроу.</div>
         </div>
         <div class="p2p-hero-orb"><img src="assets/p2p.png" alt="P2P"></div>
       </div>
@@ -4420,6 +4420,9 @@ updateUI();
   var exchangeBuyDraft = { amount:'', price:'', destination:'', contact:'' };
   var exchangeBusy = false;
   var exchangeCreateMode = '';
+  var exchangePayFilter = 'all';
+  var exchangeAmountFilter = '';
+  var exchangeStatusFilter = 'active';
 
   function methodLogoHtml(code){
     var c = String(code || '').toLowerCase();
@@ -4435,7 +4438,7 @@ updateUI();
   }
 
   function exchangeStatusTitle(s){
-    if(s === 'OPEN' || s === 'PENDING') return 'На витрине';
+    if(s === 'OPEN' || s === 'PENDING') return 'Активный';
     if(s === 'DEAL') return 'Сделка';
     if(s === 'PAID') return 'Ожидает подтверждения';
     if(s === 'COMPLETED') return 'Завершено';
@@ -4476,26 +4479,59 @@ updateUI();
     return btns.length ? '<div class="p2p-actions">' + btns.join('') + '</div>' : '';
   }
 
+  function p2pLimitText(o){
+    var min = Number(o.minGc || o.amountGc || 0);
+    var max = Number(o.maxGc || o.amountGc || 0);
+    return 'от ' + fmt(min) + ' до ' + fmt(max) + ' GC';
+  }
+  function p2pAvailableText(o){ return fmt(o.amountGc || 0) + ' GC'; }
+  function p2pOfferPassesFilters(o){
+    if(exchangePayFilter !== 'all' && String(o.method||'') !== exchangePayFilter) return false;
+    if(exchangeStatusFilter === 'active' && !(o.status === 'OPEN' || o.status === 'PENDING')) return false;
+    if(exchangeAmountFilter){
+      var need = Number(String(exchangeAmountFilter).replace(',','.')) || 0;
+      if(need > 0){
+        var min = Number(o.minGc || 0), max = Number(o.maxGc || o.amountGc || 0);
+        if(need < min || need > max) return false;
+      }
+    }
+    return true;
+  }
+  function p2pFiltersHtml(c){
+    var methods = (c.methods || []).map(function(m){ return '<option value="'+escapeHtml(m.code)+'">'+escapeHtml(m.title)+'</option>'; }).join('');
+    return '<div class="p2p-filters">'
+      + '<div><small>Сумма GC</small><input class="p2p-filter-input" id="p2pAmountFilter" inputmode="decimal" placeholder="Любая" value="'+escapeHtml(exchangeAmountFilter)+'"></div>'
+      + '<div><small>Способ</small><select class="p2p-filter-input" id="p2pPayFilter"><option value="all">Все</option>'+methods+'</select></div>'
+      + '<div><small>Статус</small><select class="p2p-filter-input" id="p2pStatusFilter"><option value="active">Активные</option><option value="all">Все</option></select></div>'
+      + '</div>';
+  }
+  function applyP2pFilterValues(){
+    var pf=document.getElementById('p2pPayFilter'), af=document.getElementById('p2pAmountFilter'), sf=document.getElementById('p2pStatusFilter');
+    if(pf) pf.value=exchangePayFilter;
+    if(af) af.value=exchangeAmountFilter;
+    if(sf) sf.value=exchangeStatusFilter;
+  }
   function offerCardHtml(o, compact){
-    var who = o.role === 'buyer' ? ('Продавец: ' + partyName(o.seller)) : (o.role === 'seller' && o.buyer ? ('Покупатель: ' + partyName(o.buyer)) : ('Продавец: ' + partyName(o.seller)));
+    var maker = o.kind === 'BUY' ? (o.buyer || o.seller) : o.seller;
+    var sideTitle = o.kind === 'BUY' ? 'Мейкер покупает GC' : 'Мейкер продаёт GC';
+    var actionTitle = o.kind === 'BUY' ? 'Продать' : 'Купить';
     var extra = '';
-    if(o.mine && (o.status === 'DEAL' || o.status === 'PAID')){
+    if(o.mine && (o.status === 'DEAL' || o.status === 'PAID' || o.status === 'DISPUTED')){
       extra += '<div class="p2p-dealbox">';
-      extra += '<div><small>Способ</small><b>' + methodLogoHtml(o.method) + ' ' + escapeHtml(o.methodTitle || o.method || '') + '</b></div>';
+      extra += '<div><small>Способ оплаты</small><b>' + methodLogoHtml(o.method) + ' ' + escapeHtml(o.methodTitle || o.method || '') + '</b></div>';
       if(o.destination) extra += '<div><small>Реквизиты</small><b>' + escapeHtml(String(o.destination)) + '</b></div>';
       extra += '</div>';
       if(o.receiptUrl) extra += '<div class="p2p-receipt"><small>Чек</small><img src="' + escapeHtml(o.receiptUrl) + '" alt="Чек"></div>';
       else if(o.role === 'buyer' && o.status === 'PAID') extra += '<label class="p2p-receipt-link">Прикрепить чек<input type="file" accept="image/*" hidden data-exch-receipt="' + escapeHtml(o.id) + '"></label>';
       if(o.status === 'DISPUTED' && o.disputeReason) extra += '<div class="p2p-dispute-note">Спор: ' + escapeHtml(o.disputeReason) + '</div>';
     }
-    return '<article class="p2p-card">'
-      + '<div class="p2p-card-top"><div><div class="p2p-amount">' + fmt(o.amountGc) + ' GC</div><div class="p2p-sub">' + methodLogoHtml(o.method) + ' ' + escapeHtml(o.methodTitle || o.method || '') + ' · ' + escapeHtml(who) + '</div></div>'
-      + '<div class="p2p-price">' + escapeHtml(money(o.payout, o.currency)) + '<small>' + fmt(o.rateGcPerUnit || 0) + ' GC / 1 ' + escapeHtml(o.currency || '') + '</small></div></div>'
-      + '<div class="p2p-card-meta"><span class="exch-status ' + escapeHtml(o.status) + '">' + exchangeStatusTitle(o.status) + '</span>'
-      + (o.kind === 'BUY' ? '<span class="p2p-role buy">Скупка</span>' : '<span class="p2p-role">Витрина</span>')
-      + (o.role === 'seller' ? '<span class="p2p-role">Вы продаёте</span>' : '')
-      + (o.role === 'buyer' ? '<span class="p2p-role buy">Вы покупаете</span>' : '')
-      + '</div>' + extra + offerActions(o) + '</article>';
+    return '<article class="p2p-card p2p-modern-card">'
+      + '<div class="p2p-card-top"><div class="p2p-maker"><div class="p2p-avatar">' + escapeHtml((partyName(maker)||'И').slice(0,1).replace('@','').toUpperCase()) + '</div><div><div class="p2p-maker-name">' + escapeHtml(partyName(maker)) + '</div><div class="p2p-maker-sub">' + sideTitle + ' · сделок 17 · 98%</div></div></div>'
+      + '<div class="p2p-price">' + escapeHtml(money(o.payout, o.currency)) + '<small>за ' + fmt(o.amountGc) + ' GC</small></div></div>'
+      + '<div class="p2p-grid-info"><div><small>Цена за 100 GC</small><b>' + escapeHtml(money((Number(o.payout||0) / Math.max(1, Number(o.amountGc||1))) * 100, o.currency)) + '</b></div><div><small>Метод оплаты</small><b>' + methodLogoHtml(o.method) + ' ' + escapeHtml(o.methodTitle || o.method || '') + '</b></div><div><small>Лимит</small><b>' + p2pLimitText(o) + '</b></div><div><small>Доступно</small><b>' + p2pAvailableText(o) + '</b></div></div>'
+      + '<div class="p2p-card-meta"><span class="exch-status ' + escapeHtml(o.status) + '">' + exchangeStatusTitle(o.status) + '</span><span class="p2p-role ' + (o.kind === 'BUY' ? 'buy' : '') + '">' + escapeHtml(actionTitle) + '</span>'
+      + (o.role === 'seller' ? '<span class="p2p-role">Вы мейкер</span>' : '') + (o.role === 'buyer' ? '<span class="p2p-role buy">Вы тейкер</span>' : '') + '</div>'
+      + extra + offerActions(o) + '</article>';
   }
 
   function renderSellForm(c){
@@ -4567,27 +4603,29 @@ updateUI();
       sub.textContent = 'Минимум ' + fmt(c.minGc) + ' GC' + (c.feePercent ? ' · комиссия ' + c.feePercent + '%' : '') + ' · сделка ' + (c.dealTimeoutMin || 30) + ' мин';
     }
     var html = [];
-    html.push('<div class="p2p-tabs">'
-      + '<button class="p2p-tab' + (exchangeTab==='buy'?' active':'') + '" data-exch-tab="buy">Купить</button>'
-      + '<button class="p2p-tab' + (exchangeTab==='sellList'?' active':'') + '" data-exch-tab="sellList">Продать</button>'
-      + '<button class="p2p-tab' + (exchangeTab==='mine'?' active':'') + '" data-exch-tab="mine">Мои сделки</button></div>');
+    html.push('<div class="p2p-tabs p2p-segment">'
+      + '<button class="p2p-tab' + (exchangeTab==='buy'?' active':'') + '" data-exch-tab="buy">Купить GC</button>'
+      + '<button class="p2p-tab' + (exchangeTab==='sellList'?' active':'') + '" data-exch-tab="sellList">Продать GC</button>'
+      + '<button class="p2p-tab' + (exchangeTab==='mine'?' active':'') + '" data-exch-tab="mine">Мои объявления</button></div>');
+    if(exchangeTab !== 'mine') html.push(p2pFiltersHtml(c));
     html.push('<div class="p2p-body">');
     if(!c.enabled){
       html.push('<div class="p2p-empty"><b>Биржа временно закрыта</b><p>Откроем позже — следите за новостями.</p></div>');
     } else if(exchangeTab === 'buy'){
-      var market = exchangeOffers.filter(function(o){ return o.status === 'OPEN' || o.status === 'PENDING'; });
+      var market = exchangeOffers.filter(function(o){ return p2pOfferPassesFilters(o); });
       html.push(market.length ? '<div class="p2p-list">' + market.map(function(o){ o.kind=o.kind||'SELL'; return offerCardHtml(o, false); }).join('') + '</div>' : '<div class="p2p-empty"><b>Пока нечего купить</b><p>Открытых предложений на продажу GC сейчас нет.</p></div>');
     } else if(exchangeTab === 'sellList'){
-      var buys = exchangeBuyRequests.filter(function(o){ return o.status === 'OPEN' || o.status === 'PENDING'; });
+      var buys = exchangeBuyRequests.filter(function(o){ return p2pOfferPassesFilters(o); });
       html.push(buys.length ? '<div class="p2p-list">' + buys.map(function(o){ o.kind='BUY'; return offerCardHtml(o, false); }).join('') + '</div>' : '<div class="p2p-empty"><b>Пока некому продать</b><p>Открытых заявок на скупку GC сейчас нет.</p></div>');
     } else if(exchangeTab === 'mine'){
-      html.push('<div class="p2p-create-actions"><button type="button" class="btn btn-gold" data-exch-create="sell">Создать продажу</button><button type="button" class="btn btn-green" data-exch-create="buy">Создать скупку</button></div>');
+      html.push('<div class="p2p-create-panel"><div><b>Мои объявления</b><small>Создавайте объявления как мейкер: покупка или продажа GC с лимитами.</small></div><div class="p2p-create-actions"><button type="button" class="btn btn-gold" data-exch-create="sell">+ Продать GC</button><button type="button" class="btn btn-green" data-exch-create="buy">+ Купить GC</button></div></div>');
       if(exchangeCreateMode==='sell') html.push(renderSellForm(c));
       if(exchangeCreateMode==='buy') html.push(renderBuyForm(c));
       html.push(exchangeMine.length ? '<div class="p2p-list" style="margin-top:12px">' + exchangeMine.map(function(o){ return offerCardHtml(o, true); }).join('') + '</div>' : '<div class="p2p-empty" style="margin-top:12px"><b>Сделок пока нет</b><p>Нажмите “Создать продажу” или “Создать скупку”, либо примите предложение в разделах Купить/Продать.</p></div>');
     }
     html.push('</div>');
     box.innerHTML = html.join('');
+    applyP2pFilterValues();
     updateExchangeQuote();
     updateExchangeBuyQuote();
   }
@@ -4763,6 +4801,7 @@ updateUI();
   document.addEventListener('input', function(ev){
     if(!ev.target) return;
     if(ev.target.id === 'exchAmount' || ev.target.id === 'exchPrice' || ev.target.id === 'exchMin' || ev.target.id === 'exchMax') updateExchangeQuote();
+    if(ev.target.id === 'p2pAmountFilter'){ exchangeAmountFilter = String(ev.target.value || ''); renderExchange(); }
     if(ev.target.id === 'exchBuyAmount' || ev.target.id === 'exchBuyPrice') updateExchangeBuyQuote();
   });
 
@@ -4809,6 +4848,8 @@ updateUI();
   });
 
   document.addEventListener('change', function(ev){
+    if(ev.target && ev.target.id === 'p2pPayFilter'){ exchangePayFilter = ev.target.value || 'all'; renderExchange(); return; }
+    if(ev.target && ev.target.id === 'p2pStatusFilter'){ exchangeStatusFilter = ev.target.value || 'active'; renderExchange(); return; }
     var inp = ev.target && ev.target.closest ? ev.target.closest('[data-exch-receipt]') : null;
     if(!inp || !inp.files || !inp.files[0]) return;
     uploadExchangeReceipt(inp.getAttribute('data-exch-receipt'), inp.files[0]);
@@ -7363,6 +7404,31 @@ updateUI();
   renderAll();
 })();
 </script>
+
+<style id="p2p-fk-modern-redesign">
+#screen-exchange .p2p-hero{background:radial-gradient(circle at 16% 20%,rgba(255,213,74,.18),transparent 32%),linear-gradient(135deg,#0d1117,#111827 55%,#17120a)!important;border:1px solid rgba(255,255,255,.08)!important;box-shadow:0 18px 50px rgba(0,0,0,.35)!important;}
+#screen-exchange .p2p-segment{position:sticky;top:8px;z-index:20;background:rgba(17,24,39,.82)!important;backdrop-filter:blur(14px);border-color:rgba(255,255,255,.08)!important;}
+#screen-exchange .p2p-tab.active{background:linear-gradient(135deg,#ffd54a,#ff9d2e)!important;color:#17120a!important;box-shadow:0 8px 24px rgba(255,174,46,.22)}
+#screen-exchange .p2p-filters{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:0 0 12px;}
+#screen-exchange .p2p-filters>div{background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:9px;}
+#screen-exchange .p2p-filters small{display:block;color:#9fb0c8;font-size:10px;font-weight:900;text-transform:uppercase;margin-bottom:5px;}
+#screen-exchange .p2p-filter-input{width:100%;border:0;outline:0;background:transparent;color:#fff;font-weight:900;}
+#screen-exchange select.p2p-filter-input option{background:#111827;color:#fff;}
+#screen-exchange .p2p-modern-card{background:linear-gradient(180deg,rgba(255,255,255,.065),rgba(255,255,255,.035))!important;border:1px solid rgba(255,255,255,.09)!important;box-shadow:0 12px 34px rgba(0,0,0,.28);}
+#screen-exchange .p2p-maker{display:flex;align-items:center;gap:10px;min-width:0;}
+#screen-exchange .p2p-avatar{width:38px;height:38px;border-radius:14px;background:linear-gradient(135deg,#0b9dff,#7b6bff);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:950;box-shadow:inset 0 0 0 1px rgba(255,255,255,.16)}
+#screen-exchange .p2p-maker-name{font-weight:950;color:#fff;font-size:15px;}
+#screen-exchange .p2p-maker-sub{font-size:11px;color:#8a93a3;font-weight:800;margin-top:2px;}
+#screen-exchange .p2p-grid-info{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:13px;}
+#screen-exchange .p2p-grid-info>div{background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:10px;min-width:0;}
+#screen-exchange .p2p-grid-info small{display:block;color:#8a93a3;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.04em;}
+#screen-exchange .p2p-grid-info b{display:flex;align-items:center;gap:6px;color:#fff;font-size:12px;margin-top:5px;word-break:break-word;}
+#screen-exchange .p2p-create-panel{display:flex;justify-content:space-between;gap:14px;align-items:center;background:linear-gradient(135deg,rgba(11,157,255,.12),rgba(255,213,74,.10));border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:14px;margin-bottom:12px;}
+#screen-exchange .p2p-create-panel b{display:block;color:#fff;font-size:16px}.p2p-create-panel small{display:block;color:#9fb0c8;font-weight:800;margin-top:4px;font-size:12px}
+#screen-exchange .p2p-create-actions{display:flex!important;grid-template-columns:none!important;gap:8px;margin:0!important;}
+#screen-exchange .p2p-form{background:rgba(17,24,39,.78)!important;border-color:rgba(255,255,255,.09)!important;box-shadow:0 12px 38px rgba(0,0,0,.25)}
+@media(max-width:760px){#screen-exchange .p2p-filters{grid-template-columns:1fr;}#screen-exchange .p2p-grid-info{grid-template-columns:1fr 1fr;}#screen-exchange .p2p-create-panel{display:block}#screen-exchange .p2p-create-actions{margin-top:12px!important;display:grid!important;grid-template-columns:1fr!important}.p2p-card-top{align-items:flex-start}}
+</style>
 </body>
 </html>
 

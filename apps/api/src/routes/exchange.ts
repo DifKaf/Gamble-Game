@@ -4,7 +4,7 @@ import { prisma } from '../db.js'
 import { getAuthUser } from '../auth/getUser.js'
 import { applyBalanceChange } from '../wallet/wallet.js'
 import { sendTelegramMessage, sendTelegramPhoto } from '../utils/telegram.js'
-import { assertCanSellP2p, isUserBanned, mapAntifraudError } from '../utils/antifraud.js'
+import { isUserBanned } from '../utils/antifraud.js'
 import { publicPlayerId } from '../utils/playerId.js'
 import {
 	exchangeConfig,
@@ -129,11 +129,6 @@ export async function exchangeRoutes(app: FastifyInstance) {
 		if (minGc < cfg.minGc || minGc > amountGc || maxGc < minGc || maxGc > amountGc) return reply.code(400).send({ error: 'Укажите корректный лимит покупки' })
 		if (priceMinor < 1) return reply.code(400).send({ error: 'Минимальная цена — 0.01 ' + cfg.currency })
 		if (amountGc > Number(user.balance)) return reply.code(400).send({ error: 'Недостаточно Gamble Coin' })
-		try { await assertCanSellP2p(user, amountGc, destination) } catch (e: any) {
-			const mapped = mapAntifraudError(e)
-			if (mapped) return reply.code(mapped.code).send({ error: mapped.error })
-			throw e
-		}
 
 		const quote = quoteExchange(amountGc, priceMinor)
 		try {

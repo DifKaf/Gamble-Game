@@ -1,4 +1,5 @@
 import { FastifyInstance } from 'fastify'
+import { randomUUID } from 'crypto'
 import { z } from 'zod'
 import { prisma } from '../db.js'
 import { getAuthUser } from '../auth/getUser.js'
@@ -30,7 +31,9 @@ const offerSchema = z.object({
 	destination: z.string().min(4).max(120),
 	contact: z.string().max(80).optional(),
 	minGc: z.number().int().positive().optional(),
-	maxGc: z.number().int().positive().optional()
+	maxGc: z.number().positive().optional(),
+	minRub: z.number().positive().optional(),
+	maxRub: z.number().positive().optional()
 })
 
 const adminActionSchema = z.object({
@@ -117,8 +120,12 @@ export async function exchangeRoutes(app: FastifyInstance) {
 		if (!parsed.success) return reply.code(400).send({ error: 'Укажите сумму GC, цену, способ и реквизиты' })
 
 		const amountGc = parsed.data.amountGc
-		const minGc = parsed.data.minGc || cfg.minGc
-		const maxGc = parsed.data.maxGc || amountGc
+		const minRub = parsed.data.minRub || parsed.data.minGc || 0
+		const maxRub = parsed.data.maxRub || parsed.data.maxGc || 0
+		const minRubMinor = Math.round(minRub * 100)
+		const maxRubMinor = Math.round(maxRub * 100)
+		const minGc = Math.max(cfg.minGc, Math.floor(minRub / Math.max(0.000001, parsed.data.price / 100)))
+		const maxGc = Math.min(amountGc, Math.floor(maxRub / Math.max(0.000001, parsed.data.price / 100)))
 		const method = parsed.data.method.toLowerCase()
 		const destination = parsed.data.destination.trim()
 		const contact = parsed.data.contact ? parsed.data.contact.trim() : null
@@ -126,7 +133,7 @@ export async function exchangeRoutes(app: FastifyInstance) {
 
 		if (!cfg.methods.some((m) => m.code === method)) return reply.code(400).send({ error: 'Недоступный способ оплаты' })
 		if (amountGc < cfg.minGc) return reply.code(400).send({ error: `Минимальная сумма — ${cfg.minGc} GC` })
-		if (minGc < cfg.minGc || minGc > amountGc || maxGc < minGc || maxGc > amountGc) return reply.code(400).send({ error: 'Укажите корректный лимит покупки' })
+		if (minRubMinor <= 0 || maxRubMinor < minRubMinor || maxRubMinor > priceMinor) return reply.code(400).send({ error: 'Укажите корректный лимит в RUB' })
 		if (priceMinor < 1) return reply.code(400).send({ error: 'Минимальная цена — 0.01 ' + cfg.currency })
 		if (amountGc > Number(user.balance)) return reply.code(400).send({ error: 'Недостаточно Gamble Coin' })
 
@@ -146,7 +153,9 @@ export async function exchangeRoutes(app: FastifyInstance) {
 					status: 'OPEN',
 					kind: 'SELL',
 					minGc: BigInt(minGc),
-					maxGc: BigInt(maxGc)
+					maxGc: BigInt(maxGc),
+					minRubMinor: BigInt(minRubMinor),
+					maxRubMinor: BigInt(maxRubMinor)
 				}, tx)
 				await applyBalanceChange({
 					tx,
@@ -206,23 +215,29 @@ export async function exchangeRoutes(app: FastifyInstance) {
 
 		const body: any = request.body || {}
 		const requestedGc = Math.floor(Number(body.amountGc || row.amountGc))
-		const minDeal = Number(row.minGc || row.amountGc)
-		const maxDeal = Number(row.maxGc || row.amountGc)
 		const available = Number(row.amountGc)
-		if (!Number.isFinite(requestedGc) || requestedGc < minDeal || requestedGc > maxDeal || requestedGc > available) {
-			return reply.code(400).send({ error: `Введите сумму от ${minDeal} до ${Math.min(maxDeal, available)} GC` })
-		}
 		const unitPrice = Number(row.payoutMinor) / Math.max(1, available)
-		const dealPayoutMinor = BigInt(Math.max(1, Math.round(requestedGc * unitPrice)))
-		const remainingGc = available - requestedGc
+		const requestedRub = Number(body.rub || body.amountRub || 0)
+		const rubMinor = requestedRub > 0 ? Math.round(requestedRub * 100) : Math.round(requestedGc * unitPrice)
+		const minRubMinor = Number(row.minRubMinor || 0) || Math.round(Number(row.minGc || 0) * 100)
+		const maxRubMinor = Number(row.maxRubMinor || 0) || Math.round(Number(row.maxGc || 0) * 100)
+		if (!Number.isFinite(rubMinor) || rubMinor < minRubMinor || rubMinor > maxRubMinor || rubMinor > Number(row.payoutMinor)) {
+			return reply.code(400).send({ error: `Введите сумму от ${minRubMinor/100} до ${Math.min(maxRubMinor, Number(row.payoutMinor))/100} RUB` })
+		}
+		const requestedGcByRub = Math.floor(rubMinor / Math.max(1, unitPrice))
+		const finalGc = Math.max(1, Math.min(available, requestedGc || requestedGcByRub))
+		const dealPayoutMinor = BigInt(rubMinor)
+		const remainingGc = available - finalGc
 
 		const upd = await updateOffer(row.id, ['OPEN', 'PENDING'], {
 			status: 'DEAL',
 			buyerId: user.id,
-			amountGc: BigInt(requestedGc),
+			amountGc: BigInt(finalGc),
 			payoutMinor: dealPayoutMinor,
-			minGc: BigInt(requestedGc),
-			maxGc: BigInt(requestedGc),
+			minGc: BigInt(finalGc),
+			maxGc: BigInt(finalGc),
+			minRubMinor: BigInt(rubMinor),
+			maxRubMinor: BigInt(rubMinor),
 			takenAt: new Date()
 		})
 		if (!upd.count) return reply.code(409).send({ error: 'Объявление уже занято' })
@@ -239,8 +254,10 @@ export async function exchangeRoutes(app: FastifyInstance) {
 				contact: row.contact || null,
 				status: 'OPEN',
 				kind: 'SELL',
-				minGc: BigInt(minDeal),
-				maxGc: BigInt(Math.min(maxDeal, remainingGc))
+				minGc: BigInt(Math.min(remainingGc, row.minGc || remainingGc)),
+				maxGc: BigInt(remainingGc),
+				minRubMinor: BigInt(minRubMinor),
+				maxRubMinor: BigInt(Math.max(0, Number(row.payoutMinor) - rubMinor))
 			})
 		}
 
@@ -496,6 +513,27 @@ export async function exchangeRoutes(app: FastifyInstance) {
 		const updated = await findExchangeRequest(row.id); const [offer] = await enrichOffers([updated], seller.id)
 		const fresh = await prisma.user.findUniqueOrThrow({ where:{ id:seller.id } })
 		return { ok:true, offer, balance:Number(fresh.balance) }
+	})
+
+	app.get('/offers/:id/chat', { preHandler: [(app as any).authenticate] }, async (request, reply) => {
+		const user = await getAuthUser(request)
+		const id = String((request.params as any).id || '')
+		const row = await loadOfferOr404(id, reply); if(!row) return
+		if (row.userId !== user.id && row.buyerId !== user.id) return reply.code(403).send({ error: 'Чат доступен только участникам сделки' })
+		const rows = await prisma.$queryRawUnsafe<any[]>('SELECT m."id",m."userId",m."message",m."createdAt",u."username",u."firstName" FROM "ExchangeChatMessage" m LEFT JOIN "User" u ON u."id"=m."userId" WHERE m."exchangeId"=$1 ORDER BY m."createdAt" ASC LIMIT 100', id)
+		return { messages: rows.map((m:any)=>({ id:m.id, userId:m.userId, mine:m.userId===user.id, author:m.username?('@'+m.username):(m.firstName||'Игрок'), message:m.message, createdAt:m.createdAt })) }
+	})
+
+	app.post('/offers/:id/chat', { preHandler: [(app as any).authenticate] }, async (request, reply) => {
+		const user = await getAuthUser(request)
+		const id = String((request.params as any).id || '')
+		const row = await loadOfferOr404(id, reply); if(!row) return
+		if (row.userId !== user.id && row.buyerId !== user.id) return reply.code(403).send({ error: 'Чат доступен только участникам сделки' })
+		const msg = String(((request.body as any)||{}).message || '').trim().slice(0,500)
+		if(!msg) return reply.code(400).send({ error: 'Введите сообщение' })
+		const mid = randomUUID()
+		await prisma.$executeRawUnsafe('INSERT INTO "ExchangeChatMessage" ("id","exchangeId","userId","message","createdAt") VALUES ($1,$2,$3,$4,NOW())', mid, id, user.id, msg)
+		return { ok:true }
 	})
 
 	app.get('/admin/requests', { preHandler: [(app as any).authenticate] }, async (request, reply) => {

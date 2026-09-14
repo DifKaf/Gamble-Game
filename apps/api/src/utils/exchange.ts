@@ -143,7 +143,9 @@ function mapRow(row: any) {
 		processedAt: row.processedAt ?? row.processedat ?? null,
 		kind: row.kind || 'SELL',
 		minGc: row.minGc ?? row.mingc ?? 0,
-		maxGc: row.maxGc ?? row.maxgc ?? row.amountGc ?? row.amountgc ?? 0
+		maxGc: row.maxGc ?? row.maxgc ?? row.amountGc ?? row.amountgc ?? 0,
+		minRubMinor: row.minRubMinor ?? row.minrubminor ?? 0,
+		maxRubMinor: row.maxRubMinor ?? row.maxrubminor ?? 0
 	}
 }
 
@@ -277,6 +279,8 @@ export async function createExchangeRequest(data: {
 	kind?: string
 	minGc?: bigint
 	maxGc?: bigint
+	minRubMinor?: bigint
+	maxRubMinor?: bigint
 }, tx?: any) {
 	await ensureExchangeReady()
 	const client = tx || prisma
@@ -284,7 +288,7 @@ export async function createExchangeRequest(data: {
 	// Always use raw SQL here because Prisma Client on Railway may be generated
 	// from an older schema and silently omit/ignore new P2P fields.
 	await client.$executeRawUnsafe(
-		`INSERT INTO "ExchangeRequest" ("id","userId","amountGc","payoutMinor","currency","rateGcPerUnit","feePercent","method","destination","contact","status","kind","minGc","maxGc","createdAt") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,NOW())`,
+		`INSERT INTO "ExchangeRequest" ("id","userId","amountGc","payoutMinor","currency","rateGcPerUnit","feePercent","method","destination","contact","status","kind","minGc","maxGc","minRubMinor","maxRubMinor","createdAt") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,NOW())`,
 		id,
 		data.userId,
 		data.amountGc,
@@ -298,7 +302,9 @@ export async function createExchangeRequest(data: {
 		data.status || 'OPEN',
 		data.kind || 'SELL',
 		data.minGc || data.amountGc,
-		data.maxGc || data.amountGc
+		data.maxGc || data.amountGc,
+		data.minRubMinor || BigInt(0),
+		data.maxRubMinor || BigInt(0)
 	)
 	const rows = await client.$queryRawUnsafe(`SELECT * FROM "ExchangeRequest" WHERE "id" = $1 LIMIT 1`, id)
 	return mapRow(rows?.[0]) || {
@@ -432,6 +438,10 @@ export function serializeRequest(row: any, opts?: { full?: boolean; viewerId?: s
 		kind: mapped.kind || 'SELL',
 		minGc: Number(mapped.minGc || mapped.amountGc || 0),
 		maxGc: Number(mapped.maxGc || mapped.amountGc || 0),
+		minRub: Number(mapped.minRubMinor || 0) / 100,
+		maxRub: Number(mapped.maxRubMinor || 0) / 100,
+		minRubMinor: Number(mapped.minRubMinor || 0),
+		maxRubMinor: Number(mapped.maxRubMinor || 0),
 		role,
 		mine: role !== 'viewer',
 		seller: publicUser(opts?.seller),

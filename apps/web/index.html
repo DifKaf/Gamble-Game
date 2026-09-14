@@ -4558,6 +4558,8 @@ updateUI();
       if(o.receiptUrl) extra += '<div class="p2p-receipt"><small>Чек</small><img src="' + escapeHtml(o.receiptUrl) + '" alt="Чек"></div>';
       else if(o.role === 'buyer' && o.status === 'PAID') extra += '<label class="p2p-receipt-link">Прикрепить чек<input type="file" accept="image/*" hidden data-exch-receipt="' + escapeHtml(o.id) + '"></label>';
       if(o.status === 'DISPUTED' && o.disputeReason) extra += '<div class="p2p-dispute-note">Спор: ' + escapeHtml(o.disputeReason) + '</div>';
+      extra += '<div class="p2p-chat-box" data-chat-box="' + escapeHtml(o.id) + '"><div class="p2p-chat-head">Чат сделки <button type="button" class="p2p-ghost" data-chat-refresh="' + escapeHtml(o.id) + '">↻</button></div><div class="p2p-chat-messages" id="p2pChatMessages_' + escapeHtml(o.id) + '">Загрузка чата...</div><div class="p2p-chat-send"><input class="p2p-input" id="p2pChatInput_' + escapeHtml(o.id) + '" placeholder="Сообщение продавцу/покупателю"><button type="button" class="btn btn-green" data-chat-send="' + escapeHtml(o.id) + '">Отправить</button></div></div>';
+      setTimeout(function(){ loadP2pChat(o.id); }, 0);
     }
     return '<article class="p2p-card p2p-modern-card">'
       + '<div class="p2p-card-top"><div class="p2p-maker"><div class="p2p-avatar">' + escapeHtml((partyName(maker)||'И').slice(0,1).replace('@','').toUpperCase()) + '</div><div><div class="p2p-maker-name">' + escapeHtml(partyName(maker)) + '</div><div class="p2p-maker-sub">' + sideTitle + ' · сделок 17 · 98%</div></div></div>'
@@ -4751,6 +4753,8 @@ updateUI();
         price: totalPrice,
         minGc: minGc,
         maxGc: maxGc,
+        minRub: minGc,
+        maxRub: maxGc,
         method: exchangeMethod,
         destination: destination
       }) });
@@ -4795,6 +4799,23 @@ updateUI();
     try{await apiRequest('/exchange/buy-requests',{method:'POST',timeout:15000,body:JSON.stringify({amountGc:amount,price:totalPrice,method:exchangeMethod,destination:destination})}); haptic('success'); showToast('Заявка на скупку создана','success'); exchangeBuyDraft={amount:'',price:'',destination:'',contact:''}; exchangeTab='mine'; exchangeCreateMode=''; await loadExchange();}
     catch(e){showToast(e.message||'Не удалось создать скупку','error');}
     finally{exchangeBusy=false; if(submitBuyBtn){ submitBuyBtn.disabled=false; submitBuyBtn.textContent='Создать заявку на скупку'; }}
+  }
+
+
+  async function loadP2pChat(id){
+    var box=document.getElementById('p2pChatMessages_'+id); if(!box) return;
+    try{
+      var data=await apiRequest('/exchange/offers/'+encodeURIComponent(id)+'/chat',{timeout:10000});
+      var msgs=(data&&data.messages)||[];
+      box.innerHTML=msgs.length?msgs.map(function(m){return '<div class="p2p-chat-msg '+(m.mine?'mine':'')+'"><b>'+escapeHtml(m.author||'Игрок')+'</b><span>'+escapeHtml(m.message||'')+'</span></div>';}).join(''):'<div class="p2p-chat-empty">Сообщений пока нет</div>';
+      box.scrollTop=box.scrollHeight;
+    }catch(e){ box.innerHTML='<div class="p2p-chat-empty">Чат недоступен</div>'; }
+  }
+  async function sendP2pChat(id){
+    var inp=document.getElementById('p2pChatInput_'+id); var msg=String(inp&&inp.value||'').trim();
+    if(!msg){ showToast('Введите сообщение','error'); return; }
+    try{ await apiRequest('/exchange/offers/'+encodeURIComponent(id)+'/chat',{method:'POST',body:JSON.stringify({message:msg}),timeout:10000}); if(inp) inp.value=''; await loadP2pChat(id); }
+    catch(e){ showToast(e.message||'Не удалось отправить сообщение','error'); }
   }
 
   async function exchangeAction(path, okMsg, extra){
@@ -4882,7 +4903,9 @@ updateUI();
     if(openDeal){ ev.preventDefault(); p2pDealOffer=p2pFindOffer(openDeal.getAttribute('data-exch-open-deal')); p2pDealRub=String((p2pDealOffer&&(p2pDealOffer.minGc||p2pDealOffer.payout))||''); p2pDealGc=''; renderP2pDealModal(); return; }
     if(ev.target.closest('[data-p2p-close]')){ ev.preventDefault(); p2pDealOffer=null; renderP2pDealModal(); return; }
     var confirmBuy = ev.target.closest('[data-p2p-confirm-buy]');
-    if(confirmBuy){ ev.preventDefault(); var gcEl=document.getElementById('p2pDealGc'); var gc=Math.floor(Number(String(gcEl&&gcEl.value||p2pDealGc||0).replace(',','.'))); p2pDealOffer=null; renderP2pDealModal(); exchangeTab='mine'; exchangeAction('/exchange/offers/' + encodeURIComponent(confirmBuy.getAttribute('data-p2p-confirm-buy')) + '/take', 'Сделка начата — переведите деньги продавцу', { amountGc: gc }); return; }
+    if(confirmBuy){ ev.preventDefault(); var gcEl=document.getElementById('p2pDealGc'); var gc=Math.floor(Number(String(gcEl&&gcEl.value||p2pDealGc||0).replace(',','.'))); p2pDealOffer=null; renderP2pDealModal(); exchangeTab='mine'; exchangeAction('/exchange/offers/' + encodeURIComponent(confirmBuy.getAttribute('data-p2p-confirm-buy')) + '/take', 'Сделка начата — переведите деньги продавцу', { amountGc: gc, rub: Number(String((document.getElementById('p2pDealRub')||{}).value||0).replace(',','.')) }); return; }
+    var chatRefresh=ev.target.closest('[data-chat-refresh]'); if(chatRefresh){ ev.preventDefault(); loadP2pChat(chatRefresh.getAttribute('data-chat-refresh')); return; }
+    var chatSend=ev.target.closest('[data-chat-send]'); if(chatSend){ ev.preventDefault(); sendP2pChat(chatSend.getAttribute('data-chat-send')); return; }
     var buyTake = ev.target.closest('[data-exch-buy-take]');
     if(buyTake){ ev.preventDefault(); exchangeTab='mine'; exchangeAction('/exchange/buy-requests/' + encodeURIComponent(buyTake.getAttribute('data-exch-buy-take')) + '/take', 'GC отправлены покупателю — ждите оплату'); return; }
     var take = ev.target.closest('[data-exch-take]');
@@ -7531,6 +7554,19 @@ body{background-color:#07110c!important;}
 #screen-exchange .p2p-price,#screen-exchange .p2p-quote span{color:#55d98b!important;}
 #screen-exchange .p2p-avatar{background:linear-gradient(135deg,#1f8f55,#44bd76)!important;}
 #screen-exchange .p2p-filter-input,#screen-exchange .p2p-input{border-color:rgba(72,164,103,.18)!important;background:rgba(5,14,10,.72)!important;}
+</style>
+
+<style id="p2p-deal-chat-style">
+#screen-exchange .p2p-chat-box{margin-top:14px;border:1px solid rgba(72,164,103,.18);border-radius:16px;background:rgba(4,12,8,.55);padding:10px;}
+#screen-exchange .p2p-chat-head{display:flex;justify-content:space-between;align-items:center;color:#fff;font-weight:950;margin-bottom:8px;}
+#screen-exchange .p2p-chat-messages{max-height:180px;overflow:auto;display:flex;flex-direction:column;gap:7px;padding:6px;overscroll-behavior:contain;}
+#screen-exchange .p2p-chat-msg{max-width:82%;padding:8px 10px;border-radius:12px;background:rgba(255,255,255,.06);color:#eafff1;}
+#screen-exchange .p2p-chat-msg.mine{align-self:flex-end;background:rgba(35,139,82,.32);}
+#screen-exchange .p2p-chat-msg b{display:block;font-size:10px;color:#8fe0b2;margin-bottom:3px;}
+#screen-exchange .p2p-chat-msg span{font-size:12px;font-weight:800;}
+#screen-exchange .p2p-chat-send{display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:8px;}
+#screen-exchange .p2p-chat-empty{color:#8a93a3;font-size:12px;font-weight:800;text-align:center;padding:12px;}
+@media(max-width:520px){#screen-exchange .p2p-chat-send{grid-template-columns:1fr;}}
 </style>
 </body>
 </html>

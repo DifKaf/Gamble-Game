@@ -241,7 +241,7 @@ export async function exchangeRoutes(app: FastifyInstance) {
 			takenAt: new Date()
 		})
 		if (!upd.count) return reply.code(409).send({ error: 'Объявление уже занято' })
-		if (remainingGc >= minDeal) {
+		if (remainingGc > 0) {
 			await createExchangeRequest({
 				userId: row.userId,
 				amountGc: BigInt(remainingGc),
@@ -254,7 +254,7 @@ export async function exchangeRoutes(app: FastifyInstance) {
 				contact: row.contact || null,
 				status: 'OPEN',
 				kind: 'SELL',
-				minGc: BigInt(Math.min(remainingGc, row.minGc || remainingGc)),
+				minGc: BigInt(Math.min(remainingGc, Number(row.minGc || remainingGc))),
 				maxGc: BigInt(remainingGc),
 				minRubMinor: BigInt(minRubMinor),
 				maxRubMinor: BigInt(Math.max(0, Number(row.payoutMinor) - rubMinor))

@@ -4542,14 +4542,11 @@ updateUI();
       return html.join('');
     }
     html.push('<div class="p2p-form">');
-    html.push(p2pLimitAvailableHtml(c));
-    if(c.weekRemaining !== null && typeof c.weekRemaining !== 'undefined'){
-      html.push('<div class="p2p-limit">Лимит на неделю: <b>' + fmt(c.weekRemaining) + ' GC</b></div>');
-    }
+    html.push('<div class="p2p-limit-available"><div><small>ДОСТУПНО</small><b>' + fmt(backendBalance||0) + ' GC</b></div></div>');
     html.push('<label class="p2p-label">Всего GC выставляете</label>');
     html.push('<input class="p2p-input" id="exchAmount" type="number" min="' + c.minGc + '" placeholder="Например 10000 GC" value="' + escapeHtml(exchangeDraft.amount) + '">');
-    html.push('<div class="p2p-split"><div><label class="p2p-label">Минимум покупки</label><input class="p2p-input" id="exchMin" type="number" min="' + c.minGc + '" placeholder="От ' + c.minGc + '" value="' + escapeHtml(exchangeDraft.min) + '"></div><div><label class="p2p-label">Максимум покупки</label><input class="p2p-input" id="exchMax" type="number" min="' + c.minGc + '" placeholder="До всей суммы" value="' + escapeHtml(exchangeDraft.max) + '"></div></div>');
-    html.push('<div class="p2p-hint">Покупатель сможет купить у вас сумму в этом диапазоне, а не обязательно весь лот сразу.</div>');
+    html.push('<div class="p2p-split"><div><label class="p2p-label">Мин. сумма сделки</label><input class="p2p-input" id="exchMin" type="number" min="' + c.minGc + '" placeholder="От ' + c.minGc + '" value="' + escapeHtml(exchangeDraft.min) + '"></div><div><label class="p2p-label">Макс. сумма сделки</label><input class="p2p-input" id="exchMax" type="number" min="' + c.minGc + '" placeholder="До всей суммы" value="' + escapeHtml(exchangeDraft.max) + '"></div></div>');
+    html.push('<div class="p2p-hint">Это лимиты для покупателя: какую сумму GC он может купить у вас за одну сделку.</div>');
     html.push('<label class="p2p-label">Цена за 100 GC</label>');
     html.push('<input class="p2p-input" id="exchPrice" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="Например 0.9" value="' + escapeHtml(exchangeDraft.price) + '">');
     html.push('<label class="p2p-label">Куда покупатель переводит деньги</label>');
@@ -4574,7 +4571,6 @@ updateUI();
   function renderBuyForm(c){
     var html=[];
     html.push('<div class="p2p-form">');
-    html.push(p2pLimitAvailableHtml(c));
     html.push('<label class="p2p-label">Сколько GC хотите купить</label>');
     html.push('<input class="p2p-input" id="exchBuyAmount" type="number" min="'+c.minGc+'" placeholder="От '+c.minGc+' GC" value="'+escapeHtml(exchangeBuyDraft.amount)+'">');
     html.push('<label class="p2p-label">Цена за 100 GC</label>');
@@ -4730,7 +4726,7 @@ updateUI();
       exchangeCreateMode = '';
       await loadExchange();
       if(typeof loadTransferHistory === 'function') loadTransferHistory(true);
-    }catch(e){ showToast(e.message || 'Не удалось выставить','error'); }
+    }catch(e){ showToast(e.message || 'Не удалось выставить объявление. Попробуйте позже','error'); }
     finally{ exchangeBusy = false; if(submitBtn){ submitBtn.disabled = false; submitBtn.textContent = 'Выставить на витрину'; } }
   }
 

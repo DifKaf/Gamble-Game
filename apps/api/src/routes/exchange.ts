@@ -135,23 +135,6 @@ export async function exchangeRoutes(app: FastifyInstance) {
 			throw e
 		}
 
-		const [wagered, usedWeek, pending] = await Promise.all([
-			lifetimeWager(user.id),
-			weeklyExchangeUsage(user.id),
-			countPendingRequests(user.id)
-		])
-
-		if (wagered < cfg.requireWager) {
-			return reply.code(403).send({
-				error: `Чтобы выставлять GC, нужен отыгрыш от ${cfg.requireWager} GC. Сейчас: ${wagered} GC`,
-				wager: { current: wagered, required: cfg.requireWager, ok: false }
-			})
-		}
-		if (pending >= cfg.maxPending) return reply.code(409).send({ error: `Можно держать не больше ${cfg.maxPending} активных объявлений` })
-		if (cfg.maxGcPerWeek > 0 && usedWeek + amountGc > cfg.maxGcPerWeek) {
-			return reply.code(400).send({ error: `Недельный лимит — ${cfg.maxGcPerWeek} GC. Доступно: ${Math.max(0, cfg.maxGcPerWeek - usedWeek)} GC` })
-		}
-
 		const quote = quoteExchange(amountGc, priceMinor)
 		try {
 			const created = await prisma.$transaction(async (tx) => {

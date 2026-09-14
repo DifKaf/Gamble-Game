@@ -290,7 +290,7 @@ export async function createExchangeRequest(data: {
 		data.amountGc,
 		data.payoutMinor,
 		data.currency,
-		BigInt(data.rateGcPerUnit),
+		BigInt(Math.max(1, Math.round(Number(data.rateGcPerUnit) || 1))),
 		data.feePercent,
 		data.method,
 		data.destination,

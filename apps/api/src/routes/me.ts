@@ -68,7 +68,7 @@ export async function meRoutes(app: FastifyInstance) {
 			const now = new Date()
 			const day = now.getUTCDay() || 7
 			const start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - day + 1, 0, 0, 0))
-			const prizes = [150000,100000,75000,50000,35000,30000,25000,15000,12000,8000]
+			const prizes = [30000,20000,15000,10000,7000,6000,5000,3000,2500,1500]
 			const rows = await prisma.gameSession.groupBy({
 				by: ['userId'],
 				where: { status: 'FINISHED', finishedAt: { gte: start } },
@@ -84,7 +84,7 @@ export async function meRoutes(app: FastifyInstance) {
 				const usr:any = byId.get(r.userId) || {}
 				return { place: i+1, prize: prizes[i] || 0, user: toPublic(usr), weeklyWin: Number(r._sum.winAmount || 0), weeklyBet: Number(r._sum.betAmount || 0), games: Number(r._count._all || 0), mine: r.userId === u.id }
 			})
-			return { prizePool: 500000, periodStart: start.toISOString(), periodEnd: 'Конец недели', items }
+			return { prizePool: 100000, periodStart: start.toISOString(), periodEnd: 'Конец недели', items }
 		})
 	})
 

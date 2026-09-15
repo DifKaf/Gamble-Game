@@ -1169,9 +1169,7 @@ body.theme-light .settings-gear-btn{background:#EEF0F5!important;border-color:rg
       </div>
 
       <div class="home-leaderboard-wrap">
-        <div class="section-title">Лидеры по балансу</div>
-        <div class="white-card" id="leaderboardBox"></div>
-        <div class="section-title" style="margin-top:14px">Топ недели</div>
+        <div class="section-title">Топ недели</div>
         <div class="white-card weekly-top-card" id="weeklyTopBox">Загрузка...</div>
       </div>
 
@@ -6868,11 +6866,11 @@ updateUI();
 
   async function loadLeaderboardFromBackend(){
     if(!backendReady) return false;
-    try{ var data=await apiRequest('/me/leaderboard'); backendLeaderboardUsers=data.users||[]; renderLeaderboard(); loadWeeklyTop(); return true; }catch(e){ console.warn('Leaderboard load failed',e); loadWeeklyTop(); return false; }
+    try{ if(!document.getElementById('leaderboardBox')){ loadWeeklyTop(); return true; } var data=await apiRequest('/me/leaderboard'); backendLeaderboardUsers=data.users||[]; renderLeaderboard(); loadWeeklyTop(); return true; }catch(e){ console.warn('Leaderboard load failed',e); loadWeeklyTop(); return false; }
   }
   var backendLeaderboardUsers=[];
   var weeklyTopItems=[];
-  var weeklyPrizePool=500000;
+  var weeklyPrizePool=100000;
   var transferSearchTimer=null;
   var transferInput=document.getElementById('transferRecipient');
   var transferSuggestBox=document.getElementById('transferSuggestBox');
@@ -7191,14 +7189,14 @@ updateUI();
 
   async function loadWeeklyTop(){
     var box=document.getElementById('weeklyTopBox'); if(!box) return false;
-    try{ var data=await apiRequest('/me/weekly-top'); weeklyTopItems=(data&&data.items)||[]; weeklyPrizePool=(data&&data.prizePool)||500000; renderWeeklyTop(); return true; }
+    try{ var data=await apiRequest('/me/weekly-top'); weeklyTopItems=(data&&data.items)||[]; weeklyPrizePool=(data&&data.prizePool)||100000; renderWeeklyTop(); return true; }
     catch(e){ console.warn('Weekly top load failed',e); renderWeeklyTop(); return false; }
   }
   function renderWeeklyTop(){
     var box=document.getElementById('weeklyTopBox'); if(!box) return;
-    var prizes=[150000,100000,75000,50000,35000,30000,25000,15000,12000,8000];
-    var list=(weeklyTopItems&&weeklyTopItems.length)?weeklyTopItems:prizes.map(function(pr,i){return {place:i+1,prize:pr,user:{firstName:'Место свободно',username:''},weeklyWin:0,games:0,mine:false};});
-    box.innerHTML='<div class="weekly-top-head"><b>Призовой фонд '+fmt(weeklyPrizePool)+' GC</b><small>10 мест получают награды в конце недели</small></div>'+list.map(function(x){var u=x.user||{};var name=u.firstName||u.username||'Игрок';return '<div class="weekly-top-row '+(x.mine?'mine':'')+'"><span class="weekly-place">#'+x.place+'</span><span class="weekly-name">'+avatarHtml(u.photoUrl||'🏆')+'<span>'+escapeHtml(name)+'<small>'+fmt(x.weeklyWin||0)+' GC выиграно · '+fmt(x.games||0)+' игр</small></span></span><span class="weekly-prize">+'+fmt(x.prize||0)+' GC</span></div>';}).join('');
+    var list=(weeklyTopItems&&weeklyTopItems.length)?weeklyTopItems:[];
+    var rows=list.map(function(x){var u=x.user||{};var name=u.firstName||u.username||'Игрок';return '<div class="weekly-top-row '+(x.mine?'mine':'')+'"><span class="weekly-place">#'+x.place+'</span><span class="weekly-name">'+avatarHtml(u.photoUrl||'🏆')+'<span>'+escapeHtml(name)+'<small>'+fmt(x.weeklyWin||0)+' GC выиграно · '+fmt(x.games||0)+' игр</small></span></span><span class="weekly-prize">+'+fmt(x.prize||0)+' GC</span></div>';}).join('');
+    box.innerHTML='<div class="weekly-top-head"><b>Призовой фонд '+fmt(weeklyPrizePool)+' GC</b><small>10 мест получают награды в конце недели</small></div>'+(rows || '<div class="weekly-top-empty">Пока нет участников недели</div>');
   }
 
   function renderLeaderboard(){
@@ -7587,7 +7585,7 @@ body{background-color:#07110c!important;}
 #screen-exchange .p2p-chat-empty{color:#8a93a3;font-size:12px;font-weight:800;text-align:center;padding:12px;}
 @media(max-width:520px){#screen-exchange .p2p-chat-send{grid-template-columns:1fr;}}
 </style>
-<style id="p2p-rebuild-chat-green-final">#screen-exchange .p2p-chat-box{margin-top:14px;border:1px solid rgba(72,164,103,.18);border-radius:16px;background:rgba(4,12,8,.55);padding:10px}#screen-exchange .p2p-chat-head{display:flex;justify-content:space-between;color:#fff;font-weight:950;margin-bottom:8px}#screen-exchange .p2p-chat-messages{max-height:180px;overflow:auto;display:flex;flex-direction:column;gap:7px;padding:6px}#screen-exchange .p2p-chat-msg{max-width:82%;padding:8px 10px;border-radius:12px;background:rgba(255,255,255,.06);color:#eafff1}#screen-exchange .p2p-chat-msg.mine{align-self:flex-end;background:rgba(35,139,82,.32)}#screen-exchange .p2p-chat-msg b{display:block;font-size:10px;color:#8fe0b2}#screen-exchange .p2p-chat-send{display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:8px}</style><style id="weekly-top-styles">.weekly-top-card{padding:10px!important}.weekly-top-head{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:8px}.weekly-top-head b{color:#eafff1;font-weight:950}.weekly-top-head small{color:#8fb79e;font-size:11px;font-weight:800;text-align:right}.weekly-top-row{display:grid;grid-template-columns:42px 1fr auto;gap:8px;align-items:center;padding:10px 6px;border-top:1px solid rgba(72,164,103,.14);border-radius:12px}.weekly-top-row.mine{background:rgba(57,185,111,.12)}.weekly-place{font-weight:950;color:#55d98b}.weekly-name{display:flex;align-items:center;gap:8px;min-width:0;font-weight:900;color:#fff}.weekly-name small{display:block;color:#8a93a3;font-size:10px;font-weight:800;margin-top:2px}.weekly-prize{font-weight:950;color:#55d98b;white-space:nowrap;background:rgba(72,164,103,.12);border:1px solid rgba(72,164,103,.18);border-radius:999px;padding:5px 8px}@media(max-width:520px){.weekly-top-head{display:block}.weekly-top-head small{text-align:left;display:block;margin-top:4px}.weekly-prize{font-size:11px}}</style></body>
+<style id="p2p-rebuild-chat-green-final">#screen-exchange .p2p-chat-box{margin-top:14px;border:1px solid rgba(72,164,103,.18);border-radius:16px;background:rgba(4,12,8,.55);padding:10px}#screen-exchange .p2p-chat-head{display:flex;justify-content:space-between;color:#fff;font-weight:950;margin-bottom:8px}#screen-exchange .p2p-chat-messages{max-height:180px;overflow:auto;display:flex;flex-direction:column;gap:7px;padding:6px}#screen-exchange .p2p-chat-msg{max-width:82%;padding:8px 10px;border-radius:12px;background:rgba(255,255,255,.06);color:#eafff1}#screen-exchange .p2p-chat-msg.mine{align-self:flex-end;background:rgba(35,139,82,.32)}#screen-exchange .p2p-chat-msg b{display:block;font-size:10px;color:#8fe0b2}#screen-exchange .p2p-chat-send{display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:8px}</style><style id="weekly-top-styles">.weekly-top-card{padding:10px!important}.weekly-top-head{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:8px}.weekly-top-head b{color:#eafff1;font-weight:950}.weekly-top-head small{color:#8fb79e;font-size:11px;font-weight:800;text-align:right}.weekly-top-row{display:grid;grid-template-columns:42px 1fr auto;gap:8px;align-items:center;padding:10px 6px;border-top:1px solid rgba(72,164,103,.14);border-radius:12px}.weekly-top-row.mine{background:rgba(57,185,111,.12)}.weekly-place{font-weight:950;color:#55d98b}.weekly-name{display:flex;align-items:center;gap:8px;min-width:0;font-weight:900;color:#fff}.weekly-name small{display:block;color:#8a93a3;font-size:10px;font-weight:800;margin-top:2px}.weekly-prize{font-weight:950;color:#55d98b;white-space:nowrap;background:rgba(72,164,103,.12);border:1px solid rgba(72,164,103,.18);border-radius:999px;padding:5px 8px}@media(max-width:520px){.weekly-top-head{display:block}.weekly-top-head small{text-align:left;display:block;margin-top:4px}.weekly-prize{font-size:11px}}.weekly-top-empty{padding:14px;text-align:center;color:#8a93a3;font-weight:800}</style></body>
 </html>
 
 <style>

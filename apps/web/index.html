@@ -4513,11 +4513,30 @@ updateUI();
     var root=document.createElement('div'); root.id='p2pDealModalRoot'; root.innerHTML=p2pDealModalHtml(); document.body.appendChild(root);
   }
 
+  function openP2pBuyDeal(id){
+    var offer = p2pFindOffer(id);
+    if(!offer){
+      showToast('Объявление не найдено. Обновляю маркет...', 'error');
+      loadExchange();
+      return false;
+    }
+    p2pDealOffer = offer;
+    var minRub = Number(offer.minRub || (offer.minRubMinor ? offer.minRubMinor/100 : 0) || 0);
+    if(!minRub && offer.minGc) minRub = Math.round(Number(offer.minGc) * p2pPricePerGc(offer) * 100) / 100;
+    p2pDealRub = String(minRub || '');
+    p2pDealGc = '';
+    p2pDealStep = 1;
+    renderP2pDealModal();
+    return false;
+  }
+  window.openP2pBuyDeal = openP2pBuyDeal;
+
+
   function offerActions(o){
     var btns = [];
     if(o.status === 'OPEN' && o.role === 'viewer'){
       if(o.kind === 'BUY') btns.push('<button class="btn btn-green" data-exch-buy-take="' + escapeHtml(o.id) + '">Продать этому игроку</button>');
-      else btns.push('<button class="btn btn-gold" data-exch-open-deal="' + escapeHtml(o.id) + '">Купить</button>');
+      else btns.push('<button type="button" class="btn btn-gold" data-exch-open-deal="' + escapeHtml(o.id) + '" onclick="return window.openP2pBuyDeal && window.openP2pBuyDeal(this.getAttribute(\'data-exch-open-deal\'))">Купить</button>');
     }
     if(o.status === 'OPEN' && o.role === 'seller'){
       btns.push('<button class="p2p-ghost" data-exch-cancel="' + escapeHtml(o.id) + '">Снять с витрины</button>');
@@ -4863,12 +4882,7 @@ updateUI();
       var id = openDeal.getAttribute('data-exch-open-deal');
       var offer = p2pFindOffer(id);
       if(!offer){ showToast('Объявление обновляется, попробуйте ещё раз','error'); return; }
-      p2pDealOffer = offer;
-      var minRub = Number(offer.minRub || (offer.minRubMinor ? offer.minRubMinor/100 : 0) || 0);
-      p2pDealRub = String(minRub || '');
-      p2pDealGc = '';
-      p2pDealStep = 1;
-      renderP2pDealModal();
+      openP2pBuyDeal(id);
       return;
     }
   }, true);
@@ -5285,12 +5299,7 @@ updateUI();
       var id = openDeal.getAttribute('data-exch-open-deal');
       var offer = p2pFindOffer(id);
       if(!offer){ showToast('Объявление обновляется, попробуйте ещё раз','error'); return; }
-      p2pDealOffer = offer;
-      var minRub = Number(offer.minRub || (offer.minRubMinor ? offer.minRubMinor/100 : 0) || 0);
-      p2pDealRub = String(minRub || '');
-      p2pDealGc = '';
-      p2pDealStep = 1;
-      renderP2pDealModal();
+      openP2pBuyDeal(id);
       return;
     }
   }, true);

@@ -1,5 +1,6 @@
 import { FastifyInstance } from 'fastify'
 import { randomUUID } from 'crypto'
+import { randomUUID } from 'crypto'
 import { z } from 'zod'
 import { prisma } from '../db.js'
 import { getAuthUser } from '../auth/getUser.js'
@@ -154,6 +155,8 @@ export async function exchangeRoutes(app: FastifyInstance) {
 					kind: 'SELL',
 					minGc: BigInt(minGc),
 					maxGc: BigInt(maxGc),
+					minRubMinor: BigInt(minRubMinor),
+					maxRubMinor: BigInt(maxRubMinor),
 					minRubMinor: BigInt(minRubMinor),
 					maxRubMinor: BigInt(maxRubMinor)
 				}, tx)
@@ -482,8 +485,13 @@ export async function exchangeRoutes(app: FastifyInstance) {
 		const parsed = offerSchema.safeParse(request.body)
 		if (!parsed.success) return reply.code(400).send({ error: 'Укажите сумму GC, цену, способ и реквизиты' })
 		const amountGc = parsed.data.amountGc
-		const minGc = parsed.data.minGc || cfg.minGc
-		const maxGc = parsed.data.maxGc || amountGc
+		const minRub = parsed.data.minRub || parsed.data.minGc || 0
+		const maxRub = parsed.data.maxRub || parsed.data.maxGc || 0
+		const minRubMinor = Math.round(minRub * 100)
+		const maxRubMinor = Math.round(maxRub * 100)
+		const pricePerGc = parsed.data.price / 100
+		const minGc = Math.max(1, Math.floor(minRub / Math.max(0.000001, pricePerGc)))
+		const maxGc = Math.min(amountGc, Math.ceil(maxRub / Math.max(0.000001, pricePerGc)))
 		const method = parsed.data.method.toLowerCase()
 		const destination = parsed.data.destination.trim()
 		const priceMinor = Math.round(parsed.data.price * 100)

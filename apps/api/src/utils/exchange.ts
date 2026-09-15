@@ -41,11 +41,11 @@ export function exchangeConfig() {
 		currency: String(process.env.EXCHANGE_CURRENCY || 'RUB'),
 		rateGcPerUnit: Math.max(1, Number(process.env.EXCHANGE_RATE_GC_PER_UNIT || 1000)),
 		minGc: Math.max(1, Number(process.env.EXCHANGE_MIN_GC || 5000)),
-		maxGcPerWeek: Math.max(0, Number(process.env.EXCHANGE_MAX_GC_PER_WEEK || 1000000)),
+		maxGcPerWeek: Math.max(0, Number(process.env.EXCHANGE_MAX_GC_PER_WEEK || 0)),
 		feePercent: Math.min(90, Math.max(0, Number(process.env.EXCHANGE_FEE_PERCENT || 0))),
-		requireWager: Math.max(0, Number(process.env.EXCHANGE_REQUIRE_WAGER || 50000)),
-		maxPending: Math.max(1, Number(process.env.EXCHANGE_MAX_PENDING || 3)),
-		dealTimeoutMin: Math.max(5, Number(process.env.EXCHANGE_DEAL_TIMEOUT_MIN || 30)),
+		requireWager: Math.max(0, Number(process.env.EXCHANGE_REQUIRE_WAGER || 0)),
+		maxPending: Math.max(1, Number(process.env.EXCHANGE_MAX_PENDING || 999999)),
+		dealTimeoutMin: Math.max(5, Number(process.env.EXCHANGE_DEAL_TIMEOUT_MIN || 15)),
 		methods: methods.map((m) => ({ code: m, title: METHOD_TITLES[m] || m, hint: METHOD_HINTS[m] || 'Реквизиты для оплаты', logo: m })),
 		note: String(process.env.EXCHANGE_NOTE || 'Игроки меняются напрямую. GC держатся в эскроу, пока продавец не подтвердит оплату.')
 	}
@@ -80,20 +80,13 @@ export type ExchangeQuote = {
 	rateGcPerUnit: number
 }
 
-export function quoteExchange(amountGc: number, priceMinor?: number): ExchangeQuote {
+export function quoteExchange(amountGc: number, pricePer1000Minor?: number): ExchangeQuote {
 	const cfg = exchangeConfig()
-	const payoutMinor = Math.max(0, Math.floor(Number(priceMinor || Math.floor((amountGc / cfg.rateGcPerUnit) * 100))))
+	const unitMinor = Math.max(1, Math.floor(Number(pricePer1000Minor || 1000)))
+	const payoutMinor = Math.max(1, Math.round((Math.max(0, amountGc) / 1000) * unitMinor))
 	const feeMinor = Math.floor((payoutMinor * cfg.feePercent) / 100)
-	const rate = amountGc > 0 && payoutMinor > 0 ? Math.round((amountGc / (payoutMinor / 100)) * 100) / 100 : cfg.rateGcPerUnit
-	return {
-		amountGc,
-		payoutMinor,
-		payout: payoutMinor / 100,
-		feePercent: cfg.feePercent,
-		feeMinor,
-		currency: cfg.currency,
-		rateGcPerUnit: rate
-	}
+	const rate = payoutMinor > 0 ? Math.round((amountGc / (payoutMinor / 100)) * 100) / 100 : cfg.rateGcPerUnit
+	return { amountGc, payoutMinor, payout: payoutMinor / 100, feePercent: cfg.feePercent, feeMinor, currency: cfg.currency, rateGcPerUnit: rate }
 }
 
 function exchangeDelegate(client: any = prisma) {
@@ -165,10 +158,10 @@ export async function weeklyExchangeUsage(userId: string) {
 		if (!isMissingRelation(err)) throw err
 	}
 	try {
-		const rows = await prisma.$queryRawUnsafe<Array<{ total: any }>>(
+		const rows = await prisma.$queryRawUnsafe(
 			`SELECT COALESCE(SUM("amountGc"), 0) AS total FROM "ExchangeRequest" WHERE "userId" = $1 AND "createdAt" >= NOW() - INTERVAL '7 days' AND "status" IN ('OPEN','DEAL','PAID','COMPLETED','PENDING')`,
 			userId
-		)
+		) as any[]
 		return Number(rows?.[0]?.total || 0)
 	} catch {
 		return 0
@@ -196,10 +189,10 @@ export async function countPendingRequests(userId: string) {
 		if (!isMissingRelation(err)) throw err
 	}
 	try {
-		const rows = await prisma.$queryRawUnsafe<Array<{ n: any }>>(
+		const rows = await prisma.$queryRawUnsafe(
 			`SELECT COUNT(*)::int AS n FROM "ExchangeRequest" WHERE "userId" = $1 AND "status" IN ('OPEN','DEAL','PAID','PENDING')`,
 			userId
-		)
+		) as any[]
 		return Number(rows?.[0]?.n || 0)
 	} catch {
 		return 0
@@ -249,7 +242,7 @@ export async function listExchangeRequests(where: { userId?: string; buyerId?: s
 		}
 	}
 	const sql = `SELECT * FROM "ExchangeRequest"${clauses.length ? ' WHERE ' + clauses.join(' AND ') : ''} ORDER BY "createdAt" ${order === 'asc' ? 'ASC' : 'DESC'} LIMIT ${Math.max(1, Math.min(200, take))}`
-	const rows = await prisma.$queryRawUnsafe<any[]>(sql, ...params)
+	const rows = await prisma.$queryRawUnsafe(sql, ...params) as any[]
 	return rows.map(mapRow)
 }
 
@@ -261,7 +254,7 @@ export async function findExchangeRequest(id: string) {
 	} catch (err) {
 		if (!isMissingRelation(err)) throw err
 	}
-	const rows = await prisma.$queryRawUnsafe<any[]>(`SELECT * FROM "ExchangeRequest" WHERE "id" = $1 LIMIT 1`, id)
+	const rows = await prisma.$queryRawUnsafe(`SELECT * FROM "ExchangeRequest" WHERE "id" = $1 LIMIT 1`, id) as any[]
 	return mapRow(rows?.[0])
 }
 
@@ -306,7 +299,7 @@ export async function createExchangeRequest(data: {
 		data.minRubMinor || BigInt(0),
 		data.maxRubMinor || BigInt(0)
 	)
-	const rows = await client.$queryRawUnsafe(`SELECT * FROM "ExchangeRequest" WHERE "id" = $1 LIMIT 1`, id)
+	const rows = await client.$queryRawUnsafe(`SELECT * FROM "ExchangeRequest" WHERE "id" = $1 LIMIT 1`, id) as any[]
 	return mapRow(rows?.[0]) || {
 		id,
 		userId: data.userId,

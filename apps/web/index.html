@@ -1136,7 +1136,7 @@ body.theme-light .settings-gear-btn{background:#EEF0F5!important;border-color:rg
           <div class="p2p-widget-brand">GAMBLE <span>P2P</span></div>
           <div class="p2p-widget-title">Покупай и продавай GC напрямую</div>
           <div class="p2p-widget-meta">
-            <span class="p2p-widget-chip p2pWidgetOffers">Витрина</span>
+            <span class="p2p-widget-chip p2pWidgetOffers">Маркет</span>
             <span class="p2p-widget-chip">Без кассы</span>
           </div>
         </div>
@@ -3551,7 +3551,7 @@ updateUI();
           <div class="p2p-widget-brand">GAMBLE <span>P2P</span></div>
           <div class="p2p-widget-title">Покупай и продавай GC напрямую</div>
           <div class="p2p-widget-meta">
-            <span class="p2p-widget-chip p2pWidgetOffers">Витрина</span>
+            <span class="p2p-widget-chip p2pWidgetOffers">Маркет</span>
             <span class="p2p-widget-chip">Без кассы</span>
           </div>
         </div>
@@ -4483,7 +4483,7 @@ updateUI();
     return '<div class="p2p-modal-backdrop"><div class="p2p-modal" role="dialog" aria-modal="true" onclick="event.stopPropagation()">'
       + '<button type="button" class="p2p-modal-x" data-p2p-close="1">×</button>'
       + '<div class="p2p-modal-title">Покупка GC</div><div class="p2p-secure">ⓘ ПОКУПКА ЗАЩИЩЕНА ЭСКРОУ</div>'
-      + '<div class="p2p-modal-grid"><div><h3>' + ((p2pDealStep||1)===1?'Выберите сумму':'Оплата продавцу') + '</h3><div class="p2p-modal-rate">Цена: <b>' + escapeHtml(money(p2pPricePerGc(o)*100, o.currency)) + ' за 100 GC</b></div>'
+      + '<div class="p2p-modal-grid"><div><h3>' + ((p2pDealStep||1)===1?'Выберите сумму':'Оплата продавцу') + '</h3><div class="p2p-modal-rate">Цена: <b>' + escapeHtml(money(p2pPricePerGc(o)*100, o.currency)) + ' за 1К GC</b></div>'
       + '<div class="p2p-modal-rate">Метод: <b>' + methodLogoHtml(o.method) + ' ' + escapeHtml(o.methodTitle || o.method || '') + '</b></div>' + payBlock + '</div>'
       + '<div><div class="p2p-maker big"><div class="p2p-avatar">' + escapeHtml((partyName(maker)||'И').slice(0,1).replace('@','').toUpperCase()) + '</div><div><div class="p2p-maker-name">' + escapeHtml(partyName(maker)) + '</div><div class="p2p-maker-sub">Мейкер · сделок 17 · 98%</div></div></div>'
       + '<div class="p2p-side-stat"><span>Лимит</span><b>' + money(min,'RUB') + ' - ' + money(max,'RUB') + '</b></div><div class="p2p-side-stat"><span>Доступно</span><b>' + fmt(o.amountGc||0) + ' GC</b></div></div></div></div></div>';
@@ -4588,7 +4588,7 @@ updateUI();
     return '<article class="p2p-card p2p-modern-card">'
       + '<div class="p2p-card-top"><div class="p2p-maker"><div class="p2p-avatar">' + escapeHtml((partyName(maker)||'И').slice(0,1).replace('@','').toUpperCase()) + '</div><div><div class="p2p-maker-name">' + escapeHtml(partyName(maker)) + '</div><div class="p2p-maker-sub">' + sideTitle + ' · сделок 17 · 98%</div></div></div>'
       + '<div class="p2p-price">' + fmt(o.amountGc) + ' GC<small>доступно</small></div></div>'
-      + '<div class="p2p-grid-info"><div><small>Цена за 100 GC</small><b>' + escapeHtml(money((Number(o.payout||0) / Math.max(1, Number(o.amountGc||1))) * 100, o.currency)) + '</b></div><div><small>Метод оплаты</small><b>' + methodLogoHtml(o.method) + ' ' + escapeHtml(o.methodTitle || o.method || '') + '</b></div><div><small>Лимит</small><b>' + p2pLimitText(o) + '</b></div><div><small>Доступно</small><b>' + p2pAvailableText(o) + '</b></div></div>'
+      + '<div class="p2p-grid-info"><div><small>Цена за 1К GC</small><b>' + escapeHtml(money((Number(o.payout||0) / Math.max(1, Number(o.amountGc||1))) * 100, o.currency)) + '</b></div><div><small>Метод оплаты</small><b>' + methodLogoHtml(o.method) + ' ' + escapeHtml(o.methodTitle || o.method || '') + '</b></div><div><small>Лимит</small><b>' + p2pLimitText(o) + '</b></div><div><small>Доступно</small><b>' + p2pAvailableText(o) + '</b></div></div>'
       + '<div class="p2p-card-meta"><span class="p2p-role ' + (o.kind === 'BUY' ? 'buy' : '') + '">' + escapeHtml(actionTitle) + '</span>'
       + (o.role === 'seller' ? '<span class="p2p-role">Вы мейкер</span>' : '') + (o.role === 'buyer' ? '<span class="p2p-role buy">Вы тейкер</span>' : '') + '</div>'
       + extra + offerActions(o) + '</article>';
@@ -4604,12 +4604,12 @@ updateUI();
     if(step === 1){
       html.push('<label class="p2p-label">Всего GC выставляете</label>');
       html.push('<input class="p2p-input" id="exchAmount" type="number" min="' + c.minGc + '" placeholder="Например 25000" value="' + escapeHtml(exchangeDraft.amount) + '">');
-      html.push('<label class="p2p-label">Цена за 100 GC</label>');
+      html.push('<label class="p2p-label">Цена за 1К GC</label>');
       html.push('<input class="p2p-input" id="exchPrice" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="Например 1" value="' + escapeHtml(exchangeDraft.price) + '">');
       html.push('<div class="p2p-quote" id="exchQuote">Курс: —</div>');
       html.push('<button type="button" class="btn btn-gold btn-block" data-exch-next="sell">Далее</button>');
     } else {
-      html.push('<div class="p2p-quote">Курс: <span>' + escapeHtml(money(price, c.currency||'RUB')) + ' за 100 GC</span><small style="display:block;margin-top:4px;color:#8a8a8a;">Весь лот: ' + fmt(amount) + ' GC ≈ ' + escapeHtml(money(total, c.currency||'RUB')) + '</small></div>');
+      html.push('<div class="p2p-quote">Курс: <span>' + escapeHtml(money(price, c.currency||'RUB')) + ' за 1К GC</span><small style="display:block;margin-top:4px;color:#8a8a8a;">Весь лот: ' + fmt(amount) + ' GC ≈ ' + escapeHtml(money(total, c.currency||'RUB')) + '</small></div>');
       html.push('<div class="p2p-split"><div><label class="p2p-label">Мин. сумма в RUB</label><input class="p2p-input" id="exchMin" type="number" min="1" step="0.01" inputmode="decimal" placeholder="Например 50" value="' + escapeHtml(exchangeDraft.min) + '"></div><div><label class="p2p-label">Макс. сумма в RUB</label><input class="p2p-input" id="exchMax" type="number" min="1" step="0.01" inputmode="decimal" placeholder="Например ' + escapeHtml(String(total||250)) + '" value="' + escapeHtml(exchangeDraft.max) + '"></div></div>');
       html.push('<label class="p2p-label">Куда покупатель переводит деньги</label>');
       html.push('<div class="p2p-methods">' + (c.methods || []).map(function(m){ return '<button class="p2p-method' + (m.code === exchangeMethod ? ' active' : '') + '" data-exch-method="' + escapeHtml(m.code) + '">' + methodLogoHtml(m.code) + '<span>' + escapeHtml(m.title) + '</span></button>'; }).join('') + '</div>');
@@ -4635,7 +4635,7 @@ updateUI();
     html.push('<div class="p2p-form p2p-step-form"><div class="p2p-step-head"><b>Скупить GC</b><span>Шаг '+step+' из 1</span></div><button type="button" class="p2p-ghost p2p-form-back" data-exch-close-create="1">← Назад</button>');
     html.push('<label class="p2p-label">Сколько GC хотите купить</label>');
     html.push('<input class="p2p-input" id="exchBuyAmount" type="number" min="'+c.minGc+'" placeholder="От '+c.minGc+' GC" value="'+escapeHtml(exchangeBuyDraft.amount)+'">');
-    html.push('<label class="p2p-label">Цена за 100 GC</label>');
+    html.push('<label class="p2p-label">Цена за 1К GC</label>');
     html.push('<input class="p2p-input" id="exchBuyPrice" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="Например 1" value="'+escapeHtml(exchangeBuyDraft.price)+'">');
     html.push('<div class="p2p-quote" id="exchBuyQuote">Курс: —</div>');
     html.push('<div class="p2p-hint">Реквизиты, карта, телефон, банк и адрес кошелька здесь не нужны. Покупатель GC укажет оплату уже в сделке.</div>');
@@ -4695,7 +4695,7 @@ updateUI();
       return;
     }
     var total = (Number.isFinite(amount) && amount > 0) ? Math.round((amount / 100) * price * 100) / 100 : 0;
-    out.innerHTML = 'Курс: <span>' + escapeHtml(money(price, exchangeCfg.currency)) + ' за 100 GC</span>'
+    out.innerHTML = 'Курс: <span>' + escapeHtml(money(price, exchangeCfg.currency)) + ' за 1К GC</span>'
       + (total ? '<small style="display:block;margin-top:4px;color:#8a8a8a;">К получению: ' + escapeHtml(money(total, exchangeCfg.currency)) + '</small>' : '');
   }
 
@@ -4722,7 +4722,7 @@ updateUI();
         if(results[2].status === 'fulfilled') exchangeMine = (results[2].value && (results[2].value.offers || results[2].value.requests)) || [];
         var chips = document.querySelectorAll('.p2pWidgetOffers');
         var n = exchangeOffers.filter(function(o){ return o.status === 'OPEN' || o.status === 'PENDING'; }).length;
-        chips.forEach(function(chip){ chip.textContent = n ? (n + ' на витрине') : 'Витрина'; });
+        chips.forEach(function(chip){ chip.textContent = n ? (n + ' на витрине') : 'Маркет'; });
         renderExchange();
       });
     }catch(e){
@@ -4763,7 +4763,7 @@ updateUI();
     var maxGc = Math.max(minGc, Math.ceil(maxRub / Math.max(0.000001, price / 100)));
     var destination = String(exchangeDraft.destination || '').trim();
     if(!Number.isFinite(amount) || amount < exchangeCfg.minGc){ showToast('Минимум ' + fmt(exchangeCfg.minGc) + ' GC','error'); resetSellBtn(); return; }
-    if(!Number.isFinite(price) || price <= 0){ showToast('Укажите цену за 100 GC','error'); resetSellBtn(); return; }
+    if(!Number.isFinite(price) || price <= 0){ showToast('Укажите цену за 1К GC','error'); resetSellBtn(); return; }
     if(!Number.isFinite(minRub) || minRub <= 0){ showToast('Укажите минимальную сумму в RUB','error'); resetSellBtn(); return; }
     if(!Number.isFinite(maxRub) || maxRub < minRub){ showToast('Максимум RUB должен быть больше минимума','error'); resetSellBtn(); return; }
     if(!exchangeMethod){ showToast('Выберите способ оплаты','error'); resetSellBtn(); return; }
@@ -4800,7 +4800,7 @@ updateUI();
     var amount=a?Number(String(a.value||0).replace(',','.')):0, price=p?Number(String(p.value||0).replace(',','.')):0;
     if(!Number.isFinite(price)||price<=0){ out.innerHTML='Курс: —'; return; }
     var total=(Number.isFinite(amount)&&amount>0)?Math.round((amount/100)*price*100)/100:0;
-    out.innerHTML='Курс: <span>'+escapeHtml(money(price,exchangeCfg.currency))+' за 100 GC</span>'+(total?'<small style="display:block;margin-top:4px;color:#8a8a8a;">К оплате: '+escapeHtml(money(total,exchangeCfg.currency))+'</small>':'');
+    out.innerHTML='Курс: <span>'+escapeHtml(money(price,exchangeCfg.currency))+' за 1К GC</span>'+(total?'<small style="display:block;margin-top:4px;color:#8a8a8a;">К оплате: '+escapeHtml(money(total,exchangeCfg.currency))+'</small>':'');
   }
   function readExchangeBuyDraft(){
     var a=document.getElementById('exchBuyAmount'), p=document.getElementById('exchBuyPrice');
@@ -4815,7 +4815,7 @@ updateUI();
     var amount=Math.floor(Number(exchangeBuyDraft.amount||0)), price=Number(String(exchangeBuyDraft.price||0).replace(',','.')), destination='P2P';
     var totalPrice=Math.round((amount/100)*price*100)/100;
     if(!Number.isFinite(amount)||amount<exchangeCfg.minGc){showToast('Минимум '+fmt(exchangeCfg.minGc)+' GC','error');return;}
-    if(!Number.isFinite(price)||price<=0){showToast('Укажите цену за 100 GC','error');return;}
+    if(!Number.isFinite(price)||price<=0){showToast('Укажите цену за 1К GC','error');return;}
     exchangeBusy=true;
     try{await apiRequest('/exchange/buy-requests',{method:'POST',timeout:15000,body:JSON.stringify({amountGc:amount,price:totalPrice,method:(exchangeMethod||'card'),destination:destination})}); haptic('success'); showToast('Заявка на скупку создана','success'); exchangeBuyDraft={amount:'',price:'',destination:'',contact:''}; exchangeTab='mine'; exchangeCreateMode=''; await loadExchange();}
     catch(e){showToast(e.message||'Не удалось создать скупку','error');}
@@ -4919,7 +4919,7 @@ updateUI();
     var createBtn = ev.target.closest('[data-exch-create]');
     if(createBtn){ ev.preventDefault(); exchangeCreateMode=createBtn.getAttribute('data-exch-create')||''; exchangeCreateStep=1; exchangeTab=(exchangeCreateMode==='sell'?'buy':'sellList'); renderExchange(); return; }
     var closeCreate=ev.target.closest('[data-exch-close-create]'); if(closeCreate){ ev.preventDefault(); exchangeCreateMode=''; exchangeCreateStep=1; renderExchange(); return; }
-    var next=ev.target.closest('[data-exch-next]'); if(next){ ev.preventDefault(); readExchangeDraft(); var a=Number(String(exchangeDraft.amount||0).replace(',','.')), p=Number(String(exchangeDraft.price||0).replace(',','.')); if(!Number.isFinite(a)||a<exchangeCfg.minGc){showToast('Минимум '+fmt(exchangeCfg.minGc)+' GC','error');return;} if(!Number.isFinite(p)||p<=0){showToast('Укажите цену за 100 GC','error');return;} exchangeCreateStep=2; renderExchange(); return; }
+    var next=ev.target.closest('[data-exch-next]'); if(next){ ev.preventDefault(); readExchangeDraft(); var a=Number(String(exchangeDraft.amount||0).replace(',','.')), p=Number(String(exchangeDraft.price||0).replace(',','.')); if(!Number.isFinite(a)||a<exchangeCfg.minGc){showToast('Минимум '+fmt(exchangeCfg.minGc)+' GC','error');return;} if(!Number.isFinite(p)||p<=0){showToast('Укажите цену за 1К GC','error');return;} exchangeCreateStep=2; renderExchange(); return; }
     var prev=ev.target.closest('[data-exch-prev]'); if(prev){ ev.preventDefault(); readExchangeDraft(); exchangeCreateStep=1; renderExchange(); return; }
     if(ev.target.closest('#exchRetryBtn')){ ev.preventDefault(); loadExchange(); return; }
     if(ev.target.closest('#exchSubmitBtn')){ ev.preventDefault(); submitExchange(); return; }

@@ -73,7 +73,7 @@ export async function attachReferral(userId: string, rawCode: unknown): Promise<
 		const del = referralDelegate()
 		existing = del
 			? await del.findUnique({ where: { referredId: userId } })
-			: (await prisma.$queryRawUnsafe<any[]>(`SELECT * FROM "Referral" WHERE "referredId" = $1 LIMIT 1`, userId))[0] || null
+			: ((await prisma.$queryRawUnsafe(`SELECT * FROM "Referral" WHERE "referredId" = $1 LIMIT 1`, userId)) as any[])[0] || null
 	} catch (err) {
 		if (!isMissingRelation(err)) throw err
 	}
@@ -282,7 +282,7 @@ export async function referralStats(userId: string) {
 		const del = referralDelegate()
 		invitedBy = del
 			? await del.findUnique({ where: { referredId: userId } })
-			: (await prisma.$queryRawUnsafe<any[]>(`SELECT * FROM "Referral" WHERE "referredId" = $1 LIMIT 1`, userId))[0] || null
+			: ((await prisma.$queryRawUnsafe(`SELECT * FROM "Referral" WHERE "referredId" = $1 LIMIT 1`, userId)) as any[])[0] || null
 	} catch (err) {
 		if (!isMissingRelation(err)) throw err
 	}

@@ -78,7 +78,7 @@ async function loadClaims(userId: string, periodKey: string): Promise<string[]> 
 		if (!isMissingRelation(err)) throw err
 	}
 	try {
-		const rows = await prisma.$queryRawUnsafe<Array<{ questCode: string }>>(
+		const rows = await prisma.$queryRawUnsafe(
 			`SELECT "questCode" FROM "QuestClaim" WHERE "userId" = $1 AND "periodKey" = $2`,
 			userId,
 			periodKey

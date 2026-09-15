@@ -95,7 +95,7 @@ export async function meRoutes(app: FastifyInstance) {
 	})
 
 	app.get('/maintenance', { preHandler: [(app as any).authenticate] }, async () => {
-		const rows = await prisma.$queryRawUnsafe<any[]>('SELECT "value" FROM "AppSetting" WHERE "key"=$1 LIMIT 1', 'maintenance')
+		const rows = await prisma.$queryRawUnsafe('SELECT "value" FROM "AppSetting" WHERE "key"=$1 LIMIT 1', 'maintenance') as any[]
 		const value = rows[0]?.value || {}
 		return { enabled: Boolean(value.enabled), message: value.message || 'Технические работы' }
 	})
@@ -117,7 +117,7 @@ export async function meRoutes(app: FastifyInstance) {
 			// Префиксный поиск по ID: "1000" находит 100012, 100047 и т.д.
 			let rows: Array<{ id: string }> = []
 			try {
-				rows = await prisma.$queryRawUnsafe<Array<{ id: string }>>(
+				rows = await prisma.$queryRawUnsafe(
 					'SELECT id FROM "User" WHERE CAST("playerId" AS TEXT) LIKE $1 ORDER BY "playerId" ASC LIMIT 8',
 					digits + '%'
 				)

@@ -33,7 +33,7 @@ export async function ensurePlayerIds(log?: { info: (msg: string) => void; warn:
 		// 5. Уникальность — чтобы два игрока не могли получить один ID.
 		await prisma.$executeRawUnsafe('CREATE UNIQUE INDEX IF NOT EXISTS "User_playerId_key" ON "User"("playerId")')
 
-		const rows = await prisma.$queryRawUnsafe<Array<{ total: bigint; min: number | null; max: number | null }>>(
+		const rows = await prisma.$queryRawUnsafe(
 			'SELECT COUNT(*)::bigint AS total, MIN("playerId") AS min, MAX("playerId") AS max FROM "User"'
 		)
 		const r = rows[0]

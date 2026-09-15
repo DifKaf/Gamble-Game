@@ -54,7 +54,7 @@ async function grantNewPlayerLuck(tx: Tx, userId: string, stake: bigint, source?
 		`UPDATE "User" SET balance = balance + $1 WHERE id = $2 RETURNING balance`,
 		bonus,
 		userId,
-	)
+	) as Array<{ balance: bigint }>
 	if (!rows.length) return
 	const after = rows[0].balance
 	const before = after - bonus
@@ -88,7 +88,7 @@ export async function applyBalanceChange(p: {
 		`UPDATE "User" SET balance = balance + $1 WHERE id = $2 AND balance + $1 >= 0 RETURNING balance`,
 		p.amount,
 		p.userId,
-	)
+	) as Array<{ balance: bigint }>
 	if (!rows.length) {
 		const exists = await p.tx.user.findUnique({ where: { id: p.userId }, select: { id: true } })
 		if (!exists) throw new Error('User not found')
@@ -137,7 +137,7 @@ export async function settleRound(p: {
 		`UPDATE "User" SET balance = balance + $1 WHERE id = $2 AND balance + $1 >= 0 RETURNING balance`,
 		net,
 		p.userId,
-	)
+	) as Array<{ balance: bigint }>
 	if (!rows.length) {
 		const exists = await p.tx.user.findUnique({ where: { id: p.userId }, select: { id: true } })
 		if (!exists) throw new Error('User not found')

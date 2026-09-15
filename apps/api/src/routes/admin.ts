@@ -170,7 +170,7 @@ export async function adminRoutes(app: FastifyInstance) {
 	app.get('/maintenance', { preHandler: [(app as any).authenticate] }, async (request, reply) => {
 		const admin = await getAuthUser(request)
 		if (!requireAdmin(admin, reply)) return
-		const rows = await prisma.$queryRawUnsafe<any[]>('SELECT "value" FROM "AppSetting" WHERE "key"=$1 LIMIT 1', 'maintenance')
+		const rows = await prisma.$queryRawUnsafe('SELECT "value" FROM "AppSetting" WHERE "key"=$1 LIMIT 1', 'maintenance') as any[]
 		const value = rows[0]?.value || {}
 		return { enabled: Boolean(value.enabled), message: value.message || 'Технические работы' }
 	})

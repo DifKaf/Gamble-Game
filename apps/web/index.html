@@ -4483,7 +4483,7 @@ updateUI();
     return '<div class="p2p-modal-backdrop"><div class="p2p-modal" role="dialog" aria-modal="true" onclick="event.stopPropagation()">'
       + '<button type="button" class="p2p-modal-x" data-p2p-close="1">×</button>'
       + '<div class="p2p-modal-title">Покупка GC</div><div class="p2p-secure">ⓘ ПОКУПКА ЗАЩИЩЕНА ЭСКРОУ</div>'
-      + '<div class="p2p-modal-grid"><div><h3>' + ((p2pDealStep||1)===1?'Выберите сумму':'Оплата продавцу') + '</h3><div class="p2p-modal-rate">Цена: <b>' + escapeHtml(money(p2pPricePerGc(o)*100, o.currency)) + ' за 1К GC</b></div>'
+      + '<div class="p2p-modal-grid"><div><h3>' + ((p2pDealStep||1)===1?'Выберите сумму':'Оплата продавцу') + '</h3><div class="p2p-modal-rate">Цена: <b>' + escapeHtml(money(p2pPricePerGc(o)*1000, o.currency)) + ' за 1К GC</b></div>'
       + '<div class="p2p-modal-rate">Метод: <b>' + methodLogoHtml(o.method) + ' ' + escapeHtml(o.methodTitle || o.method || '') + '</b></div>' + payBlock + '</div>'
       + '<div><div class="p2p-maker big"><div class="p2p-avatar">' + escapeHtml((partyName(maker)||'И').slice(0,1).replace('@','').toUpperCase()) + '</div><div><div class="p2p-maker-name">' + escapeHtml(partyName(maker)) + '</div><div class="p2p-maker-sub">Мейкер · сделок 17 · 98%</div></div></div>'
       + '<div class="p2p-side-stat"><span>Лимит</span><b>' + money(min,'RUB') + ' - ' + money(max,'RUB') + '</b></div><div class="p2p-side-stat"><span>Доступно</span><b>' + fmt(o.amountGc||0) + ' GC</b></div></div></div></div></div>';
@@ -4588,7 +4588,7 @@ updateUI();
     return '<article class="p2p-card p2p-modern-card">'
       + '<div class="p2p-card-top"><div class="p2p-maker"><div class="p2p-avatar">' + escapeHtml((partyName(maker)||'И').slice(0,1).replace('@','').toUpperCase()) + '</div><div><div class="p2p-maker-name">' + escapeHtml(partyName(maker)) + '</div><div class="p2p-maker-sub">' + sideTitle + ' · сделок 17 · 98%</div></div></div>'
       + '<div class="p2p-price">' + fmt(o.amountGc) + ' GC<small>доступно</small></div></div>'
-      + '<div class="p2p-grid-info"><div><small>Цена за 1К GC</small><b>' + escapeHtml(money((Number(o.payout||0) / Math.max(1, Number(o.amountGc||1))) * 100, o.currency)) + '</b></div><div><small>Метод оплаты</small><b>' + methodLogoHtml(o.method) + ' ' + escapeHtml(o.methodTitle || o.method || '') + '</b></div><div><small>Лимит</small><b>' + p2pLimitText(o) + '</b></div><div><small>Доступно</small><b>' + p2pAvailableText(o) + '</b></div></div>'
+      + '<div class="p2p-grid-info"><div><small>Цена за 1К GC</small><b>' + escapeHtml(money((Number(o.payout||0) / Math.max(1, Number(o.amountGc||1))) * 1000, o.currency)) + '</b></div><div><small>Метод оплаты</small><b>' + methodLogoHtml(o.method) + ' ' + escapeHtml(o.methodTitle || o.method || '') + '</b></div><div><small>Лимит</small><b>' + p2pLimitText(o) + '</b></div><div><small>Доступно</small><b>' + p2pAvailableText(o) + '</b></div></div>'
       + '<div class="p2p-card-meta"><span class="p2p-role ' + (o.kind === 'BUY' ? 'buy' : '') + '">' + escapeHtml(actionTitle) + '</span>'
       + (o.role === 'seller' ? '<span class="p2p-role">Вы мейкер</span>' : '') + (o.role === 'buyer' ? '<span class="p2p-role buy">Вы тейкер</span>' : '') + '</div>'
       + extra + offerActions(o) + '</article>';
@@ -4599,7 +4599,7 @@ updateUI();
     var step = exchangeCreateStep || 1;
     var amount = Number(String(exchangeDraft.amount||0).replace(',','.')) || 0;
     var price = Number(String(exchangeDraft.price||0).replace(',','.')) || 0;
-    var total = amount>0 && price>0 ? Math.round((amount/100)*price*100)/100 : 0;
+    var total = amount>0 && price>0 ? Math.round((amount/1000)*price*100)/100 : 0;
     html.push('<div class="p2p-form p2p-step-form"><div class="p2p-step-head"><b>Продать GC</b><span>Шаг '+step+' из 2</span></div><button type="button" class="p2p-ghost p2p-form-back" data-exch-close-create="1">← Назад</button>');
     if(step === 1){
       html.push('<label class="p2p-label">Всего GC выставляете</label>');
@@ -4631,7 +4631,7 @@ updateUI();
     var html=[];
     var step = exchangeCreateStep || 1;
     var amount=Number(String(exchangeBuyDraft.amount||0).replace(',','.'))||0, price=Number(String(exchangeBuyDraft.price||0).replace(',','.'))||0;
-    var total=amount>0&&price>0?Math.round((amount/100)*price*100)/100:0;
+    var total=amount>0&&price>0?Math.round((amount/1000)*price*100)/100:0;
     html.push('<div class="p2p-form p2p-step-form"><div class="p2p-step-head"><b>Скупить GC</b><span>Шаг '+step+' из 1</span></div><button type="button" class="p2p-ghost p2p-form-back" data-exch-close-create="1">← Назад</button>');
     html.push('<label class="p2p-label">Сколько GC хотите купить</label>');
     html.push('<input class="p2p-input" id="exchBuyAmount" type="number" min="'+c.minGc+'" placeholder="От '+c.minGc+' GC" value="'+escapeHtml(exchangeBuyDraft.amount)+'">');
@@ -4694,7 +4694,7 @@ updateUI();
       out.innerHTML = 'Курс: —';
       return;
     }
-    var total = (Number.isFinite(amount) && amount > 0) ? Math.round((amount / 100) * price * 100) / 100 : 0;
+    var total = (Number.isFinite(amount) && amount > 0) ? Math.round((amount / 1000) * price * 100) / 100 : 0;
     out.innerHTML = 'Курс: <span>' + escapeHtml(money(price, exchangeCfg.currency)) + ' за 1К GC</span>'
       + (total ? '<small style="display:block;margin-top:4px;color:#8a8a8a;">К получению: ' + escapeHtml(money(total, exchangeCfg.currency)) + '</small>' : '');
   }
@@ -4757,10 +4757,10 @@ updateUI();
     var amount = Math.floor(Number(exchangeDraft.amount || 0));
     var price = Number(String(exchangeDraft.price || 0).replace(',', '.'));
     var minRub = Number(String(exchangeDraft.min || 0).replace(',', '.'));
-    var totalPrice = Math.round((amount / 100) * price * 100) / 100;
+    var totalPrice = Math.round((amount / 1000) * price * 100) / 100;
     var maxRub = Number(String(exchangeDraft.max || totalPrice || 0).replace(',', '.'));
-    var minGc = Math.max(1, Math.floor(minRub / Math.max(0.000001, price / 100)));
-    var maxGc = Math.max(minGc, Math.ceil(maxRub / Math.max(0.000001, price / 100)));
+    var minGc = Math.max(1, Math.floor(minRub / Math.max(0.000001, price / 1000)));
+    var maxGc = Math.max(minGc, Math.ceil(maxRub / Math.max(0.000001, price / 1000)));
     var destination = String(exchangeDraft.destination || '').trim();
     if(!Number.isFinite(amount) || amount < exchangeCfg.minGc){ showToast('Минимум ' + fmt(exchangeCfg.minGc) + ' GC','error'); resetSellBtn(); return; }
     if(!Number.isFinite(price) || price <= 0){ showToast('Укажите цену за 1К GC','error'); resetSellBtn(); return; }
@@ -4772,7 +4772,7 @@ updateUI();
     try{
       var res = await apiRequest('/exchange/offers', { method:'POST', timeout:15000, body: JSON.stringify({
         amountGc: amount,
-        price: totalPrice,
+        price: price,
         minGc: minGc,
         maxGc: maxGc,
         minRub: minRub,
@@ -4799,7 +4799,7 @@ updateUI();
     var a=document.getElementById('exchBuyAmount'), p=document.getElementById('exchBuyPrice');
     var amount=a?Number(String(a.value||0).replace(',','.')):0, price=p?Number(String(p.value||0).replace(',','.')):0;
     if(!Number.isFinite(price)||price<=0){ out.innerHTML='Курс: —'; return; }
-    var total=(Number.isFinite(amount)&&amount>0)?Math.round((amount/100)*price*100)/100:0;
+    var total=(Number.isFinite(amount)&&amount>0)?Math.round((amount/1000)*price*100)/100:0;
     out.innerHTML='Курс: <span>'+escapeHtml(money(price,exchangeCfg.currency))+' за 1К GC</span>'+(total?'<small style="display:block;margin-top:4px;color:#8a8a8a;">К оплате: '+escapeHtml(money(total,exchangeCfg.currency))+'</small>':'');
   }
   function readExchangeBuyDraft(){
@@ -4813,11 +4813,11 @@ updateUI();
     if(submitBuyBtn){ submitBuyBtn.disabled = true; submitBuyBtn.textContent = 'Создаём...'; }
     readExchangeBuyDraft();
     var amount=Math.floor(Number(exchangeBuyDraft.amount||0)), price=Number(String(exchangeBuyDraft.price||0).replace(',','.')), destination='P2P';
-    var totalPrice=Math.round((amount/100)*price*100)/100;
+    var totalPrice=Math.round((amount/1000)*price*100)/100;
     if(!Number.isFinite(amount)||amount<exchangeCfg.minGc){showToast('Минимум '+fmt(exchangeCfg.minGc)+' GC','error');return;}
     if(!Number.isFinite(price)||price<=0){showToast('Укажите цену за 1К GC','error');return;}
     exchangeBusy=true;
-    try{await apiRequest('/exchange/buy-requests',{method:'POST',timeout:15000,body:JSON.stringify({amountGc:amount,price:totalPrice,method:(exchangeMethod||'card'),destination:destination})}); haptic('success'); showToast('Заявка на скупку создана','success'); exchangeBuyDraft={amount:'',price:'',destination:'',contact:''}; exchangeTab='mine'; exchangeCreateMode=''; await loadExchange();}
+    try{await apiRequest('/exchange/buy-requests',{method:'POST',timeout:15000,body:JSON.stringify({amountGc:amount,price:price,minRub:1,maxRub:Math.max(1,totalPrice),method:(exchangeMethod||'card'),destination:destination})}); haptic('success'); showToast('Заявка на скупку создана','success'); exchangeBuyDraft={amount:'',price:'',destination:'',contact:''}; exchangeTab='mine'; exchangeCreateMode=''; await loadExchange();}
     catch(e){showToast(e.message||'Не удалось создать скупку','error');}
     finally{exchangeBusy=false; if(submitBuyBtn){ submitBuyBtn.disabled=false; submitBuyBtn.textContent='Создать заявку на скупку'; }}
   }
@@ -4852,6 +4852,26 @@ updateUI();
     finally{ exchangeBusy = false; }
   }
 
+
+  
+  // P2P critical click router: first priority for market actions.
+  document.addEventListener('click', function(ev){
+    if(!ev.target || !ev.target.closest) return;
+    var openDeal = ev.target.closest('[data-exch-open-deal]');
+    if(openDeal){
+      ev.preventDefault(); ev.stopPropagation(); ev.stopImmediatePropagation && ev.stopImmediatePropagation();
+      var id = openDeal.getAttribute('data-exch-open-deal');
+      var offer = p2pFindOffer(id);
+      if(!offer){ showToast('Объявление обновляется, попробуйте ещё раз','error'); return; }
+      p2pDealOffer = offer;
+      var minRub = Number(offer.minRub || (offer.minRubMinor ? offer.minRubMinor/100 : 0) || 0);
+      p2pDealRub = String(minRub || '');
+      p2pDealGc = '';
+      p2pDealStep = 1;
+      renderP2pDealModal();
+      return;
+    }
+  }, true);
 
   // P2P submit safety handler: catches the button before any other global click listener.
   document.addEventListener('click', function(ev){
@@ -4930,7 +4950,7 @@ updateUI();
     var nextPay=ev.target.closest('[data-p2p-next-pay]'); if(nextPay){ ev.preventDefault(); ev.stopPropagation(); syncP2pDealInputs('rub'); var rubVal=Number(String(p2pDealRub).replace(',','.'))||0; var offer=p2pDealOffer||{}; var minVal=Number(offer.minRub||offer.minRubMinor/100||offer.minGc||0); var maxVal=Math.min(Number(offer.maxRub||offer.maxRubMinor/100||offer.maxGc||offer.payout||0), Number(offer.payout||0)); if(rubVal<=0){showToast('Укажите сумму покупки','error');return;} if(minVal && rubVal<minVal){showToast('Минимум '+money(minVal,'RUB'),'error');return;} if(maxVal && rubVal>maxVal){showToast('Максимум '+money(maxVal,'RUB'),'error');return;} p2pDealStep=2; renderP2pDealModal(); return; }
     if(ev.target.closest('[data-p2p-back-pay]')){ ev.preventDefault(); p2pDealStep=1; renderP2pDealModal(); return; }
     var confirmBuy = ev.target.closest('[data-p2p-confirm-buy]');
-    if(confirmBuy){ ev.preventDefault(); var gcEl=document.getElementById('p2pDealGc'); var gc=Math.floor(Number(String(gcEl&&gcEl.value||p2pDealGc||0).replace(',','.'))); p2pDealOffer=null; renderP2pDealModal(); exchangeTab='mine'; exchangeAction('/exchange/offers/' + encodeURIComponent(confirmBuy.getAttribute('data-p2p-confirm-buy')) + '/take', 'Сделка начата — переведите деньги продавцу', { amountGc: gc, rub: Number(String((document.getElementById('p2pDealRub')||{}).value||0).replace(',','.')) }); return; }
+    if(confirmBuy){ ev.preventDefault(); ev.stopPropagation(); var gcEl=document.getElementById('p2pDealGc'), rubEl=document.getElementById('p2pDealRub'); var gc=Math.floor(Number(String(gcEl&&gcEl.value||p2pDealGc||0).replace(',','.'))); var rub=Number(String(rubEl&&rubEl.value||p2pDealRub||0).replace(',','.'))||0; if(!gc||gc<=0){showToast('Введите сумму сделки','error');return;} var dealId=confirmBuy.getAttribute('data-p2p-confirm-buy'); p2pDealOffer=null; p2pDealStep=1; renderP2pDealModal(); exchangeTab='mine'; exchangeAction('/exchange/offers/' + encodeURIComponent(dealId) + '/take', 'Сделка начата — переведите деньги продавцу', { amountGc: gc, rub: rub }); return; }
     var chatRefresh=ev.target.closest('[data-chat-refresh]'); if(chatRefresh){ ev.preventDefault(); loadP2pChat(chatRefresh.getAttribute('data-chat-refresh')); return; }
     var chatSend=ev.target.closest('[data-chat-send]'); if(chatSend){ ev.preventDefault(); sendP2pChat(chatSend.getAttribute('data-chat-send')); return; }
     var buyTake = ev.target.closest('[data-exch-buy-take]');
@@ -5254,6 +5274,26 @@ updateUI();
     }catch(e){ showToast(e.message || 'Нет доступа к админке','error'); }
   }
 
+
+  
+  // P2P critical click router: first priority for market actions.
+  document.addEventListener('click', function(ev){
+    if(!ev.target || !ev.target.closest) return;
+    var openDeal = ev.target.closest('[data-exch-open-deal]');
+    if(openDeal){
+      ev.preventDefault(); ev.stopPropagation(); ev.stopImmediatePropagation && ev.stopImmediatePropagation();
+      var id = openDeal.getAttribute('data-exch-open-deal');
+      var offer = p2pFindOffer(id);
+      if(!offer){ showToast('Объявление обновляется, попробуйте ещё раз','error'); return; }
+      p2pDealOffer = offer;
+      var minRub = Number(offer.minRub || (offer.minRubMinor ? offer.minRubMinor/100 : 0) || 0);
+      p2pDealRub = String(minRub || '');
+      p2pDealGc = '';
+      p2pDealStep = 1;
+      renderP2pDealModal();
+      return;
+    }
+  }, true);
 
   // P2P submit safety handler: catches the button before any other global click listener.
   document.addEventListener('click', function(ev){
@@ -7610,7 +7650,47 @@ body{background-color:#07110c!important;}
 #screen-exchange .p2p-chat-empty{color:#8a93a3;font-size:12px;font-weight:800;text-align:center;padding:12px;}
 @media(max-width:520px){#screen-exchange .p2p-chat-send{grid-template-columns:1fr;}}
 </style>
-<style id="p2p-rebuild-chat-green-final">#screen-exchange .p2p-chat-box{margin-top:14px;border:1px solid rgba(72,164,103,.18);border-radius:16px;background:rgba(4,12,8,.55);padding:10px}#screen-exchange .p2p-chat-head{display:flex;justify-content:space-between;color:#fff;font-weight:950;margin-bottom:8px}#screen-exchange .p2p-chat-messages{max-height:180px;overflow:auto;display:flex;flex-direction:column;gap:7px;padding:6px}#screen-exchange .p2p-chat-msg{max-width:82%;padding:8px 10px;border-radius:12px;background:rgba(255,255,255,.06);color:#eafff1}#screen-exchange .p2p-chat-msg.mine{align-self:flex-end;background:rgba(35,139,82,.32)}#screen-exchange .p2p-chat-msg b{display:block;font-size:10px;color:#8fe0b2}#screen-exchange .p2p-chat-send{display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:8px}</style><style id="weekly-top-styles">.weekly-top-card{padding:10px!important}.weekly-top-head{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:8px}.weekly-top-head b{color:#eafff1;font-weight:950}.weekly-top-head small{color:#8fb79e;font-size:11px;font-weight:800;text-align:right}.weekly-top-row{display:grid;grid-template-columns:42px 1fr auto;gap:8px;align-items:center;padding:10px 6px;border-top:1px solid rgba(72,164,103,.14);border-radius:12px}.weekly-top-row.mine{background:rgba(57,185,111,.12)}.weekly-place{font-weight:950;color:#55d98b}.weekly-name{display:flex;align-items:center;gap:8px;min-width:0;font-weight:900;color:#fff}.weekly-name small{display:block;color:#8a93a3;font-size:10px;font-weight:800;margin-top:2px}.weekly-prize{font-weight:950;color:#55d98b;white-space:nowrap;background:rgba(72,164,103,.12);border:1px solid rgba(72,164,103,.18);border-radius:999px;padding:5px 8px}@media(max-width:520px){.weekly-top-head{display:block}.weekly-top-head small{text-align:left;display:block;margin-top:4px}.weekly-prize{font-size:11px}}.weekly-top-empty{padding:14px;text-align:center;color:#8a93a3;font-weight:800}</style><style id="p2p-create-steps-cleanup">#screen-exchange .p2p-filters-simple{grid-template-columns:1fr!important}.p2p-step-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.p2p-step-head b{color:#fff;font-size:18px}.p2p-step-head span{color:#55d98b;font-weight:950;font-size:12px}.p2p-price small{display:block;color:#8a93a3;font-size:11px}.p2p-card-meta .exch-status{display:none!important}</style><style id="p2p-no-create-tab-payment-step">#screen-exchange .p2p-list-head{display:flex;justify-content:flex-end;margin:-4px 0 8px}.p2p-plus{width:38px;height:38px;border-radius:50%;border:1px solid rgba(72,164,103,.3);background:linear-gradient(135deg,#1f8f55,#39b96f);color:#fff;font-size:26px;font-weight:900;line-height:1}.p2p-pay-step{display:grid;gap:8px;margin:10px 0}.p2p-pay-step>div{background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:10px}.p2p-pay-step small{display:block;color:#8a93a3;font-weight:900;font-size:10px;text-transform:uppercase}.p2p-pay-step b{display:block;color:#fff;margin-top:4px;font-size:15px;word-break:break-word}.p2p-timer{color:#55d98b!important;font-weight:950!important}</style><style id="p2p-bugfix-click-comma-plus">#screen-exchange .p2p-plus{display:flex!important;align-items:center!important;justify-content:center!important;text-align:center!important;padding:0!important;line-height:1!important}#screen-exchange .p2p-form-back{width:100%;margin:-4px 0 12px;padding:10px;border-radius:12px}.p2p-modal-backdrop{cursor:default}.p2p-modal-x{cursor:pointer}</style></body>
+<style id="p2p-rebuild-chat-green-final">#screen-exchange .p2p-chat-box{margin-top:14px;border:1px solid rgba(72,164,103,.18);border-radius:16px;background:rgba(4,12,8,.55);padding:10px}#screen-exchange .p2p-chat-head{display:flex;justify-content:space-between;color:#fff;font-weight:950;margin-bottom:8px}#screen-exchange .p2p-chat-messages{max-height:180px;overflow:auto;display:flex;flex-direction:column;gap:7px;padding:6px}#screen-exchange .p2p-chat-msg{max-width:82%;padding:8px 10px;border-radius:12px;background:rgba(255,255,255,.06);color:#eafff1}#screen-exchange .p2p-chat-msg.mine{align-self:flex-end;background:rgba(35,139,82,.32)}#screen-exchange .p2p-chat-msg b{display:block;font-size:10px;color:#8fe0b2}#screen-exchange .p2p-chat-send{display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:8px}</style><style id="weekly-top-styles">.weekly-top-card{padding:10px!important}.weekly-top-head{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:8px}.weekly-top-head b{color:#eafff1;font-weight:950}.weekly-top-head small{color:#8fb79e;font-size:11px;font-weight:800;text-align:right}.weekly-top-row{display:grid;grid-template-columns:42px 1fr auto;gap:8px;align-items:center;padding:10px 6px;border-top:1px solid rgba(72,164,103,.14);border-radius:12px}.weekly-top-row.mine{background:rgba(57,185,111,.12)}.weekly-place{font-weight:950;color:#55d98b}.weekly-name{display:flex;align-items:center;gap:8px;min-width:0;font-weight:900;color:#fff}.weekly-name small{display:block;color:#8a93a3;font-size:10px;font-weight:800;margin-top:2px}.weekly-prize{font-weight:950;color:#55d98b;white-space:nowrap;background:rgba(72,164,103,.12);border:1px solid rgba(72,164,103,.18);border-radius:999px;padding:5px 8px}@media(max-width:520px){.weekly-top-head{display:block}.weekly-top-head small{text-align:left;display:block;margin-top:4px}.weekly-prize{font-size:11px}}.weekly-top-empty{padding:14px;text-align:center;color:#8a93a3;font-weight:800}</style><style id="p2p-create-steps-cleanup">#screen-exchange .p2p-filters-simple{grid-template-columns:1fr!important}.p2p-step-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.p2p-step-head b{color:#fff;font-size:18px}.p2p-step-head span{color:#55d98b;font-weight:950;font-size:12px}.p2p-price small{display:block;color:#8a93a3;font-size:11px}.p2p-card-meta .exch-status{display:none!important}</style><style id="p2p-no-create-tab-payment-step">#screen-exchange .p2p-list-head{display:flex;justify-content:flex-end;margin:-4px 0 8px}.p2p-plus{width:38px;height:38px;border-radius:50%;border:1px solid rgba(72,164,103,.3);background:linear-gradient(135deg,#1f8f55,#39b96f);color:#fff;font-size:26px;font-weight:900;line-height:1}.p2p-pay-step{display:grid;gap:8px;margin:10px 0}.p2p-pay-step>div{background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:10px}.p2p-pay-step small{display:block;color:#8a93a3;font-weight:900;font-size:10px;text-transform:uppercase}.p2p-pay-step b{display:block;color:#fff;margin-top:4px;font-size:15px;word-break:break-word}.p2p-timer{color:#55d98b!important;font-weight:950!important}</style><style id="p2p-bugfix-click-comma-plus">#screen-exchange .p2p-plus{display:flex!important;align-items:center!important;justify-content:center!important;text-align:center!important;padding:0!important;line-height:1!important}#screen-exchange .p2p-form-back{width:100%;margin:-4px 0 12px;padding:10px;border-radius:12px}.p2p-modal-backdrop{cursor:default}.p2p-modal-x{cursor:pointer}</style>
+<style id="gamble-p2p-rebuild-modern-final">
+#screen-exchange .p2p-hero{background:radial-gradient(circle at 15% 0%,rgba(54,211,111,.28),transparent 38%),linear-gradient(135deg,#08130d,#111913 52%,#0a100c)!important;border:1px solid rgba(65,255,128,.22)!important;box-shadow:0 18px 50px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.05);}
+#screen-exchange .p2p-hero-title:before{content:'Gamble P2P';display:block;color:#74ff9a;font-size:11px;letter-spacing:.18em;text-transform:uppercase;margin-bottom:4px;}
+#screen-exchange .p2p-tabs{background:#07110b!important;border-color:rgba(94,255,139,.18)!important;border-radius:18px!important;padding:5px!important;position:sticky;top:calc(var(--safe-top,0px) + 8px);z-index:5;backdrop-filter:blur(14px);}
+#screen-exchange .p2p-tab{color:#8aa894!important;border-radius:14px!important;}
+#screen-exchange .p2p-tab.active{background:linear-gradient(135deg,#16c957,#0d8f43)!important;color:#061109!important;box-shadow:0 8px 22px rgba(22,201,87,.25);}
+#screen-exchange .p2p-list-head{display:flex!important;justify-content:space-between;align-items:center;margin:12px 0 10px;}
+#screen-exchange .p2p-list-head:before{content:'Маркет';font-weight:950;color:#fff;font-size:17px;}
+#screen-exchange .p2p-plus{width:44px!important;height:44px!important;border-radius:50%!important;border:1px solid rgba(116,255,154,.45)!important;background:linear-gradient(135deg,#1ee86a,#0ca34a)!important;color:#041108!important;font-size:28px!important;font-weight:950!important;display:flex!important;align-items:center!important;justify-content:center!important;line-height:1!important;box-shadow:0 10px 28px rgba(30,232,106,.25);}
+#screen-exchange .p2p-filters{background:#0b130e!important;border:1px solid rgba(255,255,255,.07)!important;border-radius:18px!important;padding:10px!important;margin-bottom:12px;}
+#screen-exchange .p2p-filter-input,#screen-exchange .p2p-input{background:#080d0a!important;border:1px solid rgba(255,255,255,.10)!important;color:#fff!important;border-radius:16px!important;outline:none!important;}
+#screen-exchange .p2p-input:focus{border-color:#28e56b!important;box-shadow:0 0 0 3px rgba(40,229,107,.12)!important;}
+#screen-exchange .p2p-card{background:linear-gradient(180deg,#101811,#0a0f0b)!important;border:1px solid rgba(94,255,139,.16)!important;border-radius:22px!important;padding:16px!important;box-shadow:0 14px 38px rgba(0,0,0,.28)!important;}
+#screen-exchange .p2p-card-top{align-items:center!important;border-bottom:1px solid rgba(255,255,255,.06);padding-bottom:12px;margin-bottom:12px;}
+#screen-exchange .p2p-avatar{width:42px;height:42px;border-radius:14px;background:linear-gradient(135deg,#1ee86a,#086c34);display:flex;align-items:center;justify-content:center;color:#041108;font-weight:950;}
+#screen-exchange .p2p-maker-name{color:#fff;font-size:15px;font-weight:950;}
+#screen-exchange .p2p-maker-sub{color:#7f9b87!important;font-size:11px;font-weight:800;margin-top:3px;}
+#screen-exchange .p2p-price{color:#74ff9a!important;font-size:19px!important;}
+#screen-exchange .p2p-grid-info{display:grid!important;grid-template-columns:1fr 1fr;gap:10px!important;margin-top:0!important;}
+#screen-exchange .p2p-grid-info>div{background:#07100a;border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:11px;min-width:0;}
+#screen-exchange .p2p-grid-info small{display:block;color:#76917d;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px;}
+#screen-exchange .p2p-grid-info b{color:#fff;font-size:13px;word-break:break-word;}
+#screen-exchange .p2p-actions .btn,#screen-exchange .btn-gold,#screen-exchange .btn-green{border:0!important;border-radius:15px!important;background:linear-gradient(135deg,#22e36c,#0d9b49)!important;color:#031009!important;font-weight:950!important;box-shadow:0 10px 24px rgba(34,227,108,.18);}
+#screen-exchange .p2p-ghost{background:#09100b!important;border-color:rgba(255,255,255,.10)!important;color:#b7c8bc!important;}
+#screen-exchange .p2p-form{background:linear-gradient(180deg,#111a13,#080d0a)!important;border-color:rgba(94,255,139,.20)!important;border-radius:22px!important;}
+#screen-exchange .p2p-step-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;color:#fff;}
+#screen-exchange .p2p-step-head span{color:#74ff9a;font-size:12px;font-weight:900;}
+.p2p-modal-backdrop{position:fixed!important;inset:0!important;background:rgba(0,0,0,.72)!important;z-index:9999!important;display:flex!important;align-items:flex-end!important;justify-content:center!important;padding:14px!important;overscroll-behavior:contain!important;}
+.p2p-modal{width:min(560px,100%)!important;max-height:calc(100vh - var(--safe-top,0px) - 34px)!important;overflow:auto!important;background:linear-gradient(180deg,#101a12,#060a07)!important;border:1px solid rgba(94,255,139,.22)!important;border-radius:26px!important;padding:18px!important;box-shadow:0 -20px 60px rgba(0,0,0,.55)!important;}
+.p2p-modal-x{position:sticky!important;top:0!important;margin-left:auto!important;width:40px!important;height:40px!important;border-radius:50%!important;background:#111!important;border:1px solid rgba(255,255,255,.12)!important;color:#fff!important;font-size:24px!important;display:flex!important;align-items:center!important;justify-content:center!important;}
+.p2p-modal-title{font-size:22px!important;font-weight:950!important;color:#fff!important;margin-bottom:8px;}
+.p2p-secure{display:inline-flex;background:rgba(34,227,108,.12);border:1px solid rgba(34,227,108,.24);color:#74ff9a;border-radius:999px;padding:7px 10px;font-weight:950;font-size:11px;margin-bottom:12px;}
+.p2p-modal-grid{display:grid!important;grid-template-columns:1fr!important;gap:14px!important;}
+.p2p-pay-step,.p2p-side-stat{background:#07100a;border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:12px;margin-top:10px;}
+.p2p-pay-step small,.p2p-side-stat span{display:block;color:#76917d;font-size:10px;font-weight:900;text-transform:uppercase;}
+.p2p-pay-step b,.p2p-side-stat b{display:block;color:#fff;margin-top:4px;word-break:break-word;}
+.p2p-modal-note{color:#9fb0a4;font-size:12px;line-height:1.45;margin:12px 0;}
+@media(max-width:520px){#screen-exchange .p2p-grid-info{grid-template-columns:1fr!important;}#screen-exchange .p2p-card-top{align-items:flex-start!important}.p2p-modal-backdrop{align-items:flex-end!important;padding:10px!important}.p2p-modal{border-radius:24px 24px 18px 18px!important}}
+</style>
+</body>
 </html>
 
 <style>

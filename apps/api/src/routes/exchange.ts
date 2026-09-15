@@ -1,6 +1,5 @@
 import { FastifyInstance } from 'fastify'
 import { randomUUID } from 'crypto'
-import { randomUUID } from 'crypto'
 import { z } from 'zod'
 import { prisma } from '../db.js'
 import { getAuthUser } from '../auth/getUser.js'
@@ -155,8 +154,6 @@ export async function exchangeRoutes(app: FastifyInstance) {
 					kind: 'SELL',
 					minGc: BigInt(minGc),
 					maxGc: BigInt(maxGc),
-					minRubMinor: BigInt(minRubMinor),
-					maxRubMinor: BigInt(maxRubMinor),
 					minRubMinor: BigInt(minRubMinor),
 					maxRubMinor: BigInt(maxRubMinor)
 				}, tx)
@@ -473,7 +470,7 @@ export async function exchangeRoutes(app: FastifyInstance) {
 	// Скупка GC: игрок создаёт заявку на покупку, другой игрок продаёт ему GC.
 	app.get('/buy-requests', { preHandler: [(app as any).authenticate] }, async (request) => {
 		const user = await getAuthUser(request)
-		const rows = await prisma.$queryRawUnsafe<any[]>('SELECT * FROM "ExchangeRequest" WHERE "kind" = $1 AND "status" = $2 ORDER BY "createdAt" DESC LIMIT 80', 'BUY', 'OPEN')
+		const rows = await prisma.$queryRawUnsafe('SELECT * FROM "ExchangeRequest" WHERE "kind" = $1 AND "status" = $2 ORDER BY "createdAt" DESC LIMIT 80', 'BUY', 'OPEN')
 		const offers = await enrichOffers(rows, user.id)
 		return { offers, requests: offers }
 	})
@@ -528,7 +525,7 @@ export async function exchangeRoutes(app: FastifyInstance) {
 		const id = String((request.params as any).id || '')
 		const row = await loadOfferOr404(id, reply); if(!row) return
 		if (row.userId !== user.id && row.buyerId !== user.id) return reply.code(403).send({ error: 'Чат доступен только участникам сделки' })
-		const rows = await prisma.$queryRawUnsafe<any[]>('SELECT m."id",m."userId",m."message",m."createdAt",u."username",u."firstName" FROM "ExchangeChatMessage" m LEFT JOIN "User" u ON u."id"=m."userId" WHERE m."exchangeId"=$1 ORDER BY m."createdAt" ASC LIMIT 100', id)
+		const rows = await prisma.$queryRawUnsafe('SELECT m."id",m."userId",m."message",m."createdAt",u."username",u."firstName" FROM "ExchangeChatMessage" m LEFT JOIN "User" u ON u."id"=m."userId" WHERE m."exchangeId"=$1 ORDER BY m."createdAt" ASC LIMIT 100', id)
 		return { messages: rows.map((m:any)=>({ id:m.id, userId:m.userId, mine:m.userId===user.id, author:m.username?('@'+m.username):(m.firstName||'Игрок'), message:m.message, createdAt:m.createdAt })) }
 	})
 

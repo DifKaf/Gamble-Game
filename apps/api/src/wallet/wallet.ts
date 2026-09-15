@@ -50,11 +50,11 @@ async function grantNewPlayerLuck(tx: Tx, userId: string, stake: bigint, source?
 	// Атомарный UPDATE вместо "прочитать баланс -> сложить -> записать": под нагрузкой
 	// два параллельных изменения баланса одного игрока могли перетереть друг друга
 	// (lost update), и часть денег бесследно исчезала или начислялась мимо баланса.
-	const rows = await tx.$queryRawUnsafe(
+	const rows = (await tx.$queryRawUnsafe(
 		`UPDATE "User" SET balance = balance + $1 WHERE id = $2 RETURNING balance`,
 		bonus,
 		userId,
-	) as Array<{ balance: bigint }>
+	)) as Array<{ balance: bigint }>
 	if (!rows.length) return
 	const after = rows[0].balance
 	const before = after - bonus
@@ -84,11 +84,11 @@ export async function applyBalanceChange(p: {
 	// баланс читался отдельным SELECT и затем перезаписывался вычисленным числом —
 	// под параллельными запросами (например, два быстрых перевода/ставки подряд)
 	// это давало classic lost update: одна из операций могла быть перетёрта другой.
-	const rows = await p.tx.$queryRawUnsafe(
+	const rows = (await p.tx.$queryRawUnsafe(
 		`UPDATE "User" SET balance = balance + $1 WHERE id = $2 AND balance + $1 >= 0 RETURNING balance`,
 		p.amount,
 		p.userId,
-	) as Array<{ balance: bigint }>
+	)) as Array<{ balance: bigint }>
 	if (!rows.length) {
 		const exists = await p.tx.user.findUnique({ where: { id: p.userId }, select: { id: true } })
 		if (!exists) throw new Error('User not found')
@@ -133,11 +133,11 @@ export async function settleRound(p: {
 	// См. комментарий в applyBalanceChange: условный UPDATE считает баланс и
 	// проверяет достаточность средств одной атомарной операцией на актуальной
 	// строке, без гонки между параллельными раундами одного игрока.
-	const rows = await p.tx.$queryRawUnsafe(
+	const rows = (await p.tx.$queryRawUnsafe(
 		`UPDATE "User" SET balance = balance + $1 WHERE id = $2 AND balance + $1 >= 0 RETURNING balance`,
 		net,
 		p.userId,
-	) as Array<{ balance: bigint }>
+	)) as Array<{ balance: bigint }>
 	if (!rows.length) {
 		const exists = await p.tx.user.findUnique({ where: { id: p.userId }, select: { id: true } })
 		if (!exists) throw new Error('User not found')

@@ -4497,7 +4497,7 @@ updateUI();
   }
   function openP2pSellConfirmModal(o,rub,gc,req){
     p2pModalShell('<button class="p2p-x" id="p2pModalClose">×</button><div class="p2p-confirm-icon">💬</div><h2 class="p2p-confirm-title">Подтвердите продажу</h2><p class="p2p-confirm-text">Вы хотите продать<br><b>'+fmt(gc)+' GC</b> за <b>'+fmt(rub)+' RUB</b>?</p><div class="p2p-summary"><div><span>ID объявления</span><b>'+escapeHtml(p2pOfferId(o))+'</b></div><div><span>Курс</span><b>'+fmt(p2pRateRub(o))+' ₽ / 1K GC</b></div><div><span>Отдаёте</span><b>'+fmt(gc)+' GC</b></div><div><span>Получаете</span><b>'+fmt(rub)+' RUB</b></div><div><span>Реквизиты</span><b>'+escapeHtml(req||'')+'</b></div></div><button class="btn btn-primary btn-block" id="p2pCreateSellDealBtn">Создать сделку</button>');
-    document.getElementById('p2pModalClose').onclick=p2pCloseModal; document.getElementById('p2pCreateSellDealBtn').onclick=function(){p2pCreateDeal(o.id,rub,gc);};
+    document.getElementById('p2pModalClose').onclick=p2pCloseModal; document.getElementById('p2pCreateSellDealBtn').onclick=function(){p2pCreateDeal(o.id,rub,gc,req);};
   }
 
   function openP2pBuyModal(id){
@@ -4521,8 +4521,8 @@ updateUI();
     document.getElementById('p2pModalClose').onclick=p2pCloseModal;
     document.getElementById('p2pCreateDealBtn').onclick=function(){ p2pCreateDeal(o.id,rub,gc); };
   }
-  async function p2pCreateDeal(id,rub,gc){
-    try{ var r=await p2pAction('take',id,true); var deal=r&&r.deal?r.deal:{id:id,priceRub:rub,amountGc:gc,status:'DEAL'}; openP2pWaitingSeller(deal,rub,gc); }
+  async function p2pCreateDeal(id,rub,gc,sellerReq){
+    try{ var r=await p2pAction('take',id,true,sellerReq?{paymentDetails:sellerReq}:null); var deal=r&&r.deal?r.deal:{id:id,priceRub:rub,amountGc:gc,status:'DEAL'}; openP2pWaitingSeller(deal,rub,gc); }
     catch(e){ showToast(e.message||'Не удалось создать сделку','error'); }
   }
   function openP2pWaitingSeller(deal,rub,gc){
@@ -4546,7 +4546,7 @@ updateUI();
     document.getElementById('p2pPaidBtn').onclick=function(){p2pAction('paid',deal.id);p2pCloseModal();};
     var t=setInterval(function(){var el=document.getElementById('p2pPayTimer'); if(!el){clearInterval(t);return;} payLeft--; var m=Math.floor(payLeft/60), ss=String(payLeft%60).padStart(2,'0'); el.textContent=m+':'+ss; if(payLeft<=0){clearInterval(t); showToast('Время оплаты истекло','error');}},1000);
   }
-  async function p2pAction(act,id,silent){try{var url='/exchange/'+(act==='take'?'offers/'+id+'/take':'deals/'+id+'/'+act); var body={}; if(act==='dispute') body={reason:prompt('Опишите проблему')||'Спор по оплате'}; var r=await apiRequest(url,{method:'POST',body:JSON.stringify(body)}); if(typeof r.balance==='number'){backendBalance=r.balance;applyBackendBalanceToUI();renderBalances();} if(!silent) showToast('Готово','success'); loadExchange(); return r;}catch(e){if(!silent)showToast(e.message||'Ошибка P2P','error'); throw e;}}
+  async function p2pAction(act,id,silent,extraBody){try{var url='/exchange/'+(act==='take'?'offers/'+id+'/take':'deals/'+id+'/'+act); var body=extraBody||{}; if(act==='dispute') body={reason:prompt('Опишите проблему')||'Спор по оплате'}; var r=await apiRequest(url,{method:'POST',body:JSON.stringify(body)}); if(typeof r.balance==='number'){backendBalance=r.balance;applyBackendBalanceToUI();renderBalances();} if(!silent) showToast('Готово','success'); loadExchange(); return r;}catch(e){if(!silent)showToast(e.message||'Ошибка P2P','error'); throw e;}}
   document.addEventListener('click',function(ev){if(!ev.target||!ev.target.closest)return; var tab=ev.target.closest('[data-ex-tab]'); if(tab){exchangeData.tab=tab.getAttribute('data-ex-tab');exchangeData.fromCreateChoice=false;renderExchange();return;} var buy=ev.target.closest('[data-p2p-buy]'); if(buy){var id=buy.getAttribute('data-p2p-buy'); var o=(exchangeData.offers||[]).find(function(x){return x.id===id}); if(o&&o.intent==='buy')openP2pSellModal(id); else openP2pBuyModal(id);return;} var createAd=ev.target.closest('#p2pCreateAdBtn'); if(createAd){var ch=document.getElementById('p2pCreateChoice'); if(ch) ch.classList.toggle('hidden'); return;} var createType=ev.target.closest('[data-p2p-create-type]'); if(createType){exchangeData.createType=createType.getAttribute('data-p2p-create-type'); exchangeData.tab='create'; renderExchange(); document.querySelectorAll('[data-ex-tab]').forEach(function(b){b.classList.remove('active')}); return;} var meth=ev.target.closest('[data-method]'); if(meth){exchangeData.method=meth.getAttribute('data-method');document.querySelectorAll('[data-method]').forEach(function(b){b.classList.toggle('active',b===meth)});updateP2pQuote();return;} if(ev.target.closest('#p2pCreateBtn')){p2pCreate();return;} var payd=ev.target.closest('[data-p2p-paydetails]'); if(payd){var idp=payd.getAttribute('data-p2p-paydetails');var d=(exchangeData.deals||[]).find(function(x){return x.id===idp});if(d)openP2pPayDetails(d);return;} var act=ev.target.closest('[data-p2p-act]'); if(act){p2pAction(act.getAttribute('data-p2p-act'),act.getAttribute('data-id'));return;}});
   document.addEventListener('input',function(ev){if(ev.target&&/p2p(Amount|Price)/.test(ev.target.id))updateP2pQuote();});
 
@@ -8007,4 +8007,19 @@ body:not(.profile-open) > .trophy-grid, body:not(.profile-open) .profile-section
 #screen-wallet #historyBox{display:block!important;min-height:auto!important;}
 .wallet-history-p2p{border-top:1px solid #252b36;margin-top:10px;padding-top:10px}.wallet-history-p2p .history-item{display:flex;justify-content:space-between;gap:10px}
 .p2p-sell-requisites{margin-top:12px}.p2p-sell-requisites input{width:100%}
+</style>
+
+<style id="mobile-only-desktop-telegram-fix">
+@media (max-width: 899px){
+  html,body{width:100%!important;max-width:none!important;margin:0!important;background:#000!important;}
+  #app{width:100%!important;max-width:none!important;margin:0!important;box-shadow:none!important;border:0!important;min-height:100dvh!important;}
+  html body #app main.screen-container{width:100%!important;max-width:none!important;margin:0!important;}
+  html body #app nav.bottom-nav{left:0!important;right:0!important;transform:none!important;width:100%!important;max-width:none!important;}
+}
+@media (min-width: 900px){
+  html,body{background:#050505!important;display:block!important;}
+  #app{width:430px!important;max-width:430px!important;min-width:430px!important;margin:0 auto!important;min-height:100dvh!important;box-shadow:0 0 0 1px #202020,0 24px 80px rgba(0,0,0,.55)!important;overflow-x:hidden!important;}
+  html body #app main.screen-container{width:430px!important;max-width:430px!important;margin:0!important;}
+  html body #app nav.bottom-nav{left:50%!important;right:auto!important;transform:translateX(-50%)!important;width:430px!important;max-width:430px!important;}
+}
 </style>

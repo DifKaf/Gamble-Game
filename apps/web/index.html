@@ -1168,7 +1168,7 @@ html,body{margin:0!important;min-width:0!important;background:#050505!important;
         <div class="p2p-widget-text">
           <div class="p2p-kicker">P2P MARKET</div>
           <div class="p2p-title">Покупайте и продавайте GC напрямую</div>
-          <div class="p2p-sub">Эскроу · Сделки между игроками · Как CryptoBot P2P</div>
+          <div class="p2p-sub">Быстрая покупка и продажа Gamble Coin</div>
         </div>
         <div class="p2p-orb">⇄</div>
       </button>
@@ -1217,7 +1217,7 @@ html,body{margin:0!important;min-width:0!important;background:#050505!important;
         <div class="wheel-widget-disc"><img src="assets/gamble-logo.png" alt="Gamble"></div>
       </button>
       <div class="panel">
-        <div class="panel-title">Друзья</div>
+        <div class="panel-title">Реферальная программа</div>
         <div id="referralBox">Загрузка...</div>
       </div>
       <div class="panel">
@@ -3567,7 +3567,7 @@ updateUI();
       </div>
 
       <button class="p2p-wallet-card" data-nav="exchange">
-        <div><b>P2P-обменник</b><small>Продать GC за ₽ или купить у игроков</small></div>
+        <div><b>P2P</b><small>Продать GC за ₽ или купить у игроков</small></div>
         <span>Открыть</span>
       </button>
 
@@ -3592,9 +3592,9 @@ updateUI();
 
     <!-- P2P EXCHANGE -->
     <section id="screen-exchange" class="screen">
-      <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>P2P-обменник</h2></div>
+      <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>P2P</h2></div>
       <button class="p2p-widget p2p-hero" type="button">
-        <div class="p2p-widget-text"><div class="p2p-kicker">SECURE ESCROW</div><div class="p2p-title">Обмен GC между игроками</div><div class="p2p-sub">Создайте оффер, покупатель переводит ₽, GC хранится в эскроу до подтверждения.</div></div><div class="p2p-orb">₽</div>
+        <div class="p2p-widget-text"><div class="p2p-kicker">P2P MARKET</div><div class="p2p-title">Купить или продать GC</div><div class="p2p-sub">Объявления игроков с лимитами и курсом</div></div><div class="p2p-orb">₽</div>
       </button>
       <div class="exch-tabs"><button class="exch-tab active" data-ex-tab="market">Купить</button><button class="exch-tab" data-ex-tab="create">Продать</button><button class="exch-tab" data-ex-tab="mine">Мои сделки</button></div>
       <div id="exchangeMarket" class="panel exch-pane"></div>
@@ -3607,7 +3607,7 @@ updateUI();
         <div class="field-label">Реквизиты для оплаты</div><input class="input" id="p2pDetails" type="text" placeholder="Телефон / карта / USDT TRC20">
         <div class="exch-quote" id="p2pQuote">Комиссия эскроу: 1%</div>
         <button class="btn btn-gold btn-block" id="p2pCreateBtn">Выставить оффер</button>
-        <div class="exch-note">GC спишутся и будут заморожены. Если оффер отменить — монеты вернутся.</div>
+        <div class="exch-note"></div>
       </div>
       <div id="exchangeMine" class="panel exch-pane hidden"></div>
     </section>
@@ -4346,7 +4346,7 @@ updateUI();
     var box = document.getElementById('referralBox');
     if(!box) return;
     if(!referralData){
-      box.innerHTML = '<div class="quest-reset">Загружаем данные о приглашениях...</div>';
+      box.innerHTML = '<div class="quest-reset">Загружаем реферальную программу...</div>';
       return;
     }
     var d = referralData;
@@ -4377,6 +4377,16 @@ updateUI();
     box.innerHTML = html.join('');
   }
 
+
+  function renderReferralsFallback(reason){
+    var box=document.getElementById('referralBox'); if(!box) return;
+    var pid=resolvePlayerId()||'—';
+    box.innerHTML='<div class="quest-reset" style="margin-top:0;">Приглашайте игроков и получайте бонусы за их активность. Серверные данные временно недоступны.</div>'+
+      '<div class="ref-link-row"><div class="ref-link" id="refLinkText">Ваш ID: '+escapeHtml(pid)+'</div><button class="btn btn-gold" id="refCopyBtn" style="flex:0 0 auto;">Копировать</button></div>'+
+      '<div class="ref-stats"><div class="ref-stat"><b>0</b><small>ПРИГЛАШЕНО</small></div><div class="ref-stat"><b>0</b><small>ЗАРАБОТАНО GC</small></div></div>'+
+      '<div class="quest-reset">'+escapeHtml(reason||'Попробуйте позже — приложение продолжит работать.')+'</div>';
+  }
+
   async function loadReferrals(){
     if(!backendReady){
       var waitBox = document.getElementById('referralBox');
@@ -4394,8 +4404,7 @@ updateUI();
     }catch(e){
       var box = document.getElementById('referralBox');
       if(box && !referralData){
-        box.innerHTML = '<div class="exch-warn">Не удалось загрузить раздел друзей: ' + escapeHtml(e.message || 'ошибка сервера') + '</div>'
-          + '<button class="btn btn-gold btn-block" id="refRetryBtn" style="margin-top:12px;">Повторить</button>';
+        renderReferralsFallback(e.message || 'Сервер долго не отвечает. Попробуйте позже.');
       }
     }
   }
@@ -4465,7 +4474,7 @@ updateUI();
   function p2pRubTotal(o){return Number(o.priceRub)||Math.round((Number(o.amountGc)||0)/1000*(Number(o.rateRubPer1000)||0));}
   function p2pRateRub(o){return Number(o.rateRubPer1000)||Math.round((p2pRubTotal(o)/Math.max(Number(o.amountGc)||1,1))*1000*100)/100;}
   function p2pOfferHtml(o,mine){var seller=p2pUserName(o.seller), buyer=o.buyer?p2pUserName(o.buyer):''; var canBuy=!o.isMine&&o.status==='OPEN'; var canAccept=o.isMine&&o.status==='WAITING_SELLER'; var canCancel=(o.isMine||o.isBuyer)&&['OPEN','WAITING_SELLER','DEAL'].indexOf(o.status)>=0; var canPaid=o.isBuyer&&o.status==='DEAL'; var canRelease=o.isMine&&o.status==='PAID'; var min=o.minBuyRub||1, max=o.maxBuyRub||p2pRubTotal(o); return '<div class="exch-offer"><div class="exch-offer-top"><div><b>'+escapeHtml(p2pOfferId(o))+'</b><small>Доступно: '+fmt(o.amountGc)+' GC</small></div><div class="exch-offer-price">'+fmt(p2pRateRub(o))+' ₽ / 1K GC<small>лимит '+fmt(min)+' - '+fmt(max)+' ₽</small></div></div><div class="exch-offer-meta"><span class="exch-status '+escapeHtml(o.status)+'">'+p2pStatusText(o.status)+'</span><span class="exch-role">Срок оплаты: 15 минут</span><span class="exch-role">'+escapeHtml(p2pMethodName(o.method))+'</span>'+(buyer?'<span class="exch-role">Покупатель: '+escapeHtml(buyer)+'</span>':'')+'</div><div class="exch-actions">'+(canAccept?'<button class="btn btn-primary" data-p2p-act="accept" data-id="'+o.id+'">Принять сделку</button>':'')+(canBuy?'<button class="btn btn-primary" data-p2p-buy="'+o.id+'">Купить</button>':'')+(canPaid?'<button class="btn btn-gold" data-p2p-paydetails="'+o.id+'">Реквизиты / оплатить</button>':'')+(canRelease?'<button class="btn btn-gold" data-p2p-act="release" data-id="'+o.id+'">Отпустить GC</button>':'')+(canCancel?'<button class="btn btn-ghost" data-p2p-act="cancel" data-id="'+o.id+'">Отменить</button>':'')+(['DEAL','PAID'].indexOf(o.status)>=0?'<button class="btn btn-ghost" data-p2p-act="dispute" data-id="'+o.id+'">Спор</button>':'')+'</div></div>';}
-  function renderExchange(){var m=document.getElementById('exchangeMarket'), c=document.getElementById('exchangeCreate'), mine=document.getElementById('exchangeMine'); if(!m)return; document.querySelectorAll('[data-ex-tab]').forEach(function(b){b.classList.toggle('active',b.getAttribute('data-ex-tab')===exchangeData.tab)}); [m,c,mine].forEach(function(x){if(x)x.classList.add('hidden')}); var active=document.getElementById(exchangeData.tab==='create'?'exchangeCreate':exchangeData.tab==='mine'?'exchangeMine':'exchangeMarket'); if(active)active.classList.remove('hidden'); m.innerHTML=exchangeData.offers.length?exchangeData.offers.map(function(o){return p2pOfferHtml(o,false)}).join(''):'<div class="empty-state">Открытых офферов пока нет. Создайте первый.</div>'; mine.innerHTML='<button class="btn btn-primary btn-block" data-ex-tab="create" style="margin-bottom:10px;">Создать объявление</button>'+(exchangeData.deals.length?exchangeData.deals.map(function(o){return p2pOfferHtml(o,true)}).join(''):'<div class="empty-state">У вас пока нет P2P-сделок.</div>'); updateP2pQuote();}
+  function renderExchange(){var m=document.getElementById('exchangeMarket'), c=document.getElementById('exchangeCreate'), mine=document.getElementById('exchangeMine'); if(!m)return; document.querySelectorAll('[data-ex-tab]').forEach(function(b){b.classList.toggle('active',b.getAttribute('data-ex-tab')===exchangeData.tab)}); [m,c,mine].forEach(function(x){if(x)x.classList.add('hidden')}); var active=document.getElementById(exchangeData.tab==='create'?'exchangeCreate':exchangeData.tab==='mine'?'exchangeMine':'exchangeMarket'); if(active)active.classList.remove('hidden'); m.innerHTML=exchangeData.offers.length?exchangeData.offers.map(function(o){return p2pOfferHtml(o,false)}).join(''):'<div class="empty-state">Открытых офферов пока нет. Создайте первый.</div>'; mine.innerHTML='<button class="btn btn-primary btn-block" id="p2pCreateAdBtn" style="margin-bottom:10px;">Создать объявление</button><div class="p2p-create-choice hidden" id="p2pCreateChoice"><button data-p2p-create-type="sell">Продать GC</button><button data-p2p-create-type="buy">Скупать GC</button></div>'+(exchangeData.deals.length?exchangeData.deals.map(function(o){return p2pOfferHtml(o,true)}).join(''):'<div class="empty-state">У вас пока нет P2P-сделок.</div>'); updateP2pQuote();}
   function updateP2pQuote(){var el=document.getElementById('p2pQuote'); var priceEl=document.getElementById('p2pPrice'), maxEl=document.getElementById('p2pMaxBuy'); var a=Number((document.getElementById('p2pAmount')||{}).value)||0; var rate=Number((priceEl||{}).value)||0; var total=Math.round((a/1000)*rate); if(maxEl) maxEl.value=total?String(total):'Вся сумма'; if(!el)return; el.innerHTML='Доступно <span>'+fmt(a)+' GC</span> · курс '+(rate?fmt(rate):'—')+' ₽ / 1K GC · максимум '+(total?fmt(total):'—')+' ₽';}
   async function loadExchange(){if(!backendReady)return; try{var cfg=await apiRequest('/exchange/config'); exchangeData.config=cfg||exchangeData.config; var data=await apiRequest('/exchange/offers'); exchangeData.offers=data.offers||[]; var mine=await apiRequest('/exchange/mine'); exchangeData.deals=mine.deals||[]; renderExchange();}catch(e){var box=document.getElementById('exchangeMarket'); if(box) box.innerHTML='<div class="exch-warn">Не удалось загрузить P2P: '+escapeHtml(e.message||'ошибка')+'</div>';}}
   async function p2pCreate(){try{var amount=Number(document.getElementById('p2pAmount').value)||0, price=Number(document.getElementById('p2pPrice').value)||0, minBuy=Number(document.getElementById('p2pMinBuy').value)||1, details=(document.getElementById('p2pDetails').value||'').trim(), comment=''; var totalRub=Math.round((amount/1000)*price); if(minBuy>totalRub){showToast('Минимальная покупка не может быть больше максимальной','error');return;} var r=await apiRequest('/exchange/offers',{method:'POST',body:JSON.stringify({amountGc:Math.round(amount),rateRubPer1000:price,minBuyRub:minBuy,maxBuyRub:totalRub,method:exchangeData.method,paymentDetails:details,comment:comment})}); if(typeof r.balance==='number'){backendBalance=r.balance;applyBackendBalanceToUI();renderBalances();} showToast('P2P-оффер создан','success'); exchangeData.tab='mine'; loadExchange();}catch(e){showToast(e.message||'Не удалось создать оффер','error');}}
@@ -4519,7 +4528,7 @@ updateUI();
     var t=setInterval(function(){var el=document.getElementById('p2pPayTimer'); if(!el){clearInterval(t);return;} payLeft--; var m=Math.floor(payLeft/60), ss=String(payLeft%60).padStart(2,'0'); el.textContent=m+':'+ss; if(payLeft<=0){clearInterval(t); showToast('Время оплаты истекло','error');}},1000);
   }
   async function p2pAction(act,id,silent){try{var url='/exchange/'+(act==='take'?'offers/'+id+'/take':'deals/'+id+'/'+act); var body={}; if(act==='dispute') body={reason:prompt('Опишите проблему')||'Спор по оплате'}; var r=await apiRequest(url,{method:'POST',body:JSON.stringify(body)}); if(typeof r.balance==='number'){backendBalance=r.balance;applyBackendBalanceToUI();renderBalances();} if(!silent) showToast('Готово','success'); loadExchange(); return r;}catch(e){if(!silent)showToast(e.message||'Ошибка P2P','error'); throw e;}}
-  document.addEventListener('click',function(ev){if(!ev.target||!ev.target.closest)return; var tab=ev.target.closest('[data-ex-tab]'); if(tab){exchangeData.tab=tab.getAttribute('data-ex-tab');renderExchange();return;} var buy=ev.target.closest('[data-p2p-buy]'); if(buy){openP2pBuyModal(buy.getAttribute('data-p2p-buy'));return;} var meth=ev.target.closest('[data-method]'); if(meth){exchangeData.method=meth.getAttribute('data-method');document.querySelectorAll('[data-method]').forEach(function(b){b.classList.toggle('active',b===meth)});return;} if(ev.target.closest('#p2pCreateBtn')){p2pCreate();return;} var payd=ev.target.closest('[data-p2p-paydetails]'); if(payd){var idp=payd.getAttribute('data-p2p-paydetails');var d=(exchangeData.deals||[]).find(function(x){return x.id===idp});if(d)openP2pPayDetails(d);return;} var act=ev.target.closest('[data-p2p-act]'); if(act){p2pAction(act.getAttribute('data-p2p-act'),act.getAttribute('data-id'));return;}});
+  document.addEventListener('click',function(ev){if(!ev.target||!ev.target.closest)return; var tab=ev.target.closest('[data-ex-tab]'); if(tab){exchangeData.tab=tab.getAttribute('data-ex-tab');renderExchange();return;} var buy=ev.target.closest('[data-p2p-buy]'); if(buy){openP2pBuyModal(buy.getAttribute('data-p2p-buy'));return;} var createAd=ev.target.closest('#p2pCreateAdBtn'); if(createAd){var ch=document.getElementById('p2pCreateChoice'); if(ch) ch.classList.toggle('hidden'); return;} var createType=ev.target.closest('[data-p2p-create-type]'); if(createType){exchangeData.createType=createType.getAttribute('data-p2p-create-type'); exchangeData.tab='create'; renderExchange(); showToast(exchangeData.createType==='buy'?'Создание объявления на скупку':'Создание объявления на продажу','success'); return;} var meth=ev.target.closest('[data-method]'); if(meth){exchangeData.method=meth.getAttribute('data-method');document.querySelectorAll('[data-method]').forEach(function(b){b.classList.toggle('active',b===meth)});return;} if(ev.target.closest('#p2pCreateBtn')){p2pCreate();return;} var payd=ev.target.closest('[data-p2p-paydetails]'); if(payd){var idp=payd.getAttribute('data-p2p-paydetails');var d=(exchangeData.deals||[]).find(function(x){return x.id===idp});if(d)openP2pPayDetails(d);return;} var act=ev.target.closest('[data-p2p-act]'); if(act){p2pAction(act.getAttribute('data-p2p-act'),act.getAttribute('data-id'));return;}});
   document.addEventListener('input',function(ev){if(ev.target&&/p2p(Amount|Price)/.test(ev.target.id))updateP2pQuote();});
 
   function showToast(msg, type){
@@ -7866,4 +7875,38 @@ body.p2p-modal-open #app{pointer-events:none!important;}
 .p2p-requisites .no-copy b,.p2p-requisites .no-copy span{grid-column:1!important;}
 .p2p-requisites button#p2pCopyReq{background:#2f3a49!important;color:#dce7f5!important;}
 #p2pPayTimer{color:#55b9ff;font-weight:950;}
+</style>
+
+<style id="ui-polish-request-fix">
+/* Lower the whole app under Telegram top controls */
+.screen-container{padding-top:calc(78px + env(safe-area-inset-top,0px))!important;}
+@media(min-width:900px){.screen-container{padding-top:78px!important;}}
+.gg-global-bar{top:18px!important;}
+/* Wallet balance card as white widget */
+#screen-wallet .balance-card{background:#fff!important;color:#111827!important;border:1px solid rgba(0,0,0,.08)!important;box-shadow:0 10px 26px rgba(0,0,0,.16)!important;}
+#screen-wallet .balance-card .label{color:#6b7280!important;opacity:1!important;}
+#screen-wallet .balance-card .amount{color:#111827!important;}
+/* Compact profile, no green ring/band */
+.profile-shot{padding:70px 18px 22px!important;min-height:390px!important;}
+.profile-avatar-wrap{width:118px!important;height:118px!important;margin-bottom:12px!important;}
+.profile-avatar-ring{width:118px!important;height:118px!important;padding:0!important;background:transparent!important;box-shadow:none!important;}
+.profile-avatar{background:#6d6d6d!important;font-size:48px!important;}
+.profile-level-badge{bottom:-10px!important;padding:7px 16px!important;font-size:17px!important;}
+.profile-shot h1{font-size:31px!important;margin:22px 0 4px!important;}
+.profile-online{font-size:15px!important;}
+.profile-band{display:none!important;}
+.profile-since{font-size:14px!important;margin-top:12px!important;}
+.profile-cups{font-size:16px!important;margin-top:8px!important;}
+.profile-share{margin-top:14px!important;padding:10px 18px!important;font-size:15px!important;}
+.profile-stats-grid>div{min-height:74px!important;border-radius:15px!important;}
+.profile-stats-grid b{font-size:20px!important;}
+.profile-stats-grid span{font-size:11px!important;}
+/* P2P create type choice */
+.p2p-create-choice{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:-2px 0 12px;}
+.p2p-create-choice.hidden{display:none!important;}
+.p2p-create-choice button{border:1px solid #334154;background:#202a38;color:#fff;border-radius:14px;padding:13px 10px;font-weight:950;}
+.p2p-create-choice button:first-child{background:#19324a;border-color:#2c75b8;}
+.p2p-create-choice button:last-child{background:#1c3028;border-color:#2f8a61;}
+/* Cleaner home P2P widget */
+#screen-home .p2p-widget .p2p-sub{display:block!important;color:#aebacc!important;}
 </style>

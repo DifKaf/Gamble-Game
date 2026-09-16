@@ -140,21 +140,6 @@ export async function adminRoutes(app: FastifyInstance) {
 			return { ok: true, user: publicAdminUser({ ...row, banned: parsed.data.banned, banReason: parsed.data.reason || null }) }
 		}
 	})
-		return { deals: rows.map((row) => ({
-			id: row.id,
-			status: row.status,
-			amountGc: Number(row.amountGc),
-			payout: Number(row.payoutMinor) / 100,
-			currency: row.currency,
-			method: row.method,
-			destination: row.destination,
-			sellerId: row.userId,
-			buyerId: row.buyerId,
-			disputeReason: (row as any).disputeReason || null,
-			adminNote: row.adminNote,
-			createdAt: row.createdAt
-		})) }
-	})
 	app.get('/maintenance', { preHandler: [(app as any).authenticate] }, async (request, reply) => {
 		const admin = await getAuthUser(request)
 		if (!requireAdmin(admin, reply)) return

@@ -44,9 +44,9 @@ export async function adminRoutes(app: FastifyInstance) {
 		const [users, banned, open, disputed, paid] = await Promise.all([
 			prisma.user.count(),
 			prisma.user.count({ where: { banned: true } as any }).catch(() => 0),
-			prisma.exchangeRequest.count({ where: { status: 'OPEN' } }).catch(() => 0),
-			prisma.exchangeRequest.count({ where: { status: 'DISPUTED' } }).catch(() => 0),
-			prisma.exchangeRequest.count({ where: { status: 'PAID' } }).catch(() => 0)
+			(prisma as any).exchangeRequest.count({ where: { status: 'OPEN' } }).catch(() => 0),
+			(prisma as any).exchangeRequest.count({ where: { status: 'DISPUTED' } }).catch(() => 0),
+			(prisma as any).exchangeRequest.count({ where: { status: 'PAID' } }).catch(() => 0)
 		])
 		return { users, banned, openOffers: open, disputed, paid }
 	})
@@ -80,7 +80,7 @@ export async function adminRoutes(app: FastifyInstance) {
 		const row = await prisma.user.findUnique({ where: { id } })
 		if (!row) return reply.code(404).send({ error: 'Игрок не найден' })
 		const profile = await profilePayload(row.id)
-		const deals = await prisma.exchangeRequest.findMany({
+		const deals = await (prisma as any).exchangeRequest.findMany({
 			where: { OR: [{ userId: row.id }, { buyerId: row.id }] },
 			orderBy: { createdAt: 'desc' },
 			take: 12

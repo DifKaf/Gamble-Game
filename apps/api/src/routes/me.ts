@@ -36,7 +36,7 @@ export async function meRoutes(app: FastifyInstance) {
 			photoUrl: u.photoUrl,
 			balance: Number(u.balance),
 			banned: Boolean((u as any).banned),
-			admin: isExchangeAdmin(u.telegramId),
+			admin: String(process.env.ADMIN_TELEGRAM_IDS || process.env.ADMIN_IDS || "").split(",").map((x)=>x.trim()).includes(String(u.telegramId||"")),
 			createdAt: u.createdAt
 		}
 	})
@@ -56,7 +56,7 @@ export async function meRoutes(app: FastifyInstance) {
 				take: 50 + adminCount,
 				select: { ...publicSelect, telegramId: true }
 			})
-			const users = rows.filter((u) => !isExchangeAdmin(u.telegramId)).slice(0, 50)
+			const users = rows.filter((u) => !String(process.env.ADMIN_TELEGRAM_IDS || process.env.ADMIN_IDS || "").split(",").map((x)=>x.trim()).includes(String(u.telegramId||""))).slice(0, 50)
 			return { users: users.map(toPublic) }
 		})
 	})

@@ -1100,6 +1100,43 @@ body.theme-light .settings-gear-btn{background:#EEF0F5!important;border-color:rg
 .p2p-widget{width:100%;border:0;border-radius:22px;padding:18px;margin:12px 0 18px;display:flex;align-items:center;justify-content:space-between;text-align:left;color:#fff;background:radial-gradient(circle at 85% 15%,rgba(51,144,236,.55),transparent 34%),linear-gradient(135deg,#151923,#252b3b 55%,#101217);box-shadow:0 18px 40px rgba(0,0,0,.28),inset 0 0 0 1px rgba(255,255,255,.08);overflow:hidden;position:relative;cursor:pointer}.p2p-widget:before{content:"";position:absolute;inset:-1px;background:linear-gradient(120deg,transparent,rgba(255,255,255,.18),transparent);transform:translateX(-100%);animation:p2pShine 5s ease-in-out infinite}@keyframes p2pShine{50%,100%{transform:translateX(100%)}}.p2p-kicker{font-size:11px;font-weight:950;letter-spacing:.14em;color:#74b7ff}.p2p-title{font-size:20px;font-weight:950;letter-spacing:-.03em;margin-top:4px}.p2p-sub{font-size:12px;color:rgba(255,255,255,.66);font-weight:750;margin-top:5px;line-height:1.35}.p2p-orb{width:70px;height:70px;border-radius:22px;background:linear-gradient(135deg,#3390ec,#31d0aa);display:flex;align-items:center;justify-content:center;font-size:34px;font-weight:950;box-shadow:0 14px 32px rgba(51,144,236,.35);flex:0 0 auto}.p2p-wallet-card{width:100%;margin-top:14px;border:1px solid #2b3548;background:linear-gradient(135deg,#151923,#202638);border-radius:18px;color:#fff;padding:16px;display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left}.p2p-wallet-card b{display:block;font-size:17px}.p2p-wallet-card small{display:block;color:#9ba6b8;margin-top:3px}.p2p-wallet-card span{background:#3390ec;color:white;border-radius:12px;padding:9px 12px;font-weight:900;font-size:12px}.p2p-hero{margin-top:0}.exch-pane.hidden{display:none!important}#screen-exchange .panel{background:#191919!important;border:1px solid #272727!important;color:#fff}.exch-method{background:#232323!important;color:#fff!important;border-color:#333!important}.exch-method.active{background:rgba(51,144,236,.18)!important;border-color:#3390ec!important}.exch-tab{background:#202020!important;color:#aaa!important}.exch-tab.active{background:#3390ec!important;color:#fff!important}.exch-offer{border-bottom:1px solid #292929!important}.exch-offer-top small,.exch-offer-price small,.exch-role,.exch-note{color:#a1a1a1!important}.exch-offer-price{color:#31d0aa!important}.exch-warn{color:#ff7b72!important}@media(max-width:520px){.p2p-title{font-size:18px}.p2p-orb{width:58px;height:58px;border-radius:18px;font-size:28px}}
 
 </style>
+
+<style id="head-final-layout-fix">
+/* Phone: fullscreen. Desktop: centered 430px Telegram Mini App, not fullscreen. */
+html,body{margin:0!important;min-width:0!important;background:#050505!important;overflow-x:hidden!important;}
+.screen{display:none!important;position:relative!important;top:auto!important;left:auto!important;right:auto!important;bottom:auto!important;transform:none!important;}
+.screen.active{display:block!important;margin:0!important;width:100%!important;max-width:none!important;min-height:auto!important;padding-top:0!important;grid-template-columns:none!important;}
+@media (max-width:899px){
+  body{display:block!important;width:100%!important;}
+  #app{width:100%!important;max-width:none!important;min-height:100dvh!important;margin:0!important;padding:0 0 calc(92px + env(safe-area-inset-bottom,0px))!important;border-radius:0!important;overflow-x:hidden!important;background:#000!important;}
+  .screen-container{width:100%!important;max-width:none!important;margin:0!important;padding:14px 14px calc(104px + env(safe-area-inset-bottom,0px))!important;box-sizing:border-box!important;}
+  .bottom-nav{position:fixed!important;left:0!important;right:0!important;bottom:0!important;top:auto!important;transform:none!important;width:100%!important;max-width:none!important;height:auto!important;min-height:74px!important;display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:space-around!important;gap:0!important;padding:10px 6px calc(12px + env(safe-area-inset-bottom,0px))!important;border-radius:18px 18px 0 0!important;background:#101113!important;border:1px solid #25272c!important;border-bottom:0!important;z-index:9999!important;}
+  .bottom-nav:before{display:none!important;content:none!important;}
+}
+@media (min-width:900px){
+  body{display:flex!important;justify-content:center!important;align-items:flex-start!important;width:100%!important;min-height:100vh!important;background:#050505!important;}
+  #app{width:430px!important;max-width:430px!important;min-height:100vh!important;margin:0 auto!important;padding:0 0 92px!important;border-radius:0!important;overflow-x:hidden!important;background:#000!important;box-shadow:0 0 0 1px #202020,0 24px 80px rgba(0,0,0,.55)!important;}
+  .gg-global-bar{display:none!important;}
+  .screen-container{width:100%!important;max-width:430px!important;margin:0!important;padding:14px 14px 104px!important;box-sizing:border-box!important;}
+  .bottom-nav{position:fixed!important;top:auto!important;left:50%!important;right:auto!important;bottom:0!important;transform:translateX(-50%)!important;width:430px!important;max-width:430px!important;height:auto!important;min-height:74px!important;display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:space-around!important;gap:0!important;padding:10px 6px 12px!important;border-radius:18px 18px 0 0!important;background:#101113!important;border:1px solid #25272c!important;border-bottom:0!important;box-shadow:0 -10px 30px rgba(0,0,0,.45)!important;pointer-events:auto!important;overflow:visible!important;z-index:9999!important;}
+  .bottom-nav:before{display:none!important;content:none!important;}
+  .nav-btn{width:auto!important;min-width:62px!important;height:54px!important;border-radius:12px!important;padding:5px 8px!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:4px!important;margin:0!important;background:transparent!important;color:#9BA1AE!important;font-size:11px!important;box-shadow:none!important;}
+  .nav-btn .ic{width:22px!important;height:22px!important;margin:0!important;order:0!important;}
+  .nav-btn span:last-child{font-size:11px!important;order:1!important;}
+  .nav-btn.active{background:#202434!important;color:#fff!important;box-shadow:none!important;}
+}
+/* Compact P2P: buttons/tabs visible immediately */
+#screen-exchange.active{padding-top:0!important;}
+#screen-exchange .game-header{margin:0 0 8px!important;min-height:40px!important;height:auto!important;}
+#screen-exchange .p2p-hero{margin:0 0 8px!important;padding:12px!important;border-radius:18px!important;min-height:92px!important;}
+#screen-exchange .p2p-hero .p2p-title{font-size:17px!important;line-height:1.08!important;}
+#screen-exchange .p2p-hero .p2p-sub{font-size:10.5px!important;line-height:1.22!important;max-width:260px!important;}
+#screen-exchange .p2p-hero .p2p-orb{width:50px!important;height:50px!important;border-radius:16px!important;font-size:26px!important;}
+#screen-exchange .exch-tabs{position:sticky!important;top:0!important;z-index:20!important;margin:0 0 8px!important;padding:4px!important;background:#111!important;border:1px solid #252525!important;border-radius:16px!important;display:flex!important;gap:4px!important;}
+#screen-exchange .exch-tab{min-height:38px!important;padding:7px 6px!important;border-radius:12px!important;font-size:12px!important;}
+#screen-exchange .panel{padding:12px!important;margin-top:0!important;border-radius:16px!important;}
+</style>
+
 </head>
 <body>
 <div id="app">
@@ -4536,9 +4573,29 @@ updateUI();
     var wasSlot = document.getElementById('screen-slot') && document.getElementById('screen-slot').classList.contains('active');
     if(wasSlot && name !== 'slot') stopDrunkardGateAudio();
     if(name === 'slot') resumeDrunkardGateAudio();
-    document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
+    document.querySelectorAll('.screen').forEach(function(s){
+      s.classList.remove('active');
+      s.style.display = 'none';
+      s.style.position = 'absolute';
+      s.style.left = '-99999px';
+      s.style.top = '0';
+      s.style.height = '0';
+      s.style.overflow = 'hidden';
+    });
     var el = document.getElementById('screen-'+name);
-    if(el) el.classList.add('active');
+    if(el){
+      el.classList.add('active');
+      el.style.display = 'block';
+      el.style.position = 'relative';
+      el.style.left = 'auto';
+      el.style.top = 'auto';
+      el.style.height = 'auto';
+      el.style.overflow = 'visible';
+      // Keep the active screen physically first in the container. Some legacy desktop/mobile
+      // CSS left inactive sections in normal flow, which made P2P/profile start far below Home.
+      var sc = document.querySelector('.screen-container');
+      if(sc && sc.firstElementChild !== el) sc.insertBefore(el, sc.firstElementChild);
+    }
     var appEl = document.getElementById('app'); if(appEl){ appEl.classList.toggle('drunkard-standalone', name === 'slot' || name === 'doghouse'); appEl.classList.toggle('sub-screen-open', mainTabs.indexOf(name)===-1); } document.documentElement.classList.toggle('slot-open', name === 'slot' || name === 'doghouse'); document.body.classList.toggle('slot-open', name === 'slot' || name === 'doghouse');
     if(mainTabs.indexOf(name)!==-1){
       document.querySelectorAll('.nav-btn').forEach(function(b){
@@ -4559,6 +4616,7 @@ updateUI();
     if(typeof trackRecentGame==='function') trackRecentGame(name);
     window.scrollTo(0,0);
   }
+  window.ggShowScreen = showScreen;
   document.querySelectorAll('[data-nav]').forEach(function(btn){
     btn.addEventListener('click', function(){ showScreen(btn.getAttribute('data-nav')); haptic('light'); });
   });
@@ -4567,6 +4625,20 @@ updateUI();
 
   var openSettingsBtn = document.getElementById('openSettingsBtn');
   if(openSettingsBtn) openSettingsBtn.addEventListener('click', function(){ showScreen('settings'); haptic('light'); });
+
+
+  function ggNormalizeScreens(){
+    document.querySelectorAll('.screen').forEach(function(sec){
+      var on = sec.classList.contains('active');
+      sec.style.display = on ? 'block' : 'none';
+      sec.style.position = on ? 'relative' : 'absolute';
+      sec.style.left = on ? 'auto' : '-99999px';
+      sec.style.top = '0';
+      sec.style.height = on ? 'auto' : '0';
+      sec.style.overflow = on ? 'visible' : 'hidden';
+    });
+  }
+  setTimeout(ggNormalizeScreens, 0);
 
   /* ================= Settings ================= */
   (function initSettings(){
@@ -6980,6 +7052,47 @@ body{background-color:#07110c!important;}
 @media (min-width:900px){#screen-profile.active{max-width:430px!important;}}
 </style>
 
+
+<style id="final-layout-p2p-fix">
+/* FINAL: phone fullscreen, desktop as phone-sized mini-app (not fullscreen) */
+html,body{background:#050505!important;overflow-x:hidden!important;}
+@media (max-width:899px){
+  #app{width:100%!important;max-width:none!important;min-height:100dvh!important;margin:0!important;border-radius:0!important;box-shadow:none!important;padding-top:0!important;}
+  .screen-container{width:100%!important;max-width:none!important;margin:0!important;padding:14px 14px calc(104px + env(safe-area-inset-bottom,0px))!important;}
+  .bottom-nav{position:fixed!important;left:0!important;right:0!important;bottom:0!important;top:auto!important;transform:none!important;width:100%!important;max-width:none!important;height:auto!important;min-height:74px!important;border-radius:18px 18px 0 0!important;display:flex!important;flex-direction:row!important;padding:10px 6px calc(12px + env(safe-area-inset-bottom,0px))!important;}
+}
+@media (min-width:900px){
+  body{display:flex!important;justify-content:center!important;align-items:flex-start!important;min-height:100vh!important;background:#050505!important;}
+  #app{width:430px!important;max-width:430px!important;min-height:100vh!important;margin:0 auto!important;padding-top:0!important;border-radius:0!important;overflow:hidden!important;box-shadow:0 0 0 1px #202020,0 24px 80px rgba(0,0,0,.55)!important;background:#000!important;}
+  .gg-global-bar{display:none!important;}
+  .screen-container{width:100%!important;max-width:430px!important;margin:0!important;padding:14px 14px 104px!important;box-sizing:border-box!important;}
+  .screen.active{display:block!important;width:100%!important;max-width:none!important;margin:0!important;padding-top:0!important;grid-template-columns:none!important;}
+  .bottom-nav{position:fixed!important;top:auto!important;left:50%!important;right:auto!important;bottom:0!important;transform:translateX(-50%)!important;width:430px!important;max-width:430px!important;height:auto!important;min-height:74px!important;display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:space-around!important;gap:0!important;padding:10px 6px 12px!important;border-radius:18px 18px 0 0!important;background:#101113!important;border:1px solid #25272c!important;border-bottom:0!important;box-shadow:0 -10px 30px rgba(0,0,0,.45)!important;pointer-events:auto!important;overflow:visible!important;}
+  .bottom-nav:before{display:none!important;content:none!important;}
+  .nav-btn{width:auto!important;min-width:62px!important;height:54px!important;border-radius:12px!important;padding:5px 8px!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:4px!important;margin:0!important;background:transparent!important;color:#9BA1AE!important;font-size:11px!important;box-shadow:none!important;}
+  .nav-btn .ic{width:22px!important;height:22px!important;margin:0!important;order:0!important;}
+  .nav-btn span:last-child{font-size:11px!important;order:1!important;}
+  .nav-btn.active{background:#202434!important;color:#fff!important;box-shadow:none!important;}
+}
+/* FINAL: P2P screen starts at top and first actions are visible without long scroll */
+#screen-exchange.active{padding-top:0!important;}
+#screen-exchange .game-header{margin:0 0 8px!important;min-height:42px!important;}
+#screen-exchange .game-header h2{font-size:22px!important;}
+#screen-exchange .p2p-hero{margin:0 0 10px!important;padding:14px!important;border-radius:18px!important;min-height:112px!important;}
+#screen-exchange .p2p-hero .p2p-title{font-size:18px!important;line-height:1.08!important;}
+#screen-exchange .p2p-hero .p2p-sub{font-size:11px!important;line-height:1.25!important;max-width:260px!important;}
+#screen-exchange .p2p-hero .p2p-orb{width:54px!important;height:54px!important;border-radius:17px!important;font-size:28px!important;}
+#screen-exchange .exch-tabs{position:sticky!important;top:0!important;z-index:20!important;margin:0 0 8px!important;padding:4px!important;background:#111!important;border:1px solid #252525!important;border-radius:16px!important;display:flex!important;gap:4px!important;}
+#screen-exchange .exch-tab{min-height:40px!important;padding:8px 6px!important;border-radius:12px!important;font-size:12px!important;}
+#screen-exchange .panel{padding:12px!important;margin-top:0!important;border-radius:16px!important;}
+#exchangeCreate .field-label{margin-top:8px!important;font-size:11px!important;}
+#exchangeCreate .input{height:42px!important;padding:9px 12px!important;font-size:14px!important;}
+#exchangeCreate .exch-grid{gap:6px!important;margin-top:6px!important;}
+#exchangeCreate .exch-method{min-width:70px!important;padding:8px 6px!important;font-size:11px!important;border-radius:10px!important;}
+#p2pCreateBtn{margin-top:10px!important;min-height:46px!important;}
+#screen-home .p2p-widget{margin:10px 0 16px!important;}
+</style>
+
 </body>
 </html>
 
@@ -7601,4 +7714,73 @@ html,body,#app{max-width:100vw!important;overflow-x:hidden!important;}
 .roulette-hotcold{display:none!important;}
 .roulette-ball-track{transition:transform 4.2s cubic-bezier(.08,.72,.05,1)!important;}
 .roulette-wheel-wrap.spinning .roulette-ball{animation:rouletteBallBounce .32s ease-in-out infinite!important;}
+</style>
+
+<style id="absolute-final-mobile-desktop-p2p-override">
+/* Absolute final override: only active screen participates in layout */
+.screen{display:none!important;}
+.screen.active{display:block!important;position:relative!important;top:auto!important;left:auto!important;right:auto!important;bottom:auto!important;transform:none!important;margin:0!important;}
+html,body{margin:0!important;min-width:0!important;background:#050505!important;overflow-x:hidden!important;}
+@media (max-width:899px){
+  body{display:block!important;width:100%!important;}
+  #app{width:100%!important;max-width:none!important;min-height:100dvh!important;margin:0!important;padding:0!important;padding-bottom:calc(92px + env(safe-area-inset-bottom,0px))!important;border-radius:0!important;overflow-x:hidden!important;background:#000!important;}
+  .screen-container{width:100%!important;max-width:none!important;margin:0!important;padding:14px 14px calc(104px + env(safe-area-inset-bottom,0px))!important;box-sizing:border-box!important;}
+  .screen.active{width:100%!important;max-width:none!important;min-height:auto!important;padding-top:0!important;grid-template-columns:none!important;}
+  .bottom-nav{position:fixed!important;left:0!important;right:0!important;bottom:0!important;top:auto!important;transform:none!important;width:100%!important;max-width:none!important;height:auto!important;min-height:74px!important;display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:space-around!important;padding:10px 6px calc(12px + env(safe-area-inset-bottom,0px))!important;border-radius:18px 18px 0 0!important;background:#101113!important;z-index:9999!important;}
+  .bottom-nav:before{display:none!important;content:none!important;}
+}
+@media (min-width:900px){
+  body{display:flex!important;justify-content:center!important;align-items:flex-start!important;width:100%!important;min-height:100vh!important;background:#050505!important;}
+  #app{width:430px!important;max-width:430px!important;min-height:100vh!important;margin:0 auto!important;padding:0 0 92px!important;border-radius:0!important;overflow-x:hidden!important;background:#000!important;box-shadow:0 0 0 1px #202020,0 24px 80px rgba(0,0,0,.55)!important;}
+  .gg-global-bar{display:none!important;}
+  .screen-container{width:100%!important;max-width:430px!important;margin:0!important;padding:14px 14px 104px!important;box-sizing:border-box!important;}
+  .screen.active{width:100%!important;max-width:none!important;min-height:auto!important;padding-top:0!important;grid-template-columns:none!important;}
+  .bottom-nav{position:fixed!important;top:auto!important;left:50%!important;right:auto!important;bottom:0!important;transform:translateX(-50%)!important;width:430px!important;max-width:430px!important;height:auto!important;min-height:74px!important;display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:space-around!important;gap:0!important;padding:10px 6px 12px!important;border-radius:18px 18px 0 0!important;background:#101113!important;border:1px solid #25272c!important;border-bottom:0!important;box-shadow:0 -10px 30px rgba(0,0,0,.45)!important;pointer-events:auto!important;overflow:visible!important;z-index:9999!important;}
+  .bottom-nav:before{display:none!important;content:none!important;}
+  .nav-btn{width:auto!important;min-width:62px!important;height:54px!important;border-radius:12px!important;padding:5px 8px!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:4px!important;margin:0!important;background:transparent!important;color:#9BA1AE!important;font-size:11px!important;box-shadow:none!important;}
+  .nav-btn .ic{width:22px!important;height:22px!important;margin:0!important;order:0!important;}
+  .nav-btn span:last-child{font-size:11px!important;order:1!important;}
+  .nav-btn.active{background:#202434!important;color:#fff!important;box-shadow:none!important;}
+}
+/* P2P compact top */
+#screen-exchange.active{padding-top:0!important;}
+#screen-exchange .game-header{margin:0 0 8px!important;min-height:40px!important;height:auto!important;}
+#screen-exchange .p2p-hero{margin:0 0 8px!important;padding:12px!important;border-radius:18px!important;min-height:92px!important;}
+#screen-exchange .p2p-hero .p2p-title{font-size:17px!important;line-height:1.08!important;}
+#screen-exchange .p2p-hero .p2p-sub{font-size:10.5px!important;line-height:1.22!important;max-width:260px!important;}
+#screen-exchange .p2p-hero .p2p-orb{width:50px!important;height:50px!important;border-radius:16px!important;font-size:26px!important;}
+#screen-exchange .exch-tabs{position:sticky!important;top:0!important;z-index:20!important;margin:0 0 8px!important;padding:4px!important;background:#111!important;border:1px solid #252525!important;border-radius:16px!important;display:flex!important;gap:4px!important;}
+#screen-exchange .exch-tab{min-height:38px!important;padding:7px 6px!important;border-radius:12px!important;font-size:12px!important;}
+#screen-exchange .panel{padding:12px!important;margin-top:0!important;border-radius:16px!important;}
+</style>
+
+
+<style id="zzzz-final-real-fix">
+/* Last loaded rules: hide inactive screens so P2P/profile never start below Home. */
+html body #app main.screen-container > section.screen:not(.active){display:none!important;height:0!important;min-height:0!important;overflow:hidden!important;margin:0!important;padding:0!important;position:absolute!important;left:-99999px!important;top:0!important;}
+html body #app main.screen-container > section.screen.active{display:block!important;position:relative!important;left:auto!important;top:auto!important;right:auto!important;bottom:auto!important;transform:none!important;height:auto!important;min-height:auto!important;margin:0!important;width:100%!important;max-width:none!important;padding-top:0!important;}
+@media (max-width:899px){
+  html body #app{width:100%!important;max-width:none!important;min-height:100dvh!important;margin:0!important;padding-top:0!important;padding-left:0!important;padding-right:0!important;border-radius:0!important;box-shadow:none!important;}
+  html body #app main.screen-container{width:100%!important;max-width:none!important;margin:0!important;padding:14px 14px calc(104px + env(safe-area-inset-bottom,0px))!important;box-sizing:border-box!important;}
+}
+@media (min-width:900px){
+  html body{display:flex!important;justify-content:center!important;background:#050505!important;}
+  html body #app{width:430px!important;max-width:430px!important;min-height:100vh!important;margin:0 auto!important;padding-top:0!important;padding-left:0!important;padding-right:0!important;border-radius:0!important;box-shadow:0 0 0 1px #202020,0 24px 80px rgba(0,0,0,.55)!important;overflow-x:hidden!important;}
+  html body #app .gg-global-bar{display:none!important;}
+  html body #app main.screen-container{width:100%!important;max-width:430px!important;margin:0!important;padding:14px 14px 104px!important;box-sizing:border-box!important;}
+  html body #app nav.bottom-nav{position:fixed!important;left:50%!important;right:auto!important;bottom:0!important;top:auto!important;transform:translateX(-50%)!important;width:430px!important;max-width:430px!important;height:auto!important;min-height:74px!important;display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:space-around!important;background:#101113!important;border:1px solid #25272c!important;border-bottom:0!important;border-radius:18px 18px 0 0!important;padding:10px 6px 12px!important;z-index:9999!important;}
+  html body #app nav.bottom-nav:before{display:none!important;content:none!important;}
+  html body #app nav.bottom-nav .nav-btn{width:auto!important;min-width:62px!important;height:54px!important;border-radius:12px!important;padding:5px 8px!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:4px!important;margin:0!important;background:transparent!important;color:#9BA1AE!important;font-size:11px!important;box-shadow:none!important;}
+  html body #app nav.bottom-nav .nav-btn.active{background:#202434!important;color:#fff!important;}
+}
+/* Compact P2P top area */
+html body #app #screen-exchange.active{padding-top:0!important;}
+html body #app #screen-exchange .game-header{margin:0 0 8px!important;min-height:40px!important;height:auto!important;}
+html body #app #screen-exchange .p2p-hero{margin:0 0 8px!important;padding:12px!important;border-radius:18px!important;min-height:92px!important;}
+html body #app #screen-exchange .p2p-hero .p2p-title{font-size:17px!important;line-height:1.08!important;}
+html body #app #screen-exchange .p2p-hero .p2p-sub{font-size:10.5px!important;line-height:1.22!important;max-width:260px!important;}
+html body #app #screen-exchange .p2p-hero .p2p-orb{width:50px!important;height:50px!important;border-radius:16px!important;font-size:26px!important;}
+html body #app #screen-exchange .exch-tabs{position:sticky!important;top:0!important;z-index:20!important;margin:0 0 8px!important;padding:4px!important;background:#111!important;border:1px solid #252525!important;border-radius:16px!important;display:flex!important;gap:4px!important;}
+html body #app #screen-exchange .exch-tab{min-height:38px!important;padding:7px 6px!important;border-radius:12px!important;font-size:12px!important;}
+html body #app #screen-exchange .panel{padding:12px!important;margin-top:0!important;border-radius:16px!important;}
 </style>

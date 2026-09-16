@@ -1,3 +1,4 @@
+import { isExchangeAdmin } from '../utils/admin.js'
 import { FastifyInstance } from 'fastify'
 import { getAuthUser } from '../auth/getUser.js'
 import { prisma } from '../db.js'
@@ -36,7 +37,7 @@ export async function meRoutes(app: FastifyInstance) {
 			photoUrl: u.photoUrl,
 			balance: Number(u.balance),
 			banned: Boolean((u as any).banned),
-			admin: String(process.env.ADMIN_TELEGRAM_IDS || process.env.ADMIN_IDS || "").split(",").map((x)=>x.trim()).includes(String(u.telegramId||"")),
+			admin: isExchangeAdmin(u.telegramId),
 			createdAt: u.createdAt
 		}
 	})
@@ -56,7 +57,7 @@ export async function meRoutes(app: FastifyInstance) {
 				take: 50 + adminCount,
 				select: { ...publicSelect, telegramId: true }
 			})
-			const users = rows.filter((u) => !String(process.env.ADMIN_TELEGRAM_IDS || process.env.ADMIN_IDS || "").split(",").map((x)=>x.trim()).includes(String(u.telegramId||""))).slice(0, 50)
+			const users = rows.filter((u) => !isExchangeAdmin(u.telegramId)).slice(0, 50)
 			return { users: users.map(toPublic) }
 		})
 	})

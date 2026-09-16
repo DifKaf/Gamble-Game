@@ -56,9 +56,35 @@ model User {
   referralsMade Referral[] @relation("ReferralsMade")
   referralSource Referral? @relation("ReferralSource")
   questClaims QuestClaim[]
-  exchangeRequests ExchangeRequest[]
+  exchangeSellOrders ExchangeRequest[] @relation("ExchangeSeller")
+  exchangeBuyOrders ExchangeRequest[] @relation("ExchangeBuyer")
 
   @@index([balance])
+}
+
+model ExchangeRequest {
+  id String @id @default(uuid())
+  userId String
+  user User @relation("ExchangeSeller", fields: [userId], references: [id])
+  buyerId String?
+  buyer User? @relation("ExchangeBuyer", fields: [buyerId], references: [id])
+  amountGc BigInt
+  payoutMinor BigInt @default(0)
+  currency String @default("RUB")
+  rateGcPerUnit BigInt @default(0)
+  feePercent Float @default(0)
+  method String
+  destination String
+  contact String?
+  status String @default("OPEN")
+  disputeReason String?
+  adminNote String?
+  createdAt DateTime @default(now())
+  processedAt DateTime?
+
+  @@index([status, createdAt])
+  @@index([userId, createdAt])
+  @@index([buyerId, createdAt])
 }
 
 model WalletTransaction {
@@ -246,24 +272,3 @@ model QuestClaim {
   @@index([userId, claimedAt])
 }
 
-
-model ExchangeRequest {
-  id String @id @default(uuid())
-  userId String
-  user User @relation(fields: [userId], references: [id])
-  buyerId String?
-  amountGc BigInt
-  payoutMinor BigInt @default(0)
-  currency String @default("RUB")
-  rateGcPerUnit BigInt @default(0)
-  feePercent Float @default(0)
-  method String
-  destination String
-  contact String?
-  status String @default("OPEN")
-  adminNote String?
-  createdAt DateTime @default(now())
-  processedAt DateTime?
-  @@index([userId, createdAt])
-  @@index([status, createdAt])
-}

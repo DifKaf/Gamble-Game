@@ -36,11 +36,9 @@ const STATEMENTS: Array<string> = [
 	`CREATE UNIQUE INDEX IF NOT EXISTS "QuestClaim_userId_questCode_periodKey_key" ON "QuestClaim"("userId", "questCode", "periodKey")`,
 	`CREATE INDEX IF NOT EXISTS "QuestClaim_userId_claimedAt_idx" ON "QuestClaim"("userId", "claimedAt")`,
 
-	// P2P-биржа: заявки на вывод/обмен GC через ручное подтверждение оператором.
-	`CREATE TABLE IF NOT EXISTS "ExchangeRequest" (
+	// Биржа: заявки на обмен GC. Выплата подтверждается вручную оператором.
 		"id" TEXT NOT NULL,
 		"userId" TEXT NOT NULL,
-		"buyerId" TEXT,
 		"amountGc" BIGINT NOT NULL,
 		"payoutMinor" BIGINT NOT NULL DEFAULT 0,
 		"currency" TEXT NOT NULL DEFAULT 'RUB',
@@ -49,14 +47,11 @@ const STATEMENTS: Array<string> = [
 		"method" TEXT NOT NULL,
 		"destination" TEXT NOT NULL,
 		"contact" TEXT,
-		"status" TEXT NOT NULL DEFAULT 'OPEN',
+		"status" TEXT NOT NULL DEFAULT 'PENDING',
 		"adminNote" TEXT,
 		"createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 		"processedAt" TIMESTAMP(3),
-		CONSTRAINT "ExchangeRequest_pkey" PRIMARY KEY ("id")
 	)`,
-	`CREATE INDEX IF NOT EXISTS "ExchangeRequest_userId_createdAt_idx" ON "ExchangeRequest"("userId", "createdAt" DESC)`,
-	`CREATE INDEX IF NOT EXISTS "ExchangeRequest_status_createdAt_idx" ON "ExchangeRequest"("status", "createdAt" DESC)`,
 	`ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "banned" BOOLEAN NOT NULL DEFAULT false`,
 	`ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "banReason" TEXT`,
 

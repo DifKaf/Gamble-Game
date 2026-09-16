@@ -5,7 +5,6 @@ import { publicPlayerId } from '../utils/playerId.js'
 import { cached } from '../utils/cache.js'
 import { weeklyStats } from '../utils/weeklyStats.js'
 import { profilePayload } from '../utils/profile.js'
-import { isExchangeAdmin } from '../utils/exchange.js'
 
 // Лидерборд одинаков для всех, пересчитывать его на каждый запрос смысла нет.
 const LEADERBOARD_TTL_MS = Number(process.env.LEADERBOARD_TTL_MS || 45000)

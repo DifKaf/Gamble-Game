@@ -3,13 +3,12 @@ import { z } from 'zod'
 import { prisma } from '../db.js'
 import { getAuthUser } from '../auth/getUser.js'
 import { applyBalanceChange } from '../wallet/wallet.js'
-import { isExchangeAdmin } from '../utils/exchange.js'
 import { publicPlayerId, parsePlayerId } from '../utils/playerId.js'
 import { sendTelegramMessage } from '../utils/telegram.js'
 import { profilePayload } from '../utils/profile.js'
 
 function requireAdmin(user: any, reply: any) {
-	if (!isExchangeAdmin(user.telegramId)) {
+	if (!String(process.env.ADMIN_TELEGRAM_IDS || process.env.ADMIN_IDS || "").split(",").map((x)=>x.trim()).includes(String(user.telegramId||""))) {
 		reply.code(403).send({ error: 'Нет доступа' })
 		return false
 	}
@@ -141,17 +140,6 @@ export async function adminRoutes(app: FastifyInstance) {
 			return { ok: true, user: publicAdminUser({ ...row, banned: parsed.data.banned, banReason: parsed.data.reason || null }) }
 		}
 	})
-
-	app.get('/deals', { preHandler: [(app as any).authenticate] }, async (request, reply) => {
-		const admin = await getAuthUser(request)
-		if (!requireAdmin(admin, reply)) return
-		const status = String((request.query as any).status || '').toUpperCase()
-		const where: any = status ? { status } : { status: { in: ['OPEN', 'DEAL', 'PAID', 'DISPUTED'] } }
-		const rows = await prisma.exchangeRequest.findMany({
-			where,
-			orderBy: { createdAt: 'desc' },
-			take: 40
-		})
 		return { deals: rows.map((row) => ({
 			id: row.id,
 			status: row.status,

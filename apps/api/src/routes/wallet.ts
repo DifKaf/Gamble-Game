@@ -7,12 +7,6 @@ import { computePlayerId, publicPlayerId, parsePlayerId } from '../utils/playerI
 import { sendTelegramMessage } from '../utils/telegram.js'
 import { assertCanTransfer, mapAntifraudError } from '../utils/antifraud.js'
 
-const gameAdjustSchema = z.object({
-  amount: z.number().int().min(-1000000).max(10000000),
-  source: z.string().default('drunkard-gate'),
-  metadata: z.any().optional()
-})
-
 const transferSchema = z.object({ username: z.string().min(1), amount: z.number().int().positive().max(10000000) })
 
 const publicUserSelect = { id: true, playerId: true, username: true, firstName: true, lastName: true, photoUrl: true } as const
@@ -130,49 +124,9 @@ export async function walletRoutes(app: FastifyInstance) {
     }
   })
 
-  // Старый мост баланса для iframe Drunkard Gate.
-  // Слот теперь считается на сервере (POST /games/drunkard-gate/spin),
-  // поэтому клиент больше не может сам назначать себе выигрыш по этому источнику.
-  app.post('/game-adjust', {
-    preHandler: [(app as any).authenticate]
-  }, async (request, reply) => {
-    const user = await getAuthUser(request)
-    const body = gameAdjustSchema.parse(request.body)
-
-    // ВАЖНО: раньше блокировался только source === 'drunkard-gate', поэтому любой
-    // другой source полностью обходил защиту и позволял начислить себе выигрыш
-    // без ставки и без игровой логики. Теперь эндпоинт закрыт для ЛЮБОГО source,
-    // если явно не включён флагом (тестовая среда).
-    // Пользователь явно попросил вернуть старый клиентский слот Drunkard Gate и
-    // осознанно принял риск по балансу — поэтому мост включён по умолчанию.
-    // Явно выставленный ALLOW_LEGACY_GAME_ADJUST=false всё ещё может выключить его.
-    if (process.env.ALLOW_LEGACY_GAME_ADJUST === 'false') {
-      return reply.code(410).send({ error: 'Legacy endpoint removed. Use the dedicated game endpoints.' })
-    }
-
-    if (body.amount === 0) {
-      return { balance: Number(user.balance) }
-    }
-
-    try {
-      const updated = await prisma.$transaction(async (tx) => {
-        return applyBalanceChange({
-          tx,
-          userId: user.id,
-          amount: BigInt(body.amount),
-          type: body.amount < 0 ? 'BET' : 'WIN',
-          source: body.source,
-          metadata: body.metadata
-        })
-      })
-
-      return { balance: Number(updated.balance) }
-    } catch (e: any) {
-      if (e.message === 'Insufficient balance') {
-        return reply.code(400).send({ error: 'Insufficient balance' })
-      }
-      throw e
-    }
+  // Старый клиентский мост баланса отключён: он позволял назначать баланс с клиента.
+  app.post('/game-adjust', { preHandler: [(app as any).authenticate] }, async (_request, reply) => {
+    return reply.code(410).send({ error: 'Legacy endpoint removed. Use the dedicated game endpoints.' })
   })
 
   app.post('/transfer', { preHandler: [(app as any).authenticate] }, async (request, reply) => {

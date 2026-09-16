@@ -246,7 +246,8 @@ model QuestClaim {
   @@index([userId, claimedAt])
 }
 
-/// P2P-оффер: продавец держит GC в эскроу, покупатель платит ему напрямую.
+
+
 model ExchangeRequest {
   id String @id @default(uuid())
   userId String
@@ -261,17 +262,9 @@ model ExchangeRequest {
   destination String
   contact String?
   status String @default("OPEN")
-  kind String @default("SELL")
-  minGc BigInt @default(0)
-  maxGc BigInt @default(0)
   adminNote String?
   createdAt DateTime @default(now())
-  takenAt DateTime?
-  paidAt DateTime?
-  receiptUrl String?
-  disputeReason String?
   processedAt DateTime?
   @@index([userId, createdAt])
-  @@index([buyerId, createdAt])
   @@index([status, createdAt])
 }

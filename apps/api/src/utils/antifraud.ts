@@ -9,7 +9,6 @@ export function antifraudConfig() {
 	return {
 		maxTransferPerDay: numEnv('AF_MAX_TRANSFER_DAY', 250000),
 		maxTransferOnce: numEnv('AF_MAX_TRANSFER_ONCE', 100000),
-		maxP2pPerDay: numEnv('AF_MAX_P2P_DAY', 500000),
 		winCooldownMs: numEnv('AF_WIN_COOLDOWN_MS', 30 * 60 * 1000),
 		bigWinGc: numEnv('AF_BIG_WIN_GC', 50000)
 	}
@@ -69,36 +68,11 @@ export async function recentBigWin(userId: string) {
 	return { unlockAt, amount: Number(win.amount) }
 }
 
-export async function assertCanSellP2p(user: any, amount: number, destination: string) {
-	if (isUserBanned(user)) throw new Error('BANNED')
-	const cfg = antifraudConfig()
-	const lock = await recentBigWin(user.id)
-	if (lock) throw new Error(`WIN_COOLDOWN:${lock.unlockAt.toISOString()}`)
-	const used = await dailyOutgoing(user.id, ['p2p-hold'])
-	if (used + amount > cfg.maxP2pPerDay) {
-		throw new Error(`P2P_DAY:${Math.max(0, cfg.maxP2pPerDay - used)}`)
-	}
-	const dest = String(destination || '').replace(/\s+/g, '').toLowerCase()
-	if (dest.length >= 6) {
-		const same = await prisma.exchangeRequest.findFirst({
-			where: {
-				userId: { not: user.id },
-				destination: { equals: String(destination || '').trim(), mode: 'insensitive' },
-				status: { in: ['OPEN', 'DEAL', 'PAID', 'COMPLETED'] }
-			},
-			select: { id: true }
-		}).catch(() => null)
-		if (same) throw new Error('DEST_USED')
-	}
-}
 
 export function mapAntifraudError(err: any) {
 	const msg = String(err?.message || '')
 	if (msg === 'BANNED') return { code: 403, error: 'Аккаунт заблокирован. Напишите в поддержку.' }
 	if (msg.startsWith('TRANSFER_ONCE:')) return { code: 400, error: `Максимум за один перевод — ${msg.split(':')[1]} GC` }
 	if (msg.startsWith('TRANSFER_DAY:')) return { code: 400, error: `Дневной лимит переводов. Осталось ${msg.split(':')[1]} GC` }
-	if (msg.startsWith('P2P_DAY:')) return { code: 400, error: `Дневной лимит продажи. Осталось ${msg.split(':')[1]} GC` }
-	if (msg.startsWith('WIN_COOLDOWN:')) return { code: 403, error: 'После крупного выигрыша продажа временно недоступна. Подождите 30 минут.' }
-	if (msg === 'DEST_USED') return { code: 400, error: 'Эти реквизиты уже использовались другим игроком. Укажите свои.' }
 	return null
 }

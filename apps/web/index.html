@@ -4519,8 +4519,13 @@ updateUI();
   function p2pActionLabel(o){ return ((o.intent||'sell')==='buy') ? 'Продать' : 'Купить'; }
   function p2pCryptoCard(o,mine){
     var user=((o.intent||'sell')==='buy')?(o.buyer||o.seller||{}):(o.seller||{});
-    var canTake=!o.isMine&&o.status==='OPEN'; var min=o.minBuyRub||1, max=o.maxBuyRub||p2pRubTotal(o); var done=o.completedDeals||o.dealsCount||0; var success=o.successRate||98;
-    return '<div class="cb-offer"><div class="cb-offer-top"><div class="cb-user">'+avatarHtml(user.photoUrl||'👤')+'<div><b>'+escapeHtml(p2pUserName(user))+'</b><small>ID '+escapeHtml(user.playerId||String(o.userId||'').slice(-5)||'—')+' · '+done+' сделок · '+success+'%</small></div></div><span>'+escapeHtml(p2pOfferId(o))+'</span></div><div class="cb-price"><b>'+fmt(p2pRateRub(o))+' ₽</b><span>за 1 000 GC</span></div><div class="cb-grid"><div><small>Доступно</small><b>'+fmt(o.amountGc)+' GC</b></div><div><small>Лимиты</small><b>'+fmt(min)+'–'+fmt(max)+' ₽</b></div><div><small>Оплата</small><b>'+escapeHtml(p2pMethodName(o.method))+'</b></div><div><small>Время</small><b>15 мин</b></div></div><div class="cb-status">Escrow GC · '+p2pStatusText(o.status)+'</div><div class="cb-actions">'+(canTake?'<button class="cb-main" data-p2p-buy="'+o.id+'">'+p2pActionLabel(o)+' GC</button>':'')+(mine?'<button class="cb-ghost" data-p2p-paydetails="'+o.id+'">Открыть сделку</button>':'')+'</div></div>';
+    var canTake=!o.isMine&&o.status==='OPEN';
+    var canAccept=o.isMine&&o.status==='WAITING_SELLER';
+    var canPaid=o.isBuyer&&o.status==='DEAL';
+    var canRelease=o.isMine&&o.status==='PAID';
+    var canOpen=mine&&['WAITING_SELLER','DEAL','PAID','DISPUTED'].indexOf(o.status)>=0;
+    var min=o.minBuyRub||1, max=o.maxBuyRub||p2pRubTotal(o); var done=o.completedDeals||o.dealsCount||0; var success=o.successRate||98;
+    return '<div class="cb-offer"><div class="cb-offer-top"><div class="cb-user">'+avatarHtml(user.photoUrl||'👤')+'<div><b>'+escapeHtml(p2pUserName(user))+'</b><small>ID '+escapeHtml(user.playerId||String(o.userId||'').slice(-5)||'—')+' · '+done+' сделок · '+success+'%</small></div></div><span>'+escapeHtml(p2pOfferId(o))+'</span></div><div class="cb-price"><b>'+fmt(p2pRateRub(o))+' ₽</b><span>за 1 000 GC</span></div><div class="cb-grid"><div><small>Доступно</small><b>'+fmt(o.amountGc)+' GC</b></div><div><small>Лимиты</small><b>'+fmt(min)+'–'+fmt(max)+' ₽</b></div><div><small>Оплата</small><b>'+escapeHtml(p2pMethodName(o.method))+'</b></div><div><small>Статус</small><b>'+p2pStatusText(o.status)+'</b></div></div><div class="cb-status">Escrow GC · '+p2pStatusText(o.status)+'</div><div class="cb-actions">'+(canTake?'<button class="cb-main" data-p2p-buy="'+o.id+'">'+p2pActionLabel(o)+' GC</button>':'')+(canAccept?'<button class="cb-main" data-p2p-act="accept" data-id="'+o.id+'">Подтвердить сделку</button>':'')+(canPaid?'<button class="cb-main" data-p2p-paydetails="'+o.id+'">Я оплатил</button>':'')+(canRelease?'<button class="cb-main" data-p2p-act="release" data-id="'+o.id+'">Подтвердить оплату</button>':'')+(canOpen?'<button class="cb-ghost" data-p2p-paydetails="'+o.id+'">Открыть сделку</button>':'')+'</div></div>';
   }
   function renderExchange(){
     var m=document.getElementById('exchangeMarket'), sell=document.getElementById('exchangeSell'), c=document.getElementById('exchangeCreate'), mine=document.getElementById('exchangeMine'), ads=document.getElementById('exchangeAds'); if(!m)return;
@@ -7297,10 +7302,17 @@ body:not(.wallet-active) .wallet-history-p2p{
   };
   window.openP2pPayDetails=function(deal){
     var req=deal.paymentDetails||'Реквизиты появятся после принятия продавцом';
-    window.p2pFinalModalShell('<button class="p2p-x" id="p2pModalClose">×</button><div class="cb-modal-head"><span>'+escapeHtml(p2pOfferId(deal))+'</span><b>Оплатите продавцу</b><small>Срок оплаты</small></div><div class="p2p-ring" id="p2pPayTimer">15:00</div>'+p2pDealProgress(deal.status)+'<div class="p2p-details"><div class="row"><span>GC</span><b>'+fmt(deal.amountGc)+' GC</b></div><div class="row"><span>К оплате</span><b>'+fmt(deal.priceRub)+' ₽</b></div><div class="row"><span>Курс</span><b>'+fmt(p2pRateRub(deal))+' ₽ / 1 000 GC</b></div><div class="row"><span>Способ</span><b>'+escapeHtml(p2pMethodName(deal.method))+'</b></div><div class="row"><span>Реквизиты</span><b class="copy-requisites" data-copy="'+escapeHtml(req)+'">'+escapeHtml(req).replace(/\n/g,'<br>')+'</b></div></div><div class="p2p-security">Нажимайте «Я оплатил» только после фактического перевода.</div><div class="p2p-offer-actions">'+(deal.isBuyer&&deal.status==='DEAL'?'<button class="cb-main" id="p2pPaidBtn">Я оплатил</button>':'')+(deal.isMine&&deal.status==='PAID'?'<button class="cb-main" data-p2p-act="release" data-id="'+deal.id+'">Подтвердить</button>':'')+'<button class="cb-ghost" data-p2p-act="dispute" data-id="'+deal.id+'">Спор</button></div>');
+    var isSeller=!!deal.isMine;
+    var isBuyer=!!deal.isBuyer;
+    var actions='';
+    if(isSeller&&deal.status==='WAITING_SELLER') actions+='<button class="cb-main" data-p2p-act="accept" data-id="'+deal.id+'">Подтвердить сделку</button>';
+    if(isBuyer&&deal.status==='DEAL') actions+='<button class="cb-main" id="p2pPaidBtn">Я оплатил</button>';
+    if(isSeller&&deal.status==='PAID') actions+='<button class="cb-main" data-p2p-act="release" data-id="'+deal.id+'">Подтвердить оплату</button>';
+    actions+='<button class="cb-ghost" data-p2p-act="dispute" data-id="'+deal.id+'">Спор</button>';
+    window.p2pFinalModalShell('<button class="p2p-x" id="p2pModalClose">×</button><div class="cb-modal-head"><span>'+escapeHtml(p2pOfferId(deal))+'</span><b>'+(deal.status==='WAITING_SELLER'?'Подтверждение сделки':'Оплатите продавцу')+'</b><small>'+(isSeller?'Вы продавец':'Вы покупатель')+'</small></div>'+(deal.status==='DEAL'?'<div class="p2p-ring" id="p2pPayTimer">15:00</div>':'')+p2pDealProgress(deal.status)+'<div class="p2p-details"><div class="row"><span>GC</span><b>'+fmt(deal.amountGc)+' GC</b></div><div class="row"><span>Сумма</span><b>'+fmt(deal.priceRub)+' ₽</b></div><div class="row"><span>Курс</span><b>'+fmt(p2pRateRub(deal))+' ₽ / 1 000 GC</b></div><div class="row"><span>Способ</span><b>'+escapeHtml(p2pMethodName(deal.method))+'</b></div><div class="row"><span>Реквизиты</span><b class="copy-requisites" data-copy="'+escapeHtml(req)+'">'+escapeHtml(req).replace(/\n/g,'<br>')+'</b></div></div><div class="p2p-security">'+(deal.status==='WAITING_SELLER'?'Проверьте сумму и подтвердите сделку. После подтверждения покупатель получит реквизиты для оплаты.':'Нажимайте подтверждение только после фактического перевода.')+'</div><div class="p2p-offer-actions">'+actions+'</div>');
     document.getElementById('p2pModalClose').onclick=p2pCloseModal;
     var paid=document.getElementById('p2pPaidBtn'); if(paid)paid.onclick=function(){p2pAction('paid',deal.id);p2pCloseModal();};
-    startP2pTimer('p2pPayTimer',900,'00:00');
+    if(deal.status==='DEAL') startP2pTimer('p2pPayTimer',900,'00:00');
   };
   window.updateP2pCreateMode=function(side){
     exchangeData.createSide=side||exchangeData.createSide||'sell';
@@ -7330,6 +7342,51 @@ body:not(.wallet-active) .wallet-history-p2p{
   document.addEventListener('click',function(ev){var b=ev.target&&ev.target.closest&&ev.target.closest('[data-create-side]'); if(b){updateP2pCreateMode(b.getAttribute('data-create-side'));}},true);
   document.addEventListener('click',function(ev){var c=ev.target&&ev.target.closest&&ev.target.closest('.copy-requisites'); if(c){navigator.clipboard&&navigator.clipboard.writeText(c.getAttribute('data-copy')||c.textContent||''); showToast('Реквизиты скопированы','success');}},true);
   document.addEventListener('DOMContentLoaded',function(){setTimeout(function(){updateP2pCreateMode('sell');},300);});
+})();
+</script>
+
+
+<script id="p2p-create-buy-button-hard-fix">
+(function(){
+  function qs(s){return document.querySelector(s)}
+  function setCreateMode(side){
+    side = side === 'buy' ? 'buy' : 'sell';
+    try{ if(window.exchangeData) window.exchangeData.createSide = side; }catch(e){}
+    document.querySelectorAll('[data-create-side]').forEach(function(btn){
+      var active = btn.getAttribute('data-create-side') === side;
+      btn.classList.toggle('active', active);
+      btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+      btn.type = 'button';
+    });
+    var title=qs('.cb-create-title');
+    var details=qs('#p2pDetails');
+    var small=qs('.cb-calc small');
+    var createBtn=qs('#p2pCreateBtn');
+    if(title) title.textContent = side==='buy' ? 'Создать объявление на покупку GC' : 'Создать объявление на продажу GC';
+    if(details){
+      details.required = side !== 'buy';
+      details.placeholder = side==='buy' ? 'Реквизиты не нужны: продавец укажет, куда ему оплатить' : 'Банк, номер, имя получателя';
+    }
+    if(small) small.textContent = side==='buy' ? 'Объявление появится во вкладке «Продать». GC не списываются при создании.' : 'GC будут заморожены в escrow до завершения сделки.';
+    if(createBtn) createBtn.textContent = side==='buy' ? 'Создать объявление на покупку GC' : 'Создать объявление на продажу GC';
+  }
+  window.ggP2pSetCreateMode = setCreateMode;
+  document.addEventListener('click', function(ev){
+    var btn = ev.target && ev.target.closest && ev.target.closest('[data-create-side]');
+    if(!btn) return;
+    ev.preventDefault();
+    ev.stopPropagation();
+    ev.stopImmediatePropagation();
+    setCreateMode(btn.getAttribute('data-create-side'));
+  }, true);
+  document.addEventListener('click', function(ev){
+    var btn = ev.target && ev.target.closest && ev.target.closest('#p2pCreateBtn');
+    if(!btn) return;
+    try{ if(!window.exchangeData) window.exchangeData = {}; }catch(e){}
+    var active=qs('[data-create-side].active');
+    if(active) window.exchangeData.createSide = active.getAttribute('data-create-side') || 'sell';
+  }, true);
+  document.addEventListener('DOMContentLoaded', function(){ setTimeout(function(){ setCreateMode((qs('[data-create-side].active')||{}).getAttribute ? qs('[data-create-side].active').getAttribute('data-create-side') : 'sell'); }, 500); });
 })();
 </script>
 

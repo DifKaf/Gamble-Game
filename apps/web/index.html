@@ -7254,6 +7254,85 @@ body:not(.wallet-active) .wallet-history-p2p{
 #screen-exchange.active{max-width:760px!important;margin:0 auto!important;color:#f8fafc!important}.cb-p2p{background:#0b0f19;border:1px solid #1e293b;border-radius:24px;padding:14px;box-shadow:0 22px 70px rgba(0,0,0,.35)}.cb-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 4px 14px}.cb-head b{display:block;font-size:26px}.cb-head span{display:block;color:#94a3b8;font-weight:700;margin-top:4px}.cb-coin{width:54px;height:54px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#38bdf8,#6366f1);font-weight:1000}.cb-balance{display:flex;justify-content:space-between;align-items:center;padding:14px;border-radius:18px;background:#111827;border:1px solid #243044;margin-bottom:12px}.cb-balance span{color:#94a3b8}.cb-balance b{font-size:18px}.cb-tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;background:#111827;border-radius:16px;padding:5px;margin-bottom:10px}.cb-tabs button,.cb-filter button,.cb-filter select,.cb-methods button,.cb-choice{border:0;border-radius:12px;background:transparent;color:#94a3b8;padding:10px 8px;font-weight:950}.cb-tabs button.active,.cb-filter button.active,.cb-methods button.active,.cb-choice.active{background:#2563eb;color:#fff}.cb-filter{display:flex;gap:6px;overflow:auto;margin-bottom:12px}.cb-filter>*{background:#111827!important;border:1px solid #243044!important;min-width:max-content}.cb-list{display:grid;gap:10px}.cb-offer{background:#111827;border:1px solid #243044;border-radius:18px;padding:14px}.cb-offer-top{display:flex;justify-content:space-between;gap:8px}.cb-user{display:flex;align-items:center;gap:10px}.cb-user .avatar,.cb-user .avatar-badge{width:42px!important;height:42px!important;border-radius:50%!important}.cb-user b{display:block}.cb-user small{display:block;color:#94a3b8;font-size:11px}.cb-offer-top>span{color:#7dd3fc;font-weight:1000}.cb-price{margin:14px 0}.cb-price b{font-size:28px;color:#7dd3fc}.cb-price span{display:block;color:#94a3b8}.cb-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.cb-grid>div{background:#0b1220;border:1px solid #1f2b40;border-radius:14px;padding:10px}.cb-grid small{display:block;color:#94a3b8;font-size:11px}.cb-grid b{display:block;margin-top:3px}.cb-status{margin-top:10px;color:#a5b4fc;font-size:12px;font-weight:800}.cb-actions{display:flex;gap:8px;margin-top:12px}.cb-main{border:0;border-radius:14px;padding:12px 16px;background:linear-gradient(135deg,#0ea5e9,#6366f1);color:#fff;font-weight:1000;box-shadow:0 12px 30px rgba(37,99,235,.25)}.cb-ghost{border:1px solid #334155;border-radius:14px;padding:12px 16px;background:#0f172a;color:#cbd5e1;font-weight:900}.cb-full{width:100%}.cb-empty{padding:24px;text-align:center;color:#94a3b8;background:#111827;border:1px dashed #334155;border-radius:18px}.cb-create{background:#111827;border:1px solid #243044;border-radius:18px;padding:14px}.cb-create-title{font-size:20px;font-weight:1000;margin-bottom:12px}.cb-row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.cb-create label{display:block;color:#cbd5e1;font-size:13px;font-weight:850;margin:10px 0 6px}.cb-methods{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0}.cb-calc{margin:12px 0;padding:12px;border-radius:16px;background:linear-gradient(135deg,rgba(14,165,233,.16),rgba(99,102,241,.12));border:1px solid rgba(125,211,252,.18)}.cb-calc span,.cb-calc small{display:block;color:#94a3b8}.cb-calc b{display:block;font-size:20px;margin:3px 0}.cb-modal-head{text-align:center;margin-bottom:14px}.cb-modal-head span{color:#7dd3fc;font-weight:1000}.cb-modal-head b{display:block;font-size:24px;margin:4px 0}.cb-modal-head small{color:#94a3b8}.cb-modal-input{display:block;margin-bottom:12px}.cb-modal-input span{display:block;color:#94a3b8;font-weight:850;margin-bottom:6px}.cb-modal-input input{width:100%;padding:14px;border-radius:14px;border:1px solid #334155;background:#0f172a;color:#fff;font-size:18px;font-weight:950}@media(min-width:900px){#screen-exchange.active{max-width:920px!important}.cb-list{grid-template-columns:repeat(2,1fr)}.cb-create{max-width:620px;margin:0 auto}}@media(max-width:520px){.cb-tabs{grid-template-columns:repeat(2,1fr)}.cb-row2,.cb-grid{grid-template-columns:1fr}.cb-head b{font-size:22px}}
 </style>
 
+
+<style id="p2p-fewer-stages-timer-create-buy-final-style">
+.p2p-progress.compact{display:grid!important;grid-template-columns:repeat(4,1fr)!important;gap:6px!important;margin:14px 0!important}.p2p-progress.compact>div{display:flex!important;flex-direction:column!important;align-items:center!important;text-align:center!important;gap:5px!important;font-size:11px!important}.p2p-progress.compact i{width:24px!important;height:24px!important;border-radius:50%!important}.p2p-ring{width:112px;height:112px;margin:10px auto 14px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 45%,rgba(56,189,248,.20),rgba(15,23,42,.82));border:2px solid rgba(125,211,252,.35);box-shadow:0 0 35px rgba(56,189,248,.18);font-size:24px;font-weight:1000;color:#fff}.copy-requisites{cursor:pointer;color:#7dd3fc!important}.copy-requisites:after{content:'  ⧉';opacity:.7}.cb-choice.active{background:linear-gradient(135deg,#38bdf8,#6366f1)!important;color:#fff!important}
+</style>
+
+
+<script id="p2p-fewer-stages-timer-create-buy-final">
+(function(){
+  var p2pTimerInt=null;
+  window.p2pDealProgress=function(st){
+    var active={WAITING_SELLER:1,DEAL:2,PAID:3,COMPLETED:4,DISPUTED:3,CANCELLED:1,OPEN:0}[st]||0;
+    var steps=['Создана','Оплата','Подтверждение','Готово'];
+    return '<div class="p2p-progress compact">'+steps.map(function(x,i){return '<div class="'+(i<active?'done':'')+'"><i>'+(i+1)+'</i><span>'+x+'</span></div>';}).join('')+'</div>';
+  };
+  function stopP2pTimer(){ if(p2pTimerInt){clearInterval(p2pTimerInt);p2pTimerInt=null;} }
+  window.startP2pTimer=function(elId, seconds, doneText){
+    stopP2pTimer(); var el=document.getElementById(elId); if(!el)return;
+    var end=Date.now()+seconds*1000;
+    function tick(){
+      var left=Math.max(0,Math.ceil((end-Date.now())/1000));
+      var m=Math.floor(left/60), s=left%60;
+      el.textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+      if(left<=0){stopP2pTimer(); el.textContent=doneText||'00:00';}
+    }
+    tick(); p2pTimerInt=setInterval(tick,1000);
+  };
+  var oldClose=window.p2pCloseModal;
+  window.p2pCloseModal=function(){stopP2pTimer(); if(oldClose) oldClose(); else {var m=document.getElementById('p2pBuyModal'); if(m)m.remove(); document.body.classList.remove('p2p-modal-open');}};
+
+  window.p2pFinalModalShell=function(inner){
+    var old=document.getElementById('p2pBuyModal'); if(old) old.remove();
+    document.body.classList.add('p2p-modal-open');
+    document.body.insertAdjacentHTML('beforeend','<div class="p2p-modal" id="p2pBuyModal"><div class="p2p-deal-room"><div class="p2p-drag-handle" id="p2pDragHandle"></div>'+inner+'</div></div>');
+    var h=document.getElementById('p2pDragHandle'); if(h)h.onclick=window.p2pCloseModal;
+  };
+  window.openP2pWaitingSeller=function(deal,rub,gc){
+    window.p2pFinalModalShell('<button class="p2p-x" id="p2pModalClose">×</button><div class="cb-modal-head"><span>'+escapeHtml(p2pOfferId(deal))+'</span><b>Ожидание продавца</b><small>Продавец должен принять сделку</small></div><div class="p2p-ring" id="p2pWaitTimer">10:00</div>'+p2pDealProgress('WAITING_SELLER')+'<button class="cb-ghost cb-full" id="p2pCancelWaiting">Отменить</button>');
+    document.getElementById('p2pModalClose').onclick=p2pCloseModal;
+    document.getElementById('p2pCancelWaiting').onclick=function(){p2pAction('cancel',deal.id);p2pCloseModal();};
+    startP2pTimer('p2pWaitTimer',600,'Время вышло');
+  };
+  window.openP2pPayDetails=function(deal){
+    var req=deal.paymentDetails||'Реквизиты появятся после принятия продавцом';
+    window.p2pFinalModalShell('<button class="p2p-x" id="p2pModalClose">×</button><div class="cb-modal-head"><span>'+escapeHtml(p2pOfferId(deal))+'</span><b>Оплатите продавцу</b><small>Срок оплаты</small></div><div class="p2p-ring" id="p2pPayTimer">15:00</div>'+p2pDealProgress(deal.status)+'<div class="p2p-details"><div class="row"><span>GC</span><b>'+fmt(deal.amountGc)+' GC</b></div><div class="row"><span>К оплате</span><b>'+fmt(deal.priceRub)+' ₽</b></div><div class="row"><span>Курс</span><b>'+fmt(p2pRateRub(deal))+' ₽ / 1 000 GC</b></div><div class="row"><span>Способ</span><b>'+escapeHtml(p2pMethodName(deal.method))+'</b></div><div class="row"><span>Реквизиты</span><b class="copy-requisites" data-copy="'+escapeHtml(req)+'">'+escapeHtml(req).replace(/\n/g,'<br>')+'</b></div></div><div class="p2p-security">Нажимайте «Я оплатил» только после фактического перевода.</div><div class="p2p-offer-actions">'+(deal.isBuyer&&deal.status==='DEAL'?'<button class="cb-main" id="p2pPaidBtn">Я оплатил</button>':'')+(deal.isMine&&deal.status==='PAID'?'<button class="cb-main" data-p2p-act="release" data-id="'+deal.id+'">Подтвердить</button>':'')+'<button class="cb-ghost" data-p2p-act="dispute" data-id="'+deal.id+'">Спор</button></div>');
+    document.getElementById('p2pModalClose').onclick=p2pCloseModal;
+    var paid=document.getElementById('p2pPaidBtn'); if(paid)paid.onclick=function(){p2pAction('paid',deal.id);p2pCloseModal();};
+    startP2pTimer('p2pPayTimer',900,'00:00');
+  };
+  window.updateP2pCreateMode=function(side){
+    exchangeData.createSide=side||exchangeData.createSide||'sell';
+    document.querySelectorAll('[data-create-side]').forEach(function(b){b.classList.toggle('active',b.getAttribute('data-create-side')===exchangeData.createSide)});
+    var details=document.getElementById('p2pDetails');
+    var title=document.querySelector('.cb-create-title');
+    var calc=document.querySelector('.cb-calc small');
+    if(title) title.textContent=exchangeData.createSide==='buy'?'Создать объявление на покупку GC':'Создать объявление на продажу GC';
+    if(details) details.placeholder=exchangeData.createSide==='buy'?'Ваши реквизиты не нужны: продавец укажет, куда ему оплатить':'Банк, номер, имя получателя';
+    if(calc) calc.textContent=exchangeData.createSide==='buy'?'Объявление появится в разделе «Продать». GC не замораживаются до сделки.':'GC будут заморожены в escrow до завершения сделки.';
+  };
+  window.p2pCreate=async function(){
+    var btn=document.getElementById('p2pCreateBtn'); if(btn&&btn.disabled)return; if(btn){btn.disabled=true;btn.textContent='Создаём...';}
+    try{
+      var amount=Number(document.getElementById('p2pAmount').value)||0, rate=Number(document.getElementById('p2pPrice').value)||0, minBuy=Number(document.getElementById('p2pMinBuy').value)||1, details=(document.getElementById('p2pDetails').value||'').trim(), comment=(document.getElementById('p2pComment').value||'').trim();
+      var side=exchangeData.createSide||'sell'; var totalRub=Math.round((amount/1000)*rate);
+      if(!amount||!rate){showToast('Заполните количество и курс','error');return;}
+      if(side==='sell'&&!details){showToast('Укажите реквизиты','error');return;}
+      if(side==='sell'&&amount>(typeof backendBalance==='number'?backendBalance:Infinity)){showToast('Недостаточно GC на балансе','error');return;}
+      if(minBuy>totalRub){showToast('Минимальная сумма больше максимальной','error');return;}
+      var r=await apiRequest('/exchange/offers',{method:'POST',body:JSON.stringify({amountGc:Math.round(amount),rateRubPer1000:rate,minBuyRub:minBuy,maxBuyRub:totalRub,method:exchangeData.method,paymentDetails:details||'Реквизиты укажет продавец при сделке',comment:comment,intent:side})});
+      if(typeof r.balance==='number'){backendBalance=r.balance;applyBackendBalanceToUI();renderBalances();}
+      showToast(side==='buy'?'Объявление на покупку создано':'Объявление на продажу создано','success'); exchangeData.tab='ads'; loadExchange();
+    }catch(e){showToast(e.message||'Не удалось создать объявление','error');}
+    finally{if(btn){btn.disabled=false;btn.textContent='Создать объявление';}}
+  };
+  document.addEventListener('click',function(ev){var b=ev.target&&ev.target.closest&&ev.target.closest('[data-create-side]'); if(b){updateP2pCreateMode(b.getAttribute('data-create-side'));}},true);
+  document.addEventListener('click',function(ev){var c=ev.target&&ev.target.closest&&ev.target.closest('.copy-requisites'); if(c){navigator.clipboard&&navigator.clipboard.writeText(c.getAttribute('data-copy')||c.textContent||''); showToast('Реквизиты скопированы','success');}},true);
+  document.addEventListener('DOMContentLoaded',function(){setTimeout(function(){updateP2pCreateMode('sell');},300);});
+})();
+</script>
+
 </body>
 </html>
 

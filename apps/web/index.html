@@ -8534,7 +8534,117 @@ input.input::placeholder,textarea.input::placeholder{color:#64748b!important;}
 
 <!-- ===================== GG P2P UPGRADE =====================
      Как подключить: вставьте ВЕСЬ этот блок в самый конец файла
-     apps/web/index.html (перед закрывающим </body>, если он есть,
+     apps/web/index.html (перед закрывающим 
+<!-- ===================== GG PROFILE + ADMIN + P2P BUTTON UPGRADE ===================== -->
+<style id="gg-profile-admin-upgrade">
+/* ---------- ПРОФИЛЬ ---------- */
+#screen-profile .profile-shot{position:relative;overflow:hidden;background:linear-gradient(160deg,#13233f 0%,#0b1220 62%);border:1px solid #1e2b45;border-radius:24px;padding:24px 18px 20px;text-align:center;box-shadow:0 20px 44px rgba(0,0,0,.38)}
+#screen-profile .profile-leaf-bg{position:absolute;inset:0;background:radial-gradient(120px 120px at 80% -10%,rgba(37,99,235,.35),transparent 70%),radial-gradient(140px 140px at 0% 0%,rgba(168,85,247,.25),transparent 70%);pointer-events:none}
+#screen-profile .profile-avatar-wrap{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center}
+#screen-profile .profile-avatar-ring{width:100px;height:100px;border-radius:50%;margin:4px auto 2px;background:conic-gradient(from 130deg,#2563eb,#22d3ee,#a855f7,#2563eb);padding:3px;display:flex}
+#screen-profile .profile-avatar{width:100%;height:100%;border-radius:50%;background:#0b1220;display:flex;align-items:center;justify-content:center;font-size:46px}
+#screen-profile .profile-level-badge{position:relative;margin-top:-16px;display:inline-flex;align-items:center;gap:4px;background:#111a2e;border:1px solid #22d3ee55;color:#22d3ee;font-weight:900;font-size:12px;padding:3px 10px;border-radius:99px}
+#screen-profile #profileName{position:relative;z-index:1;font-size:24px;font-weight:900;margin:12px 0 4px;color:#fff}
+#screen-profile .profile-online{position:relative;z-index:1;display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:800;color:#31d0aa;background:rgba(49,208,170,.12);padding:4px 11px;border-radius:99px}
+#screen-profile .profile-online i{width:7px;height:7px;border-radius:50%;background:#31d0aa;display:inline-block;box-shadow:0 0 0 3px rgba(49,208,170,.22)}
+#screen-profile .profile-band{position:relative;z-index:1;display:inline-block;margin-top:8px;font-size:10px;letter-spacing:1.5px;color:#64748b;font-weight:800}
+.gg-id-chip{position:relative;z-index:1;display:inline-flex;align-items:center;gap:8px;margin:12px auto 0;padding:8px 13px;border-radius:13px;background:#0f172a;border:1px solid #243044;color:#e2e8f0;font-weight:800;font-size:14px;cursor:pointer;font-variant-numeric:tabular-nums;transition:border-color .15s}
+.gg-id-chip .lbl{color:#64748b;font-weight:700;font-size:12px}
+.gg-id-chip .cp{color:#7dd3fc;font-size:15px}
+.gg-id-chip:active{transform:scale(.97)}
+.gg-id-chip.ok{border-color:#31d0aa;color:#31d0aa}
+#screen-profile .profile-since{position:relative;z-index:1;display:inline-block;margin:12px auto 0;font-size:12px;font-weight:700;color:#94a3b8;background:rgba(148,163,184,.10);padding:6px 13px;border-radius:99px}
+#screen-profile .profile-cups{position:relative;z-index:1;margin-top:12px;font-weight:900;color:#fbbf24}
+#screen-profile .profile-share{position:relative;z-index:1;margin:16px auto 0;display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border:0;border-radius:14px;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;font-weight:900;font-size:14px;cursor:pointer;box-shadow:0 10px 22px rgba(37,99,235,.38)}
+#screen-profile .profile-share:active{transform:scale(.97)}
+#screen-profile .profile-stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:18px}
+#screen-profile .profile-stats-grid>div{background:#0f172a;border:1px solid #1e2b45;border-radius:16px;padding:14px 10px;text-align:center}
+#screen-profile .profile-stats-grid>div b{display:block;font-size:18px;font-weight:900;color:#fff}
+#screen-profile .profile-stats-grid>div span{display:block;margin-top:3px;font-size:11px;font-weight:700;color:#94a3b8}
+@media(min-width:720px){#screen-profile{max-width:780px;margin-left:auto;margin-right:auto}#screen-profile .profile-stats-grid{grid-template-columns:repeat(6,1fr)}#screen-profile .profile-avatar-ring{width:116px;height:116px}#screen-profile #profileName{font-size:28px}}
+/* ---------- АДМИНКА ---------- */
+#adminUsers .admin-row{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.gg-admin-actions{display:flex;gap:8px;flex:0 0 auto;margin-left:auto}
+.gg-adm-btn{border:0;border-radius:10px;padding:9px 13px;font-weight:800;font-size:12px;cursor:pointer;color:#fff;white-space:nowrap}
+.gg-adm-btn:active{transform:scale(.95)}
+.gg-adm-btn.bal{background:#2563eb}
+.gg-adm-btn.ban{background:#ef4444}
+.gg-adm-btn.ban[data-banned="1"]{background:#334155}
+/* ---------- P2P: компактная кнопка «Создать объявление» ---------- */
+#p2pCreateBtn{min-height:0!important;padding:12px 22px!important;font-size:14px!important;border-radius:12px!important;display:block!important;width:-moz-fit-content!important;width:fit-content!important;margin:14px auto 4px!important}
+.cb-main.cb-full[data-ex-tab="create"]{width:-moz-fit-content!important;width:fit-content!important;min-height:0!important;padding:10px 16px!important;font-size:13px!important;border-radius:12px!important;display:inline-flex!important;align-items:center;gap:6px;margin:4px 0 12px!important}
+</style>
+<script>
+(function(){
+  'use strict';
+
+  // ---------- PROFILE: copyable ID ----------
+  function idText(){
+    var el=document.getElementById('profilePlayerId');
+    if(!el) return '';
+    var t=el.textContent||'';
+    return t.split(':').pop().trim();
+  }
+  function ensureChip(){
+    var shot=document.querySelector('#screen-profile .profile-shot');
+    if(!shot) return;
+    var chip=document.getElementById('ggIdChip');
+    if(!chip){
+      chip=document.createElement('div');
+      chip.id='ggIdChip';
+      chip.className='gg-id-chip';
+      chip.innerHTML='<span class="lbl">ID</span><span class="val">-</span><span class="cp">\u29c9</span>';
+      var online=shot.querySelector('.profile-online');
+      if(online && online.parentNode){ online.parentNode.insertBefore(chip, online.nextSibling); }
+      else { var nm=document.getElementById('profileName'); if(nm && nm.parentNode){ nm.parentNode.insertBefore(chip, nm.nextSibling); } else { shot.appendChild(chip); } }
+      var since=document.getElementById('profileSince');
+      if(since && chip.parentNode){ chip.parentNode.insertBefore(since, chip.nextSibling); }
+      chip.addEventListener('click', function(){
+        var v=idText();
+        if(!v || v==='-') return;
+        if(window.ggCopy){ window.ggCopy(v, chip); }
+        else { try{ navigator.clipboard.writeText(v); }catch(e){} }
+      });
+    }
+    var val=chip.querySelector('.val');
+    var v=idText()||'-';
+    if(val && val.textContent!==v){ val.textContent=v; }
+    var dup=document.getElementById('profilePlayerId');
+    if(dup){
+      var cell=dup.closest('div');
+      if(cell && cell.parentNode && cell.parentNode.classList && cell.parentNode.classList.contains('profile-stats-grid') && cell.style.display!=='none'){ cell.style.display='none'; }
+    }
+  }
+
+  // ---------- ADMIN: balance / ban buttons on the right ----------
+  var BANNED_RE=new RegExp('\u0431\u043b\u043e\u043a','i');
+  function enhanceAdminRows(){
+    var rows=document.querySelectorAll('#adminUsers .admin-row[data-admin-user]');
+    for(var i=0;i<rows.length;i++){
+      var row=rows[i];
+      if(row.querySelector('.gg-admin-actions')) continue;
+      var id=row.getAttribute('data-admin-user');
+      var banned=BANNED_RE.test(row.textContent||'');
+      var wrap=document.createElement('div');
+      wrap.className='gg-admin-actions';
+      wrap.innerHTML='<button type="button" class="gg-adm-btn bal" data-admin-adjust="'+id+'">\u00b1 \u0411\u0430\u043b\u0430\u043d\u0441</button>'+
+        '<button type="button" class="gg-adm-btn ban" data-admin-ban="'+id+'" data-banned="'+(banned?'1':'0')+'">'+(banned?'\u0420\u0430\u0437\u0431\u0430\u043d':'\u0411\u0430\u043d')+'</button>';
+      row.appendChild(wrap);
+    }
+  }
+
+  var scheduled=false;
+  function tick(){ scheduled=false; try{ ensureChip(); }catch(e){} try{ enhanceAdminRows(); }catch(e){} }
+  function schedule(){ if(scheduled) return; scheduled=true; (window.requestAnimationFrame||window.setTimeout)(tick, 0); }
+
+  try{ new MutationObserver(schedule).observe(document.documentElement, { childList:true, subtree:true }); }catch(e){}
+  document.addEventListener('click', function(){ setTimeout(schedule, 60); }, true);
+  if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded', tick); } else { tick(); }
+  setTimeout(tick, 400); setTimeout(tick, 1000); setTimeout(tick, 2000);
+})();
+</script>
+<!-- /GG PROFILE + ADMIN + P2P BUTTON UPGRADE -->
+</body>, если он есть,
      иначе просто в конец файла). Блок самодостаточный и должен
      идти ПОСЛЕ всего остального P2P-кода, чтобы переопределить его.
 ============================================================ -->

@@ -6572,3 +6572,323 @@ setTimeout(function(){ restoreServerRound(); }, 1600);
 /* ===== Логотип без белого фона ===== */
 .gg-global-logo{height:30px!important;background:transparent!important;}
 </style>
+<!-- ===================== GG P2P UPGRADE =====================
+     Как подключить: вставьте ВЕСЬ этот блок в самый конец файла
+     apps/web/index.html (перед закрывающим </body>, если он есть,
+     иначе просто в конец файла). Блок самодостаточный и должен
+     идти ПОСЛЕ всего остального P2P-кода, чтобы переопределить его.
+============================================================ -->
+<style id="gg-p2p-upgrade">
+.gg-bank-picker{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:8px 0}
+.gg-bank-opt{display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 6px;border-radius:14px;border:1px solid #243044;background:#0f172a;color:#cbd5e1;font-size:11px;font-weight:800;cursor:pointer;text-align:center;line-height:1.15}
+.gg-bank-opt img{width:34px;height:34px;border-radius:10px;display:block}
+.gg-bank-opt.active{border-color:#2563eb;background:rgba(37,99,235,.16);color:#fff}
+.gg-bank-opt:active{transform:scale(.97)}
+.gg-modal-ov{position:fixed;inset:0;background:rgba(2,6,23,.72);backdrop-filter:blur(4px);z-index:99999;display:flex;align-items:flex-end;justify-content:center}
+.gg-modal{position:relative;width:100%;max-width:460px;background:#0b1220;border:1px solid #1e293b;border-radius:20px 20px 0 0;padding:18px;max-height:92vh;overflow:auto;color:#e2e8f0;font-family:inherit}
+@media(min-width:520px){.gg-modal-ov{align-items:center}.gg-modal{border-radius:20px}}
+.gg-x{position:absolute;top:8px;right:12px;font-size:24px;line-height:1;color:#64748b;background:none;border:0;cursor:pointer}
+.gg-head{text-align:center;margin:2px 0 6px}
+.gg-head .lbl{color:#7dd3fc;font-weight:900;font-size:12px;letter-spacing:.4px}
+.gg-head h2{margin:4px 0 0;font-size:22px}
+.gg-steps{display:flex;gap:6px;margin:12px 0 4px}
+.gg-steps .s{flex:1;height:6px;border-radius:99px;background:#1e293b}
+.gg-steps .s.on{background:#2563eb}
+.gg-steps .s.done{background:#31d0aa}
+.gg-timer{display:flex;align-items:baseline;justify-content:center;gap:8px;margin:14px 0;font-size:32px;font-weight:900;font-variant-numeric:tabular-nums;color:#fff}
+.gg-timer small{font-size:12px;font-weight:800;color:#64748b}
+.gg-timer.warn{color:#f59e0b}
+.gg-timer.crit{color:#ef4444}
+.gg-req{display:flex;align-items:center;gap:12px;background:#0f172a;border:1px solid #243044;border-radius:16px;padding:14px;margin:14px 0}
+.gg-req-ic{width:44px;height:44px;border-radius:12px;flex:0 0 auto}
+.gg-req-mid{flex:1 1 auto;min-width:0}
+.gg-req-name{color:#94a3b8;font-size:12px;font-weight:800}
+.gg-req-num{color:#fff;font-size:20px;font-weight:900;letter-spacing:.5px;font-variant-numeric:tabular-nums;word-break:break-all;margin-top:2px}
+.gg-copy{border:0;border-radius:12px;padding:11px 14px;background:#2563eb;color:#fff;font-weight:900;cursor:pointer;flex:0 0 auto;font-size:13px}
+.gg-copy:active{transform:scale(.95)}
+.gg-copy.ok{background:#31d0aa}
+.gg-kv{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #16202e;font-size:14px}
+.gg-kv .k{color:#94a3b8;font-weight:700}
+.gg-kv .v{color:#fff;font-weight:800}
+.gg-note{color:#94a3b8;font-size:13px;font-weight:700;margin:10px 0;line-height:1.4}
+.gg-wait{text-align:center;color:#94a3b8;font-weight:700;margin:10px 0}
+.gg-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.gg-btns.one{grid-template-columns:1fr}
+.gg-btn{border:0;border-radius:14px;padding:14px;font-weight:900;font-size:15px;cursor:pointer;color:#fff}
+.gg-btn:active{transform:scale(.98)}
+.gg-btn.red{background:#ef4444}
+.gg-btn.green{background:#22c55e}
+.gg-btn.blue{background:#2563eb}
+.gg-btn.ghost{background:#1e293b;color:#cbd5e1}
+.gg-btn[disabled]{opacity:.5;cursor:default}
+.gg-file{width:100%;padding:12px;border-radius:14px;border:1px dashed #334155;background:#0f172a;color:#cbd5e1;margin:10px 0}
+.gg-done{text-align:center;font-size:17px;font-weight:900;color:#31d0aa;margin:18px 0}
+</style>
+<script>
+(function(){
+  'use strict';
+  var API = (window.API_URL) || '';
+
+  function E(s){ if(window.escapeHtml) return window.escapeHtml(s); return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+  function F(n){ try{ if(window.fmt) return window.fmt(n); }catch(e){} n=Number(n)||0; return n.toLocaleString('ru-RU'); }
+
+  // ---------- банки + иконки ----------
+  var BANKS = [
+    {re:/сбер|sber/i,              name:'Сбербанк',    c:'#21A038', fg:'#fff', short:'Сбер'},
+    {re:/озон|ozon/i,              name:'Озон Банк',   c:'#005BFF', fg:'#fff', short:'OZON'},
+    {re:/альфа|alfa|alpha/i,     name:'Альфа-Банк',  c:'#EF3124', fg:'#fff', short:'Альфа'},
+    {re:/втб|vtb/i,                name:'ВТБ',         c:'#0A2896', fg:'#fff', short:'ВТБ'},
+    {re:/тинь|t-?банк|tinkoff|tbank/i, name:'Т-Банк', c:'#FFDD2D', fg:'#111', short:'Т'},
+    {re:/газ|gazprom/i,            name:'Газпромбанк', c:'#0079C1', fg:'#fff', short:'ГПБ'},
+    {re:/райф|raif/i,            name:'Райффайзен', c:'#FEE600', fg:'#111', short:'Райф'},
+    {re:/псб|psb|промсвяз/i, name:'ПСБ',   c:'#F26B21', fg:'#fff', short:'ПСБ'},
+    {re:/сбп|sbp/i,               name:'СБП',         c:'#1A1A2E', fg:'#fff', short:'СБП'}
+  ];
+  function bankMeta(name){
+    name = String(name||'');
+    for(var i=0;i<BANKS.length;i++){ if(BANKS[i].re.test(name)) return BANKS[i]; }
+    return {name:(name.trim()||'Банк'), c:'#334155', fg:'#fff', short:((name.trim()[0]||'Б').toUpperCase())};
+  }
+  function bankIcon(name, size){
+    size = size||34;
+    var m = bankMeta(name);
+    var fs = m.short.length<=2?16:(m.short.length<=3?12:10);
+    var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="'+size+'" height="'+size+'" viewBox="0 0 44 44">'
+      + '<rect width="44" height="44" rx="12" fill="'+m.c+'"/>'
+      + '<text x="22" y="22" dy=".35em" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-weight="700" font-size="'+fs+'" fill="'+m.fg+'">'+E(m.short)+'</text>'
+      + '</svg>';
+    return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+  }
+  window.bankIcon = bankIcon; window.bankMeta = bankMeta;
+
+  // ---------- копирование (безопасно для Telegram WebView) ----------
+  function ggCopy(text, btn){
+    text = String(text||'');
+    function done(){ if(btn){ var o=btn.getAttribute('data-lbl')||btn.innerHTML; btn.setAttribute('data-lbl',o); btn.classList.add('ok'); btn.innerHTML='✓ Скопировано'; setTimeout(function(){ btn.classList.remove('ok'); btn.innerHTML=o; },1400);} if(window.showToast) showToast('Скопировано'); }
+    function fallback(){ try{ var ta=document.createElement('textarea'); ta.value=text; ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.focus(); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); done(); }catch(e){ if(window.showToast) showToast('Не удалось скопировать'); } }
+    try{ if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(text).then(done, fallback); return; } }catch(e){}
+    fallback();
+  }
+  window.ggCopy = ggCopy;
+
+  function extractNumber(details){
+    var s = String(details||'');
+    var m = s.match(/([0-9][0-9 -]{9,})/);
+    if(m) return m[1].replace(/ +/g,' ').trim();
+    return (s.split('|')[0]||s).trim();
+  }
+  function extractBank(details){
+    var s = String(details||'');
+    var m = s.match(/банк[^:]*:[ ]*([^|\n]+)/i);
+    if(m) return m[1].trim();
+    for(var i=0;i<BANKS.length;i++){ if(BANKS[i].re.test(s)) return BANKS[i].name; }
+    return '';
+  }
+
+  // ---------- таймер ----------
+  var _t=null;
+  function stopTimer(){ if(_t){ clearInterval(_t); _t=null; } }
+  function startTimer(el, seconds){
+    stopTimer();
+    if(!el) return;
+    var left = seconds;
+    function paint(){
+      var mm = Math.floor(left/60), ss = left%60;
+      el.innerHTML = (mm<10?'0':'')+mm+':'+(ss<10?'0':'')+ss+' <small>осталось</small>';
+      el.classList.toggle('warn', left<=60 && left>20);
+      el.classList.toggle('crit', left<=20);
+      if(left<=0){ stopTimer(); el.innerHTML='00:00 <small>время истекло</small>'; el.classList.add('crit'); return; }
+      left--;
+    }
+    paint(); _t=setInterval(paint,1000);
+  }
+
+  // ---------- API ----------
+  function api(path, method, body){
+    if(window.apiRequest) return Promise.resolve(window.apiRequest(path, { method:method||'GET', body: body }));
+    return fetch(API+path, { method:method||'GET', headers:{'Content-Type':'application/json'}, body: body?JSON.stringify(body):undefined }).then(function(r){ return r.json(); });
+  }
+
+  // ---------- модалка ----------
+  function closeModal(){ stopTimer(); var ov=document.getElementById('ggDealOv'); if(ov) ov.remove(); }
+  window.p2pCloseModal = closeModal;
+  function shell(inner){
+    closeModal();
+    var ov=document.createElement('div'); ov.className='gg-modal-ov'; ov.id='ggDealOv';
+    ov.innerHTML='<div class="gg-modal" id="ggDeal"><button class="gg-x" id="ggXBtn">×</button>'+inner+'</div>';
+    document.body.appendChild(ov);
+    ov.addEventListener('click', function(e){ if(e.target===ov) closeModal(); });
+    var x=document.getElementById('ggXBtn'); if(x) x.onclick=closeModal;
+    return document.getElementById('ggDeal');
+  }
+  function stepsBar(n){
+    function cls(i){ return i<n?'s done':(i===n?'s on':'s'); }
+    return '<div class="gg-steps"><div class="'+cls(1)+'"></div><div class="'+cls(2)+'"></div><div class="'+cls(3)+'"></div></div>';
+  }
+  function head(label,title){ return '<div class="gg-head"><div class="lbl">'+E(label)+'</div><h2>'+E(title)+'</h2></div>'; }
+  function reqCard(bankName, number){
+    var m=bankMeta(bankName);
+    return '<div class="gg-req">'
+      +'<img class="gg-req-ic" src="'+bankIcon(bankName,44)+'" alt="">'
+      +'<div class="gg-req-mid"><div class="gg-req-name">'+E(m.name)+'</div><div class="gg-req-num" id="ggReqNum">'+E(number)+'</div></div>'
+      +'<button class="gg-copy" id="ggCopyBtn" data-copy="'+E(number)+'">⧉ Скопировать</button>'
+      +'</div>';
+  }
+  function kv(k,v){ return '<div class="gg-kv"><span class="k">'+E(k)+'</span><span class="v">'+E(v)+'</span></div>'; }
+  function amounts(d){
+    var rub = d.priceRub!=null?d.priceRub:'';
+    var method = (window.p2pMethodName?window.p2pMethodName(d.method):d.method)||d.method||'';
+    return kv('Сумма к оплате', F(rub)+' ₽') + kv('Вы получите', F(d.amountGc)+' GC') + kv('Способ', method);
+  }
+
+  function bindCommon(d){
+    var cancel=document.getElementById('ggCancelBtn'); if(cancel) cancel.onclick=function(){ doAct(d,'cancel'); };
+    var disp=document.getElementById('ggDisputeBtn'); if(disp) disp.onclick=function(){ doAct(d,'dispute'); };
+    var copy=document.getElementById('ggCopyBtn'); if(copy) copy.onclick=function(){ ggCopy(copy.getAttribute('data-copy'), copy); };
+  }
+
+  function refresh(){
+    try{ if(window.loadExchange) window.loadExchange(); }catch(e){}
+    try{ if(window.applyBackendBalanceToUI && window.backendBalance!=null) window.applyBackendBalanceToUI(); }catch(e){}
+    try{ if(window.renderBalances) window.renderBalances(); }catch(e){}
+  }
+
+  function doAct(d, act){
+    api('/exchange/deals/'+d.id+'/'+act,'POST',{}).then(function(){
+      var map={accept:'DEAL', release:'COMPLETED', cancel:'CANCELLED', dispute:'DISPUTED'};
+      renderDealRoom(Object.assign({}, d, { status: map[act]||d.status }));
+      refresh();
+    }).catch(function(){ if(window.showToast) showToast('Не удалось выполнить действие'); });
+  }
+
+  function markPaid(d, receipt){
+    api('/exchange/deals/'+d.id+'/paid','POST',{ receipt: receipt }).then(function(){
+      if(window.showToast) showToast('Чек отправлен');
+      renderDealRoom(Object.assign({}, d, { status:'PAID', receipt: receipt }));
+      refresh();
+    }).catch(function(){ if(window.showToast) showToast('Ошибка отправки чека'); });
+  }
+
+  function showProofUI(d){
+    var box=document.getElementById('ggProof');
+    var mainBtns=document.getElementById('ggPayBtns');
+    if(!box) return;
+    if(mainBtns) mainBtns.style.display='none';
+    box.innerHTML = '<div class="gg-note">Приложите чек об оплате (скриншот или PDF):</div>'
+      + '<input type="file" class="gg-file" id="ggReceipt" accept="image/*,application/pdf">'
+      + '<div class="gg-btns"><button class="gg-btn ghost" id="ggProofBack">Назад</button><button class="gg-btn green" id="ggSendReceipt">Отправить чек</button></div>';
+    var back=document.getElementById('ggProofBack'); if(back) back.onclick=function(){ box.innerHTML=''; if(mainBtns) mainBtns.style.display=''; };
+    var send=document.getElementById('ggSendReceipt'); if(send) send.onclick=function(){
+      var f=document.getElementById('ggReceipt');
+      var fname=(f && f.files && f.files[0]) ? f.files[0].name : '';
+      if(!fname){ if(window.showToast) showToast('Выберите файл чека'); return; }
+      markPaid(d, fname);
+    };
+  }
+
+  // ---------- комната сделки (роль + статус) ----------
+  function renderDealRoom(d){
+    d = d||{};
+    var st = String(d.status||'').toUpperCase();
+    var isBuyer = !!d.isBuyer;
+    var inner='';
+
+    if(st==='WAITING_SELLER' || st==='WAITING'){
+      inner = head('Шаг 1 из 3','Ожидание продавца') + stepsBar(1)
+        + '<div class="gg-timer" id="ggTimer"></div>' + amounts(d)
+        + '<div class="gg-note">Ждём, пока продавец подтвердит сделку. Как только он согласится — откроется оплата.</div>'
+        + (isBuyer
+            ? '<div class="gg-btns one"><button class="gg-btn red" id="ggCancelBtn">Отмена сделки</button></div>'
+            : '<div class="gg-btns"><button class="gg-btn red" id="ggCancelBtn">Отклонить</button><button class="gg-btn green" id="ggAcceptBtn">Принять сделку</button></div>');
+      shell(inner); startTimer(document.getElementById('ggTimer'), 10*60); bindCommon(d);
+      var acc=document.getElementById('ggAcceptBtn'); if(acc) acc.onclick=function(){ doAct(d,'accept'); };
+      return;
+    }
+
+    if(st==='DEAL' || st==='ACCEPTED'){
+      if(isBuyer){
+        var num = extractNumber(d.paymentDetails);
+        var bank = extractBank(d.paymentDetails) || d.bank || '';
+        inner = head('Шаг 2 из 3','Оплата') + stepsBar(2)
+          + '<div class="gg-timer" id="ggTimer"></div>'
+          + reqCard(bank, num) + amounts(d)
+          + '<div class="gg-note">Переведите точную сумму по реквизитам выше. После оплаты нажмите «Оплатил» и приложите чек.</div>'
+          + '<div id="ggProof"></div>'
+          + '<div class="gg-btns" id="ggPayBtns"><button class="gg-btn red" id="ggCancelBtn">Отмена сделки</button><button class="gg-btn green" id="ggPaidBtn">Оплатил</button></div>';
+        shell(inner); startTimer(document.getElementById('ggTimer'), 15*60); bindCommon(d);
+        var paid=document.getElementById('ggPaidBtn'); if(paid) paid.onclick=function(){ showProofUI(d); };
+      } else {
+        inner = head('Шаг 2 из 3','Ожидание оплаты') + stepsBar(2)
+          + '<div class="gg-timer" id="ggTimer"></div>' + amounts(d)
+          + '<div class="gg-wait">Покупатель оплачивает по вашим реквизитам. Дождитесь чека.</div>'
+          + '<div class="gg-btns one"><button class="gg-btn ghost" id="ggDisputeBtn">Открыть спор</button></div>';
+        shell(inner); startTimer(document.getElementById('ggTimer'), 15*60); bindCommon(d);
+      }
+      return;
+    }
+
+    if(st==='PAID'){
+      if(isBuyer){
+        inner = head('Шаг 3 из 3','Подтверждение перевода') + stepsBar(3)
+          + '<div class="gg-timer" id="ggTimer"></div>' + amounts(d)
+          + (d.receipt? '<div class="gg-note">Чек отправлен: '+E(d.receipt)+'. Ожидаем подтверждение продавца.</div>' : '<div class="gg-note">Ожидаем, пока продавец проверит оплату.</div>')
+          + '<div class="gg-btns one"><button class="gg-btn ghost" id="ggDisputeBtn">Открыть спор</button></div>';
+        shell(inner); startTimer(document.getElementById('ggTimer'), 10*60); bindCommon(d);
+      } else {
+        inner = head('Шаг 3 из 3','Подтверждение перевода') + stepsBar(3)
+          + '<div class="gg-timer" id="ggTimer"></div>' + amounts(d)
+          + '<div class="gg-note">Проверьте поступление средств'+(d.receipt?' и чек: <b>'+E(d.receipt)+'</b>':'')+'. Если всё верно — подтвердите перевод GC покупателю.</div>'
+          + '<div class="gg-btns"><button class="gg-btn ghost" id="ggDisputeBtn">Спор</button><button class="gg-btn green" id="ggReleaseBtn">Подтвердить</button></div>';
+        shell(inner); startTimer(document.getElementById('ggTimer'), 10*60); bindCommon(d);
+        var rel=document.getElementById('ggReleaseBtn'); if(rel) rel.onclick=function(){ doAct(d,'release'); };
+      }
+      return;
+    }
+
+    if(st==='COMPLETED'){ shell(head('Готово','Сделка завершена')+'<div class="gg-done">✓ Сделка успешно завершена</div>'+amounts(d)+'<div class="gg-btns one"><button class="gg-btn blue" id="ggDoneBtn">Закрыть</button></div>'); var db=document.getElementById('ggDoneBtn'); if(db) db.onclick=closeModal; refresh(); return; }
+    if(st==='CANCELLED'){ shell(head('Отменено','Сделка отменена')+'<div class="gg-note">Сделка была отменена.</div><div class="gg-btns one"><button class="gg-btn blue" id="ggDoneBtn">Закрыть</button></div>'); var db2=document.getElementById('ggDoneBtn'); if(db2) db2.onclick=closeModal; refresh(); return; }
+    if(st==='DISPUTED'){ shell(head('Спор','Открыт спор')+'<div class="gg-note">По сделке открыт спор. С вами свяжется поддержка.</div><div class="gg-btns one"><button class="gg-btn blue" id="ggDoneBtn">Закрыть</button></div>'); var db3=document.getElementById('ggDoneBtn'); if(db3) db3.onclick=closeModal; refresh(); return; }
+
+    shell(head('Сделка','P2P сделка')+amounts(d)+'<div class="gg-btns one"><button class="gg-btn blue" id="ggDoneBtn">Закрыть</button></div>'); var f=document.getElementById('ggDoneBtn'); if(f) f.onclick=closeModal;
+  }
+  window.renderDealRoom = renderDealRoom;
+  window.openP2pDealRoom = renderDealRoom;
+  window.openP2pWaitingSeller = function(d){ return renderDealRoom(Object.assign({status:'WAITING_SELLER'}, d)); };
+  window.openP2pPayDetails    = function(d){ return renderDealRoom(Object.assign({status:'DEAL'}, d)); };
+
+  // ---------- иконки банков в форме создания ----------
+  function mountBankPicker(){
+    var sel=document.getElementById('sbpBank');
+    if(!sel || document.getElementById('bankPicker')) return;
+    var grid=document.createElement('div'); grid.className='gg-bank-picker'; grid.id='bankPicker';
+    [].slice.call(sel.options).forEach(function(o){
+      var name=o.textContent||o.value;
+      var isOther=/друг/i.test(name);
+      var b=document.createElement('div'); b.className='gg-bank-opt'; b.setAttribute('data-val', o.value);
+      b.innerHTML='<img src="'+bankIcon(isOther?'?':name,34)+'" alt=""><span>'+E(isOther?'Другой':name)+'</span>';
+      b.onclick=function(){
+        sel.value=o.value;
+        try{ sel.dispatchEvent(new Event('change',{bubbles:true})); }catch(e){}
+        grid.querySelectorAll('.gg-bank-opt').forEach(function(x){ x.classList.remove('active'); });
+        b.classList.add('active');
+        var other=document.getElementById('otherBank'); if(other) other.style.display=isOther?'':'none';
+      };
+      if(o.selected) b.classList.add('active');
+      grid.appendChild(b);
+    });
+    sel.style.display='none';
+    sel.parentNode.insertBefore(grid, sel.nextSibling);
+  }
+  window.mountBankPicker = mountBankPicker;
+
+  function boot(){ try{ mountBankPicker(); }catch(e){} }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', boot); else boot();
+  setTimeout(boot, 600); setTimeout(boot, 1500);
+  document.addEventListener('click', function(ev){
+    var t=ev.target && ev.target.closest ? ev.target.closest('[data-ex-tab],[data-nav],[data-create-side],[data-method]') : null;
+    if(t) setTimeout(boot, 60);
+  }, true);
+})();
+
+</script>
+<!-- ===================== /GG P2P UPGRADE ===================== -->

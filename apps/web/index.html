@@ -9231,6 +9231,7 @@ input.input::placeholder,textarea.input::placeholder{color:#64748b!important;}
 <script id="gg-final-4-js">
 (function(){
   function txt(id){var e=document.getElementById(id);return e?(e.textContent||"").trim():"";}
+  var __ggWriting=false,__ggQueued=false,__ggMo=null;
   function ggBuildBalanceCard(){
     var sec=document.getElementById("screen-profile"); if(!sec) return;
     var card=document.getElementById("ggBalCard");
@@ -9238,7 +9239,7 @@ input.input::placeholder,textarea.input::placeholder{color:#64748b!important;}
       card=document.createElement("div"); card.id="ggBalCard"; card.className="gg-bal-card";
       card.innerHTML=
         '<div class="gg-bal-top">'+
-          '<div class="gg-bal-av" id="ggBalAv">������</div>'+
+          '<div class="gg-bal-av" id="ggBalAv">������</div>'+
           '<div class="gg-bal-idwrap">'+
             '<div class="gg-bal-name" id="ggBalName">Игрок</div>'+
             '<button class="gg-bal-id" id="ggBalId"><span id="ggBalIdTx">ID: —</span><span class="cp">⧉</span></button>'+
@@ -9268,19 +9269,43 @@ input.input::placeholder,textarea.input::placeholder{color:#64748b!important;}
     syncBalanceCard();
   }
   function syncBalanceCard(){
-    var av=document.getElementById("ggBalAv"); var pav=document.getElementById("profileAvatar");
-    if(av&&pav) av.innerHTML=pav.innerHTML;
-    var nm=document.getElementById("ggBalName"); var pnm=txt("profileName"); if(nm&&pnm) nm.textContent=pnm;
-    var idtx=document.getElementById("ggBalIdTx"); var pid=txt("profilePlayerId"); if(idtx&&pid) idtx.textContent=(/^ID/.test(pid)?pid:("ID: "+pid));
-    var amt=document.getElementById("ggBalAmt");
-    if(amt){ var b=txt("profileBalance").replace(/GC/i,"").trim(); if(b) amt.textContent=b; }
+    // Идемпотентно: пишем в DOM только если значение реально изменилось —
+    // это разрывает петлю обратной связи с MutationObserver.
+    if(__ggWriting) return;
+    __ggWriting=true;
+    try{
+      var av=document.getElementById("ggBalAv"); var pav=document.getElementById("profileAvatar");
+      if(av&&pav&&av.innerHTML!==pav.innerHTML) av.innerHTML=pav.innerHTML;
+      var nm=document.getElementById("ggBalName"); var pnm=txt("profileName"); if(nm&&pnm&&nm.textContent!==pnm) nm.textContent=pnm;
+      var idtx=document.getElementById("ggBalIdTx"); var pid=txt("profilePlayerId"); if(idtx&&pid){ var v=(/^ID/.test(pid)?pid:("ID: "+pid)); if(idtx.textContent!==v) idtx.textContent=v; }
+      var amt=document.getElementById("ggBalAmt");
+      if(amt){ var b=txt("profileBalance").replace(/GC/i,"").trim(); if(b&&amt.textContent!==b) amt.textContent=b; }
+    }finally{ __ggWriting=false; }
   }
   window.ggSyncBalanceCard=syncBalanceCard;
   function boot(){ try{ ggBuildBalanceCard(); }catch(e){} }
   if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",boot); else boot();
   setTimeout(boot,700); setTimeout(boot,1800);
-  // обновляем карточку при открытии профиля / смене баланса
-  try{ new MutationObserver(function(){ syncBalanceCard(); }).observe(document.body,{subtree:true,childList:true,characterData:true}); }catch(e){}
+  // Обновляем карточку при открытии профиля / смене баланса.
+  // Наблюдаем ТОЛЬКО за #screen-profile (не за всем body), троттлим через rAF
+  // и синхронизируем лишь когда профиль реально открыт.
+  function __ggSchedule(){
+    if(__ggQueued||__ggWriting) return;
+    __ggQueued=true;
+    requestAnimationFrame(function(){
+      __ggQueued=false;
+      var sec=document.getElementById("screen-profile");
+      if(sec && sec.offsetParent!==null) syncBalanceCard();
+    });
+  }
+  function __ggAttach(){
+    if(__ggMo) return;
+    var sec=document.getElementById("screen-profile"); if(!sec) return;
+    try{ __ggMo=new MutationObserver(__ggSchedule); __ggMo.observe(sec,{subtree:true,childList:true,characterData:true}); }catch(e){}
+  }
+  __ggAttach(); setTimeout(__ggAttach,700); setTimeout(__ggAttach,1800);
+  // Лёгкий страховочный опрос: только когда профиль открыт.
+  setInterval(function(){ var sec=document.getElementById("screen-profile"); if(sec && sec.offsetParent!==null) syncBalanceCard(); },1000);
 })();
 </script>
 </body>

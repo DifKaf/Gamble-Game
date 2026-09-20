@@ -7098,6 +7098,20 @@ updateUI();
 
   initBackendAuth();
   renderAll();
+  // GG FINAL 4: выставляем ключевые функции в window, чтобы внешние обработчики их находили
+  try{
+    window.apiRequest=apiRequest;
+    window.loadExchange=loadExchange;
+    window.exchangeData=exchangeData;
+    window.showToast=showToast;
+    window.showScreen=showScreen;
+    window.renderBalances=renderBalances;
+    window.applyBackendBalanceToUI=applyBackendBalanceToUI;
+    window.shareProfile=shareProfile;
+    window.ggMe=(typeof me==="function"?me:null);
+    Object.defineProperty(window,"backendBalance",{get:function(){return backendBalance;},set:function(v){backendBalance=v;},configurable:true});
+    Object.defineProperty(window,"backendUser",{get:function(){return backendUser;},set:function(v){backendUser=v;},configurable:true});
+  }catch(e){}
 })();
 </script>
 
@@ -9188,6 +9202,85 @@ input.input::placeholder,textarea.input::placeholder{color:#64748b!important;}
   function boot(){ try{ ggBuildProfileMenu(); }catch(e){} try{ ggAugmentSettings(); }catch(e){} }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot); else boot();
   setTimeout(boot,700); setTimeout(boot,1800);
+})();
+</script>
+<style id="gg-final-4">
+/* прячем старую плавающую кнопку «Поделиться» — она перекрывала элементы */
+#screen-profile .profile-share{display:none!important}
+/* казино-карточка баланса */
+.gg-bal-card{position:relative;margin:14px 14px 4px;padding:18px 18px 16px;border-radius:24px;overflow:hidden;background:linear-gradient(135deg,#1b3a2a 0%,#0f1f18 46%,#161618 100%);border:1px solid #2a3a30;box-shadow:0 14px 34px rgba(0,0,0,.45)}
+.gg-bal-card:before{content:"";position:absolute;top:-60px;right:-40px;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(56,207,99,.42),transparent 70%);pointer-events:none}
+.gg-bal-top{display:flex;align-items:center;gap:13px;position:relative;z-index:1}
+.gg-bal-av{width:56px;height:56px;border-radius:50%;flex:0 0 auto;background:#2a2a2e;display:flex;align-items:center;justify-content:center;font-size:30px;overflow:hidden;box-shadow:0 0 0 2px rgba(56,207,99,.55),0 6px 16px rgba(0,0,0,.4)}
+.gg-bal-av img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.gg-bal-idwrap{flex:1;min-width:0}
+.gg-bal-name{font-size:18px;font-weight:950;color:#fff;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gg-bal-id{margin-top:5px;display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);border-radius:999px;padding:4px 11px;font-size:12.5px;font-weight:850;color:#cfe9d8;cursor:pointer;transition:background .15s}
+.gg-bal-id:active{background:rgba(255,255,255,.16)}
+.gg-bal-id .cp{opacity:.7;font-size:12px}
+.gg-bal-body{position:relative;z-index:1;margin-top:16px;display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
+.gg-bal-lbl{color:#8fbfa4;font-size:11.5px;font-weight:900;letter-spacing:.12em;text-transform:uppercase}
+.gg-bal-amt{margin-top:3px;font-size:32px;font-weight:950;color:#fff;line-height:1;letter-spacing:-.02em}
+.gg-bal-amt small{font-size:15px;font-weight:900;color:#5fe08a;margin-left:5px}
+.gg-bal-actions{display:flex;gap:8px;margin-top:15px;position:relative;z-index:1}
+.gg-bal-btn{flex:1;border:0;border-radius:15px;padding:13px;font-size:14.5px;font-weight:950;cursor:pointer;transition:transform .08s}
+.gg-bal-btn:active{transform:scale(.97)}
+.gg-bal-btn.dep{background:linear-gradient(135deg,#39d36a,#22a34e);color:#04140a}
+.gg-bal-btn.wd{background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.14)}
+</style>
+<script id="gg-final-4-js">
+(function(){
+  function txt(id){var e=document.getElementById(id);return e?(e.textContent||"").trim():"";}
+  function ggBuildBalanceCard(){
+    var sec=document.getElementById("screen-profile"); if(!sec) return;
+    var card=document.getElementById("ggBalCard");
+    if(!card){
+      card=document.createElement("div"); card.id="ggBalCard"; card.className="gg-bal-card";
+      card.innerHTML=
+        '<div class="gg-bal-top">'+
+          '<div class="gg-bal-av" id="ggBalAv">������</div>'+
+          '<div class="gg-bal-idwrap">'+
+            '<div class="gg-bal-name" id="ggBalName">Игрок</div>'+
+            '<button class="gg-bal-id" id="ggBalId"><span id="ggBalIdTx">ID: —</span><span class="cp">⧉</span></button>'+
+          '</div>'+
+        '</div>'+
+        '<div class="gg-bal-body">'+
+          '<div><div class="gg-bal-lbl">Баланс</div><div class="gg-bal-amt"><span id="ggBalAmt">0</span><small>GC</small></div></div>'+
+        '</div>'+
+        '<div class="gg-bal-actions">'+
+          '<button class="gg-bal-btn dep" id="ggBalDep">↓ Пополнить</button>'+
+          '<button class="gg-bal-btn wd" id="ggBalWd">↑ Вывести</button>'+
+        '</div>';
+      var shot=sec.querySelector(".profile-shot");
+      if(shot) sec.insertBefore(card,shot); else sec.insertBefore(card,sec.firstChild);
+      var idBtn=document.getElementById("ggBalId");
+      if(idBtn) idBtn.addEventListener("click",function(){
+        var raw=txt("ggBalIdTx").replace(/^ID:\s*/,"");
+        if(!raw||raw==="—") return;
+        var ok=function(){ if(window.showToast) showToast("ID скопирован"); };
+        if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(raw).then(ok).catch(function(){}); }
+        else { try{var ta=document.createElement("textarea");ta.value=raw;ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();document.execCommand("copy");document.body.removeChild(ta);ok();}catch(e){} }
+      });
+      var go=function(){ if(window.showScreen) showScreen("exchange"); };
+      var dep=document.getElementById("ggBalDep"); if(dep) dep.addEventListener("click",go);
+      var wd=document.getElementById("ggBalWd"); if(wd) wd.addEventListener("click",go);
+    }
+    syncBalanceCard();
+  }
+  function syncBalanceCard(){
+    var av=document.getElementById("ggBalAv"); var pav=document.getElementById("profileAvatar");
+    if(av&&pav) av.innerHTML=pav.innerHTML;
+    var nm=document.getElementById("ggBalName"); var pnm=txt("profileName"); if(nm&&pnm) nm.textContent=pnm;
+    var idtx=document.getElementById("ggBalIdTx"); var pid=txt("profilePlayerId"); if(idtx&&pid) idtx.textContent=(/^ID/.test(pid)?pid:("ID: "+pid));
+    var amt=document.getElementById("ggBalAmt");
+    if(amt){ var b=txt("profileBalance").replace(/GC/i,"").trim(); if(b) amt.textContent=b; }
+  }
+  window.ggSyncBalanceCard=syncBalanceCard;
+  function boot(){ try{ ggBuildBalanceCard(); }catch(e){} }
+  if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",boot); else boot();
+  setTimeout(boot,700); setTimeout(boot,1800);
+  // обновляем карточку при открытии профиля / смене баланса
+  try{ new MutationObserver(function(){ syncBalanceCard(); }).observe(document.body,{subtree:true,childList:true,characterData:true}); }catch(e){}
 })();
 </script>
 </body>

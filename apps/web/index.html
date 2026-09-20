@@ -7390,8 +7390,8 @@ body:not(.wallet-active) .wallet-history-p2p{
 })();
 </script>
 
-<style>#reqWrap{display:grid;gap:8px;margin:12px 0}#sbpReq{display:grid;gap:8px}.p3{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin:12px 0}.p3 span{text-align:center;font-size:11px;color:#64748b}.p3 .on{color:#fff}.dealBtns{display:grid;grid-template-columns:1fr 1fr;gap:8px}.red,.green{border:0;border-radius:14px;padding:14px;color:#fff;font-weight:900}.red{background:#dc2626}.green{background:#16a34a}.cb-status{font-size:0}.cb-status:after{content:attr(data-status);font-size:12px}</style><script>(function(){var ti;function E(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}function steps(n){return '<div class="p3"><span class="'+(n>=1?'on':'')+'">1. Ожидание</span><span class="'+(n>=2?'on':'')+'">2. Оплата</span><span class="'+(n>=3?'on':'')+'">3. Подтверждение</span></div>'}function timer(id,s){clearInterval(ti);let e=document.getElementById(id),end=Date.now()+s*1000;function x(){let q=Math.max(0,Math.ceil((end-Date.now())/1000));e.textContent=String(q/60|0).padStart(2,'0')+':'+String(q%60).padStart(2,'0')}x();ti=setInterval(x,1000)}function shell(h){window.p2pFinalModalShell(h)}function sync(){let buy=document.querySelector('[data-create-side].active')?.dataset.createSide==='buy',m=document.querySelector('[data-method].active')?.dataset.method||'SBP',w=document.getElementById('reqWrap'),s=document.getElementById('sbpReq'),d=document.getElementById('p2pDetails');if(w)w.classList.toggle('hidden',buy);if(s)s.classList.toggle('hidden',m!=='SBP');if(d)d.classList.toggle('hidden',m==='SBP')}window.addEventListener('click',e=>{if(e.target.closest('[data-create-side],[data-method]'))setTimeout(sync,20)},true);document.addEventListener('change',e=>{if(e.target.id==='sbpBank')document.getElementById('otherBank').classList.toggle('hidden',e.target.value!=='Другой банк')});window.openP2pWaitingSeller=function(d){shell('<button class="p2p-x" id="p2pModalClose">×</button><h2>Ожидание продавца</h2><div class="p2p-ring" id="tw">10:00</div>'+steps(1)+'<button class="red cb-full" data-p2p-act="cancel" data-id="'+E(d.id)+'">Отмена сделки</button>');timer('tw',600)};window.ggConfirm=function(d){shell('<button class="p2p-x" id="p2pModalClose">×</button><h2>Подтверждение перевода</h2><div class="p2p-ring" id="tc">10:00</div>'+steps(3)+'<button class="green cb-full" data-p2p-act="release" data-id="'+E(d.id)+'">Подтвердить</button>');timer('tc',600)};window.openP2pPayDetails=function(d){if(d.status==='PAID')return ggConfirm(d);let raw=d.paymentDetails||'',ph=(raw.match(/Номер:\s*([^\n]+)/)||[])[1],bk=(raw.match(/Банк:\s*([^\n]+)/)||[])[1],req=d.method==='SBP'?'<div class="p2p-details"><div class="row"><span>Номер</span><b>'+E(ph)+'</b></div><div class="row"><span>Банк</span><b>'+E(bk)+'</b></div></div>':'<div class="p2p-details"><b>'+E(raw)+'</b></div>';shell('<button class="p2p-x" id="p2pModalClose">×</button><h2>Оплата</h2><div class="p2p-ring" id="tp">15:00</div>'+steps(2)+req+'<div class="dealBtns"><button class="red" data-p2p-act="cancel" data-id="'+E(d.id)+'">Отмена сделки</button><button class="green" id="paid">Оплатил</button></div>');document.getElementById('paid').onclick=()=>{shell('<h2>Отправить чек</h2>'+steps(2)+'<input id="proof" type="file" accept="image/*,.pdf"><button class="green cb-full" id="sendProof">Отправить чек</button>');document.getElementById('sendProof').onclick=async()=>{let f=document.getElementById('proof').files[0];if(!f)return showToast('Прикрепите чек','error');await p2pAction('paid',d.id,true);d.status='PAID';ggConfirm(d)}};timer('tp',900)};let old=window.p2pCreate;window.p2pCreate=async function(){let buy=document.querySelector('[data-create-side].active')?.dataset.createSide==='buy';if(!buy){let m=document.querySelector('[data-method].active')?.dataset.method||'SBP';if(m==='SBP'){let ph=document.getElementById('sbpPhone').value,b=document.getElementById('sbpBank').value;if(b==='Другой банк')b=document.getElementById('otherBank').value;document.getElementById('p2pDetails').value='Номер: '+ph+'\nБанк: '+b}}return old()};function cleanEscrow(){document.querySelectorAll('.cb-status').forEach(function(x){if(/Escrow GC/i.test(x.textContent)){x.textContent=x.textContent.replace(/Escrow GC\s*·?/ig,'').trim()}})}var cleanQueued=false;new MutationObserver(function(){if(cleanQueued)return;cleanQueued=true;requestAnimationFrame(function(){cleanQueued=false;cleanEscrow()})}).observe(document.body,{childList:true,subtree:true});setTimeout(function(){sync();cleanEscrow()},600)})();</script></body>
-</html>
+<style>#reqWrap{display:grid;gap:8px;margin:12px 0}#sbpReq{display:grid;gap:8px}.p3{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin:12px 0}.p3 span{text-align:center;font-size:11px;color:#64748b}.p3 .on{color:#fff}.dealBtns{display:grid;grid-template-columns:1fr 1fr;gap:8px}.red,.green{border:0;border-radius:14px;padding:14px;color:#fff;font-weight:900}.red{background:#dc2626}.green{background:#16a34a}.cb-status{font-size:0}.cb-status:after{content:attr(data-status);font-size:12px}</style><script>(function(){var ti;function E(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}function steps(n){return '<div class="p3"><span class="'+(n>=1?'on':'')+'">1. Ожидание</span><span class="'+(n>=2?'on':'')+'">2. Оплата</span><span class="'+(n>=3?'on':'')+'">3. Подтверждение</span></div>'}function timer(id,s){clearInterval(ti);let e=document.getElementById(id),end=Date.now()+s*1000;function x(){let q=Math.max(0,Math.ceil((end-Date.now())/1000));e.textContent=String(q/60|0).padStart(2,'0')+':'+String(q%60).padStart(2,'0')}x();ti=setInterval(x,1000)}function shell(h){window.p2pFinalModalShell(h)}function sync(){let buy=document.querySelector('[data-create-side].active')?.dataset.createSide==='buy',m=document.querySelector('[data-method].active')?.dataset.method||'SBP',w=document.getElementById('reqWrap'),s=document.getElementById('sbpReq'),d=document.getElementById('p2pDetails');if(w)w.classList.toggle('hidden',buy);if(s)s.classList.toggle('hidden',m!=='SBP');if(d)d.classList.toggle('hidden',m==='SBP')}window.addEventListener('click',e=>{if(e.target.closest('[data-create-side],[data-method]'))setTimeout(sync,20)},true);document.addEventListener('change',e=>{if(e.target.id==='sbpBank')document.getElementById('otherBank').classList.toggle('hidden',e.target.value!=='Другой банк')});window.openP2pWaitingSeller=function(d){shell('<button class="p2p-x" id="p2pModalClose">×</button><h2>Ожидание продавца</h2><div class="p2p-ring" id="tw">10:00</div>'+steps(1)+'<button class="red cb-full" data-p2p-act="cancel" data-id="'+E(d.id)+'">Отмена сделки</button>');timer('tw',600)};window.ggConfirm=function(d){shell('<button class="p2p-x" id="p2pModalClose">×</button><h2>Подтверждение перевода</h2><div class="p2p-ring" id="tc">10:00</div>'+steps(3)+'<button class="green cb-full" data-p2p-act="release" data-id="'+E(d.id)+'">Подтвердить</button>');timer('tc',600)};window.openP2pPayDetails=function(d){if(d.status==='PAID')return ggConfirm(d);let raw=d.paymentDetails||'',ph=(raw.match(/Номер:\s*([^\n]+)/)||[])[1],bk=(raw.match(/Банк:\s*([^\n]+)/)||[])[1],req=d.method==='SBP'?'<div class="p2p-details"><div class="row"><span>Номер</span><b>'+E(ph)+'</b></div><div class="row"><span>Банк</span><b>'+E(bk)+'</b></div></div>':'<div class="p2p-details"><b>'+E(raw)+'</b></div>';shell('<button class="p2p-x" id="p2pModalClose">×</button><h2>Оплата</h2><div class="p2p-ring" id="tp">15:00</div>'+steps(2)+req+'<div class="dealBtns"><button class="red" data-p2p-act="cancel" data-id="'+E(d.id)+'">Отмена сделки</button><button class="green" id="paid">Оплатил</button></div>');document.getElementById('paid').onclick=()=>{shell('<h2>Отправить чек</h2>'+steps(2)+'<input id="proof" type="file" accept="image/*,.pdf"><button class="green cb-full" id="sendProof">Отправить чек</button>');document.getElementById('sendProof').onclick=async()=>{let f=document.getElementById('proof').files[0];if(!f)return showToast('Прикрепите чек','error');await p2pAction('paid',d.id,true);d.status='PAID';ggConfirm(d)}};timer('tp',900)};let old=window.p2pCreate;window.p2pCreate=async function(){let buy=document.querySelector('[data-create-side].active')?.dataset.createSide==='buy';if(!buy){let m=document.querySelector('[data-method].active')?.dataset.method||'SBP';if(m==='SBP'){let ph=document.getElementById('sbpPhone').value,b=document.getElementById('sbpBank').value;if(b==='Другой банк')b=document.getElementById('otherBank').value;document.getElementById('p2pDetails').value='Номер: '+ph+'\nБанк: '+b}}return old()};function cleanEscrow(){document.querySelectorAll('.cb-status').forEach(function(x){if(/Escrow GC/i.test(x.textContent)){x.textContent=x.textContent.replace(/Escrow GC\s*·?/ig,'').trim()}})}var cleanQueued=false;new MutationObserver(function(){if(cleanQueued)return;cleanQueued=true;requestAnimationFrame(function(){cleanQueued=false;cleanEscrow()})}).observe(document.body,{childList:true,subtree:true});setTimeout(function(){sync();cleanEscrow()},600)})();</script>
+
 
 <style>
 #leaderboardBox .leaderboard-row{display:flex!important;align-items:center!important;gap:10px!important;}
@@ -8532,122 +8532,7 @@ input.input::placeholder,textarea.input::placeholder{color:#64748b!important;}
 }
 </style>
 
-<!-- ===================== GG P2P UPGRADE =====================
-     Как подключить: вставьте ВЕСЬ этот блок в самый конец файла
-     apps/web/index.html (перед закрывающим 
-<!-- ===================== GG PROFILE + ADMIN + P2P BUTTON UPGRADE ===================== -->
-<style id="gg-profile-admin-upgrade">
-/* ---------- ПРОФИЛЬ ---------- */
-#screen-profile .profile-shot{position:relative;overflow:hidden;background:linear-gradient(160deg,#13233f 0%,#0b1220 62%);border:1px solid #1e2b45;border-radius:24px;padding:24px 18px 20px;text-align:center;box-shadow:0 20px 44px rgba(0,0,0,.38)}
-#screen-profile .profile-leaf-bg{position:absolute;inset:0;background:radial-gradient(120px 120px at 80% -10%,rgba(37,99,235,.35),transparent 70%),radial-gradient(140px 140px at 0% 0%,rgba(168,85,247,.25),transparent 70%);pointer-events:none}
-#screen-profile .profile-avatar-wrap{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center}
-#screen-profile .profile-avatar-ring{width:100px;height:100px;border-radius:50%;margin:4px auto 2px;background:conic-gradient(from 130deg,#2563eb,#22d3ee,#a855f7,#2563eb);padding:3px;display:flex}
-#screen-profile .profile-avatar{width:100%;height:100%;border-radius:50%;background:#0b1220;display:flex;align-items:center;justify-content:center;font-size:46px}
-#screen-profile .profile-level-badge{position:relative;margin-top:-16px;display:inline-flex;align-items:center;gap:4px;background:#111a2e;border:1px solid #22d3ee55;color:#22d3ee;font-weight:900;font-size:12px;padding:3px 10px;border-radius:99px}
-#screen-profile #profileName{position:relative;z-index:1;font-size:24px;font-weight:900;margin:12px 0 4px;color:#fff}
-#screen-profile .profile-online{position:relative;z-index:1;display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:800;color:#31d0aa;background:rgba(49,208,170,.12);padding:4px 11px;border-radius:99px}
-#screen-profile .profile-online i{width:7px;height:7px;border-radius:50%;background:#31d0aa;display:inline-block;box-shadow:0 0 0 3px rgba(49,208,170,.22)}
-#screen-profile .profile-band{position:relative;z-index:1;display:inline-block;margin-top:8px;font-size:10px;letter-spacing:1.5px;color:#64748b;font-weight:800}
-.gg-id-chip{position:relative;z-index:1;display:inline-flex;align-items:center;gap:8px;margin:12px auto 0;padding:8px 13px;border-radius:13px;background:#0f172a;border:1px solid #243044;color:#e2e8f0;font-weight:800;font-size:14px;cursor:pointer;font-variant-numeric:tabular-nums;transition:border-color .15s}
-.gg-id-chip .lbl{color:#64748b;font-weight:700;font-size:12px}
-.gg-id-chip .cp{color:#7dd3fc;font-size:15px}
-.gg-id-chip:active{transform:scale(.97)}
-.gg-id-chip.ok{border-color:#31d0aa;color:#31d0aa}
-#screen-profile .profile-since{position:relative;z-index:1;display:inline-block;margin:12px auto 0;font-size:12px;font-weight:700;color:#94a3b8;background:rgba(148,163,184,.10);padding:6px 13px;border-radius:99px}
-#screen-profile .profile-cups{position:relative;z-index:1;margin-top:12px;font-weight:900;color:#fbbf24}
-#screen-profile .profile-share{position:relative;z-index:1;margin:16px auto 0;display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border:0;border-radius:14px;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;font-weight:900;font-size:14px;cursor:pointer;box-shadow:0 10px 22px rgba(37,99,235,.38)}
-#screen-profile .profile-share:active{transform:scale(.97)}
-#screen-profile .profile-stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:18px}
-#screen-profile .profile-stats-grid>div{background:#0f172a;border:1px solid #1e2b45;border-radius:16px;padding:14px 10px;text-align:center}
-#screen-profile .profile-stats-grid>div b{display:block;font-size:18px;font-weight:900;color:#fff}
-#screen-profile .profile-stats-grid>div span{display:block;margin-top:3px;font-size:11px;font-weight:700;color:#94a3b8}
-@media(min-width:720px){#screen-profile{max-width:780px;margin-left:auto;margin-right:auto}#screen-profile .profile-stats-grid{grid-template-columns:repeat(6,1fr)}#screen-profile .profile-avatar-ring{width:116px;height:116px}#screen-profile #profileName{font-size:28px}}
-/* ---------- АДМИНКА ---------- */
-#adminUsers .admin-row{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
-.gg-admin-actions{display:flex;gap:8px;flex:0 0 auto;margin-left:auto}
-.gg-adm-btn{border:0;border-radius:10px;padding:9px 13px;font-weight:800;font-size:12px;cursor:pointer;color:#fff;white-space:nowrap}
-.gg-adm-btn:active{transform:scale(.95)}
-.gg-adm-btn.bal{background:#2563eb}
-.gg-adm-btn.ban{background:#ef4444}
-.gg-adm-btn.ban[data-banned="1"]{background:#334155}
-/* ---------- P2P: компактная кнопка «Создать объявление» ---------- */
-#p2pCreateBtn{min-height:0!important;padding:12px 22px!important;font-size:14px!important;border-radius:12px!important;display:block!important;width:-moz-fit-content!important;width:fit-content!important;margin:14px auto 4px!important}
-.cb-main.cb-full[data-ex-tab="create"]{width:-moz-fit-content!important;width:fit-content!important;min-height:0!important;padding:10px 16px!important;font-size:13px!important;border-radius:12px!important;display:inline-flex!important;align-items:center;gap:6px;margin:4px 0 12px!important}
-</style>
-<script>
-(function(){
-  'use strict';
 
-  // ---------- PROFILE: copyable ID ----------
-  function idText(){
-    var el=document.getElementById('profilePlayerId');
-    if(!el) return '';
-    var t=el.textContent||'';
-    return t.split(':').pop().trim();
-  }
-  function ensureChip(){
-    var shot=document.querySelector('#screen-profile .profile-shot');
-    if(!shot) return;
-    var chip=document.getElementById('ggIdChip');
-    if(!chip){
-      chip=document.createElement('div');
-      chip.id='ggIdChip';
-      chip.className='gg-id-chip';
-      chip.innerHTML='<span class="lbl">ID</span><span class="val">-</span><span class="cp">\u29c9</span>';
-      var online=shot.querySelector('.profile-online');
-      if(online && online.parentNode){ online.parentNode.insertBefore(chip, online.nextSibling); }
-      else { var nm=document.getElementById('profileName'); if(nm && nm.parentNode){ nm.parentNode.insertBefore(chip, nm.nextSibling); } else { shot.appendChild(chip); } }
-      var since=document.getElementById('profileSince');
-      if(since && chip.parentNode){ chip.parentNode.insertBefore(since, chip.nextSibling); }
-      chip.addEventListener('click', function(){
-        var v=idText();
-        if(!v || v==='-') return;
-        if(window.ggCopy){ window.ggCopy(v, chip); }
-        else { try{ navigator.clipboard.writeText(v); }catch(e){} }
-      });
-    }
-    var val=chip.querySelector('.val');
-    var v=idText()||'-';
-    if(val && val.textContent!==v){ val.textContent=v; }
-    var dup=document.getElementById('profilePlayerId');
-    if(dup){
-      var cell=dup.closest('div');
-      if(cell && cell.parentNode && cell.parentNode.classList && cell.parentNode.classList.contains('profile-stats-grid') && cell.style.display!=='none'){ cell.style.display='none'; }
-    }
-  }
-
-  // ---------- ADMIN: balance / ban buttons on the right ----------
-  var BANNED_RE=new RegExp('\u0431\u043b\u043e\u043a','i');
-  function enhanceAdminRows(){
-    var rows=document.querySelectorAll('#adminUsers .admin-row[data-admin-user]');
-    for(var i=0;i<rows.length;i++){
-      var row=rows[i];
-      if(row.querySelector('.gg-admin-actions')) continue;
-      var id=row.getAttribute('data-admin-user');
-      var banned=BANNED_RE.test(row.textContent||'');
-      var wrap=document.createElement('div');
-      wrap.className='gg-admin-actions';
-      wrap.innerHTML='<button type="button" class="gg-adm-btn bal" data-admin-adjust="'+id+'">\u00b1 \u0411\u0430\u043b\u0430\u043d\u0441</button>'+
-        '<button type="button" class="gg-adm-btn ban" data-admin-ban="'+id+'" data-banned="'+(banned?'1':'0')+'">'+(banned?'\u0420\u0430\u0437\u0431\u0430\u043d':'\u0411\u0430\u043d')+'</button>';
-      row.appendChild(wrap);
-    }
-  }
-
-  var scheduled=false;
-  function tick(){ scheduled=false; try{ ensureChip(); }catch(e){} try{ enhanceAdminRows(); }catch(e){} }
-  function schedule(){ if(scheduled) return; scheduled=true; (window.requestAnimationFrame||window.setTimeout)(tick, 0); }
-
-  try{ new MutationObserver(schedule).observe(document.documentElement, { childList:true, subtree:true }); }catch(e){}
-  document.addEventListener('click', function(){ setTimeout(schedule, 60); }, true);
-  if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded', tick); } else { tick(); }
-  setTimeout(tick, 400); setTimeout(tick, 1000); setTimeout(tick, 2000);
-})();
-</script>
-<!-- /GG PROFILE + ADMIN + P2P BUTTON UPGRADE -->
-</body>, если он есть,
-     иначе просто в конец файла). Блок самодостаточный и должен
-     идти ПОСЛЕ всего остального P2P-кода, чтобы переопределить его.
-============================================================ -->
 <style id="gg-p2p-upgrade">
 .gg-bank-picker{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:8px 0}
 .gg-bank-opt{display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 6px;border-radius:14px;border:1px solid #243044;background:#0f172a;color:#cbd5e1;font-size:11px;font-weight:800;cursor:pointer;text-align:center;line-height:1.15}
@@ -8704,14 +8589,14 @@ input.input::placeholder,textarea.input::placeholder{color:#64748b!important;}
 
   // ---------- банки + иконки ----------
   var BANKS = [
-    {re:/сбер|sber/i,              name:'Сбербанк',    c:'#21A038', fg:'#fff', short:'Сбер'},
-    {re:/озон|ozon/i,              name:'Озон Банк',   c:'#005BFF', fg:'#fff', short:'OZON'},
-    {re:/альфа|alfa|alpha/i,     name:'Альфа-Банк',  c:'#EF3124', fg:'#fff', short:'Альфа'},
-    {re:/втб|vtb/i,                name:'ВТБ',         c:'#0A2896', fg:'#fff', short:'ВТБ'},
-    {re:/тинь|t-?банк|tinkoff|tbank/i, name:'Т-Банк', c:'#FFDD2D', fg:'#111', short:'Т'},
-    {re:/газ|gazprom/i,            name:'Газпромбанк', c:'#0079C1', fg:'#fff', short:'ГПБ'},
-    {re:/райф|raif/i,            name:'Райффайзен', c:'#FEE600', fg:'#111', short:'Райф'},
-    {re:/псб|psb|промсвяз/i, name:'ПСБ',   c:'#F26B21', fg:'#fff', short:'ПСБ'},
+    {re:/сбер|sber/i,              name:'Сбербанк',    c:'#21A038', fg:'#fff', short:'Сбер', d:'sberbank.ru'},
+    {re:/озон|ozon/i,              name:'Озон Банк',   c:'#005BFF', fg:'#fff', short:'OZON', d:'ozon.ru'},
+    {re:/альфа|alfa|alpha/i,     name:'Альфа-Банк',  c:'#EF3124', fg:'#fff', short:'Альфа', d:'alfabank.ru'},
+    {re:/втб|vtb/i,                name:'ВТБ',         c:'#0A2896', fg:'#fff', short:'ВТБ', d:'vtb.ru'},
+    {re:/тинь|t-?банк|tinkoff|tbank/i, name:'Т-Банк', c:'#FFDD2D', fg:'#111', short:'Т', d:'tbank.ru'},
+    {re:/газ|gazprom/i,            name:'Газпромбанк', c:'#0079C1', fg:'#fff', short:'ГПБ', d:'gazprombank.ru'},
+    {re:/райф|raif/i,            name:'Райффайзен', c:'#FEE600', fg:'#111', short:'Райф', d:'raiffeisen.ru'},
+    {re:/псб|psb|промсвяз/i, name:'ПСБ',   c:'#F26B21', fg:'#fff', short:'ПСБ', d:'psbank.ru'},
     {re:/сбп|sbp/i,               name:'СБП',         c:'#1A1A2E', fg:'#fff', short:'СБП'}
   ];
   function bankMeta(name){
@@ -8730,6 +8615,11 @@ input.input::placeholder,textarea.input::placeholder{color:#64748b!important;}
     return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
   }
   window.bankIcon = bankIcon; window.bankMeta = bankMeta;
+  function bankSources(name,size){var m=bankMeta(name);var out=[];if(m.d){out.push('https://logo.clearbit.com/'+m.d);out.push('https://www.google.com/s2/favicons?sz=64&domain='+m.d);}out.push(bankIcon(name,size));return out;}
+  function bankImg(name,size,cls){var s=bankSources(name,size).map(function(x){return String(x).replace(/"/g,'&quot;');});return '<img'+(cls?' class="'+cls+'"':'')+' width="'+size+'" height="'+size+'" style="object-fit:contain;border-radius:9px;background:#fff" data-ggbank="1" data-i="0" data-srcs="'+s.join(' ||| ')+'" src="'+s[0]+'" alt="">';}
+  window.bankImg = bankImg;
+  if(!window.__ggBankErr){window.__ggBankErr=1;document.addEventListener('error',function(e){var t=e.target;if(!t||t.tagName!=='IMG'||!t.getAttribute||t.getAttribute('data-ggbank')!=='1')return;var srcs=(t.getAttribute('data-srcs')||'').split(' ||| ');var i=(parseInt(t.getAttribute('data-i')||'0',10)||0)+1;if(i<srcs.length){t.setAttribute('data-i',String(i));t.src=srcs[i];}},true);}
+
 
   // ---------- копирование (безопасно для Telegram WebView) ----------
   function ggCopy(text, btn){
@@ -8799,7 +8689,7 @@ input.input::placeholder,textarea.input::placeholder{color:#64748b!important;}
   function reqCard(bankName, number){
     var m=bankMeta(bankName);
     return '<div class="gg-req">'
-      +'<img class="gg-req-ic" src="'+bankIcon(bankName,44)+'" alt="">'
+      +bankImg(bankName,44,'gg-req-ic')
       +'<div class="gg-req-mid"><div class="gg-req-name">'+E(m.name)+'</div><div class="gg-req-num" id="ggReqNum">'+E(number)+'</div></div>'
       +'<button class="gg-copy" id="ggCopyBtn" data-copy="'+E(number)+'">⧉ Скопировать</button>'
       +'</div>';
@@ -8935,7 +8825,7 @@ input.input::placeholder,textarea.input::placeholder{color:#64748b!important;}
       var name=o.textContent||o.value;
       var isOther=/друг/i.test(name);
       var b=document.createElement('div'); b.className='gg-bank-opt'; b.setAttribute('data-val', o.value);
-      b.innerHTML='<img src="'+bankIcon(isOther?'?':name,34)+'" alt=""><span>'+E(isOther?'Другой':name)+'</span>';
+      b.innerHTML=bankImg(isOther?'?':name,34,'')+'<span>'+E(isOther?'Другой':name)+'</span>';
       b.onclick=function(){
         sel.value=o.value;
         try{ sel.dispatchEvent(new Event('change',{bubbles:true})); }catch(e){}
@@ -8961,4 +8851,83 @@ input.input::placeholder,textarea.input::placeholder{color:#64748b!important;}
 })();
 
 </script>
-<!-- ===================== /GG P2P UPGRADE ===================== -->
+<style id="gg-profile-final">
+/* --- убрать раздел достижений/трофеев --- */
+#screen-profile .profile-section-head,#screen-profile #trophyGrid,#screen-profile #profileTrophiesAll{display:none!important;}
+/* --- премиальная шапка профиля --- */
+#screen-profile .profile-shot{background:radial-gradient(120% 85% at 50% -12%,#1a2440 0%,#0b101c 52%,#07080b 100%)!important;border-radius:0 0 28px 28px!important;box-shadow:inset 0 -1px 0 rgba(148,163,184,.12)!important;}
+#screen-profile .profile-avatar-ring{background:conic-gradient(from 210deg,#38bdf8,#a78bfa,#f472b6,#38bdf8)!important;box-shadow:0 0 44px rgba(56,189,248,.42)!important;padding:4px!important;border:0!important;}
+#screen-profile .profile-online{color:#34d399!important;}
+#screen-profile .profile-band{border-color:rgba(167,139,250,.5)!important;color:#c4b5fd!important;background:rgba(167,139,250,.12)!important;}
+#screen-profile .profile-since{color:#93a1b5!important;font-weight:800!important;}
+#screen-profile .profile-share{background:linear-gradient(135deg,#2563eb,#1d4ed8)!important;color:#fff!important;box-shadow:0 10px 24px rgba(37,99,235,.35)!important;border-radius:22px!important;}
+#screen-profile .profile-stats-grid>div{background:linear-gradient(160deg,#141a28,#0c111b)!important;border:1px solid rgba(148,163,184,.14)!important;border-radius:16px!important;box-shadow:0 8px 22px rgba(0,0,0,.28)!important;}
+#screen-profile .profile-stats-grid b{color:#fff!important;}
+#screen-profile .profile-stats-grid span{color:#9aa6b8!important;}
+/* --- копируемый ID под ником --- */
+.gg-id-chip{display:inline-flex;align-items:center;gap:7px;margin:10px auto 0;padding:7px 15px;border-radius:999px;background:rgba(148,163,184,.14);border:1px solid rgba(148,163,184,.26);color:#cbd5e1;font-weight:800;font-size:14px;cursor:pointer;position:relative;z-index:2;transition:transform .1s}
+.gg-id-chip:active{transform:scale(.96)}
+.gg-id-chip b{color:#fff;letter-spacing:.6px}
+.gg-id-chip .ic{opacity:.7}
+.gg-id-chip.ok{background:rgba(52,211,153,.18);border-color:rgba(52,211,153,.5);color:#6ee7b7}
+/* --- пилюля уровня --- */
+.gg-level-pill{display:inline-flex;align-items:center;gap:7px;margin:12px auto 0;padding:6px 16px;border-radius:999px;background:linear-gradient(135deg,rgba(56,189,248,.18),rgba(167,139,250,.18));border:1px solid rgba(148,163,184,.28);color:#e6edf7;font-weight:900;font-size:14px;position:relative;z-index:2}
+/* --- админка: баланс/бан рядом с игроком --- */
+#adminUsers .admin-row{align-items:center!important;}
+.gg-adm-actions{display:flex;gap:8px;flex-shrink:0}
+.gg-adm-btn{border:0;border-radius:12px;padding:9px 12px;font-weight:900;font-size:12px;cursor:pointer;color:#fff;white-space:nowrap;transition:transform .1s}
+.gg-adm-btn.bal{background:linear-gradient(135deg,#2563eb,#1d4ed8)}
+.gg-adm-btn.ban{background:linear-gradient(135deg,#dc2626,#b91c1c)}
+.gg-adm-btn.ban[data-banned="1"]{background:#334155}
+.gg-adm-btn:active{transform:scale(.95)}
+/* --- компактная кнопка "Создать объявление" --- */
+#p2pCreateBtn,.cb-main.cb-full[data-ex-tab="create"]{width:-moz-fit-content!important;width:fit-content!important;min-width:0!important;margin-left:auto!important;margin-right:auto!important;padding:11px 24px!important;min-height:0!important;font-size:14px!important;display:block!important;}
+</style>
+<script>
+(function(){
+  'use strict';
+  function copyId(txt,btn){ if(window.ggCopy){window.ggCopy(txt,btn);return;} try{navigator.clipboard.writeText(txt);}catch(e){} if(btn){btn.classList.add('ok');setTimeout(function(){btn.classList.remove('ok');},1300);} }
+  function enhanceProfile(){
+    var sc=document.getElementById('screen-profile'); if(!sc) return;
+    var pid=document.getElementById('profilePlayerId');
+    var idText='';
+    if(pid){ idText=(pid.textContent||'').replace(/[^0-9]/g,''); var cell=pid.closest('div'); if(cell) cell.style.display='none'; }
+    if(idText && !document.getElementById('ggIdChip')){
+      var online=sc.querySelector('.profile-online');
+      var chip=document.createElement('button'); chip.type='button'; chip.id='ggIdChip'; chip.className='gg-id-chip';
+      chip.innerHTML='ID <b>'+idText+'</b> <span class="ic">\u29C9</span>';
+      chip.onclick=function(){ copyId(idText,chip); };
+      if(online && online.parentNode) online.parentNode.insertBefore(chip, online.nextSibling);
+    }
+    var lvlEl=document.getElementById('profileLevel');
+    if(lvlEl && !document.getElementById('ggLevelPill')){
+      var lvl=(lvlEl.textContent||'1').trim().replace(/[^0-9]/g,'')||'1';
+      var band=sc.querySelector('.profile-band');
+      var pill=document.createElement('div'); pill.id='ggLevelPill'; pill.className='gg-level-pill';
+      pill.textContent='\u2618 \u0423\u0440\u043E\u0432\u0435\u043D\u044C '+lvl;
+      if(band && band.parentNode) band.parentNode.insertBefore(pill, band.nextSibling);
+    }
+  }
+  function enhanceAdmin(){
+    var rows=document.querySelectorAll('#adminUsers .admin-row[data-admin-user]');
+    [].slice.call(rows).forEach(function(row){
+      if(row.querySelector('.gg-adm-actions')) return;
+      var id=row.getAttribute('data-admin-user');
+      var banned=/\u0431\u043B\u043E\u043A/i.test(row.textContent||'');
+      var wrap=document.createElement('div'); wrap.className='gg-adm-actions';
+      wrap.innerHTML='<button type="button" class="gg-adm-btn bal" data-admin-adjust="'+id+'">\u00B1 \u0411\u0430\u043B\u0430\u043D\u0441</button>'
+        +'<button type="button" class="gg-adm-btn ban" data-admin-ban="'+id+'" data-banned="'+(banned?'1':'0')+'">'+(banned?'\u0420\u0430\u0437\u0431\u0430\u043D':'\u0411\u0430\u043D')+'</button>';
+      row.appendChild(wrap);
+    });
+  }
+  var queued=false;
+  function tick(){ try{enhanceProfile();}catch(e){} try{enhanceAdmin();}catch(e){} }
+  try{ new MutationObserver(function(){ if(queued)return; queued=true; requestAnimationFrame(function(){queued=false; tick();}); }).observe(document.documentElement,{childList:true,subtree:true}); }catch(e){}
+  document.addEventListener('click',function(){ setTimeout(tick,80); },true);
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',tick); else tick();
+  setTimeout(tick,600); setTimeout(tick,1500);
+})();
+</script>
+<!-- GG PROFILE FINAL -->
+</body>
+</html>

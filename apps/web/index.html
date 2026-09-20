@@ -6747,7 +6747,7 @@ updateUI();
   }
 
   function renderLeaderboard(){
-    var box = document.getElementById('leaderboardBox');
+    var box = document.getElementById('leaderboardBox'); if(!box) return;
     var list = (backendLeaderboardUsers && backendLeaderboardUsers.length) ? backendLeaderboardUsers.map(function(u){return {id:u.id,playerId:u.playerId||playerPublicId(u.id),name:u.firstName || u.username || 'Игрок',avatar:u.photoUrl || '👤',balance:u.balance};}) : Object.keys(state.players).map(function(id){ return state.players[id]; }).filter(function(p){ return p && p.name !== 'Аня' && p.name !== 'Максим'; });
     list.sort(function(a,b){ return b.balance - a.balance; });
     var medals = ['1','2','3'];
@@ -6854,7 +6854,7 @@ updateUI();
   }
   var profileExtra = null;
 
-  function profileRegDate(){var u=backendUser||currentUser||{}; var d=u.createdAt||u.registeredAt||localStorage.getItem('gg_registered_at'); if(!d){d=new Date().toISOString(); localStorage.setItem('gg_registered_at',d);} try{return new Date(d).toLocaleDateString('ru-RU');}catch(e){return '—';}}
+  function profileRegDate(){var u=backendUser||(typeof me==='function'?me():null)||{}; var d=u.createdAt||u.registeredAt||localStorage.getItem('gg_registered_at'); if(!d){d=new Date().toISOString(); localStorage.setItem('gg_registered_at',d);} try{return new Date(d).toLocaleDateString('ru-RU');}catch(e){return '—';}}
 
   function trophyData(){
     var total=Number(weekly.wagered||0), won=Number(me().stats&&me().stats.won||0), best=Number(me().stats&&me().stats.biggest||0);
@@ -8807,7 +8807,7 @@ input.input::placeholder,textarea.input::placeholder{color:#64748b!important;}
       if(isBuyer){
         inner = head('Шаг 3 из 3','Подтверждение перевода') + stepsBar(3)
           + '<div class="gg-timer" id="ggTimer"></div>' + amounts(d)
-          + (d.receipt? '<div class="gg-note">Чек отправлен: '+E(d.receipt)+'. Ожидаем подтверждение продавца.</div>' : '<div class="gg-note">Ожидаем, пока продавец проверит оплату.</div>')
+          + (d.receipt? '<div class="gg-note">Чек отправлен: '+E(d.receipt)+'. Ожидаем подтверждение продавца.</div>' : '<div class="gg-note">Ожидаем, пока продавец провери�� оплату.</div>')
           + '<div class="gg-btns one"><button class="gg-btn ghost" id="ggDisputeBtn">Открыть спор</button></div>';
         shell(inner); startTimer(document.getElementById('ggTimer'), 10*60); bindCommon(d);
       } else {
@@ -9139,7 +9139,7 @@ input.input::placeholder,textarea.input::placeholder{color:#64748b!important;}
     ]},
     terms:{t:'Правила и условия',s:'Условия использования',h:[
       ['1. Общие положения','Используя приложение, вы соглашаетесь с настоящими правилами. Gamble Coin не является деньгами и не имеет реальной денежной стоимости.'],
-      ['2. Честная игра','Запрещены боты, мультиаккаунты и любые попытки взлома. Нарушители блокируются без возврата баланса.'],
+      ['2. Честная игра','Запрещены боты, мультиаккаунты и любые попытки взлома. ��арушители блокируются без возврата баланса.'],
       ['3. P2P-сделки','При обмене GC ответственность за перевод денег несут сами участники. Подтверждайте оплату только после фактического получения средств.'],
       ['4. Ответственность','Администрация не несёт ответственности за споры вне escrow и за действия третьих лиц.']
     ]},
@@ -9205,72 +9205,61 @@ input.input::placeholder,textarea.input::placeholder{color:#64748b!important;}
 })();
 </script>
 <style id="gg-final-4">
-/* прячем старую плавающую кнопку «Поделиться» — она перекрывала элементы */
+/* прячем старую плавающую кнопку «Поделиться» */
 #screen-profile .profile-share{display:none!important}
-/* казино-карточка баланса */
-.gg-bal-card{position:relative;margin:14px 14px 4px;padding:18px 18px 16px;border-radius:24px;overflow:hidden;background:linear-gradient(135deg,#1b3a2a 0%,#0f1f18 46%,#161618 100%);border:1px solid #2a3a30;box-shadow:0 14px 34px rgba(0,0,0,.45)}
-.gg-bal-card:before{content:"";position:absolute;top:-60px;right:-40px;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(56,207,99,.42),transparent 70%);pointer-events:none}
-.gg-bal-top{display:flex;align-items:center;gap:13px;position:relative;z-index:1}
-.gg-bal-av{width:56px;height:56px;border-radius:50%;flex:0 0 auto;background:#2a2a2e;display:flex;align-items:center;justify-content:center;font-size:30px;overflow:hidden;box-shadow:0 0 0 2px rgba(56,207,99,.55),0 6px 16px rgba(0,0,0,.4)}
-.gg-bal-av img{width:100%;height:100%;object-fit:cover;border-radius:50%}
-.gg-bal-idwrap{flex:1;min-width:0}
-.gg-bal-name{font-size:18px;font-weight:950;color:#fff;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.gg-bal-id{margin-top:5px;display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);border-radius:999px;padding:4px 11px;font-size:12.5px;font-weight:850;color:#cfe9d8;cursor:pointer;transition:background .15s}
-.gg-bal-id:active{background:rgba(255,255,255,.16)}
-.gg-bal-id .cp{opacity:.7;font-size:12px}
-.gg-bal-body{position:relative;z-index:1;margin-top:16px;display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
-.gg-bal-lbl{color:#8fbfa4;font-size:11.5px;font-weight:900;letter-spacing:.12em;text-transform:uppercase}
-.gg-bal-amt{margin-top:3px;font-size:32px;font-weight:950;color:#fff;line-height:1;letter-spacing:-.02em}
-.gg-bal-amt small{font-size:15px;font-weight:900;color:#5fe08a;margin-left:5px}
-.gg-bal-actions{display:flex;gap:8px;margin-top:15px;position:relative;z-index:1}
-.gg-bal-btn{flex:1;border:0;border-radius:15px;padding:13px;font-size:14.5px;font-weight:950;cursor:pointer;transition:transform .08s}
-.gg-bal-btn:active{transform:scale(.97)}
-.gg-bal-btn.dep{background:linear-gradient(135deg,#39d36a,#22a34e);color:#04140a}
-.gg-bal-btn.wd{background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.14)}
+/* ===== Компактная верхняя панель баланса (видна во всех вкладках) ===== */
+.gg-topbar{position:fixed;top:0;left:0;right:0;z-index:1000;display:flex;align-items:center;gap:10px;height:46px;padding:0 12px;box-sizing:border-box;background:rgba(16,18,16,.92);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-bottom:1px solid #223026;box-shadow:0 6px 18px rgba(0,0,0,.35);cursor:pointer;user-select:none}
+.gg-topbar .gg-tb-av{width:32px;height:32px;border-radius:50%;flex:0 0 auto;background:#2a2a2e;display:flex;align-items:center;justify-content:center;font-size:18px;overflow:hidden;box-shadow:0 0 0 1.5px rgba(56,207,99,.6)}
+.gg-topbar .gg-tb-av img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.gg-topbar .gg-tb-mid{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:1px}
+.gg-topbar .gg-tb-name{font-size:13px;font-weight:800;color:#fff;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.gg-topbar .gg-tb-id{align-self:flex-start;display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);border-radius:999px;padding:1px 8px;font-size:11px;font-weight:700;color:#cfe9d8;cursor:pointer;line-height:1.5;max-width:100%}
+.gg-topbar .gg-tb-id .cp{opacity:.7;font-size:10px}
+.gg-topbar .gg-tb-id:active{background:rgba(255,255,255,.16)}
+.gg-topbar .gg-tb-bal{flex:0 0 auto;display:flex;align-items:baseline;gap:3px;background:linear-gradient(135deg,#1b3a2a,#0f1f18);border:1px solid #2a3a30;border-radius:12px;padding:6px 12px}
+.gg-topbar .gg-tb-amt{font-size:16px;font-weight:900;color:#fff;line-height:1;letter-spacing:-.02em}
+.gg-topbar .gg-tb-bal small{font-size:11px;font-weight:800;color:#5fe08a}
+/* Телефон/планшет: панель на всю ширину, контент опускаем ниже */
+@media (max-width:899px){
+  #app{padding-top:46px!important}
+  #screen-exchange .exch-tabs{top:46px!important}
+}
+/* ПК: компактная «пилюля» в правом верхнем углу, поверх верхней навигации */
+@media (min-width:900px){
+  .gg-topbar{left:auto;right:18px;top:11px;height:42px;width:auto;max-width:min(360px,42vw);border-radius:14px;border:1px solid #2a3a30;background:rgba(16,18,16,.96);z-index:1001;padding:0 6px 0 8px;box-shadow:0 8px 22px rgba(0,0,0,.45)}
+  .gg-topbar .gg-tb-bal{padding:5px 10px}
+}
 </style>
 <script id="gg-final-4-js">
 (function(){
   function txt(id){var e=document.getElementById(id);return e?(e.textContent||"").trim():"";}
   var __ggWriting=false,__ggQueued=false,__ggMo=null;
-  function ggBuildBalanceCard(){
-    var sec=document.getElementById("screen-profile"); if(!sec) return;
-    var card=document.getElementById("ggBalCard");
-    if(!card){
-      card=document.createElement("div"); card.id="ggBalCard"; card.className="gg-bal-card";
-      card.innerHTML=
-        '<div class="gg-bal-top">'+
-          '<div class="gg-bal-av" id="ggBalAv">������</div>'+
-          '<div class="gg-bal-idwrap">'+
-            '<div class="gg-bal-name" id="ggBalName">Игрок</div>'+
-            '<button class="gg-bal-id" id="ggBalId"><span id="ggBalIdTx">ID: —</span><span class="cp">⧉</span></button>'+
-          '</div>'+
-        '</div>'+
-        '<div class="gg-bal-body">'+
-          '<div><div class="gg-bal-lbl">Баланс</div><div class="gg-bal-amt"><span id="ggBalAmt">0</span><small>GC</small></div></div>'+
-        '</div>'+
-        '<div class="gg-bal-actions">'+
-          '<button class="gg-bal-btn dep" id="ggBalDep">↓ Пополнить</button>'+
-          '<button class="gg-bal-btn wd" id="ggBalWd">↑ Вывести</button>'+
-        '</div>';
-      var shot=sec.querySelector(".profile-shot");
-      if(shot) sec.insertBefore(card,shot); else sec.insertBefore(card,sec.firstChild);
-      var idBtn=document.getElementById("ggBalId");
-      if(idBtn) idBtn.addEventListener("click",function(){
-        var raw=txt("ggBalIdTx").replace(/^ID:\s*/,"");
-        if(!raw||raw==="—") return;
-        var ok=function(){ if(window.showToast) showToast("ID скопирован"); };
-        if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(raw).then(ok).catch(function(){}); }
-        else { try{var ta=document.createElement("textarea");ta.value=raw;ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();document.execCommand("copy");document.body.removeChild(ta);ok();}catch(e){} }
-      });
-      var go=function(){ if(window.showScreen) showScreen("exchange"); };
-      var dep=document.getElementById("ggBalDep"); if(dep) dep.addEventListener("click",go);
-      var wd=document.getElementById("ggBalWd"); if(wd) wd.addEventListener("click",go);
-    }
+  function ggBuildTopBar(){
+    if(document.getElementById("ggTopBar")){ syncBalanceCard(); return; }
+    if(!document.body) return;
+    var bar=document.createElement("div"); bar.id="ggTopBar"; bar.className="gg-topbar";
+    bar.innerHTML=
+      '<div class="gg-tb-av" id="ggBalAv">🧑</div>'+
+      '<div class="gg-tb-mid">'+
+        '<div class="gg-tb-name" id="ggBalName">Игрок</div>'+
+        '<button class="gg-tb-id" id="ggBalId"><span id="ggBalIdTx">ID: —</span><span class="cp">⧉</span></button>'+
+      '</div>'+
+      '<div class="gg-tb-bal"><span class="gg-tb-amt" id="ggBalAmt">0</span><small>GC</small></div>';
+    document.body.appendChild(bar);
+    var idBtn=document.getElementById("ggBalId");
+    if(idBtn) idBtn.addEventListener("click",function(e){
+      e.stopPropagation();
+      var raw=txt("ggBalIdTx").replace(/^ID:\s*/,"");
+      if(!raw||raw==="—") return;
+      var ok=function(){ if(window.showToast) showToast("ID скопирован"); };
+      if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(raw).then(ok).catch(function(){}); }
+      else { try{var ta=document.createElement("textarea");ta.value=raw;ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();document.execCommand("copy");document.body.removeChild(ta);ok();}catch(e){} }
+    });
+    bar.addEventListener("click",function(){ if(window.showScreen){ try{ showScreen("profile"); }catch(e){} } });
     syncBalanceCard();
   }
   function syncBalanceCard(){
-    // Идемпотентно: пишем в DOM только если значение реально изменилось —
-    // это разрывает петлю обратной связи с MutationObserver.
+    // Идемпотентно: пишем в DOM только если значение реально изменилось.
     if(__ggWriting) return;
     __ggWriting=true;
     try{
@@ -9283,20 +9272,13 @@ input.input::placeholder,textarea.input::placeholder{color:#64748b!important;}
     }finally{ __ggWriting=false; }
   }
   window.ggSyncBalanceCard=syncBalanceCard;
-  function boot(){ try{ ggBuildBalanceCard(); }catch(e){} }
+  function boot(){ try{ ggBuildTopBar(); }catch(e){} }
   if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",boot); else boot();
   setTimeout(boot,700); setTimeout(boot,1800);
-  // Обновляем карточку при открытии профиля / смене баланса.
-  // Наблюдаем ТОЛЬКО за #screen-profile (не за всем body), троттлим через rAF
-  // и синхронизируем лишь когда профиль реально открыт.
   function __ggSchedule(){
     if(__ggQueued||__ggWriting) return;
     __ggQueued=true;
-    requestAnimationFrame(function(){
-      __ggQueued=false;
-      var sec=document.getElementById("screen-profile");
-      if(sec && sec.offsetParent!==null) syncBalanceCard();
-    });
+    requestAnimationFrame(function(){ __ggQueued=false; syncBalanceCard(); });
   }
   function __ggAttach(){
     if(__ggMo) return;
@@ -9304,8 +9286,8 @@ input.input::placeholder,textarea.input::placeholder{color:#64748b!important;}
     try{ __ggMo=new MutationObserver(__ggSchedule); __ggMo.observe(sec,{subtree:true,childList:true,characterData:true}); }catch(e){}
   }
   __ggAttach(); setTimeout(__ggAttach,700); setTimeout(__ggAttach,1800);
-  // Лёгкий страховочный опрос: только когда профиль открыт.
-  setInterval(function(){ var sec=document.getElementById("screen-profile"); if(sec && sec.offsetParent!==null) syncBalanceCard(); },1000);
+  // Панель видна во всех вкладках → лёгкая идемпотентная синхронизация всегда.
+  setInterval(syncBalanceCard,800);
 })();
 </script>
 </body>

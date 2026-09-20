@@ -12,10 +12,10 @@ export function computePlayerId(id: string): string {
 	const str = String(id || '')
 	let hash = 0
 	for (let i = 0; i < str.length; i++) {
-		hash = (hash * 131 + str.charCodeAt(i)) % 900000
-		if (hash < 0) hash += 900000
+		hash = (hash * 131 + str.charCodeAt(i)) % 90000
+		if (hash < 0) hash += 90000
 	}
-	return String(100000 + hash)
+	return String(10000 + hash)
 }
 
 // Единственная функция, которой должны пользоваться роуты.

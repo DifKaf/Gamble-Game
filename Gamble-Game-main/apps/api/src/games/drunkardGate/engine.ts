@@ -15,6 +15,9 @@ import {
 	SYMS,
 	TRIGGER_SCATTERS,
 	TW,
+	GLOBAL_MULT_CAP,
+	BASE_WIN_SCALE,
+	ANTE_WIN_SCALE,
 	type SymbolDef,
 } from './config.js'
 import { makeRng } from './rng.js'
@@ -109,7 +112,7 @@ function encodeGrid(grid: Cell[][]): EncodedCell[][] {
 }
 
 function rSym(rng: Rng, ante: boolean): Cell {
-	const scatterBonus = ante ? 2 : 0
+	const scatterBonus = ante ? 0.35 : 0
 	const totalW = TW + scatterBonus
 	let r = rng() * totalW
 	for (const s of SYMS) {
@@ -354,7 +357,7 @@ export function playSpin(input: PlaySpinInput): SpinOutcome {
 		if (mode === 'free' && spinWin > 0) {
 			const add = finalMults.reduce((a, b) => a + b.mult, 0)
 			if (add > 0) {
-				globalMult += add
+				globalMult = Math.min(GLOBAL_MULT_CAP, globalMult + add)
 				const bonus = Math.round(spinWin * (globalMult - 1))
 				spinWin += bonus
 				frames.push({
@@ -372,7 +375,7 @@ export function playSpin(input: PlaySpinInput): SpinOutcome {
 		}
 	}
 
-	const win = Math.max(0, Math.round(spinWin))
+	const win = Math.max(0, Math.round(spinWin * (ante ? ANTE_WIN_SCALE : BASE_WIN_SCALE)))
 	return {
 		engineVersion: ENGINE_VERSION,
 		mode,

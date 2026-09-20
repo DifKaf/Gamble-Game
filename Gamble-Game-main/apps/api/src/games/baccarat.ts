@@ -28,7 +28,9 @@ export function playBaccarat(p:{
       return { ...b, payout:b.amount, push:true }
     }
     if(b.side===winner){
-      const multiplier=winner==='tie'?8:(winner==='banker'?1.95:2)
+      // Ставка на игрока с выплатой x2 была точно безубыточной (RTP=100%), казино не имело преимущества.
+      // Привели к единой марже казино, как и у ставки на банкира.
+      const multiplier=winner==='tie'?8:1.95
       const payout=Math.floor(b.amount*multiplier)
       paidWin += payout
       return { ...b, payout, push:false }

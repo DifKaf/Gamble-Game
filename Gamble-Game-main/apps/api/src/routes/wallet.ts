@@ -4,6 +4,8 @@ import { prisma } from '../db.js'
 import { getAuthUser } from '../auth/getUser.js'
 import { applyBalanceChange } from '../wallet/wallet.js'
 import { computePlayerId, publicPlayerId, parsePlayerId } from '../utils/playerId.js'
+import { sendTelegramMessage } from '../utils/telegram.js'
+import { assertCanTransfer, mapAntifraudError } from '../utils/antifraud.js'
 
 const gameAdjustSchema = z.object({
   amount: z.number().int().min(-1000000).max(10000000),
@@ -137,9 +139,15 @@ export async function walletRoutes(app: FastifyInstance) {
     const user = await getAuthUser(request)
     const body = gameAdjustSchema.parse(request.body)
 
-    const isLegacySlot = body.source === 'drunkard-gate'
-    if (isLegacySlot && process.env.ALLOW_LEGACY_GAME_ADJUST !== 'true') {
-      return reply.code(410).send({ error: 'Legacy endpoint removed. Use POST /games/drunkard-gate/spin' })
+    // ВАЖНО: раньше блокировался только source === 'drunkard-gate', поэтому любой
+    // другой source полностью обходил защиту и позволял начислить себе выигрыш
+    // без ставки и без игровой логики. Теперь эндпоинт закрыт для ЛЮБОГО source,
+    // если явно не включён флагом (тестовая среда).
+    // Пользователь явно попросил вернуть старый клиентский слот Drunkard Gate и
+    // осознанно принял риск по балансу — поэтому мост включён по умолчанию.
+    // Явно выставленный ALLOW_LEGACY_GAME_ADJUST=false всё ещё может выключить его.
+    if (process.env.ALLOW_LEGACY_GAME_ADJUST === 'false') {
+      return reply.code(410).send({ error: 'Legacy endpoint removed. Use the dedicated game endpoints.' })
     }
 
     if (body.amount === 0) {
@@ -179,6 +187,11 @@ export async function walletRoutes(app: FastifyInstance) {
     const recipient: any = await findUserByHandle(raw)
     if (!recipient) return reply.code(404).send({ error: 'Игрок не найден' })
     if (recipient.id === user.id) return reply.code(400).send({ error: 'Нельзя перевести самому себе' })
+    try { await assertCanTransfer(user, Number(amount)) } catch (e: any) {
+      const mapped = mapAntifraudError(e)
+      if (mapped) return reply.code(mapped.code).send({ error: mapped.error })
+      throw e
+    }
 
     try {
       const result = await prisma.$transaction(async (tx) => {
@@ -201,6 +214,11 @@ export async function walletRoutes(app: FastifyInstance) {
         return tx.user.findUniqueOrThrow({ where: { id: user.id } })
       })
 
+      const fromName = user.firstName || user.username || publicPlayerId(user)
+      void sendTelegramMessage(
+        recipient.telegramId,
+        `💸 Вам пришёл перевод в Gamble:\n+${Number(amount)} GC от ${fromName} (ID ${publicPlayerId(user)})`
+      )
       return {
         balance: Number(result.balance),
         recipient: {

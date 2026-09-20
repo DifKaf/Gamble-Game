@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 800" width="640" height="800">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#8a3016"/>
+      <stop offset=".55" stop-color="#5c1c0a"/>
+      <stop offset="1" stop-color="#241007"/>
+    </linearGradient>
+    <linearGradient id="frame" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3a5c8a"/>
+      <stop offset="1" stop-color="#1b2f4d"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="800" rx="48" fill="url(#bg)"/>
+  <rect x="36" y="36" width="568" height="728" rx="36" fill="none" stroke="url(#frame)" stroke-width="10"/>
+
+  <!-- roof -->
+  <polygon points="90,260 320,110 550,260" fill="#2c4b78"/>
+  <circle cx="320" cy="200" r="20" fill="#1a0f06" stroke="#f2b33d" stroke-width="4"/>
+
+  <!-- house body -->
+  <rect x="110" y="258" width="420" height="250" rx="18" fill="#8a3016"/>
+  <rect x="110" y="258" width="420" height="250" rx="18" fill="none" stroke="#f2b33d" stroke-width="6"/>
+  <rect x="258" y="330" width="124" height="178" rx="14" fill="#1a0f06"/>
+
+  <!-- bone wild -->
+  <g fill="#fff7e6" stroke="#caa25a" stroke-width="6">
+    <circle cx="175" cy="430" r="26"/>
+    <circle cx="175" cy="478" r="26"/>
+    <circle cx="465" cy="430" r="26"/>
+    <circle cx="465" cy="478" r="26"/>
+    <rect x="175" y="430" width="290" height="48" rx="18"/>
+  </g>
+  <text x="320" y="468" text-anchor="middle" font-family="Arial Black, sans-serif" font-size="34" font-weight="900" fill="#7a1e12">WILD</text>
+
+  <!-- dog silhouettes -->
+  <g>
+    <ellipse cx="210" cy="600" rx="46" ry="38" fill="#e3b98a"/>
+    <ellipse cx="183" cy="570" rx="18" ry="24" fill="#8a5a2a" transform="rotate(-25 183 570)"/>
+    <ellipse cx="237" cy="570" rx="18" ry="24" fill="#8a5a2a" transform="rotate(25 237 570)"/>
+    <circle cx="196" cy="596" r="7" fill="#241007"/><circle cx="224" cy="596" r="7" fill="#241007"/>
+  </g>
+  <g>
+    <ellipse cx="320" cy="612" rx="50" ry="42" fill="#caa27a"/>
+    <ellipse cx="292" cy="578" rx="19" ry="26" fill="#7a4a24" transform="rotate(-25 292 578)"/>
+    <ellipse cx="348" cy="578" rx="19" ry="26" fill="#7a4a24" transform="rotate(25 348 578)"/>
+    <circle cx="305" cy="606" r="7" fill="#241007"/><circle cx="335" cy="606" r="7" fill="#241007"/>
+  </g>
+  <g>
+    <ellipse cx="430" cy="600" rx="46" ry="38" fill="#c9a9ff"/>
+    <ellipse cx="403" cy="570" rx="18" ry="24" fill="#6b3ea5" transform="rotate(-25 403 570)"/>
+    <ellipse cx="457" cy="570" rx="18" ry="24" fill="#6b3ea5" transform="rotate(25 457 570)"/>
+    <circle cx="416" cy="596" r="7" fill="#241007"/><circle cx="444" cy="596" r="7" fill="#241007"/>
+  </g>
+
+  <text x="320" y="690" text-anchor="middle" font-family="Arial Black, sans-serif" font-size="52" font-weight="900" fill="#ffe9a8">THE DOG HOUSE</text>
+  <text x="320" y="730" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" fill="#ffcf9c">Sticky Wilds · 20 lines · Free Spins</text>
+</svg>

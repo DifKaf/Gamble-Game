@@ -42,6 +42,11 @@ export const TW = SYMS.reduce((s, x) => s + x.w, 0)
 export const ORB_MULTS = [2, 3, 4, 5, 6, 8, 10, 12, 15, 20, 25, 50, 100, 250, 500, 1000] as const
 export const ORB_NONE_WEIGHT = 79400
 export const ORB_WEIGHTS = [6000, 4200, 3000, 1800, 600, 400, 1225, 875, 700, 420, 280, 700, 300, 60, 20, 20] as const
+export const GLOBAL_MULT_CAP = 40
+// Итоговая калибровка RTP (Return To Player) по результатам симуляции движка,
+// чтобы казино всегда оставалось в плюсе независимо от цепочек фриспинов/множителей.
+export const BASE_WIN_SCALE = 0.5
+export const ANTE_WIN_SCALE = 0.54
 
 export function publicPaytable() {
 	return {

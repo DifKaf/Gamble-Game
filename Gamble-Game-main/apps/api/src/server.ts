@@ -12,8 +12,10 @@ import { minesRoutes } from './routes/mines.js'
 import { coinflipRoutes } from './routes/coinflip.js'
 import { blackjackRoutes } from './routes/blackjack.js'
 import { drunkardGateRoutes } from './routes/drunkardGate.js'
+import { dogHouseRoutes } from './routes/dogHouse.js'
 import { questRoutes } from './routes/quests.js'
 import { referralRoutes } from './routes/referrals.js'
+import { adminRoutes } from './routes/admin.js'
 import { exchangeRoutes } from './routes/exchange.js'
 import { ensurePlayerIds } from './utils/ensurePlayerIds.js'
 import { ensureFeatureTables } from './utils/ensureFeatureTables.js'
@@ -21,7 +23,7 @@ import { ensureIndexes } from './utils/ensureIndexes.js'
 import { scheduleRetention } from './utils/retention.js'
 // trustProxy обязателен на Railway: без него request.ip — это адрес прокси,
 // один и тот же для всех игроков, и лимит запросов делится между всеми сразу.
-const app=Fastify({logger:true,trustProxy:true})
+const app=Fastify({logger:true,trustProxy:true,bodyLimit:3*1024*1024})
 await app.register(cors,{origin:process.env.FRONTEND_ORIGIN||true,credentials:true})
 await app.register(jwt,{secret:process.env.JWT_SECRET!})
 // Лимит считается на игрока (по токену), а не на весь сервер.
@@ -45,7 +47,7 @@ await app.register(rateLimit,{
 app.addContentTypeParser('application/json',{parseAs:'string'},(_req:any,body:any,done:any)=>{ const raw=typeof body==='string'?body.trim():''; if(!raw) return done(null,{}); try{ done(null,JSON.parse(raw)) }catch(err:any){ err.statusCode=400; done(err,undefined) } })
 app.decorate('authenticate',async function(request:any,reply:any){try{await request.jwtVerify()}catch{return reply.code(401).send({error:'Unauthorized'})}})
 app.get('/health',async()=>({ok:true}))
-await app.register(authRoutes,{prefix:'/auth'}); await app.register(meRoutes,{prefix:'/me'}); await app.register(walletRoutes,{prefix:'/wallet'}); await app.register(bonusRoutes,{prefix:'/bonus'}); await app.register(gameRoutes,{prefix:'/games'}); await app.register(minesRoutes,{prefix:'/games/mines'}); await app.register(coinflipRoutes,{prefix:'/games/coinflip'}); await app.register(blackjackRoutes,{prefix:'/games/blackjack'}); await app.register(drunkardGateRoutes,{prefix:'/games/drunkard-gate'}); await app.register(questRoutes,{prefix:'/quests'}); await app.register(referralRoutes,{prefix:'/referrals'}); await app.register(exchangeRoutes,{prefix:'/exchange'});
+await app.register(authRoutes,{prefix:'/auth'}); await app.register(meRoutes,{prefix:'/me'}); await app.register(walletRoutes,{prefix:'/wallet'}); await app.register(bonusRoutes,{prefix:'/bonus'}); await app.register(gameRoutes,{prefix:'/games'}); await app.register(minesRoutes,{prefix:'/games/mines'}); await app.register(coinflipRoutes,{prefix:'/games/coinflip'}); await app.register(blackjackRoutes,{prefix:'/games/blackjack'}); await app.register(drunkardGateRoutes,{prefix:'/games/drunkard-gate'}); await app.register(dogHouseRoutes,{prefix:'/games/dog-house'}); await app.register(questRoutes,{prefix:'/quests'}); await app.register(referralRoutes,{prefix:'/referrals'}); await app.register(exchangeRoutes,{prefix:'/exchange'}); await app.register(adminRoutes,{prefix:'/admin'});
 // Выдаём индивидуальный playerId всем игрокам до того, как принимать запросы.
 await ensurePlayerIds(app.log)
 // Индексы под лидерборд и историю: миграций в проекте нет, поэтому создаём на старте.

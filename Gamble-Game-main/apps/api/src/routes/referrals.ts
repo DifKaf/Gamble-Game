@@ -17,10 +17,32 @@ export async function referralRoutes(app: FastifyInstance) {
 	// Статистика приглашений + доначисление бонусов за оборот друзей.
 	app.get('/', { preHandler: [(app as any).authenticate] }, async (request) => {
 		const user = await getAuthUser(request)
-		const milestones = await payReferralMilestones(user.id)
-		const stats = await referralStats(user.id)
-		const fresh = await prisma.user.findUniqueOrThrow({ where: { id: user.id } })
-		return { ...stats, balance: Number(fresh.balance), milestonesPaid: milestones }
+		let milestones = { paid: 0, count: 0 }
+		try { milestones = await payReferralMilestones(user.id) } catch (err: any) {
+			request.log?.warn({ err }, 'referral milestones skipped')
+		}
+		try {
+			const stats = await referralStats(user.id)
+			const fresh = await prisma.user.findUniqueOrThrow({ where: { id: user.id } })
+			return { ...stats, balance: Number(fresh.balance), milestonesPaid: milestones }
+		} catch (err: any) {
+			request.log?.warn({ err }, 'referrals fallback empty')
+			const { inviteLink } = await import('../utils/referrals.js')
+			const link = inviteLink(user)
+			return {
+				link: link.url,
+				code: link.code,
+				configured: link.configured,
+				playerId: user.playerId,
+				rewards: { inviter: 0, invitee: 0, weekSharePct: 0.5 },
+				invitedCount: 0,
+				totalEarned: 0,
+				inviter: null,
+				friends: [],
+				balance: Number(user.balance),
+				milestonesPaid: milestones
+			}
+		}
 	})
 
 	// Применить код приглашения (из start_param или введённый вручную).

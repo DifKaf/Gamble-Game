@@ -3,14 +3,25 @@ import { z } from 'zod'
 import { prisma } from '../db.js'
 import { getAuthUser } from '../auth/getUser.js'
 import { applyBalanceChange } from '../wallet/wallet.js'
-import { questProgress, questByCode, dayRange } from '../utils/quests.js'
+import { questProgress, questByCode, dayRange, createQuestClaim } from '../utils/quests.js'
 import { invalidate } from '../utils/cache.js'
 
 export async function questRoutes(app: FastifyInstance) {
 	// Список ежедневных квестов с текущим прогрессом.
 	app.get('/', { preHandler: [(app as any).authenticate] }, async (request) => {
 		const user = await getAuthUser(request)
-		return questProgress(user.id)
+		try {
+			return await questProgress(user.id)
+		} catch (err: any) {
+			request.log?.warn({ err }, 'quests fallback empty')
+			const { end, periodKey } = dayRange()
+			return {
+				periodKey,
+				resetAt: end.toISOString(),
+				quests: (await import('../utils/quests.js')).QUESTS.map((q) => ({ ...q, current: 0, done: false, claimed: false })),
+				claimableReward: 0
+			}
+		}
 	})
 
 	// Забрать награду за выполненный квест.
@@ -31,9 +42,7 @@ export async function questRoutes(app: FastifyInstance) {
 		try {
 			const updated = await prisma.$transaction(async (tx) => {
 				// Уникальный индекс (userId, questCode, periodKey) делает двойное нажатие безопасным.
-				await tx.questClaim.create({
-					data: { userId: user.id, questCode: quest.code, periodKey, reward: BigInt(quest.reward) }
-				})
+				await createQuestClaim({ userId: user.id, questCode: quest.code, periodKey, reward: BigInt(quest.reward) }, tx)
 				return applyBalanceChange({
 					tx,
 					userId: user.id,

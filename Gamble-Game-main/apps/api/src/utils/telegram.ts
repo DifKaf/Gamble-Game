@@ -4,6 +4,47 @@
 // а сам канал указан в TELEGRAM_CHANNEL (например @gamble_channel или -1001234567890).
 
 const TELEGRAM_API = 'https://api.telegram.org/bot'
+
+function botToken() {
+	return String(process.env.TELEGRAM_BOT_TOKEN || '').trim()
+}
+
+export async function sendTelegramMessage(telegramId: string | bigint | number, text: string) {
+	const token = botToken()
+	if (!token || telegramId == null || telegramId === '') return false
+	try {
+		const res = await fetch(TELEGRAM_API + token + '/sendMessage', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ chat_id: String(telegramId), text, parse_mode: 'HTML', disable_web_page_preview: true })
+		})
+		const body: any = await res.json().catch(() => ({}))
+		return Boolean(body?.ok)
+	} catch {
+		return false
+	}
+}
+
+export async function sendTelegramPhoto(telegramId: string | bigint | number, photoBase64: string, caption?: string) {
+	const token = botToken()
+	if (!token || telegramId == null || telegramId === '') return false
+	try {
+		const raw = String(photoBase64 || '')
+		const comma = raw.indexOf(',')
+		const b64 = comma >= 0 ? raw.slice(comma + 1) : raw
+		const buf = Buffer.from(b64, 'base64')
+		if (!buf.length || buf.length > 8 * 1024 * 1024) return false
+		const form = new FormData()
+		form.set('chat_id', String(telegramId))
+		if (caption) form.set('caption', caption.slice(0, 1000))
+		form.set('photo', new Blob([buf], { type: 'image/jpeg' }), 'receipt.jpg')
+		const res = await fetch(TELEGRAM_API + token + '/sendPhoto', { method: 'POST', body: form as any })
+		const body: any = await res.json().catch(() => ({}))
+		return Boolean(body?.ok)
+	} catch {
+		return false
+	}
+}
 const OK_STATUSES = ['creator', 'administrator', 'member']
 const OK_TTL_MS = Number(process.env.TG_SUB_OK_TTL_MS || 300000) // подписан — помним 5 минут
 const BAD_TTL_MS = Number(process.env.TG_SUB_BAD_TTL_MS || 20000) // не подписан — 20 секунд

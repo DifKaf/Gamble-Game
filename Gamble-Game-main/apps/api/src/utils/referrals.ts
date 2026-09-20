@@ -1,15 +1,30 @@
+import { randomUUID } from 'crypto'
 import { prisma } from '../db.js'
 import { applyBalanceChange } from '../wallet/wallet.js'
 import { publicPlayerId, parsePlayerId } from './playerId.js'
+import { ensureFeatureTables } from './ensureFeatureTables.js'
+import { weekRange } from './weeklyStats.js'
+
+function isMissingRelation(err: any) {
+	const msg = String(err?.message || err || '')
+	return /referral|Referral|does not exist|Unknown arg|Cannot read/i.test(msg)
+}
+
+function referralDelegate(client: any = prisma) {
+	return client?.referral || null
+}
+
+async function ready() {
+	try { await ensureFeatureTables() } catch {}
+}
 
 // Реферальная программа.
 //
 // Приглашающий получает бонус сразу и второй бонус, когда новичок наберёт
 // оборот (чтобы не было выгодно плодить пустые аккаунты ради регистрационного бонуса).
-const INVITER_BONUS = BigInt(Number(process.env.REFERRAL_BONUS_INVITER || 2500))
-const INVITEE_BONUS = BigInt(Number(process.env.REFERRAL_BONUS_INVITEE || 1000))
-const MILESTONE_WAGER = Number(process.env.REFERRAL_MILESTONE_WAGER || 25000)
-const MILESTONE_BONUS = BigInt(Number(process.env.REFERRAL_MILESTONE_BONUS || 5000))
+const INVITER_BONUS = BigInt(Number(process.env.REFERRAL_BONUS_INVITER || 0))
+const INVITEE_BONUS = BigInt(Number(process.env.REFERRAL_BONUS_INVITEE || 0))
+const WEEK_SHARE_PCT = Math.max(0, Number(process.env.REFERRAL_WEEK_SHARE_PCT || 0.5))
 // Привязать приглашение можно только в первые часы после регистрации,
 // иначе старые игроки будут «приглашать» друг друга ради бонусов.
 const ATTACH_WINDOW_MS = Number(process.env.REFERRAL_ATTACH_WINDOW_HOURS || 72) * 60 * 60 * 1000
@@ -21,12 +36,15 @@ export function inviteCode(user: { playerId?: number | null; id: string }) {
 export function inviteLink(user: { playerId?: number | null; id: string }) {
 	const bot = String(process.env.TELEGRAM_BOT_USERNAME || '').replace(/^@/, '').trim()
 	const code = inviteCode(user)
-	if (!bot) return { url: '', code, configured: false }
 	const appName = String(process.env.TELEGRAM_APP_NAME || '').trim()
-	// startapp открывает сразу mini app и прокидывает код в initDataUnsafe.start_param.
+	const origin = String(process.env.FRONTEND_ORIGIN || '').replace(/\/$/, '').trim()
 	const TG_BASE = String.fromCharCode(104,116,116,112,115) + "://t.me/"
-	const base = appName ? TG_BASE + bot + "/" + appName : TG_BASE + bot
-	return { url: `${base}?startapp=${code}`, code, configured: true }
+	if (bot) {
+		const base = appName ? TG_BASE + bot + "/" + appName : TG_BASE + bot
+		return { url: `${base}?startapp=${code}`, code, configured: true }
+	}
+	if (origin) return { url: `${origin}?ref=${code}`, code, configured: true }
+	return { url: code, code, configured: false }
 }
 
 // Принимаем и 'ref_120001', и '120001', и '#120001'.
@@ -48,10 +66,17 @@ export async function attachReferral(userId: string, rawCode: unknown): Promise<
 	const code = parseRefCode(rawCode)
 	if (!code) return { ok: false, reason: 'invalid_code', bonus: 0 }
 
-	const [user, existing] = await Promise.all([
-		prisma.user.findUnique({ where: { id: userId } }),
-		prisma.referral.findUnique({ where: { referredId: userId } })
-	])
+	await ready()
+	const user = await prisma.user.findUnique({ where: { id: userId } })
+	let existing: any = null
+	try {
+		const del = referralDelegate()
+		existing = del
+			? await del.findUnique({ where: { referredId: userId } })
+			: ((await prisma.$queryRawUnsafe(`SELECT * FROM "Referral" WHERE "referredId" = $1 LIMIT 1`, userId)) as any[])[0] || null
+	} catch (err) {
+		if (!isMissingRelation(err)) throw err
+	}
 	if (!user) return { ok: false, reason: 'user_not_found', bonus: 0 }
 	if (existing) return { ok: false, reason: 'already_attached', bonus: 0 }
 
@@ -65,10 +90,20 @@ export async function attachReferral(userId: string, rawCode: unknown): Promise<
 
 	try {
 		await prisma.$transaction(async (tx) => {
-			// Уникальный индекс по referredId — защита от гонки двух одновременных запросов.
-			await tx.referral.create({
-				data: { referrerId: referrer.id, referredId: userId, registrationBonus: INVITER_BONUS }
-			})
+			const del = referralDelegate(tx)
+			if (del) {
+				await del.create({
+					data: { referrerId: referrer.id, referredId: userId, registrationBonus: INVITER_BONUS }
+				})
+			} else {
+				await tx.$executeRawUnsafe(
+					`INSERT INTO "Referral" ("id","referrerId","referredId","registrationBonus","milestoneBonus","createdAt") VALUES ($1,$2,$3,$4,0,NOW())`,
+					randomUUID(),
+					referrer.id,
+					userId,
+					INVITER_BONUS
+				)
+			}
 			if (INVITER_BONUS > 0n) {
 				await applyBalanceChange({
 					tx,
@@ -107,44 +142,99 @@ export async function attachReferral(userId: string, rawCode: unknown): Promise<
 	}
 }
 
-// Второй бонус: когда приглашённые набрали нужный оборот.
-// Вызывается при открытии экрана «Друзья», а не на каждой ставке — чтобы не грузить игровой путь.
+// 0.5% от ставок приглашённого за текущую неделю. Платится при открытии «Друзья».
 export async function payReferralMilestones(referrerId: string) {
-	if (MILESTONE_BONUS <= 0n || MILESTONE_WAGER <= 0) return { paid: 0, count: 0 }
+	if (WEEK_SHARE_PCT <= 0) return { paid: 0, count: 0 }
 
-	const pending = await prisma.referral.findMany({
-		where: { referrerId, milestoneBonus: 0n },
-		select: { id: true, referredId: true }
-	})
-	if (!pending.length) return { paid: 0, count: 0 }
+	await ready()
+	let friends: Array<{ id: string; referredId: string }> = []
+	try {
+		const del = referralDelegate()
+		friends = del
+			? await del.findMany({ where: { referrerId }, select: { id: true, referredId: true } })
+			: await prisma.$queryRawUnsafe(`SELECT "id", "referredId" FROM "Referral" WHERE "referrerId" = $1`, referrerId)
+	} catch (err) {
+		if (!isMissingRelation(err)) throw err
+		return { paid: 0, count: 0 }
+	}
+	if (!friends.length) return { paid: 0, count: 0 }
 
+	const { start, end } = weekRange()
+	const weekKey = start.toISOString()
 	let paid = 0n
 	let count = 0
-	for (const row of pending) {
+
+	// Раньше "уже выплачено на этой неделе" считалось суммированием WalletTransaction без
+	// какой-либо блокировки — параллельные вызовы (эта функция дёргается при каждом открытии
+	// вкладки «Друзья») могли оба прочитать одно и то же "already" и оба доначислить одну и
+	// ту же delta, задваивая выплату. Теперь дедупликация идёт через ReferralWeeklyPayout
+	// с уникальным индексом (referrerId, referredId, weekKey) и CAS-обновлением: первое
+	// создание строки или условный UPDATE ... WHERE amount = $already выигрывает гонку,
+	// а проигравший запрос просто получает 0 затронутых строк / P2002 и ничего не начисляет.
+	for (const row of friends) {
 		const agg = await prisma.gameSession.aggregate({
-			where: { userId: row.referredId, status: 'FINISHED' },
+			where: { userId: row.referredId, status: 'FINISHED', createdAt: { gte: start, lt: end } },
 			_sum: { betAmount: true }
 		})
-		if (Number(agg._sum?.betAmount || 0) < MILESTONE_WAGER) continue
+		const weeklyWager = Number(agg._sum?.betAmount || 0)
+		const due = Math.floor(weeklyWager * WEEK_SHARE_PCT / 100)
+		if (due <= 0) continue
 
-		// updateMany с фильтром milestoneBonus: 0 — бонус не уйдёт дважды даже при двух запросах сразу.
-		await prisma.$transaction(async (tx) => {
-			const claim = await tx.referral.updateMany({
-				where: { id: row.id, milestoneBonus: 0n },
-				data: { milestoneBonus: MILESTONE_BONUS }
+		try {
+			const delta = await prisma.$transaction(async (tx) => {
+				const existing = await tx.referralWeeklyPayout.findUnique({
+					where: { referrerId_referredId_weekKey: { referrerId, referredId: row.referredId, weekKey } }
+				})
+				let deltaAmount: number
+				if (!existing) {
+					try {
+						await tx.referralWeeklyPayout.create({
+							data: { referrerId, referredId: row.referredId, weekKey, amount: BigInt(due) }
+						})
+					} catch (e: any) {
+						if (String(e?.code) === 'P2002') return 0 // кто-то другой успел создать строку первым — ничего не начисляем
+						throw e
+					}
+					deltaAmount = due
+				} else {
+					const already = Number(existing.amount)
+					deltaAmount = due - already
+					if (deltaAmount <= 0) return 0
+					const upd = await tx.$executeRawUnsafe(
+						`UPDATE "ReferralWeeklyPayout" SET amount = $1 WHERE id = $2 AND amount = $3`,
+						BigInt(due),
+						existing.id,
+						existing.amount
+					)
+					if (!upd) return 0 // проиграли гонку CAS — кто-то другой уже обновил эту строку
+				}
+				// Один вызов applyBalanceChange внутри одной транзакции, независимо от ветки — без
+				// второго вызова снаружи, который раньше мог бы случайно сработать для delta === due и задвоить выплату.
+				await applyBalanceChange({
+					tx,
+					userId: referrerId,
+					amount: BigInt(deltaAmount),
+					type: 'BONUS',
+					source: 'referral-week',
+					metadata: { referredId: row.referredId, weekKey, weeklyWager, percent: WEEK_SHARE_PCT }
+				})
+				const del = referralDelegate(tx)
+				if (del) {
+					await del.update({ where: { id: row.id }, data: { milestoneBonus: { increment: BigInt(deltaAmount) } } }).catch(async () => {
+						await tx.$executeRawUnsafe(`UPDATE "Referral" SET "milestoneBonus" = "milestoneBonus" + $2 WHERE "id" = $1`, row.id, deltaAmount)
+					})
+				} else {
+					await tx.$executeRawUnsafe(`UPDATE "Referral" SET "milestoneBonus" = "milestoneBonus" + $2 WHERE "id" = $1`, row.id, deltaAmount)
+				}
+				return deltaAmount
 			})
-			if (!claim.count) return
-			await applyBalanceChange({
-				tx,
-				userId: referrerId,
-				amount: MILESTONE_BONUS,
-				type: 'BONUS',
-				source: 'referral-milestone',
-				metadata: { referredId: row.referredId, wagerTarget: MILESTONE_WAGER }
-			})
-			paid += MILESTONE_BONUS
-			count++
-		})
+			if (delta > 0) {
+				paid += BigInt(delta)
+				count++
+			}
+		} catch (err) {
+			if (!isMissingRelation(err)) throw err
+		}
 	}
 
 	return { paid: Number(paid), count }
@@ -155,12 +245,18 @@ export type ReferralStats = Awaited<ReturnType<typeof referralStats>>
 export async function referralStats(userId: string) {
 	const user = await prisma.user.findUniqueOrThrow({ where: { id: userId } })
 	const link = inviteLink(user)
+	await ready()
 
-	const rows = await prisma.referral.findMany({
-		where: { referrerId: userId },
-		orderBy: { createdAt: 'desc' },
-		take: 50
-	})
+	let rows: any[] = []
+	try {
+		const del = referralDelegate()
+		rows = del
+			? await del.findMany({ where: { referrerId: userId }, orderBy: { createdAt: 'desc' }, take: 50 })
+			: await prisma.$queryRawUnsafe(`SELECT * FROM "Referral" WHERE "referrerId" = $1 ORDER BY "createdAt" DESC LIMIT 50`, userId)
+	} catch (err) {
+		if (!isMissingRelation(err)) throw err
+		rows = []
+	}
 
 	const ids = rows.map((r) => r.referredId)
 	const friends = ids.length
@@ -171,16 +267,25 @@ export async function referralStats(userId: string) {
 		: []
 	const byId = new Map(friends.map((f) => [f.id, f]))
 
+	const { start, end } = weekRange()
 	const wagerRows = ids.length
 		? await prisma.gameSession.groupBy({
 				by: ['userId'],
-				where: { userId: { in: ids }, status: 'FINISHED' },
+				where: { userId: { in: ids }, status: 'FINISHED', createdAt: { gte: start, lt: end } },
 				_sum: { betAmount: true }
 			})
 		: []
 	const wagerById = new Map(wagerRows.map((w) => [w.userId, Number(w._sum?.betAmount || 0)]))
 
-	const invitedBy = await prisma.referral.findUnique({ where: { referredId: userId } })
+	let invitedBy: any = null
+	try {
+		const del = referralDelegate()
+		invitedBy = del
+			? await del.findUnique({ where: { referredId: userId } })
+			: ((await prisma.$queryRawUnsafe(`SELECT * FROM "Referral" WHERE "referredId" = $1 LIMIT 1`, userId)) as any[])[0] || null
+	} catch (err) {
+		if (!isMissingRelation(err)) throw err
+	}
 	let inviter: any = null
 	if (invitedBy) {
 		const r = await prisma.user.findUnique({
@@ -202,9 +307,10 @@ export async function referralStats(userId: string) {
 			photoUrl: f ? f.photoUrl : null,
 			joinedAt: r.createdAt,
 			wagered,
+			weekShare: Math.floor(wagered * WEEK_SHARE_PCT / 100),
 			earned: Number(r.registrationBonus) + Number(r.milestoneBonus),
-			milestoneDone: Number(r.milestoneBonus) > 0,
-			milestoneProgress: MILESTONE_WAGER > 0 ? Math.min(100, Math.round((wagered / MILESTONE_WAGER) * 100)) : 100
+			milestoneDone: true,
+			milestoneProgress: 100
 		}
 	})
 
@@ -216,8 +322,7 @@ export async function referralStats(userId: string) {
 		rewards: {
 			inviter: Number(INVITER_BONUS),
 			invitee: Number(INVITEE_BONUS),
-			milestone: Number(MILESTONE_BONUS),
-			milestoneWager: MILESTONE_WAGER
+			weekSharePct: WEEK_SHARE_PCT
 		},
 		invitedCount: rows.length,
 		totalEarned: earned,

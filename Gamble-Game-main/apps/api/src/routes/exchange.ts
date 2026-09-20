@@ -1,242 +1,41 @@
+
 import { FastifyInstance } from 'fastify'
 import { z } from 'zod'
 import { prisma } from '../db.js'
 import { getAuthUser } from '../auth/getUser.js'
 import { applyBalanceChange } from '../wallet/wallet.js'
-import {
-	exchangeConfig,
-	isExchangeAdmin,
-	quoteExchange,
-	weeklyExchangeUsage,
-	lifetimeWager,
-	serializeRequest,
-	countPendingRequests,
-	listExchangeRequests,
-	findExchangeRequest,
-	createExchangeRequest,
-	updateExchangeStatus,
-	ensureExchangeReady
-} from '../utils/exchange.js'
+import { publicPlayerId } from '../utils/playerId.js'
+import { assertCanTransfer, mapAntifraudError, isUserBanned } from '../utils/antifraud.js'
+import { sendTelegramMessage } from '../utils/telegram.js'
 
-const requestSchema = z.object({
-	amountGc: z.number().int().positive().max(100000000),
-	method: z.string().min(2).max(20),
-	destination: z.string().min(4).max(120),
-	contact: z.string().max(80).optional()
-})
+const FEE_PCT = Number(process.env.P2P_FEE_PERCENT || 0)
+const GC_PER_RUB = Number(process.env.P2P_GC_PER_RUB || 1000)
+const MIN_GC = Number(process.env.P2P_MIN_GC || 100)
+const MAX_GC = Number(process.env.P2P_MAX_GC || 1000000)
+const METHODS = ['SBP','UMONEY','USDT'] as const
+const offerSchema = z.object({ amountGc:z.number().int().min(MIN_GC).max(MAX_GC), rateRubPer1000:z.number().positive().max(10000000), minBuyRub:z.number().positive().optional(), maxBuyRub:z.number().positive().optional(), method:z.enum(METHODS).default('SBP'), paymentDetails:z.string().min(3).max(280), comment:z.string().max(200).optional(), intent:z.enum(['sell','buy']).default('sell') })
+const idSchema = z.object({ id:z.string().min(1) })
+const paySchema = z.object({ receipt:z.string().max(2000).optional() })
+const disputeSchema = z.object({ reason:z.string().min(3).max(300) })
+const takeBodySchema = z.object({ paymentDetails:z.string().min(3).max(280).optional() }).optional()
 
-const adminActionSchema = z.object({
-	action: z.enum(['paid', 'reject']),
-	note: z.string().max(300).optional()
-})
+function userView(u:any){ return { id:u.id, playerId:publicPlayerId(u), username:u.username, firstName:u.firstName, photoUrl:u.photoUrl } }
+function dealView(row:any, viewerId?:string){
+ const seller=row.user||row.seller; const buyer=row.buyer
+ return { id:row.id, status:row.status, amountGc:Number(row.amountGc), priceRub:Number(row.payoutMinor)/100, currency:row.currency, rate:Number(row.rateGcPerUnit)||GC_PER_RUB, feePercent:Number(row.feePercent)||FEE_PCT, method:row.method, paymentDetails:(viewerId && (viewerId===row.buyerId || viewerId===row.userId))?row.destination:undefined, offerId:'#'+String(row.id||'').slice(-8).toUpperCase(), rateRubPer1000:Number(row.rateGcPerUnit||0)/100, comment:'', intent:(row.contact&&String(row.contact).includes(':buy'))?'buy':'sell', minBuyRub:(row.contact&&String(row.contact).startsWith('limits:'))?Number(String(row.contact).split(':')[1]||0):0, maxBuyRub:Number(row.payoutMinor)/100, paymentTimeoutMinutes:15, seller:seller?userView(seller):null, buyer:buyer?userView(buyer):null, isMine:viewerId?row.userId===viewerId:false, isBuyer:viewerId?row.buyerId===viewerId:false, createdAt:row.createdAt, processedAt:row.processedAt }
+}
+async function loadDeal(id:string){ return prisma.exchangeRequest.findUnique({ where:{id}, include:{ user:true, buyer:true } as any } as any) }
 
-export async function exchangeRoutes(app: FastifyInstance) {
-	app.get('/config', { preHandler: [(app as any).authenticate] }, async (request) => {
-		const user = await getAuthUser(request)
-		const cfg = exchangeConfig()
-		let usedWeek = 0
-		let wagered = 0
-		let pending = 0
-		try {
-			await ensureExchangeReady()
-			;[usedWeek, wagered, pending] = await Promise.all([
-				weeklyExchangeUsage(user.id),
-				lifetimeWager(user.id),
-				countPendingRequests(user.id)
-			])
-		} catch (err: any) {
-			request.log?.warn({ err }, 'exchange config fallback without live stats')
-		}
+export async function exchangeRoutes(app:FastifyInstance){
+ app.get('/config', async()=>({ minGc:MIN_GC, maxGc:MAX_GC, feePercent:FEE_PCT, suggestedRate:GC_PER_RUB, methods:METHODS }))
+ app.get('/offers',{preHandler:[(app as any).authenticate]},async(req)=>{ const u=await getAuthUser(req); const rows=await prisma.exchangeRequest.findMany({where:{status:'OPEN'},orderBy:{createdAt:'desc'},take:40,include:{user:true,buyer:true} as any} as any); return {offers:rows.map(r=>dealView(r,u.id))} })
+ app.get('/mine',{preHandler:[(app as any).authenticate]},async(req)=>{ const u=await getAuthUser(req); const rows=await prisma.exchangeRequest.findMany({where:{OR:[{userId:u.id},{buyerId:u.id}]},orderBy:{createdAt:'desc'},take:60,include:{user:true,buyer:true} as any} as any); return {deals:rows.map(r=>dealView(r,u.id))} })
+ app.post('/offers',{preHandler:[(app as any).authenticate]},async(req,rep)=>{ const u=await getAuthUser(req); if(isUserBanned(u)) return rep.code(403).send({error:'Аккаунт заблокирован'}); const parsed=offerSchema.safeParse(req.body); if(!parsed.success) return rep.code(400).send({error:`Сумма от ${MIN_GC} до ${MAX_GC} GC`}); const b=parsed.data; try{ await assertCanTransfer(u,b.amountGc) }catch(e:any){ const m=mapAntifraudError(e); if(m) return rep.code(m.code).send({error:m.error}); throw e } try{ const row=await prisma.$transaction(async tx=>{ await applyBalanceChange({tx,userId:u.id,amount:-BigInt(b.amountGc),type:'ADMIN_ADJUSTMENT',source:'p2p-escrow-lock',metadata:{method:b.method,rateRubPer1000:b.rateRubPer1000}}); return (tx as any).exchangeRequest.create({data:{userId:u.id,amountGc:BigInt(b.amountGc),payoutMinor:BigInt(Math.round((b.amountGc/1000)*b.rateRubPer1000*100)),currency:'RUB',rateGcPerUnit:BigInt(Math.round(b.rateRubPer1000*100)),feePercent:0,method:b.method,destination:b.paymentDetails,status:'OPEN',contact:'limits:'+Math.max(1, Math.min(Number(b.minBuyRub||((b.amountGc/1000)*b.rateRubPer1000)), ((b.amountGc/1000)*b.rateRubPer1000)))+':'+b.intent,adminNote:null}}) }); return {offer:dealView(await loadDeal(row.id),u.id), balance:Number((await prisma.user.findUniqueOrThrow({where:{id:u.id}})).balance)} }catch(e:any){ if(e.message==='Insufficient balance') return rep.code(400).send({error:'Недостаточно Gamble Coin'}); throw e } })
+ app.post('/offers/:id/take',{preHandler:[(app as any).authenticate]},async(req,rep)=>{ const u=await getAuthUser(req); const {id}=idSchema.parse(req.params); const body=takeBodySchema.parse(req.body||{}); const row=await prisma.exchangeRequest.findUnique({where:{id}}); if(!row) return rep.code(404).send({error:'Оффер не найден'}); if(row.userId===u.id) return rep.code(400).send({error:'Нельзя купить свой оффер'}); const upd=await prisma.exchangeRequest.updateMany({where:{id,status:'OPEN'},data:{status:'WAITING_SELLER',buyerId:u.id,processedAt:new Date(),...(body&&body.paymentDetails?{destination:body.paymentDetails}: {})} as any}); if(!upd.count) return rep.code(400).send({error:'Оффер уже занят'}); void sendTelegramMessage((await prisma.user.findUnique({where:{id:row.userId}}))?.telegramId||'', `🤝 P2P ${('#'+String(row.id||'').slice(-8).toUpperCase())}: покупатель создал сделку. Примите её в течение 10 минут.`); return {deal:dealView(await loadDeal(id),u.id)} })
 
-		const weekRemaining = cfg.maxGcPerWeek > 0 ? Math.max(0, cfg.maxGcPerWeek - usedWeek) : null
-		const wagerOk = wagered >= cfg.requireWager
-
-		return {
-			...cfg,
-			balance: Number(user.balance),
-			usedThisWeek: usedWeek,
-			weekRemaining,
-			pendingCount: pending,
-			wager: { current: wagered, required: cfg.requireWager, ok: wagerOk },
-			canRequest: cfg.enabled && wagerOk && pending < cfg.maxPending,
-			example: quoteExchange(cfg.minGc)
-		}
-	})
-
-	app.get('/quote', { preHandler: [(app as any).authenticate] }, async (request, reply) => {
-		const amount = Number((request.query as any).amountGc)
-		if (!Number.isFinite(amount) || amount <= 0) return reply.code(400).send({ error: 'Укажите сумму в GC' })
-		return quoteExchange(Math.floor(amount))
-	})
-
-	app.post('/request', { preHandler: [(app as any).authenticate] }, async (request, reply) => {
-		const user = await getAuthUser(request)
-		const cfg = exchangeConfig()
-		if (!cfg.enabled) return reply.code(403).send({ error: 'Биржа временно закрыта' })
-
-		const parsed = requestSchema.safeParse(request.body)
-		if (!parsed.success) return reply.code(400).send({ error: 'Заполните сумму, способ и реквизиты' })
-
-		const { amountGc, destination } = parsed.data
-		const method = parsed.data.method.toLowerCase()
-		if (!cfg.methods.some((m) => m.code === method)) return reply.code(400).send({ error: 'Недоступный способ выплаты' })
-		if (amountGc < cfg.minGc) return reply.code(400).send({ error: `Минимальная сумма обмена — ${cfg.minGc} GC` })
-		if (amountGc > Number(user.balance)) return reply.code(400).send({ error: 'Недостаточно Gamble Coin' })
-
-		const [wagered, usedWeek, pending] = await Promise.all([
-			lifetimeWager(user.id),
-			weeklyExchangeUsage(user.id),
-			countPendingRequests(user.id)
-		])
-
-		if (wagered < cfg.requireWager) {
-			return reply.code(403).send({
-				error: `Для обмена нужен отыгрыш от ${cfg.requireWager} GC. Сейчас: ${wagered} GC`,
-				wager: { current: wagered, required: cfg.requireWager, ok: false }
-			})
-		}
-		if (pending >= cfg.maxPending) return reply.code(409).send({ error: 'У вас уже есть заявка в обработке' })
-		if (cfg.maxGcPerWeek > 0 && usedWeek + amountGc > cfg.maxGcPerWeek) {
-			return reply.code(400).send({ error: `Недельный лимит — ${cfg.maxGcPerWeek} GC. Доступно: ${Math.max(0, cfg.maxGcPerWeek - usedWeek)} GC` })
-		}
-
-		const quote = quoteExchange(amountGc)
-		if (quote.payoutMinor <= 0) return reply.code(400).send({ error: 'Сумма слишком мала для выплаты' })
-
-		try {
-			const created = await prisma.$transaction(async (tx) => {
-				const row = await createExchangeRequest({
-					userId: user.id,
-					amountGc: BigInt(amountGc),
-					payoutMinor: BigInt(quote.payoutMinor),
-					currency: quote.currency,
-					rateGcPerUnit: BigInt(quote.rateGcPerUnit),
-					feePercent: quote.feePercent,
-					method,
-					destination: destination.trim(),
-					contact: parsed.data.contact?.trim() || null,
-					status: 'PENDING'
-				}, tx)
-				await applyBalanceChange({
-					tx,
-					userId: user.id,
-					amount: -BigInt(amountGc),
-					type: 'ADMIN_ADJUSTMENT',
-					source: 'exchange-hold',
-					metadata: { requestId: row.id, method, payout: quote.payout, currency: quote.currency }
-				})
-				return row
-			})
-
-			const fresh = await prisma.user.findUniqueOrThrow({ where: { id: user.id } })
-			return { ok: true, request: serializeRequest(created), balance: Number(fresh.balance) }
-		} catch (e: any) {
-			if (e.message === 'Insufficient balance') return reply.code(400).send({ error: 'Недостаточно Gamble Coin' })
-			request.log?.error({ err: e }, 'exchange request failed')
-			return reply.code(500).send({ error: 'Не удалось создать заявку. Попробуйте ещё раз.' })
-		}
-	})
-
-	app.get('/requests', { preHandler: [(app as any).authenticate] }, async (request) => {
-		const user = await getAuthUser(request)
-		try {
-			const rows = await listExchangeRequests({ userId: user.id }, 50, 'desc')
-			return { requests: rows.map((r) => serializeRequest(r)) }
-		} catch (err: any) {
-			request.log?.warn({ err }, 'exchange list fallback empty')
-			return { requests: [] }
-		}
-	})
-
-	app.post('/requests/:id/cancel', { preHandler: [(app as any).authenticate] }, async (request, reply) => {
-		const user = await getAuthUser(request)
-		const id = String((request.params as any).id || '')
-		const row = await findExchangeRequest(id)
-		if (!row || row.userId !== user.id) return reply.code(404).send({ error: 'Заявка не найдена' })
-		if (row.status !== 'PENDING') return reply.code(400).send({ error: 'Заявка уже обработана' })
-
-		await prisma.$transaction(async (tx) => {
-			const upd = await updateExchangeStatus(row.id, 'CANCELLED', { processedAt: new Date() }, tx)
-			if (!upd.count) return
-			await applyBalanceChange({
-				tx,
-				userId: user.id,
-				amount: BigInt(row.amountGc),
-				type: 'REFUND',
-				source: 'exchange-refund',
-				metadata: { requestId: row.id, reason: 'cancelled_by_user' }
-			})
-		})
-
-		const fresh = await prisma.user.findUniqueOrThrow({ where: { id: user.id } })
-		return { ok: true, balance: Number(fresh.balance) }
-	})
-
-	app.get('/admin/requests', { preHandler: [(app as any).authenticate] }, async (request, reply) => {
-		const user = await getAuthUser(request)
-		if (!isExchangeAdmin(user.telegramId)) return reply.code(403).send({ error: 'Нет доступа' })
-
-		const status = String((request.query as any).status || 'PENDING').toUpperCase()
-		const rows = await listExchangeRequests({ status }, 100, 'asc')
-		const users = await prisma.user.findMany({
-			where: { id: { in: rows.map((r) => r.userId) } },
-			select: { id: true, playerId: true, username: true, firstName: true, telegramId: true }
-		})
-		const byId = new Map(users.map((u) => [u.id, u]))
-
-		return {
-			requests: rows.map((r) => {
-				const u: any = byId.get(r.userId)
-				return {
-					...serializeRequest(r, { full: true }),
-					player: u
-						? {
-								playerId: u.playerId,
-								username: u.username,
-								name: u.firstName || u.username || 'Игрок',
-								telegramId: u.telegramId.toString()
-						  }
-						: null
-				}
-			})
-		}
-	})
-
-	app.post('/admin/requests/:id', { preHandler: [(app as any).authenticate] }, async (request, reply) => {
-		const admin = await getAuthUser(request)
-		if (!isExchangeAdmin(admin.telegramId)) return reply.code(403).send({ error: 'Нет доступа' })
-
-		const parsed = adminActionSchema.safeParse(request.body)
-		if (!parsed.success) return reply.code(400).send({ error: 'action: paid | reject' })
-
-		const id = String((request.params as any).id || '')
-		const row = await findExchangeRequest(id)
-		if (!row) return reply.code(404).send({ error: 'Заявка не найдена' })
-		if (row.status !== 'PENDING') return reply.code(400).send({ error: 'Заявка уже обработана' })
-
-		const note = parsed.data.note?.trim() || null
-
-		await prisma.$transaction(async (tx) => {
-			const upd = await updateExchangeStatus(
-				row.id,
-				parsed.data.action === 'paid' ? 'PAID' : 'REJECTED',
-				{ adminNote: note, processedAt: new Date() },
-				tx
-			)
-			if (!upd.count) return
-			if (parsed.data.action === 'reject') {
-				await applyBalanceChange({
-					tx,
-					userId: row.userId,
-					amount: BigInt(row.amountGc),
-					type: 'REFUND',
-					source: 'exchange-refund',
-					metadata: { requestId: row.id, reason: 'rejected', note }
-				})
-			}
-		})
-
-		const updatedRow = await findExchangeRequest(row.id)
-		return { ok: true, request: serializeRequest(updatedRow, { full: true }) }
-	})
+ app.post('/deals/:id/accept',{preHandler:[(app as any).authenticate]},async(req,rep)=>{ const u=await getAuthUser(req); const {id}=idSchema.parse(req.params); const row:any=await loadDeal(id); if(!row) return rep.code(404).send({error:'Сделка не найдена'}); if(row.userId!==u.id) return rep.code(403).send({error:'Принять может только продавец'}); if(row.status!=='WAITING_SELLER') return rep.code(400).send({error:'Сделку уже нельзя принять'}); await prisma.exchangeRequest.update({where:{id},data:{status:'DEAL',processedAt:new Date()} as any}); if(row.buyer) void sendTelegramMessage(row.buyer.telegramId, `✅ P2P ${('#'+String(row.id||'').slice(-8).toUpperCase())}: продавец принял сделку. Реквизиты доступны.`); return {deal:dealView(await loadDeal(id),u.id)} })
+ app.post('/deals/:id/paid',{preHandler:[(app as any).authenticate]},async(req,rep)=>{ const u=await getAuthUser(req); const {id}=idSchema.parse(req.params); const b=paySchema.parse(req.body||{}); const row:any=await loadDeal(id); if(!row) return rep.code(404).send({error:'Сделка не найдена'}); if(row.buyerId!==u.id) return rep.code(403).send({error:'Это не ваша сделка'}); if(row.status!=='DEAL') return rep.code(400).send({error:'Сначала продавец должен принять сделку'}); await prisma.exchangeRequest.update({where:{id},data:{status:'PAID',disputeReason:b.receipt||null} as any}); void sendTelegramMessage(row.user.telegramId, `✅ P2P ${('#'+String(row.id||'').slice(-8).toUpperCase())}: покупатель отметил оплату. Подтвердите получение денег.`); return {deal:dealView(await loadDeal(id),u.id)} })
+ app.post('/deals/:id/release',{preHandler:[(app as any).authenticate]},async(req,rep)=>{ const u=await getAuthUser(req); const {id}=idSchema.parse(req.params); const row:any=await loadDeal(id); if(!row) return rep.code(404).send({error:'Сделка не найдена'}); if(row.userId!==u.id) return rep.code(403).send({error:'Подтвердить может только продавец'}); if(row.status!=='PAID') return rep.code(400).send({error:'Сначала покупатель должен отметить оплату'}); const fee=0n; const credit=BigInt(row.amountGc); const updated=await prisma.$transaction(async tx=>{ const changed=await (tx as any).exchangeRequest.updateMany({where:{id,status:'PAID'},data:{status:'COMPLETED',processedAt:new Date()}}); if(!changed.count) throw new Error('STATE'); return applyBalanceChange({tx,userId:row.buyerId,amount:credit,type:'ADMIN_ADJUSTMENT',source:'p2p-escrow-release',metadata:{dealId:id,fee:Number(fee),sellerId:row.userId}}) }); void sendTelegramMessage(row.buyer.telegramId, `🪙 P2P ${('#'+String(row.id||'').slice(-8).toUpperCase())} завершён: +${Number(credit)} GC зачислено.`); return {deal:dealView(await loadDeal(id),u.id), balance:Number((await prisma.user.findUniqueOrThrow({where:{id:u.id}})).balance), buyerBalance:Number(updated.balance)} })
+ app.post('/deals/:id/cancel',{preHandler:[(app as any).authenticate]},async(req,rep)=>{ const u=await getAuthUser(req); const {id}=idSchema.parse(req.params); const row:any=await loadDeal(id); if(!row) return rep.code(404).send({error:'Сделка не найдена'}); if(row.userId!==u.id && row.buyerId!==u.id) return rep.code(403).send({error:'Нет доступа'}); if(!['OPEN','WAITING_SELLER','DEAL'].includes(row.status)) return rep.code(400).send({error:'Нельзя отменить'}); const updated=await prisma.$transaction(async tx=>{ const changed=await (tx as any).exchangeRequest.updateMany({where:{id,status:{in:['OPEN','WAITING_SELLER','DEAL']}},data:{status:'CANCELLED',processedAt:new Date()}}); if(!changed.count) throw new Error('STATE'); return applyBalanceChange({tx,userId:row.userId,amount:BigInt(row.amountGc),type:'REFUND',source:'p2p-escrow-refund',metadata:{dealId:id}}) }); return {deal:dealView(await loadDeal(id),u.id), balance:Number(updated.balance)} })
+ app.post('/deals/:id/dispute',{preHandler:[(app as any).authenticate]},async(req,rep)=>{ const u=await getAuthUser(req); const {id}=idSchema.parse(req.params); const b=disputeSchema.parse(req.body); const row:any=await loadDeal(id); if(!row) return rep.code(404).send({error:'Сделка не найдена'}); if(row.userId!==u.id && row.buyerId!==u.id) return rep.code(403).send({error:'Нет доступа'}); await prisma.exchangeRequest.update({where:{id},data:{status:'DISPUTED',disputeReason:b.reason,processedAt:new Date()} as any}); return {deal:dealView(await loadDeal(id),u.id)} })
 }

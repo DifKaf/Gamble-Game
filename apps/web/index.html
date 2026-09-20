@@ -4536,8 +4536,8 @@ updateUI();
     base.sort(function(a,b){return (exchangeData.sort==='volume'?b.amountGc-a.amountGc:p2pRateRub(a)-p2pRateRub(b));});
     if(exchangeData.tab==='sell'){ sell.classList.remove('hidden'); var buys=base.filter(function(o){return (o.intent||'sell')==='buy'}); sell.innerHTML=buys.length?buys.map(function(o){return p2pCryptoCard(o,false)}).join(''):'<div class="cb-empty">Пока нет объявлений на покупку GC</div>'; return; }
     if(exchangeData.tab==='create'){ c.classList.remove('hidden'); updateP2pQuote(); return; }
-    if(exchangeData.tab==='mine'){ mine.classList.remove('hidden'); mine.innerHTML='<button class="cb-main cb-full" data-ex-tab="create">Создать объявление</button>'+((exchangeData.deals||[]).length?exchangeData.deals.map(function(o){return p2pCryptoCard(o,true)}).join(''):'<div class="cb-empty">У вас пока нет сделок</div>'); return; }
-    if(exchangeData.tab==='ads'){ ads.classList.remove('hidden'); var my=(exchangeData.deals||[]).filter(function(o){return o.isMine}); ads.innerHTML='<button class="cb-main cb-full" data-ex-tab="create">Создать объявление</button>'+(my.length?my.map(function(o){return p2pCryptoCard(o,true)}).join(''):'<div class="cb-empty">У вас пока нет объявлений</div>'); return; }
+    if(exchangeData.tab==='mine'){ mine.classList.remove('hidden'); mine.innerHTML='<button class="cb-offer gg-create-card" data-ex-tab="create"><span class="gg-cc-plus">+</span><span class="gg-cc-lbl">Создать объявление</span></button>'+((exchangeData.deals||[]).length?exchangeData.deals.map(function(o){return p2pCryptoCard(o,true)}).join(''):'<div class="cb-empty">У вас пока нет сделок</div>'); return; }
+    if(exchangeData.tab==='ads'){ ads.classList.remove('hidden'); var my=(exchangeData.deals||[]).filter(function(o){return o.isMine}); ads.innerHTML='<button class="cb-offer gg-create-card" data-ex-tab="create"><span class="gg-cc-plus">+</span><span class="gg-cc-lbl">Создать объявление</span></button>'+(my.length?my.map(function(o){return p2pCryptoCard(o,true)}).join(''):'<div class="cb-empty">У вас пока нет объявлений</div>'); return; }
     m.classList.remove('hidden'); var sells=base.filter(function(o){return (o.intent||'sell')==='sell'}); m.innerHTML=sells.length?sells.map(function(o){return p2pCryptoCard(o,false)}).join(''):'<div class="cb-empty">Пока нет продавцов GC</div>';
   }
   function updateP2pQuote(){var priceEl=document.getElementById('p2pPrice'), maxEl=document.getElementById('p2pMaxBuy'), detailsEl=document.getElementById('p2pDetails'); var a=Number((document.getElementById('p2pAmount')||{}).value)||0; var rate=Number((priceEl||{}).value)||0; var total=Math.round((a/1000)*rate); if(maxEl) maxEl.value=total?String(total):''; var tr=document.getElementById('p2pTotalRubTop'); if(tr)tr.textContent=total?fmt(total)+' ₽':'— ₽'; if(detailsEl){detailsEl.placeholder={SBP:'СБП: банк, номер телефона, имя получателя',UMONEY:'ЮMoney: номер кошелька или карты',CARD:'Карта: банк, номер карты, имя получателя'}[exchangeData.method]||'Реквизиты';}}
@@ -6893,7 +6893,7 @@ updateUI();
     var level=Math.max(1, Math.min(99, Math.floor(totalGames/5)+1));
     var lvl=document.getElementById('profileLevel'); if(lvl) lvl.textContent=String(level);
     var score=document.getElementById('profileScore'); if(score) score.textContent=fmt((Number(p.stats.won)||0)+(Number(weekly.wagered)||0));
-    var since=document.getElementById('profileSince'); if(since){ var d=(backendUser&&backendUser.createdAt)?new Date(backendUser.createdAt):null; since.textContent=d&&!isNaN(d.getTime())?'С нами с '+d.toLocaleDateString('ru-RU'):'С нами недавно'; }
+    var since=document.getElementById('profileSince'); if(since){ since.textContent='Дата регистрации: '+(typeof profileRegDate==='function'?profileRegDate():'—'); }
     renderTrophies();
     var adminBtn=document.getElementById('openAdminBtn');
     if(adminBtn) adminBtn.classList.toggle('hidden', !(backendUser && backendUser.admin));
@@ -8587,13 +8587,15 @@ input.input::placeholder,textarea.input::placeholder{color:#64748b!important;}
   function E(s){ if(window.escapeHtml) return window.escapeHtml(s); return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
   function F(n){ try{ if(window.fmt) return window.fmt(n); }catch(e){} n=Number(n)||0; return n.toLocaleString('ru-RU'); }
 
+  window.GG_TBANK_LOGO='data:image/png;base64,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';
+  window.GG_BANK_LOCAL={'Т-Банк':window.GG_TBANK_LOGO};
   // ---------- банки + иконки ----------
   var BANKS = [
     {re:/сбер|sber/i,              name:'Сбербанк',    c:'#21A038', fg:'#fff', short:'Сбер', d:'sberbank.ru'},
     {re:/озон|ozon/i,              name:'Озон Банк',   c:'#005BFF', fg:'#fff', short:'OZON', d:'ozon.ru'},
     {re:/альфа|alfa|alpha/i,     name:'Альфа-Банк',  c:'#EF3124', fg:'#fff', short:'Альфа', d:'alfabank.ru'},
     {re:/втб|vtb/i,                name:'ВТБ',         c:'#0A2896', fg:'#fff', short:'ВТБ', d:'vtb.ru'},
-    {re:/тинь|t-?банк|tinkoff|tbank/i, name:'Т-Банк', c:'#FFDD2D', fg:'#111', short:'Т', d:'tbank.ru'},
+    {re:/тинь|т-?банк|t-?банк|tinkoff|tbank/i, name:'Т-Банк', c:'#111', fg:'#FFDD2D', short:'Т', d:'tbank.ru'},
     {re:/газ|gazprom/i,            name:'Газпромбанк', c:'#0079C1', fg:'#fff', short:'ГПБ', d:'gazprombank.ru'},
     {re:/райф|raif/i,            name:'Райффайзен', c:'#FEE600', fg:'#111', short:'Райф', d:'raiffeisen.ru'},
     {re:/псб|psb|промсвяз/i, name:'ПСБ',   c:'#F26B21', fg:'#fff', short:'ПСБ', d:'psbank.ru'},
@@ -8615,7 +8617,7 @@ input.input::placeholder,textarea.input::placeholder{color:#64748b!important;}
     return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
   }
   window.bankIcon = bankIcon; window.bankMeta = bankMeta;
-  function bankSources(name,size){var m=bankMeta(name);var out=[];if(m.d){out.push('https://logo.clearbit.com/'+m.d);out.push('https://www.google.com/s2/favicons?sz=64&domain='+m.d);}out.push(bankIcon(name,size));return out;}
+  function bankSources(name,size){var m=bankMeta(name);var out=[];try{if(window.GG_BANK_LOCAL&&window.GG_BANK_LOCAL[m.name])out.push(window.GG_BANK_LOCAL[m.name]);}catch(e){}if(m.d){out.push('https://icons.duckduckgo.com/ip3/'+m.d+'.ico');out.push('https://www.google.com/s2/favicons?sz=128&domain='+m.d);out.push('https://logo.clearbit.com/'+m.d);}out.push(bankIcon(name,size));return out;}
   function bankImg(name,size,cls){var s=bankSources(name,size).map(function(x){return String(x).replace(/"/g,'&quot;');});return '<img'+(cls?' class="'+cls+'"':'')+' width="'+size+'" height="'+size+'" style="object-fit:contain;border-radius:9px;background:#fff" data-ggbank="1" data-i="0" data-srcs="'+s.join(' ||| ')+'" src="'+s[0]+'" alt="">';}
   window.bankImg = bankImg;
   if(!window.__ggBankErr){window.__ggBankErr=1;document.addEventListener('error',function(e){var t=e.target;if(!t||t.tagName!=='IMG'||!t.getAttribute||t.getAttribute('data-ggbank')!=='1')return;var srcs=(t.getAttribute('data-srcs')||'').split(' ||| ');var i=(parseInt(t.getAttribute('data-i')||'0',10)||0)+1;if(i<srcs.length){t.setAttribute('data-i',String(i));t.src=srcs[i];}},true);}
@@ -8929,5 +8931,100 @@ input.input::placeholder,textarea.input::placeholder{color:#64748b!important;}
 })();
 </script>
 <!-- GG PROFILE FINAL -->
+<style id="gg-final-2">
+/* --- компактная карточка «Создать объявление» --- */
+.gg-create-card{display:flex!important;flex-direction:column;align-items:center;justify-content:center;gap:10px;min-height:130px;cursor:pointer;background:linear-gradient(135deg,#0ea5e9,#6366f1)!important;border:0!important;color:#fff!important;text-align:center;box-shadow:0 14px 34px rgba(37,99,235,.3)!important;}
+.gg-create-card .gg-cc-plus{font-size:32px;font-weight:900;line-height:1;width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;}
+.gg-create-card .gg-cc-lbl{font-size:15px;font-weight:900;}
+/* --- фон профиля на весь экран + повыше --- */
+#screen-profile{background:radial-gradient(140% 82% at 50% -8%,#1b2748 0%,#0c1120 52%,#06070a 100%)!important;padding-top:0!important;}
+#screen-profile .profile-shot{background:transparent!important;box-shadow:none!important;padding-top:20px!important;min-height:auto!important;}
+#screen-profile #openAdminBtn,#screen-profile #togglePromoCreator{background:linear-gradient(135deg,#0ea5e9,#6366f1)!important;border:0!important;color:#fff!important;box-shadow:0 12px 30px rgba(37,99,235,.28)!important;border-radius:16px!important;}
+/* --- плашка уровня кликабельная --- */
+#ggLevelPill,#screen-profile .profile-level-badge{cursor:pointer!important;}
+#ggLevelPill{transition:transform .12s}#ggLevelPill:active{transform:scale(.96)}
+/* --- модалка Gamble Pass --- */
+.ggbp-ov{position:fixed;inset:0;z-index:99999;background:rgba(4,6,12,.72);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);display:flex;align-items:flex-end;justify-content:center;padding:0}
+.ggbp{width:100%;max-width:460px;max-height:88vh;overflow:auto;background:#0b1120;border:1px solid #223049;border-radius:24px 24px 0 0;padding:18px 18px calc(28px + env(safe-area-inset-bottom));box-shadow:0 -24px 70px rgba(0,0,0,.6)}
+@media(min-width:560px){.ggbp-ov{align-items:center}.ggbp{border-radius:24px}}
+.ggbp h2{margin:0 0 4px;font-size:24px;font-weight:950;color:#fff}
+.ggbp .sub{color:#94a3b8;font-size:13px;font-weight:700;margin-bottom:16px}
+.ggbp-cur{display:flex;align-items:center;gap:14px;padding:14px;border-radius:18px;background:linear-gradient(135deg,rgba(14,165,233,.18),rgba(99,102,241,.14));border:1px solid rgba(125,211,252,.2);margin-bottom:12px}
+.ggbp-cur .lv{width:56px;height:56px;flex:0 0 56px;border-radius:16px;background:linear-gradient(135deg,#38bdf8,#a78bfa);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:950;color:#06121f}
+.ggbp-cur b{font-size:18px;color:#fff;display:block}.ggbp-cur small{color:#9fb0c6;font-weight:700}
+.ggbp-bar{height:10px;border-radius:99px;background:#16203a;overflow:hidden;margin:2px 0 6px}
+.ggbp-bar>i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#38bdf8,#a78bfa)}
+.ggbp-prog{color:#9fb0c6;font-size:12px;font-weight:800;margin-bottom:16px}
+.ggbp-h{font-weight:900;color:#fff;margin:6px 0 10px;font-size:15px}
+.ggbp-tier{display:flex;align-items:center;gap:12px;padding:12px;border-radius:16px;border:1px solid #1e2a41;background:#0e1626;margin-bottom:8px}
+.ggbp-tier.done{border-color:rgba(56,189,248,.4);background:rgba(56,189,248,.08)}
+.ggbp-tier .n{width:40px;height:40px;flex:0 0 40px;border-radius:12px;background:#16203a;display:flex;align-items:center;justify-content:center;font-weight:950;color:#cbd5e1}
+.ggbp-tier.done .n{background:linear-gradient(135deg,#38bdf8,#a78bfa);color:#06121f}
+.ggbp-tier b{color:#fff;font-size:14px;display:block}.ggbp-tier small{color:#94a3b8;font-weight:700}
+.ggbp-tier .chk{margin-left:auto;font-weight:900;color:#38bdf8;font-size:18px}
+.ggbp-x{position:absolute;top:14px;right:14px;border:0;background:#16203a;color:#fff;width:38px;height:38px;border-radius:50%;font-size:20px;font-weight:900;cursor:pointer}
+</style>
+<script>
+(function(){
+  'use strict';
+  var TIERS=[
+    {lv:1,t:'Новичок',r:'Доступ к P2P-маркету и ежедневным бонусам'},
+    {lv:2,t:'Игрок',r:'+5% к ежедневному бонусу'},
+    {lv:3,t:'Бронза',r:'Бронзовая рамка аватара'},
+    {lv:5,t:'Серебро',r:'Ускоренный кэшбэк + серебряная рамка'},
+    {lv:8,t:'Золото',r:'Золотая рамка + бонус 10 000 GC'},
+    {lv:12,t:'Платина',r:'Приоритет в P2P + бонус 25 000 GC'},
+    {lv:20,t:'Алмаз',r:'Алмазный бейдж + бонус 100 000 GC'},
+    {lv:35,t:'Легенда',r:'Легендарное оформление профиля'},
+    {lv:50,t:'Мифик',r:'Мифический статус + макс. привилегии'}
+  ];
+  function E(x){return String(x==null?'':x).replace(/[&<>"']/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]})}
+  function curLevel(){var el=document.getElementById('profileLevel');var n=el?parseInt((el.textContent||'1').replace(/[^0-9]/g,''),10):1;return n>0?n:1;}
+  function close(){var o=document.getElementById('ggBpOv');if(o)o.remove();}
+  window.ggCloseBattlePass=close;
+  function open(){
+    close();
+    var lv=curLevel();
+    var next=null;for(var i=0;i<TIERS.length;i++){if(TIERS[i].lv>lv){next=TIERS[i];break;}}
+    if(!next)next=TIERS[TIERS.length-1];
+    var pct=Math.max(6,Math.min(100,Math.round((lv/(next.lv||lv))*100)));
+    var rows=TIERS.map(function(t){var done=lv>=t.lv;return '<div class="ggbp-tier'+(done?' done':'')+'"><div class="n">'+t.lv+'</div><div><b>'+E(t.t)+'</b><small>'+E(t.r)+'</small></div>'+(done?'<span class="chk">\u2713</span>':'')+'</div>';}).join('');
+    var ov=document.createElement('div');ov.className='ggbp-ov';ov.id='ggBpOv';
+    ov.innerHTML='<div class="ggbp"><button class="ggbp-x" id="ggBpX">\u00d7</button>'
+      +'<h2>\u2618 Gamble Pass</h2>'
+      +'<div class="sub">\u0418\u0433\u0440\u0430\u0439\u0442\u0435, \u043f\u043e\u0432\u044b\u0448\u0430\u0439\u0442\u0435 \u0443\u0440\u043e\u0432\u0435\u043d\u044c \u0438 \u043e\u0442\u043a\u0440\u044b\u0432\u0430\u0439\u0442\u0435 \u043d\u0430\u0433\u0440\u0430\u0434\u044b</div>'
+      +'<div class="ggbp-cur"><div class="lv">'+lv+'</div><div><b>\u0423\u0440\u043e\u0432\u0435\u043d\u044c '+lv+'</b><small>\u0423\u0440\u043e\u0432\u0435\u043d\u044c \u0440\u0430\u0441\u0442\u0451\u0442 \u0437\u0430 \u0441\u044b\u0433\u0440\u0430\u043d\u043d\u044b\u0435 \u0441\u0442\u0430\u0432\u043a\u0438: +1 \u0443\u0440\u043e\u0432\u0435\u043d\u044c \u0437\u0430 \u043a\u0430\u0436\u0434\u044b\u0435 5 \u0438\u0433\u0440</small></div></div>'
+      +'<div class="ggbp-bar"><i style="width:'+pct+'%"></i></div>'
+      +'<div class="ggbp-prog">\u0421\u043b\u0435\u0434\u0443\u044e\u0449\u0430\u044f \u043d\u0430\u0433\u0440\u0430\u0434\u0430: \u00ab'+E(next.t)+'\u00bb (\u0443\u0440. '+next.lv+')</div>'
+      +'<div class="ggbp-h">\u041d\u0430\u0433\u0440\u0430\u0434\u044b \u0437\u0430 \u0443\u0440\u043e\u0432\u043d\u0438</div>'+rows
+      +'</div>';
+    document.body.appendChild(ov);
+    ov.addEventListener('click',function(e){if(e.target===ov)close();});
+    var x=document.getElementById('ggBpX');if(x)x.onclick=close;
+  }
+  window.ggOpenBattlePass=open;
+  document.addEventListener('click',function(ev){var t=ev.target&&ev.target.closest&&ev.target.closest('#ggLevelPill,.profile-level-badge');if(t){ev.preventDefault();ev.stopPropagation();open();}},true);
+
+  // ---- фикс кнопки создания оффера: вызываем правильный обработчик ----
+  document.addEventListener('click',function(ev){
+    var btn=ev.target&&ev.target.closest&&ev.target.closest('#p2pCreateBtn');
+    if(!btn)return;
+    ev.preventDefault();ev.stopImmediatePropagation();
+    try{
+      if(!window.exchangeData)window.exchangeData={};
+      var act=document.querySelector('[data-create-side].active');
+      window.exchangeData.createSide=act?(act.getAttribute('data-create-side')||'sell'):(window.exchangeData.createSide||'sell');
+      if(window.exchangeData.createSide!=='buy'){
+        var mEl=document.querySelector('[data-method].active');
+        var m=mEl?(mEl.getAttribute('data-method')||'SBP'):'SBP';
+        if(m==='SBP'){var ph=(document.getElementById('sbpPhone')||{}).value||'';if(!String(ph).trim()){if(window.showToast)showToast('\u0423\u043a\u0430\u0436\u0438\u0442\u0435 \u043d\u043e\u043c\u0435\u0440 \u0442\u0435\u043b\u0435\u0444\u043e\u043d\u0430 \u0434\u043b\u044f \u0421\u0411\u041f','error');return;}}
+      }
+    }catch(e){}
+    if(typeof window.p2pCreate==='function')window.p2pCreate();
+  },true);
+})();
+</script>
+<!-- GG FINAL 2 -->
+
 </body>
 </html>

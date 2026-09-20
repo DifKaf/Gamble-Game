@@ -4510,7 +4510,7 @@ updateUI();
   function openP2pWaitingSeller(deal,rub,gc){p2pModalShell('<button class="p2p-x" id="p2pModalClose">×</button><div class="p2p-room-head"><span>'+escapeHtml(p2pOfferId(deal))+'</span><b>Ждём продавца</b><small>После принятия вы получите реквизиты</small></div><div class="p2p-ring" id="p2pWaitTimer">10:00</div>'+p2pDealProgress('WAITING_SELLER')+'<button class="btn btn-ghost btn-block" id="p2pCancelWaiting">Отменить</button>');document.getElementById('p2pModalClose').onclick=p2pCloseModal;document.getElementById('p2pCancelWaiting').onclick=function(){p2pAction('cancel',deal.id);p2pCloseModal();};}
   function openP2pPayDetails(deal){var req=deal.paymentDetails||'Реквизиты появятся после принятия продавцом'; p2pModalShell('<button class="p2p-x" id="p2pModalClose">×</button><div class="p2p-room-head"><span>'+escapeHtml(p2pOfferId(deal))+'</span><b>Сделочная комната</b><small>'+(deal.isBuyer?'Вы покупатель':'Вы продавец')+'</small></div>'+p2pDealProgress(deal.status)+'<div class="p2p-details"><div class="row"><span>GC</span><b>'+fmt(deal.amountGc)+' GC</b></div><div class="row"><span>К оплате</span><b>'+fmt(deal.priceRub)+' ₽</b></div><div class="row"><span>Курс</span><b>'+fmt(p2pRateRub(deal))+' ₽ / 1 000 GC</b></div><div class="row"><span>Способ</span><b>'+escapeHtml(p2pMethodName(deal.method))+'</b></div><div class="row"><span>Реквизиты</span><b>'+escapeHtml(req).replace(/\n/g,'<br>')+'</b></div></div><div class="p2p-security"><b>Безопасность</b><br>Нажимайте «Я оплатил» только после фактического перевода. Продавец подтверждает только после поступления денег.</div><div class="p2p-offer-actions">'+(deal.isBuyer&&deal.status==='DEAL'?'<button class="btn btn-primary" id="p2pPaidBtn">Я оплатил</button>':'')+(deal.isMine&&deal.status==='PAID'?'<button class="btn btn-gold" data-p2p-act="release" data-id="'+deal.id+'">Подтвердить получение</button>':'')+'<button class="btn btn-ghost" data-p2p-act="dispute" data-id="'+deal.id+'">Открыть спор</button></div>');document.getElementById('p2pModalClose').onclick=p2pCloseModal;var paid=document.getElementById('p2pPaidBtn'); if(paid)paid.onclick=function(){p2pAction('paid',deal.id);p2pCloseModal();};}
   async function p2pAction(act,id,silent){try{var url='/exchange/'+(act==='take'?'offers/'+id+'/take':'deals/'+id+'/'+act); var body={}; if(act==='dispute') body={reason:prompt('Опишите проблему')||'Спор по оплате'}; var r=await apiRequest(url,{method:'POST',body:JSON.stringify(body)}); if(typeof r.balance==='number'){backendBalance=r.balance;applyBackendBalanceToUI();renderBalances();} if(!silent) showToast('Готово','success'); loadExchange(); return r;}catch(e){if(!silent)showToast(e.message||'Ошибка P2P','error'); throw e;}}
-  document.addEventListener('click',function(ev){if(!ev.target||!ev.target.closest)return; var tab=ev.target.closest('[data-ex-tab]'); if(tab){exchangeData.tab=tab.getAttribute('data-ex-tab');renderExchange();return;} var f=ev.target.closest('[data-p2p-filter]'); if(f){exchangeData.filter=f.getAttribute('data-p2p-filter');document.querySelectorAll('[data-p2p-filter]').forEach(function(b){b.classList.toggle('active',b===f)});renderExchange();return;} var buy=ev.target.closest('[data-p2p-buy]'); if(buy){openP2pBuyModal(buy.getAttribute('data-p2p-buy'));return;} var meth=ev.target.closest('[data-method]'); if(meth){exchangeData.method=meth.getAttribute('data-method');document.querySelectorAll('[data-method]').forEach(function(b){b.classList.toggle('active',b===meth)});updateP2pQuote();return;} if(ev.target.closest('#p2pCreateBtn')){p2pCreate();return;} var payd=ev.target.closest('[data-p2p-paydetails]'); if(payd){var idp=payd.getAttribute('data-p2p-paydetails');var d=(exchangeData.deals||[]).find(function(x){return x.id===idp});if(d)openP2pPayDetails(d);return;} var act=ev.target.closest('[data-p2p-act]'); if(act){p2pAction(act.getAttribute('data-p2p-act'),act.getAttribute('data-id'));return;}});
+  document.addEventListener('click',function(ev){if(!ev.target||!ev.target.closest)return; var tab=ev.target.closest('[data-ex-tab]'); if(tab){exchangeData.tab=tab.getAttribute('data-ex-tab');renderExchange();return;} var f=ev.target.closest('[data-p2p-filter]'); if(f){exchangeData.filter=f.getAttribute('data-p2p-filter');document.querySelectorAll('[data-p2p-filter]').forEach(function(b){b.classList.toggle('active',b===f)});renderExchange();return;} var buy=ev.target.closest('[data-p2p-buy]'); if(buy){openP2pBuyModal(buy.getAttribute('data-p2p-buy'));return;} var meth=ev.target.closest('[data-method]'); if(meth){exchangeData.method=meth.getAttribute('data-method');document.querySelectorAll('[data-method]').forEach(function(b){b.classList.toggle('active',b===meth)});updateP2pQuote();return;} var payd=ev.target.closest('[data-p2p-paydetails]'); if(payd){var idp=payd.getAttribute('data-p2p-paydetails');var d=(exchangeData.deals||[]).find(function(x){return x.id===idp});if(d)openP2pPayDetails(d);return;} var act=ev.target.closest('[data-p2p-act]'); if(act){p2pAction(act.getAttribute('data-p2p-act'),act.getAttribute('data-id'));return;}});
   document.addEventListener('input',function(ev){if(ev.target&&/p2p(Amount|Price)/.test(ev.target.id))updateP2pQuote();});
 
 
@@ -8617,7 +8617,7 @@ input.input::placeholder,textarea.input::placeholder{color:#64748b!important;}
     return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
   }
   window.bankIcon = bankIcon; window.bankMeta = bankMeta;
-  function bankSources(name,size){var m=bankMeta(name);var out=[];try{if(window.GG_BANK_LOCAL&&window.GG_BANK_LOCAL[m.name])out.push(window.GG_BANK_LOCAL[m.name]);}catch(e){}if(m.d){out.push('https://icons.duckduckgo.com/ip3/'+m.d+'.ico');out.push('https://www.google.com/s2/favicons?sz=128&domain='+m.d);out.push('https://logo.clearbit.com/'+m.d);}out.push(bankIcon(name,size));return out;}
+  function bankSources(name,size){var m=bankMeta(name);var out=[];try{if(window.GG_BANK_LOCAL&&window.GG_BANK_LOCAL[m.name])out.push(window.GG_BANK_LOCAL[m.name]);}catch(e){}out.push(bankIcon(name,size));return out;}
   function bankImg(name,size,cls){var s=bankSources(name,size).map(function(x){return String(x).replace(/"/g,'&quot;');});return '<img'+(cls?' class="'+cls+'"':'')+' width="'+size+'" height="'+size+'" style="object-fit:contain;border-radius:9px;background:#fff" data-ggbank="1" data-i="0" data-srcs="'+s.join(' ||| ')+'" src="'+s[0]+'" alt="">';}
   window.bankImg = bankImg;
   if(!window.__ggBankErr){window.__ggBankErr=1;document.addEventListener('error',function(e){var t=e.target;if(!t||t.tagName!=='IMG'||!t.getAttribute||t.getAttribute('data-ggbank')!=='1')return;var srcs=(t.getAttribute('data-srcs')||'').split(' ||| ');var i=(parseInt(t.getAttribute('data-i')||'0',10)||0)+1;if(i<srcs.length){t.setAttribute('data-i',String(i));t.src=srcs[i];}},true);}
@@ -9005,7 +9005,64 @@ input.input::placeholder,textarea.input::placeholder{color:#64748b!important;}
   window.ggOpenBattlePass=open;
   document.addEventListener('click',function(ev){var t=ev.target&&ev.target.closest&&ev.target.closest('#ggLevelPill,.profile-level-badge');if(t){ev.preventDefault();ev.stopPropagation();open();}},true);
 
-  // ---- фикс кнопки создания оффера: вызываем правильный обработчик ----
+  // ---- единый обработчик создания объявления P2P ----
+  function ggEnsureCreateMsg(){
+    var box=document.getElementById('ggCreateMsg');
+    if(box) return box;
+    var btn=document.getElementById('p2pCreateBtn');
+    box=document.createElement('div'); box.id='ggCreateMsg'; box.className='gg-create-msg';
+    if(btn&&btn.parentNode) btn.parentNode.insertBefore(box, btn);
+    return box;
+  }
+  async function ggFinalCreateOffer(){
+    var api=window.apiRequest||(typeof apiRequest==='function'?apiRequest:null);
+    var btn=document.getElementById('p2pCreateBtn');
+    var box=ggEnsureCreateMsg();
+    function show(t,ok){ if(box){box.textContent=t; box.className='gg-create-msg '+(ok?'ok':'err'); box.style.display='block';} if(window.showToast)showToast(t, ok?'success':'error'); }
+    if(!api) return show('Нет соединения с сервером. Обновите приложение.',false);
+    var sideEl=document.querySelector('[data-create-side].active');
+    var side=sideEl?(sideEl.getAttribute('data-create-side')||'sell'):'sell';
+    var amount=Math.round(Number((document.getElementById('p2pAmount')||{}).value)||0);
+    var rate=Number((document.getElementById('p2pPrice')||{}).value)||0;
+    var minBuy=Math.round(Number((document.getElementById('p2pMinBuy')||{}).value)||0);
+    var methEl=document.querySelector('[data-method].active');
+    var method=methEl?(methEl.getAttribute('data-method')||'SBP'):((window.exchangeData&&window.exchangeData.method)||'SBP');
+    var details='';
+    if(side==='sell'){
+      if(method==='SBP'){
+        var ph=((document.getElementById('sbpPhone')||{}).value||'').trim();
+        var bank=((document.getElementById('sbpBank')||{}).value||'').trim();
+        if(/друг/i.test(bank)){ var ob=((document.getElementById('otherBank')||{}).value||'').trim(); if(ob) bank=ob; }
+        if(!ph) return show('Укажите номер телефона для СБП',false);
+        details='Номер: '+ph+'\nБанк: '+(bank||'—');
+      } else {
+        details=((document.getElementById('p2pDetails')||{}).value||'').trim();
+      }
+    } else {
+      details='Реквизиты укажет продавец при сделке';
+    }
+    if(!amount||amount<100) return show('Минимальное количество — 100 GC',false);
+    if(!rate||rate<=0) return show('Укажите курс за 1 000 GC',false);
+    if(side==='sell'&&details.length<3) return show('Заполните реквизиты для получения оплаты',false);
+    var totalRub=Math.round((amount/1000)*rate);
+    if(!minBuy||minBuy<1) minBuy=Math.max(1,Math.min(100,totalRub||1));
+    if(minBuy>totalRub) return show('Минимальный лимит больше суммы сделки',false);
+    if(side==='sell'&&typeof window.backendBalance==='number'&&amount>window.backendBalance) return show('Недостаточно GC на балансе',false);
+    if(box) box.style.display='none';
+    var orig=btn?btn.textContent:'';
+    if(btn){btn.disabled=true;btn.textContent='Создаём…';}
+    try{
+      var r=await api('/exchange/offers',{method:'POST',body:JSON.stringify({amountGc:amount,rateRubPer1000:rate,minBuyRub:minBuy,maxBuyRub:totalRub,method:method,paymentDetails:details,comment:((document.getElementById('p2pComment')||{}).value||'').trim(),intent:side})});
+      if(r&&typeof r.balance==='number'){ window.backendBalance=r.balance; if(window.applyBackendBalanceToUI)applyBackendBalanceToUI(); if(window.renderBalances)renderBalances(); }
+      show(side==='buy'?'Объявление на покупку создано':'Объявление создано, GC заморожены в escrow',true);
+      ['p2pAmount','p2pPrice','p2pMinBuy','p2pComment','sbpPhone'].forEach(function(id){var e=document.getElementById(id);if(e)e.value='';});
+      var pd=document.getElementById('p2pDetails'); if(pd)pd.value='';
+      try{ if(!window.exchangeData)window.exchangeData={}; window.exchangeData.tab='ads'; }catch(e){}
+      if(window.loadExchange) loadExchange();
+    }catch(e){ show((e&&e.message)||'Не удалось создать объявление',false); }
+    finally{ if(btn){btn.disabled=false;btn.textContent=orig||'Создать объявление';} }
+  }
+  window.ggFinalCreateOffer=ggFinalCreateOffer;
   document.addEventListener('click',function(ev){
     var btn=ev.target&&ev.target.closest&&ev.target.closest('#p2pCreateBtn');
     if(!btn)return;
@@ -9014,17 +9071,124 @@ input.input::placeholder,textarea.input::placeholder{color:#64748b!important;}
       if(!window.exchangeData)window.exchangeData={};
       var act=document.querySelector('[data-create-side].active');
       window.exchangeData.createSide=act?(act.getAttribute('data-create-side')||'sell'):(window.exchangeData.createSide||'sell');
-      if(window.exchangeData.createSide!=='buy'){
-        var mEl=document.querySelector('[data-method].active');
-        var m=mEl?(mEl.getAttribute('data-method')||'SBP'):'SBP';
-        if(m==='SBP'){var ph=(document.getElementById('sbpPhone')||{}).value||'';if(!String(ph).trim()){if(window.showToast)showToast('\u0423\u043a\u0430\u0436\u0438\u0442\u0435 \u043d\u043e\u043c\u0435\u0440 \u0442\u0435\u043b\u0435\u0444\u043e\u043d\u0430 \u0434\u043b\u044f \u0421\u0411\u041f','error');return;}}
-      }
+      var mEl=document.querySelector('[data-method].active');
+      if(mEl) window.exchangeData.method=mEl.getAttribute('data-method')||'SBP';
     }catch(e){}
-    if(typeof window.p2pCreate==='function')window.p2pCreate();
+    ggFinalCreateOffer();
   },true);
 })();
 </script>
 <!-- GG FINAL 2 -->
 
+<style id="gg-final-3">
+/* --- compact P2P create card --- */
+.gg-create-card{flex-direction:row!important;align-items:center!important;min-height:64px!important;height:auto!important;gap:14px!important;padding:14px 18px!important;border-radius:16px!important;justify-content:flex-start!important;text-align:left!important}
+.gg-create-card .gg-cc-plus,.gg-create-card .plus,.gg-create-card [class*="plus"]{width:38px!important;height:38px!important;min-width:38px!important;font-size:22px!important}
+/* --- inline create message --- */
+.gg-create-msg{display:none;margin:12px 0 2px;padding:11px 14px;border-radius:12px;font-size:13px;font-weight:800;line-height:1.4;white-space:pre-line}
+.gg-create-msg.err{background:rgba(220,38,38,.14);color:#fca5a5;border:1px solid rgba(220,38,38,.42)}
+.gg-create-msg.ok{background:rgba(22,163,74,.15);color:#86efac;border:1px solid rgba(22,163,74,.42)}
+/* --- profile menu --- */
+#ggProfMenu{margin:8px 0 26px}
+.gg-prof-head{margin:8px 18px 12px;color:#7b7b82;font-size:12px;font-weight:900;letter-spacing:.14em;text-transform:uppercase}
+.gg-prof-menu{display:grid;gap:10px;padding:0 14px}
+.gg-prof-item{display:flex;align-items:center;gap:14px;width:100%;text-align:left;cursor:pointer;background:linear-gradient(180deg,#1d1d20,#161618);border:1px solid #262629;border-radius:18px;padding:14px 15px;color:#fff;font-weight:850;font-size:15.5px;transition:transform .08s ease,border-color .15s ease}
+.gg-prof-item:active{transform:scale(.985);border-color:#3a3a40}
+.gg-prof-ic{width:42px;height:42px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:20px;flex:0 0 auto;background:rgba(255,255,255,.07)}
+.gg-prof-tx{flex:1;display:flex;flex-direction:column;gap:2px;min-width:0}
+.gg-prof-tx small{color:#8b8b92;font-size:12px;font-weight:700}
+.gg-prof-arw{color:#5f5f66;font-size:22px;font-weight:900;flex:0 0 auto}
+/* --- doc / privacy modal --- */
+.gg-doc-ov{position:fixed;inset:0;z-index:100000;background:rgba(0,0,0,.62);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);display:flex;align-items:flex-end;justify-content:center;animation:ggFade .18s ease}
+@keyframes ggFade{from{opacity:0}to{opacity:1}}
+.gg-doc{width:100%;max-width:470px;max-height:88vh;overflow:auto;background:#141416;border-radius:24px 24px 0 0;padding:22px 20px 44px;border:1px solid #262629;-webkit-overflow-scrolling:touch;animation:ggUp .24s cubic-bezier(.2,.9,.25,1)}
+@keyframes ggUp{from{transform:translateY(40px);opacity:.4}to{transform:translateY(0);opacity:1}}
+.gg-doc h2{margin:0 0 4px;font-size:23px;font-weight:950;color:#fff}
+.gg-doc .gg-doc-sub{color:#8b8b92;font-size:12px;font-weight:800;margin-bottom:14px}
+.gg-doc h3{margin:18px 0 6px;font-size:15px;font-weight:900;color:#e9e9ee}
+.gg-doc p{margin:0 0 10px;color:#c2c2ca;font-size:13.5px;line-height:1.55}
+.gg-doc-x{position:sticky;top:0;float:right;border:0;background:#242427;color:#fff;width:38px;height:38px;border-radius:50%;font-size:22px;line-height:1;font-weight:900;cursor:pointer}
+@media(min-width:520px){.gg-doc-ov{align-items:center}.gg-doc{border-radius:24px}}
+</style>
+<script id="gg-final-3-js">
+(function(){
+  function E(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];});}
+  // ---------- документы (политика / правила / поддержка / о приложении) ----------
+  var DOCS={
+    privacy:{t:'Политика конфиденциальности',s:'Последнее обновление: 2026',h:[
+      ['1. Какие данные мы собираем','Мы используем только данные вашего Telegram-аккаунта, которые передаёт Telegram: идентификатор, имя, ник и фото профиля. Мы не запрашиваем пароли, не читаем ваши личные чаты и не имеем доступа к вашим банковским счетам.'],
+      ['2. Как мы используем данные','Данные нужны для работы игры: хранения баланса Gamble Coin, истории игр, уровня и наград. Реквизиты, которые вы указываете в P2P, видит только второй участник сделки.'],
+      ['3. P2P и виртуальная валюта','Gamble Coin (GC) — внутриигровая валюта. Обмен между игроками происходит через escrow: GC замораживаются до подтверждения оплаты. Мы не являемся банком и не проводим денежные переводы — расчёты между игроками происходят напрямую.'],
+      ['4. Хранение и защита','Данные хранятся на защищённых серверах и передаются по шифрованному соединению (HTTPS). Мы не передаём ваши данные третьим лицам в рекламных целях.'],
+      ['5. Ваши права','Вы можете запросить удаление аккаунта и всех связанных данных, написав в поддержку. После удаления баланс GC и история восстановлению не подлежат.'],
+      ['6. Возраст','Приложение предназначено для пользователей 18+. Игра использует виртуальную валюту и носит развлекательный характер.']
+    ]},
+    terms:{t:'Правила и условия',s:'Условия использования',h:[
+      ['1. Общие положения','Используя приложение, вы соглашаетесь с настоящими правилами. Gamble Coin не является деньгами и не имеет реальной денежной стоимости.'],
+      ['2. Честная игра','Запрещены боты, мультиаккаунты и любые попытки взлома. Нарушители блокируются без возврата баланса.'],
+      ['3. P2P-сделки','При обмене GC ответственность за перевод денег несут сами участники. Подтверждайте оплату только после фактического получения средств.'],
+      ['4. Ответственность','Администрация не несёт ответственности за споры вне escrow и за действия третьих лиц.']
+    ]},
+    support:{t:'Поддержка',s:'Мы на связи',h:[
+      ['Как с нами связаться','Если у вас возникла проблема с балансом, сделкой или аккаунтом — напишите нам. Мы отвечаем в течение 24 часов.'],
+      ['Споры по P2P','При споре нажмите «Открыть спор» в сделке и опишите ситуацию. Модератор рассмотрит скрины и чеки.']
+    ]},
+    about:{t:'О приложении',s:'Gamble Game',h:[
+      ['Gamble Game','Развлекательная игра с виртуальной валютой Gamble Coin, мини-играми, уровнями и P2P-обменом между игроками.'],
+      ['Версия','Интерфейс 2.1 · Сделано с любовью для сообщества.']
+    ]}
+  };
+  function ggCloseDoc(){var o=document.getElementById('ggDocOv'); if(o)o.remove();}
+  function ggOpenDoc(key){
+    var d=DOCS[key]; if(!d) return;
+    ggCloseDoc();
+    var body=d.h.map(function(x){return '<h3>'+E(x[0])+'</h3><p>'+E(x[1])+'</p>';}).join('');
+    var ov=document.createElement('div'); ov.id='ggDocOv'; ov.className='gg-doc-ov';
+    ov.innerHTML='<div class="gg-doc"><button class="gg-doc-x" id="ggDocX">×</button><h2>'+E(d.t)+'</h2><div class="gg-doc-sub">'+E(d.s)+'</div>'+body+'</div>';
+    document.body.appendChild(ov);
+    ov.addEventListener('click',function(e){if(e.target===ov)ggCloseDoc();});
+    var x=document.getElementById('ggDocX'); if(x)x.onclick=ggCloseDoc;
+  }
+  window.ggOpenDoc=ggOpenDoc;
+  // ---------- меню профиля ----------
+  var ITEMS=[
+    ['settings','⚙️','Настройки','Звук, тема, язык и вибрация'],
+    ['share','↗️','Поделиться профилем','Показать свой профиль друзьям'],
+    ['privacy','🔒','Политика конфиденциальности','Как мы работаем с вашими данными'],
+    ['terms','📜','Правила и условия','Условия использования'],
+    ['support','💬','Поддержка','Помощь и споры'],
+    ['about','ℹ️','О приложении','Версия и информация']
+  ];
+  function ggBuildProfileMenu(){
+    var sec=document.getElementById('screen-profile');
+    if(!sec||document.getElementById('ggProfMenu')) return;
+    var rows=ITEMS.map(function(it){return '<button class="gg-prof-item" data-gg-act="'+it[0]+'"><span class="gg-prof-ic">'+it[1]+'</span><span class="gg-prof-tx">'+E(it[2])+'<small>'+E(it[3])+'</small></span><span class="gg-prof-arw">›</span></button>';}).join('');
+    var wrap=document.createElement('div'); wrap.id='ggProfMenu';
+    wrap.innerHTML='<div class="gg-prof-head">Аккаунт и настройки</div><div class="gg-prof-menu">'+rows+'</div>';
+    sec.appendChild(wrap);
+    wrap.addEventListener('click',function(ev){
+      var it=ev.target&&ev.target.closest&&ev.target.closest('[data-gg-act]');
+      if(!it) return;
+      var a=it.getAttribute('data-gg-act');
+      if(a==='settings'){ if(window.showScreen) showScreen('settings'); }
+      else if(a==='share'){ var b=document.getElementById('profileShareBtn'); if(b) b.click(); }
+      else { ggOpenDoc(a); }
+    });
+  }
+  window.ggBuildProfileMenu=ggBuildProfileMenu;
+  // добавить кнопку политики в настройки
+  function ggAugmentSettings(){
+    var rules=document.getElementById('settingsRulesBtn');
+    if(!rules||document.getElementById('settingsPrivacyBtn')) return;
+    var pv=document.createElement('button'); pv.id='settingsPrivacyBtn'; pv.className='btn btn-ghost btn-block'; pv.style.marginTop='8px'; pv.textContent='Политика конфиденциальности';
+    pv.onclick=function(){ ggOpenDoc('privacy'); };
+    rules.parentNode.insertBefore(pv, rules.nextSibling);
+    if(!rules.getAttribute('data-gg-wired')){ rules.setAttribute('data-gg-wired','1'); rules.addEventListener('click',function(){ ggOpenDoc('terms'); }); }
+  }
+  function boot(){ try{ ggBuildProfileMenu(); }catch(e){} try{ ggAugmentSettings(); }catch(e){} }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot); else boot();
+  setTimeout(boot,700); setTimeout(boot,1800);
+})();
+</script>
 </body>
 </html>

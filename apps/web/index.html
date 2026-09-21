@@ -8572,7 +8572,7 @@ input.input::placeholder,textarea.input::placeholder{color:#64748b!important;}
 .gg-req-ic{width:44px;height:44px;border-radius:12px;flex:0 0 auto}
 .gg-req-mid{flex:1 1 auto;min-width:0}
 .gg-req-name{color:#94a3b8;font-size:12px;font-weight:800}
-.gg-req-num{color:#fff;font-size:20px;font-weight:900;letter-spacing:.5px;font-variant-numeric:tabular-nums;word-break:break-all;margin-top:2px}
+.gg-req-num{color:#fff;font-size:clamp(15px,5vw,20px);font-weight:900;letter-spacing:0;font-variant-numeric:tabular-nums;white-space:nowrap;word-break:keep-all;overflow-wrap:normal;margin-top:2px}
 .gg-copy{border:0;border-radius:12px;padding:11px 14px;background:#2563eb;color:#fff;font-weight:900;cursor:pointer;flex:0 0 auto;font-size:13px}
 .gg-copy:active{transform:scale(.95)}
 .gg-copy.ok{background:#31d0aa}
@@ -8596,6 +8596,12 @@ input.input::placeholder,textarea.input::placeholder{color:#64748b!important;}
 .gg-receipt-t{font-size:12px;font-weight:800;color:#94a3b8;margin-bottom:8px}
 .gg-receipt-img{width:100%;max-height:260px;object-fit:contain;border-radius:10px;cursor:zoom-in;background:#000;display:block}
 .gg-receipt-f{font-size:13px;font-weight:700;color:#e2e8f0;word-break:break-all}
+.gg-receipt-btns{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.gg-rc-open,.gg-rc-dl{border:0;border-radius:10px;padding:9px 14px;font-weight:800;font-size:13px;cursor:pointer}
+.gg-rc-open{background:#2563eb;color:#fff}
+.gg-rc-dl{background:rgba(148,163,184,.2);color:#e2e8f0}
+.gg-receipt-file{display:flex;flex-direction:column;gap:6px}
+.gg-receipt-fn{font-size:13px;font-weight:700;color:#e2e8f0}
 .gg-rc-full{position:fixed;inset:0;z-index:100005;background:rgba(0,0,0,.92);display:flex;align-items:center;justify-content:center;cursor:zoom-out}
 .gg-rc-full img{max-width:96%;max-height:92%;object-fit:contain;border-radius:8px}
 .gg-rc-x{position:absolute;top:14px;right:18px;color:#fff;font-size:34px;font-weight:800;line-height:1}
@@ -8708,10 +8714,12 @@ input.input::placeholder,textarea.input::placeholder{color:#64748b!important;}
   function clearDeadline(key){ try{ localStorage.removeItem(_dlkey(key)); }catch(e){} }
   function clearAllDeadlines(d){ if(!d||!d.id) return; ['WAITING','DEAL','PAID'].forEach(function(x){ clearDeadline(d.id+':'+x); }); }
   var _t2=null;
-  function startTimerP(el, seconds, key, onExpire){
+  function startTimerP(el, seconds, key, onExpire, anchorMs){
     stopTimer(); if(_t2){ clearInterval(_t2); _t2=null; }
     if(!el) return;
-    var deadline = key ? getDeadline(key, seconds) : (Date.now()+seconds*1000);
+    var deadline;
+    if(anchorMs && isFinite(anchorMs)){ deadline = anchorMs + seconds*1000; if(key){ try{ localStorage.setItem(_dlkey(key), String(deadline)); }catch(e){} } }
+    else { deadline = key ? getDeadline(key, seconds) : (Date.now()+seconds*1000); }
     var fired=false;
     function paint(){
       var left=Math.round((deadline-Date.now())/1000); if(left<0) left=0;
@@ -8814,7 +8822,7 @@ input.input::placeholder,textarea.input::placeholder{color:#64748b!important;}
     try{
       if(!file){ cb(''); return; }
       var isImg=/^image\//.test(file.type||'');
-      if(!isImg){ cb(file.name||'\u0447\u0435\u043a'); return; }
+      if(!isImg){ var frd=new FileReader(); frd.onload=function(){ var du=String(frd.result||''); if(du.indexOf('data:')===0 && du.length<=5800000) cb(du); else cb(file.name||'\u0447\u0435\u043a'); }; frd.onerror=function(){ cb(file.name||'\u0447\u0435\u043a'); }; frd.readAsDataURL(file); return; }
       var reader=new FileReader();
       reader.onload=function(){
         var img=new Image();
@@ -8838,13 +8846,23 @@ input.input::placeholder,textarea.input::placeholder{color:#64748b!important;}
   }
   function receiptView(d, forSeller){
     var r=d&&d.receipt; if(!r) return forSeller?'<div class="gg-note">\u041f\u043e\u043a\u0443\u043f\u0430\u0442\u0435\u043b\u044c \u0435\u0449\u0451 \u043d\u0435 \u043f\u0440\u0438\u043b\u043e\u0436\u0438\u043b \u0447\u0435\u043a.</div>':'';
+    try{ window.__ggReceiptSrc=r; window.__ggReceiptName='cheque.jpg'; }catch(e){}
     if(String(r).indexOf('data:image')===0){
-      return '<div class="gg-receipt"><div class="gg-receipt-t">'+(forSeller?'\u0427\u0435\u043a \u043e\u0442 \u043f\u043e\u043a\u0443\u043f\u0430\u0442\u0435\u043b\u044f':'\u0412\u0430\u0448 \u0447\u0435\u043a')+' \u2014 \u043d\u0430\u0436\u043c\u0438\u0442\u0435, \u0447\u0442\u043e\u0431\u044b \u043e\u0442\u043a\u0440\u044b\u0442\u044c:</div><img src="'+r+'" class="gg-receipt-img" id="ggReceiptImg" alt="\u0447\u0435\u043a" onclick="window.ggOpenImg&&window.ggOpenImg(this.src)"></div>';
+      return '<div class="gg-receipt"><div class="gg-receipt-t">'+(forSeller?'\u0427\u0435\u043a \u043e\u0442 \u043f\u043e\u043a\u0443\u043f\u0430\u0442\u0435\u043b\u044f':'\u0412\u0430\u0448 \u0447\u0435\u043a')+' \u2014 \u043d\u0430\u0436\u043c\u0438\u0442\u0435, \u0447\u0442\u043e\u0431\u044b \u043e\u0442\u043a\u0440\u044b\u0442\u044c:</div><img src="'+r+'" class="gg-receipt-img" id="ggReceiptImg" alt="\u0447\u0435\u043a" onclick="window.ggOpenImg&&window.ggOpenImg(this.src)"><div class="gg-receipt-btns"><button type="button" class="gg-rc-dl" onclick="ggRcDl()">\u0421\u043a\u0430\u0447\u0430\u0442\u044c</button></div></div>';
+    }
+    if(String(r).indexOf('data:')===0){
+      var _mime=(String(r).match(/data:([^;]+)/)||[])[1]||''; var _isPdf=_mime.indexOf('pdf')>=0; var _ext=_isPdf?'pdf':(((_mime.split('/')[1]||'file').replace(/[^a-z0-9]/gi,''))||'file'); try{ window.__ggReceiptName='cheque.'+_ext; }catch(e){}
+      return '<div class="gg-receipt"><div class="gg-receipt-t">'+(forSeller?'\u0427\u0435\u043a \u043e\u0442 \u043f\u043e\u043a\u0443\u043f\u0430\u0442\u0435\u043b\u044f':'\u0412\u0430\u0448 \u0447\u0435\u043a')+':</div><div class="gg-receipt-file"><span class="gg-receipt-fn">'+(_isPdf?'PDF-\u0434\u043e\u043a\u0443\u043c\u0435\u043d\u0442':'\u0424\u0430\u0439\u043b \u0447\u0435\u043a\u0430')+'</span><div class="gg-receipt-btns"><button type="button" class="gg-rc-open" onclick="ggRcOpen()">\u041e\u0442\u043a\u0440\u044b\u0442\u044c</button><button type="button" class="gg-rc-dl" onclick="ggRcDl()">\u0421\u043a\u0430\u0447\u0430\u0442\u044c</button></div></div></div>';
     }
     return '<div class="gg-receipt"><div class="gg-receipt-t">'+(forSeller?'\u0427\u0435\u043a \u043e\u0442 \u043f\u043e\u043a\u0443\u043f\u0430\u0442\u0435\u043b\u044f':'\u0412\u0430\u0448 \u0447\u0435\u043a')+':</div><div class="gg-receipt-f">\u0424\u0430\u0439\u043b: '+E(String(r))+'</div></div>';
   }
   function ggOpenImg(src){ try{ var ov=document.createElement('div'); ov.className='gg-rc-full'; var im=document.createElement('img'); im.src=src; var x=document.createElement('span'); x.className='gg-rc-x'; x.textContent='\u00d7'; ov.appendChild(im); ov.appendChild(x); ov.onclick=function(){ if(ov.parentNode) ov.parentNode.removeChild(ov); }; document.body.appendChild(ov); }catch(e){} }
   window.ggOpenImg=ggOpenImg;
+  function ggDataUrlToBlob(u){ var parts=String(u).split(','); var meta=parts[0]||''; var b64=parts[1]||''; var mime=(meta.match(/data:([^;]+)/)||[])[1]||'application/octet-stream'; var bin=atob(b64); var len=bin.length; var arr=new Uint8Array(len); for(var i=0;i<len;i++) arr[i]=bin.charCodeAt(i); return new Blob([arr],{type:mime}); }
+  function ggOpenFile(u, name, dl){ try{ if(String(u).indexOf('data:')!==0){ window.open(u,'_blank'); return; } var b=ggDataUrlToBlob(u); var url=URL.createObjectURL(b); var a=document.createElement('a'); a.href=url; if(dl) a.download=name||'cheque'; else a.target='_blank'; a.rel='noopener'; document.body.appendChild(a); a.click(); setTimeout(function(){ try{ document.body.removeChild(a); }catch(_){ } try{ URL.revokeObjectURL(url); }catch(_){ } }, 2000); }catch(e){ try{ window.open(u,'_blank'); }catch(_){ } } }
+  function ggRcOpen(){ if(window.__ggReceiptSrc) ggOpenFile(window.__ggReceiptSrc, null, false); }
+  function ggRcDl(){ if(window.__ggReceiptSrc) ggOpenFile(window.__ggReceiptSrc, window.__ggReceiptName||'cheque.jpg', true); }
+  window.ggOpenFile=ggOpenFile; window.ggRcOpen=ggRcOpen; window.ggRcDl=ggRcDl;
   function showProofUI(d){
     var box=document.getElementById('ggProof');
     var mainBtns=document.getElementById('ggPayBtns');
@@ -8869,6 +8887,7 @@ input.input::placeholder,textarea.input::placeholder{color:#64748b!important;}
     var st = String(d.status||'').toUpperCase();
     var isBuyer = !!d.isBuyer;
     _dealRole = isBuyer?'buyer':'seller';
+    var _anchor = (d && d.processedAt) ? Date.parse(d.processedAt) : NaN;
     var inner='';
 
     if(st==='WAITING_SELLER' || st==='WAITING'){
@@ -8878,7 +8897,7 @@ input.input::placeholder,textarea.input::placeholder{color:#64748b!important;}
         + (isBuyer
             ? '<div class="gg-btns one"><button class="gg-btn red" id="ggCancelBtn">Отмена сделки</button></div>'
             : '<div class="gg-btns"><button class="gg-btn red" id="ggCancelBtn">Отклонить</button><button class="gg-btn green" id="ggAcceptBtn">Принять сделку</button></div>');
-      shell(inner); startTimerP(document.getElementById('ggTimer'), 10*60, d.id+':WAITING', function(){ expireCancel(d); }); bindCommon(d);
+      shell(inner); startTimerP(document.getElementById('ggTimer'), 10*60, d.id+':WAITING', function(){ expireCancel(d); }, _anchor); bindCommon(d);
       var acc=document.getElementById('ggAcceptBtn'); if(acc) acc.onclick=function(){ doAct(d,'accept'); };
       return;
     }
@@ -8893,7 +8912,7 @@ input.input::placeholder,textarea.input::placeholder{color:#64748b!important;}
           + '<div class="gg-note">Переведите точную сумму по реквизитам выше. После оплаты нажмите «Оплатил» и приложите чек.</div>'
           + '<div id="ggProof"></div>'
           + '<div class="gg-btns" id="ggPayBtns"><button class="gg-btn red" id="ggCancelBtn">Отмена сделки</button><button class="gg-btn green" id="ggPaidBtn">Оплатил</button></div>';
-        shell(inner); startTimerP(document.getElementById('ggTimer'), 15*60, d.id+':DEAL', function(){ expireCancel(d); }); bindCommon(d);
+        shell(inner); startTimerP(document.getElementById('ggTimer'), 15*60, d.id+':DEAL', function(){ expireCancel(d); }, _anchor); bindCommon(d);
         var paid=document.getElementById('ggPaidBtn'); if(paid) paid.onclick=function(){ showProofUI(d); };
       } else {
         inner = roleBadge(isBuyer) + head('Шаг 2 из 3','Ожидание оплаты') + stepsBar(2)
@@ -8901,7 +8920,7 @@ input.input::placeholder,textarea.input::placeholder{color:#64748b!important;}
           + reqCard(extractBank(d.paymentDetails)||d.bank||'', extractNumber(d.paymentDetails)) + amounts(d)
           + '<div class="gg-wait">Покупатель оплачивает по вашим реквизитам. Дождитесь чека.</div>'
           + '<div class="gg-btns one"><button class="gg-btn ghost" id="ggDisputeBtn">Открыть спор</button></div>';
-        shell(inner); startTimerP(document.getElementById('ggTimer'), 15*60, d.id+':DEAL', function(){ expireCancel(d); }); bindCommon(d);
+        shell(inner); startTimerP(document.getElementById('ggTimer'), 15*60, d.id+':DEAL', function(){ expireCancel(d); }, _anchor); bindCommon(d);
       }
       return;
     }
@@ -8912,14 +8931,14 @@ input.input::placeholder,textarea.input::placeholder{color:#64748b!important;}
           + '<div class="gg-timer" id="ggTimer"></div>' + amounts(d)
           + (d.receipt? receiptView(d,false) + '<div class="gg-note">Чек отправлен. Ожидаем подтверждение продавца.</div>' : '<div class="gg-note">Ожидаем, пока продавец провери�� оплату.</div>')
           + '<div class="gg-btns one"><button class="gg-btn ghost" id="ggDisputeBtn">Открыть спор</button></div>';
-        shell(inner); startTimerP(document.getElementById('ggTimer'), 10*60, d.id+':PAID', null); bindCommon(d);
+        shell(inner); startTimerP(document.getElementById('ggTimer'), 10*60, d.id+':PAID', null, _anchor); bindCommon(d);
       } else {
         inner = roleBadge(isBuyer) + head('Шаг 3 из 3','Подтверждение перевода') + stepsBar(3)
           + '<div class="gg-timer" id="ggTimer"></div>'
           + reqCard(extractBank(d.paymentDetails)||d.bank||'', extractNumber(d.paymentDetails)) + amounts(d)
           + receiptView(d,true) + '<div class="gg-note">Проверьте поступление средств и приложенный чек. Если всё верно — подтвердите перевод GC покупателю.</div>'
           + '<div class="gg-btns"><button class="gg-btn ghost" id="ggDisputeBtn">Спор</button><button class="gg-btn green" id="ggReleaseBtn">Подтвердить</button></div>';
-        shell(inner); startTimerP(document.getElementById('ggTimer'), 10*60, d.id+':PAID', null); bindCommon(d);
+        shell(inner); startTimerP(document.getElementById('ggTimer'), 10*60, d.id+':PAID', null, _anchor); bindCommon(d);
         var rel=document.getElementById('ggReleaseBtn'); if(rel) rel.onclick=function(){ doAct(d,'release'); };
       }
       return;

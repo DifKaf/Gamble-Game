@@ -1265,7 +1265,7 @@ html,body{margin:0!important;min-width:0!important;background:#050505!important;
       <div class="wheel-prizes">
         <div class="panel-title">Возможные призы</div>
         <div class="wheel-prizes-grid"><span class="wheel-prize-chip">100 GC</span><span class="wheel-prize-chip">200 GC</span><span class="wheel-prize-chip">300 GC</span><span class="wheel-prize-chip">500 GC</span><span class="wheel-prize-chip">750 GC</span><span class="wheel-prize-chip">1000 GC</span><span class="wheel-prize-chip">1500 GC</span><span class="wheel-prize-chip">2500 GC</span></div>
-        <div class="wheel-prizes-note">Один бесплатны���� спин раз в 24 часа. Выигрыш сразу падает на баланс.</div>
+        <div class="wheel-prizes-note">Один бесплатны�������� спин раз в 24 часа. Выигрыш сразу падает на баланс.</div>
       </div>
     </section>
 
@@ -3386,7 +3386,7 @@ updateUI();
           <button type="button" class="coin-ladder-nav" id="coinLadderNext">›</button>
         </div>
         <div id="coinBetControls">
-          <div class="panel-title">Выбери сторону:</div>
+          <div class="panel-title">Выбери сторон��:</div>
           <div class="option-row" id="coinOptions">
             <button class="option-btn" data-val="heads">🦅 Орёл</button>
             <button class="option-btn" data-val="tails">Ⓣ Решка</button>
@@ -3668,7 +3668,7 @@ updateUI();
         <div class="promo-create-grid">
           <input class="input" id="createPromoCode" type="text" placeholder="Название промокода">
           <input class="input" id="createPromoAmount" type="number" min="1" placeholder="Сумма GC">
-          <input class="input" id="createPromoUses" type="number" min="1" placeholder="Количество активаций">
+          <input class="input" id="createPromoUses" type="number" min="1" placeholder="Количество актив��ций">
         </div>
         <button class="btn btn-blue btn-block" id="createPromoBtn" style="margin-top:10px;">Создать промокод</button>
         <div class="promo-created-box" id="createdPromoInfo">Созданный промокод смогут активировать другие игроки.</div>
@@ -5391,7 +5391,7 @@ updateUI();
           renderDie(d0, diceVals[0]); renderDie(d1, diceVals[1]);
           var diceSumEl=document.getElementById('diceSum'); if(diceSumEl) diceSumEl.textContent = roll;
           var won = result.winAmount > 0;
-          if(won){ diceWinStreak += 1; addHistory(me(),'win', result.winAmount, 'Кости: сум��а '+roll); showWinOverlay(result.winAmount); haptic('success'); }
+          if(won){ diceWinStreak += 1; addHistory(me(),'win', result.winAmount, 'Кос��и: ��ум��а '+roll); showWinOverlay(result.winAmount); haptic('success'); }
           else { diceWinStreak = 0; addHistory(me(),'loss', bet, 'Кости: сумма '+roll); haptic('error'); }
           updateDiceStreakBadge();
           renderAll();
@@ -6672,7 +6672,7 @@ updateUI();
 
   // Тот же алгоритм, что и на сервере (utils/playerId.ts). Если API ещё не отдаёт
   // playerId (старая версия бэкенда), берём стабильный ID из UUID игрока,
-  // а не прочерк и не общий на всех 120001.
+  // а не прочерк и не об��ий на всех 120001.
   function stablePlayerId(uuid){
     var str = String(uuid || '');
     if(!str) return null;
@@ -6831,7 +6831,7 @@ updateUI();
       }).catch(function(err){
         // Сохранённую историю не затираем ошибкой.
         if(cached.length) return;
-        var reason = (err && err.message) ? err.message : 'нет связи с сервером';
+        var reason = (err && err.message) ? err.message : 'нет связи с серверо��';
         if(/Unauthorized|401/i.test(reason)) reason = 'требуется вход через Telegram';
         if(/Not Found|404/i.test(reason)) reason = 'сервер ещё не обновлён';
         box.innerHTML = '<div class="empty-state">История переводов недоступна: ' + escapeHtml(reason) +
@@ -8919,7 +8919,7 @@ input.input::placeholder,textarea.input::placeholder{color:#64748b!important;}
         shell(inner); startTimerP(document.getElementById('ggTimer'), 15*60, d.id+':DEAL', function(){ expireCancel(d); }, _anchor); bindCommon(d);
         var paid=document.getElementById('ggPaidBtn'); if(paid) paid.onclick=function(){ showProofUI(d); };
       } else {
-        inner = roleBadge(isBuyer) + head('Шаг 2 из 3','Ожидание оплаты') + stepsBar(2)
+        inner = roleBadge(isBuyer) + head('Шаг 2 из 3','Ож��дание оплаты') + stepsBar(2)
           + '<div class="gg-timer" id="ggTimer"></div>'
           + reqCard(extractBank(d.paymentDetails)||d.bank||'', extractNumber(d.paymentDetails)) + amounts(d)
           + '<div class="gg-wait">Покупатель оплачивает по вашим реквизитам. Дождитесь чека.</div>'
@@ -9114,7 +9114,7 @@ input.input::placeholder,textarea.input::placeholder{color:#64748b!important;}
     {lv:2,t:'Игрок',r:'+5% к ежедневному бонусу'},
     {lv:3,t:'Бронза',r:'Бронзовая рамка аватара'},
     {lv:5,t:'Серебро',r:'Ускоренный кэшбэк + серебряная рамка'},
-    {lv:8,t:'Золото',r:'Золотая рамка + бонус 10 000 GC'},
+    {lv:8,t:'Золото',r:'З��лотая рамка + бонус 10 000 GC'},
     {lv:12,t:'Платина',r:'Приоритет в P2P + бонус 25 000 GC'},
     {lv:20,t:'Алмаз',r:'Алмазный бейдж + бонус 100 000 GC'},
     {lv:35,t:'Легенда',r:'Легендарное оформление профиля'},
@@ -9201,7 +9201,7 @@ input.input::placeholder,textarea.input::placeholder{color:#64748b!important;}
       var pd=document.getElementById('p2pDetails'); if(pd)pd.value='';
       try{ if(!window.exchangeData)window.exchangeData={}; window.exchangeData.tab='active'; }catch(e){}
       if(window.loadExchange) loadExchange();
-    }catch(e){ show((e&&e.message)||'Не удалось создать объявление',false); }
+    }catch(e){ show((e&&e.message)||'Не удалос�� создать объявление',false); }
     finally{ if(btn){btn.disabled=false;btn.textContent=orig||'Создать объявление';} }
   }
   window.ggFinalCreateOffer=ggFinalCreateOffer;
@@ -9474,5 +9474,40 @@ input.input::placeholder,textarea.input::placeholder{color:#64748b!important;}
 })();
 </script>
 
+<style id="gg-header-profile-position-fix">
+/* Mobile Telegram layout: logo between Telegram controls, account card below them. */
+@media (max-width:899px){
+  #ggBrandLogo{top:48px!important;height:44px!important;z-index:1005!important;}
+  #ggBrandLogo img{height:27px!important;}
+  .gg-topbar{top:112px!important;height:62px!important;left:12px!important;right:12px!important;padding:0 12px!important;border-radius:17px!important;}
+  .gg-topbar .gg-tb-av{width:38px!important;height:38px!important;}
+  .gg-topbar .gg-tb-name{font-size:14px!important;}
+  .gg-topbar .gg-tb-id{font-size:11px!important;padding:2px 8px!important;}
+  .gg-topbar .gg-tb-amt{font-size:18px!important;}
+  #app{padding-top:184px!important;}
+  body:not(.gg-profile-open) #app main.screen-container{padding-top:190px!important;}
+  body.gg-profile-open #app main.screen-container{padding-top:44px!important;}
+  body.gg-profile-open #ggBrandLogo{top:0!important;}
+  body.gg-profile-open #app{padding-top:44px!important;}
+}
+/* Desktop profile: reserve enough height for ID, level, registration date and score. */
+@media (min-width:900px){
+  #screen-profile .profile-shot{
+    position:relative!important;
+    top:auto!important;
+    min-height:420px!important;
+    height:auto!important;
+    padding:42px 24px 48px!important;
+    margin:0!important;
+    overflow:visible!important;
+  }
+  #screen-profile .profile-stats-grid{
+    position:relative!important;
+    clear:both!important;
+    margin-top:32px!important;
+    z-index:2!important;
+  }
+}
+</style>
 </body>
 </html>

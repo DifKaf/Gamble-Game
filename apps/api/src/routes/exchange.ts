@@ -17,7 +17,7 @@ const offerSchema = z.object({ amountGc:z.number().int().min(MIN_GC).max(MAX_GC)
 const idSchema = z.object({ id:z.string().min(1) })
 const paySchema = z.object({ receipt:z.string().max(6000000).optional() })
 const disputeSchema = z.object({ reason:z.string().min(3).max(300) })
-const takeBodySchema = z.object({ paymentDetails:z.string().min(3).max(280).optional() }).optional()
+const takeBodySchema = z.object({ paymentDetails:z.string().min(3).max(280).optional(), amountRub:z.number().positive().optional(), amountGc:z.number().positive().optional() }).optional()
 
 function userView(u:any){ return { id:u.id, playerId:publicPlayerId(u), username:u.username, firstName:u.firstName, photoUrl:u.photoUrl } }
 function dealView(row:any, viewerId?:string){
@@ -31,7 +31,35 @@ export async function exchangeRoutes(app:FastifyInstance){
  app.get('/offers',{preHandler:[(app as any).authenticate]},async(req)=>{ const u=await getAuthUser(req); const rows=await prisma.exchangeRequest.findMany({where:{status:'OPEN'},orderBy:{createdAt:'desc'},take:40,include:{user:true,buyer:true} as any} as any); return {offers:rows.map(r=>dealView(r,u.id))} })
  app.get('/mine',{preHandler:[(app as any).authenticate]},async(req)=>{ const u=await getAuthUser(req); const rows=await prisma.exchangeRequest.findMany({where:{OR:[{userId:u.id},{buyerId:u.id}]},orderBy:{createdAt:'desc'},take:60,include:{user:true,buyer:true} as any} as any); return {deals:rows.map(r=>dealView(r,u.id))} })
  app.post('/offers',{preHandler:[(app as any).authenticate]},async(req,rep)=>{ const u=await getAuthUser(req); if(isUserBanned(u)) return rep.code(403).send({error:'Аккаунт заблокирован'}); const parsed=offerSchema.safeParse(req.body); if(!parsed.success) return rep.code(400).send({error:`Сумма от ${MIN_GC} до ${MAX_GC} GC`}); const b=parsed.data; try{ await assertCanTransfer(u,b.amountGc) }catch(e:any){ const m=mapAntifraudError(e); if(m) return rep.code(m.code).send({error:m.error}); throw e } try{ const row=await prisma.$transaction(async tx=>{ await applyBalanceChange({tx,userId:u.id,amount:-BigInt(b.amountGc),type:'ADMIN_ADJUSTMENT',source:'p2p-escrow-lock',metadata:{method:b.method,rateRubPer1000:b.rateRubPer1000}}); return (tx as any).exchangeRequest.create({data:{userId:u.id,amountGc:BigInt(b.amountGc),payoutMinor:BigInt(Math.round((b.amountGc/1000)*b.rateRubPer1000*100)),currency:'RUB',rateGcPerUnit:BigInt(Math.round(b.rateRubPer1000*100)),feePercent:0,method:b.method,destination:b.paymentDetails,status:'OPEN',contact:'limits:'+Math.max(1, Math.min(Number(b.minBuyRub||((b.amountGc/1000)*b.rateRubPer1000)), ((b.amountGc/1000)*b.rateRubPer1000)))+':'+b.intent,adminNote:null}}) }); return {offer:dealView(await loadDeal(row.id),u.id), balance:Number((await prisma.user.findUniqueOrThrow({where:{id:u.id}})).balance)} }catch(e:any){ if(e.message==='Insufficient balance') return rep.code(400).send({error:'Недостаточно Gamble Coin'}); throw e } })
- app.post('/offers/:id/take',{preHandler:[(app as any).authenticate]},async(req,rep)=>{ const u=await getAuthUser(req); const {id}=idSchema.parse(req.params); const body=takeBodySchema.parse(req.body||{}); const row=await prisma.exchangeRequest.findUnique({where:{id}}); if(!row) return rep.code(404).send({error:'Оффер не найден'}); if(row.userId===u.id) return rep.code(400).send({error:'Нельзя купить свой оффер'}); const upd=await prisma.exchangeRequest.updateMany({where:{id,status:'OPEN'},data:{status:'WAITING_SELLER',buyerId:u.id,processedAt:new Date(),...(body&&body.paymentDetails?{destination:body.paymentDetails}: {})} as any}); if(!upd.count) return rep.code(400).send({error:'Оффер уже занят'}); void sendTelegramMessage((await prisma.user.findUnique({where:{id:row.userId}}))?.telegramId||'', `🤝 P2P ${('#'+String(row.id||'').slice(-8).toUpperCase())}: покупатель создал сделку. Примите её в течение 10 минут.`); return {deal:dealView(await loadDeal(id),u.id)} })
+ app.post('/offers/:id/take',{preHandler:[(app as any).authenticate]},async(req,rep)=>{
+   const u=await getAuthUser(req); const {id}=idSchema.parse(req.params); const body:any=takeBodySchema.parse(req.body||{})||{};
+   const row:any=await prisma.exchangeRequest.findUnique({where:{id}});
+   if(!row) return rep.code(404).send({error:'Оффер не найден'});
+   if(row.userId===u.id) return rep.code(400).send({error:'Нельзя купить свой оффер'});
+   if(row.status!=='OPEN') return rep.code(400).send({error:'Оффер уже занят'});
+   const unitMinor=Number(row.rateGcPerUnit)||1; const fullGc=Number(row.amountGc); const fullPayoutMinor=Number(row.payoutMinor);
+   let reqPayoutMinor; if(body.amountRub&&body.amountRub>0) reqPayoutMinor=Math.round(body.amountRub*100); else if(body.amountGc&&body.amountGc>0) reqPayoutMinor=Math.round(Math.round(body.amountGc)/1000*unitMinor); else reqPayoutMinor=fullPayoutMinor;
+   if(reqPayoutMinor>=fullPayoutMinor){ reqPayoutMinor=fullPayoutMinor; }
+   let reqGc=(reqPayoutMinor>=fullPayoutMinor)?fullGc:Math.round(reqPayoutMinor*1000/unitMinor);
+   if(reqGc>fullGc){ reqGc=fullGc; reqPayoutMinor=fullPayoutMinor; }
+   if(reqGc<=0||reqPayoutMinor<=0) return rep.code(400).send({error:'Некорректная сумма'});
+   const partial=reqPayoutMinor<fullPayoutMinor;
+   const notify=async(rid:string)=>{ void sendTelegramMessage((await prisma.user.findUnique({where:{id:row.userId}}))?.telegramId||'', `🤝 P2P ${('#'+String(rid||'').slice(-8).toUpperCase())}: покупатель создал сделку. Примите её в течение 10 минут.`); };
+   if(!partial){
+     const upd=await prisma.exchangeRequest.updateMany({where:{id,status:'OPEN'},data:{status:'WAITING_SELLER',buyerId:u.id,processedAt:new Date()} as any});
+     if(!upd.count) return rep.code(400).send({error:'Оффер уже занят'});
+     await notify(id); return {deal:dealView(await loadDeal(id),u.id)};
+   }
+   let dealRow:any;
+   try{
+     dealRow=await prisma.$transaction(async tx=>{
+       const dec=await (tx as any).exchangeRequest.updateMany({where:{id,status:'OPEN'},data:{amountGc:BigInt(fullGc-reqGc),payoutMinor:BigInt(fullPayoutMinor-reqPayoutMinor)}});
+       if(!dec.count) throw new Error('TAKEN');
+       return (tx as any).exchangeRequest.create({data:{userId:row.userId,buyerId:u.id,amountGc:BigInt(reqGc),payoutMinor:BigInt(reqPayoutMinor),currency:row.currency,rateGcPerUnit:row.rateGcPerUnit,feePercent:row.feePercent||0,method:row.method,destination:row.destination,status:'WAITING_SELLER',contact:row.contact,adminNote:null,processedAt:new Date()}});
+     });
+   }catch(e:any){ if(e&&e.message==='TAKEN') return rep.code(400).send({error:'Оффер уже занят'}); throw e; }
+   await notify(dealRow.id); return {deal:dealView(await loadDeal(dealRow.id),u.id)};
+ })
 
  app.post('/deals/:id/accept',{preHandler:[(app as any).authenticate]},async(req,rep)=>{ const u=await getAuthUser(req); const {id}=idSchema.parse(req.params); const row:any=await loadDeal(id); if(!row) return rep.code(404).send({error:'Сделка не найдена'}); if(row.userId!==u.id) return rep.code(403).send({error:'Принять может только продавец'}); if(row.status!=='WAITING_SELLER') return rep.code(400).send({error:'Сделку уже нельзя принять'}); await prisma.exchangeRequest.update({where:{id},data:{status:'DEAL',processedAt:new Date()} as any}); if(row.buyer) void sendTelegramMessage(row.buyer.telegramId, `✅ P2P ${('#'+String(row.id||'').slice(-8).toUpperCase())}: продавец принял сделку. Реквизиты доступны.`); return {deal:dealView(await loadDeal(id),u.id)} })
  app.post('/deals/:id/paid',{preHandler:[(app as any).authenticate]},async(req,rep)=>{ const u=await getAuthUser(req); const {id}=idSchema.parse(req.params); const b=paySchema.parse(req.body||{}); const row:any=await loadDeal(id); if(!row) return rep.code(404).send({error:'Сделка не найдена'}); if(row.buyerId!==u.id) return rep.code(403).send({error:'Это не ваша сделка'}); if(row.status!=='DEAL') return rep.code(400).send({error:'Сначала продавец должен принять сделку'}); await prisma.exchangeRequest.update({where:{id},data:{status:'PAID',disputeReason:b.receipt||null} as any}); void sendTelegramMessage(row.user.telegramId, `✅ P2P ${('#'+String(row.id||'').slice(-8).toUpperCase())}: покупатель отметил оплату. Подтвердите получение денег.`); return {deal:dealView(await loadDeal(id),u.id)} })

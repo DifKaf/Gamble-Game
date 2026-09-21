@@ -15,14 +15,14 @@ const MAX_GC = Number(process.env.P2P_MAX_GC || 1000000)
 const METHODS = ['SBP','UMONEY','USDT'] as const
 const offerSchema = z.object({ amountGc:z.number().int().min(MIN_GC).max(MAX_GC), rateRubPer1000:z.number().positive().max(10000000), minBuyRub:z.number().positive().optional(), maxBuyRub:z.number().positive().optional(), method:z.enum(METHODS).default('SBP'), paymentDetails:z.string().min(3).max(280), comment:z.string().max(200).optional(), intent:z.enum(['sell','buy']).default('sell') })
 const idSchema = z.object({ id:z.string().min(1) })
-const paySchema = z.object({ receipt:z.string().max(2000).optional() })
+const paySchema = z.object({ receipt:z.string().max(6000000).optional() })
 const disputeSchema = z.object({ reason:z.string().min(3).max(300) })
 const takeBodySchema = z.object({ paymentDetails:z.string().min(3).max(280).optional() }).optional()
 
 function userView(u:any){ return { id:u.id, playerId:publicPlayerId(u), username:u.username, firstName:u.firstName, photoUrl:u.photoUrl } }
 function dealView(row:any, viewerId?:string){
  const seller=row.user||row.seller; const buyer=row.buyer
- return { id:row.id, status:row.status, amountGc:Number(row.amountGc), priceRub:Number(row.payoutMinor)/100, currency:row.currency, rate:Number(row.rateGcPerUnit)||GC_PER_RUB, feePercent:Number(row.feePercent)||FEE_PCT, method:row.method, paymentDetails:(viewerId && (viewerId===row.buyerId || viewerId===row.userId))?row.destination:undefined, offerId:'#'+String(row.id||'').slice(-8).toUpperCase(), rateRubPer1000:Number(row.rateGcPerUnit||0)/100, comment:'', intent:(row.contact&&String(row.contact).includes(':buy'))?'buy':'sell', minBuyRub:(row.contact&&String(row.contact).startsWith('limits:'))?Number(String(row.contact).split(':')[1]||0):0, maxBuyRub:Number(row.payoutMinor)/100, paymentTimeoutMinutes:15, seller:seller?userView(seller):null, buyer:buyer?userView(buyer):null, isMine:viewerId?row.userId===viewerId:false, isBuyer:viewerId?row.buyerId===viewerId:false, createdAt:row.createdAt, processedAt:row.processedAt }
+ return { id:row.id, status:row.status, amountGc:Number(row.amountGc), priceRub:Number(row.payoutMinor)/100, currency:row.currency, rate:Number(row.rateGcPerUnit)||GC_PER_RUB, feePercent:Number(row.feePercent)||FEE_PCT, method:row.method, paymentDetails:(viewerId && (viewerId===row.buyerId || viewerId===row.userId))?row.destination:undefined, offerId:'#'+String(row.id||'').slice(-8).toUpperCase(), rateRubPer1000:Number(row.rateGcPerUnit||0)/100, comment:'', intent:(row.contact&&String(row.contact).includes(':buy'))?'buy':'sell', minBuyRub:(row.contact&&String(row.contact).startsWith('limits:'))?Number(String(row.contact).split(':')[1]||0):0, maxBuyRub:Number(row.payoutMinor)/100, paymentTimeoutMinutes:15, seller:seller?userView(seller):null, buyer:buyer?userView(buyer):null, isMine:viewerId?row.userId===viewerId:false, isBuyer:viewerId?row.buyerId===viewerId:false, receipt:((viewerId===row.buyerId||viewerId===row.userId)&&(row.status==='PAID'||row.status==='COMPLETED'))?(row.disputeReason||null):null, createdAt:row.createdAt, processedAt:row.processedAt }
 }
 async function loadDeal(id:string){ return prisma.exchangeRequest.findUnique({ where:{id}, include:{ user:true, buyer:true } as any } as any) }
 

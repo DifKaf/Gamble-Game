@@ -1265,7 +1265,7 @@ html,body{margin:0!important;min-width:0!important;background:#050505!important;
       <div class="wheel-prizes">
         <div class="panel-title">Возможные призы</div>
         <div class="wheel-prizes-grid"><span class="wheel-prize-chip">100 GC</span><span class="wheel-prize-chip">200 GC</span><span class="wheel-prize-chip">300 GC</span><span class="wheel-prize-chip">500 GC</span><span class="wheel-prize-chip">750 GC</span><span class="wheel-prize-chip">1000 GC</span><span class="wheel-prize-chip">1500 GC</span><span class="wheel-prize-chip">2500 GC</span></div>
-        <div class="wheel-prizes-note">Один бесплатны�������� спин раз в 24 часа. Выигрыш сразу падает на баланс.</div>
+        <div class="wheel-prizes-note">Один бесплатны������������ спин раз в 24 часа. Выигрыш сразу падает на баланс.</div>
       </div>
     </section>
 
@@ -3084,7 +3084,7 @@ function showBonusStart(count, opts){
     const ov=document.getElementById(&#x27;bonusStart&#x27;);
     document.getElementById(&#x27;bsCount&#x27;).textContent = (opts.prefix||&#x27;&#x27;) + count;
     document.getElementById(&#x27;bsSub&#x27;).textContent = opts.sub || &#x27;ВЫ ВЫИГРАЛИ&#x27;;
-    document.getElementById(&#x27;bsLabel&#x27;).textContent = opts.label || &#x27;БЕСПЛАТНЫХ ВРАЩЕНИЙ&#x27;;
+    document.getElementById(&#x27;bsLabel&#x27;).textContent = opts.label || &#x27;��ЕСПЛАТНЫХ ВРАЩЕНИЙ&#x27;;
     ov.classList.add(&#x27;show&#x27;);
     doConfetti(80);
     const done=()=&gt;{ ov.removeEventListener(&#x27;click&#x27;,done); ov.classList.remove(&#x27;show&#x27;); res(); };
@@ -3797,7 +3797,7 @@ updateUI();
       <h3>Сбросить прогресс?</h3>
       <p>Все балансы, история и статистика демо-игроков будут сброшены к начальным значениям.</p>
       <div class="modal-actions">
-        <button class="btn btn-ghost" id="modalCancel">Отмена</button>
+        <button class="btn btn-ghost" id="modalCancel">От��ена</button>
         <button class="btn btn-primary" id="modalConfirm">Сбросить</button>
       </div>
     </div>
@@ -3876,7 +3876,7 @@ updateUI();
     }catch(fetchErr){
       var msg = (fetchErr && fetchErr.name === 'AbortError')
         ? 'Сервер долго не отвечает. Попробуйте ещё раз через несколько секунд.'
-        : 'Нет соединения с сервером. Проверьте деплой Railway и домен API.';
+        : 'Нет соединения с сервер��м. Пр��верьте деплой Railway и домен API.';
       var netErr = new Error(msg);
       netErr.original = fetchErr;
       throw netErr;
@@ -4524,7 +4524,7 @@ updateUI();
     var canOpen=mine&&['WAITING_SELLER','DEAL','PAID','DISPUTED'].indexOf(o.status)>=0,canCancel=(o.isCreator||o.isMine||o.isBuyer)&&['OPEN','WAITING_SELLER','DEAL'].indexOf(o.status)>=0;
     var min=o.minBuyRub||1,max=o.maxBuyRub||p2pRubTotal(o),done=o.completedDeals||o.dealsCount||0,success=o.successRate||98;
     var st='<span class="p2p-status '+p2pStatusClass(o.status)+'">'+p2pStatusText(o.status)+'</span>';
-    return '<div class="cb-offer"><div class="cb-offer-top"><div class="cb-user">'+avatarHtml(user.photoUrl||'👤')+'<div><b>'+escapeHtml(p2pUserName(user))+'</b><small>ID '+escapeHtml(user.playerId||'—')+' · '+done+' сделок · '+success+'%</small></div></div><span>'+escapeHtml(p2pOfferId(o))+'</span></div><div class="cb-price"><b>'+fmt(p2pRateRub(o))+' ₽</b><span>за 1 000 GC</span></div><div class="cb-grid"><div><small>Доступно</small><b>'+fmt(o.amountGc)+' GC</b></div><div><small>Лимиты</small><b>'+fmt(min)+'–'+fmt(max)+' ₽</b></div><div><small>Оплата</small><b>'+escapeHtml(p2pMethodName(o.method))+'</b></div><div><small>Статус</small><b>'+st+'</b></div></div><div class="cb-actions">'+(canTake?'<button class="cb-main" data-p2p-buy="'+o.id+'">'+(intent==='buy'?'Продать':'Купить')+' GC</button>':'')+(canAccept?'<button class="cb-main" data-p2p-act="accept" data-id="'+o.id+'">Подтвердить сделку</button>':'')+(canPaid?'<button class="cb-main" data-p2p-paydetails="'+o.id+'">Перейти к оплате</button>':'')+(canRelease?'<button class="cb-main" data-p2p-act="release" data-id="'+o.id+'">Подтвердить получение</button>':'')+(canOpen?'<button class="cb-ghost" data-p2p-paydetails="'+o.id+'">Открыть сделку</button>':'')+(canCancel?'<button class="cb-ghost" data-p2p-act="cancel" data-id="'+o.id+'">Отменить</button>':'')+'</div></div>';
+    return '<div class="cb-offer"><div class="cb-offer-top"><div class="cb-user">'+avatarHtml(user.photoUrl||'👤')+'<div><b>'+escapeHtml(p2pUserName(user))+'</b><small>ID '+escapeHtml(user.playerId||'—')+' · '+done+' сделок · '+success+'%</small></div></div><span>'+escapeHtml(p2pOfferId(o))+'</span></div><div class="cb-price"><b>'+fmt(p2pRateRub(o))+' ₽</b><span>за 1 000 GC</span></div><div class="cb-grid"><div><small>Доступно</small><b>'+fmt(o.amountGc)+' GC</b></div><div><small>Лимиты</small><b>'+fmt(min)+'–'+fmt(max)+' ₽</b></div><div><small>Оплата</small><b>'+escapeHtml(p2pMethodName(o.method))+'</b></div><div><small>Статус</small><b>'+st+'</b></div></div><div class="cb-actions">'+(canTake?'<button class="cb-main" data-p2p-buy="'+o.id+'">'+(intent==='buy'?'Продать':'Купить')+' GC</button>':'')+(canAccept?'<button class="cb-main" data-p2p-act="accept" data-id="'+o.id+'">Подтвердить сделку</button>':'')+(canPaid?'<button class="cb-main" data-p2p-paydetails="'+o.id+'">Перейти к оплат��</button>':'')+(canRelease?'<button class="cb-main" data-p2p-act="release" data-id="'+o.id+'">Подтвердить получение</button>':'')+(canOpen?'<button class="cb-ghost" data-p2p-paydetails="'+o.id+'">Открыть сделку</button>':'')+(canCancel?'<button class="cb-ghost" data-p2p-act="cancel" data-id="'+o.id+'">Отменить</button>':'')+'</div></div>';
   }
   function renderExchange(){
     var m=document.getElementById('exchangeMarket'),sell=document.getElementById('exchangeSell'),c=document.getElementById('exchangeCreate'),active=document.getElementById('exchangeMine'),completed=document.getElementById('exchangeAds');if(!m)return;
@@ -6869,7 +6869,7 @@ updateUI();
       {code:'roulette', icon:'🎡', title:'Roulette', sub:'Ставки 25 000 GC', ok:total>=25000},
       {code:'mines', icon:'💣', title:'Mines', sub:'Рекорд 10 000 GC', ok:best>=10000},
       {code:'blackjack', icon:'🃏', title:'Blackjack', sub:'Ставки 50 000 GC', ok:total>=50000},
-      {code:'baccarat', icon:'♦️', title:'Baccarat', sub:'Выиграть 25 000 GC', ok:won>=25000},
+      {code:'baccarat', icon:'♦️', title:'Baccarat', sub:'��ыиграть 25 000 GC', ok:won>=25000},
       {code:'p2p', icon:'⇄', title:'P2P Trader', sub:'Открыть обменник', ok:Boolean(exchangeData && exchangeData.deals && exchangeData.deals.length)}
     ];
   }
@@ -9113,7 +9113,7 @@ input.input::placeholder,textarea.input::placeholder{color:#64748b!important;}
     {lv:1,t:'Новичок',r:'Доступ к P2P-маркету и ежедневным бонусам'},
     {lv:2,t:'Игрок',r:'+5% к ежедневному бонусу'},
     {lv:3,t:'Бронза',r:'Бронзовая рамка аватара'},
-    {lv:5,t:'Серебро',r:'Ускоренный кэшбэк + серебряная рамка'},
+    {lv:5,t:'Серебро',r:'Ускоренный кэшбэк + сер��бряная рамка'},
     {lv:8,t:'Золото',r:'З��лотая рамка + бонус 10 000 GC'},
     {lv:12,t:'Платина',r:'Приоритет в P2P + бонус 25 000 GC'},
     {lv:20,t:'Алмаз',r:'Алмазный бейдж + бонус 100 000 GC'},
@@ -9479,13 +9479,13 @@ input.input::placeholder,textarea.input::placeholder{color:#64748b!important;}
 @media (max-width:899px){
   #ggBrandLogo{top:48px!important;height:44px!important;z-index:1005!important;}
   #ggBrandLogo img{height:27px!important;}
-  .gg-topbar{top:112px!important;height:62px!important;left:12px!important;right:12px!important;padding:0 12px!important;border-radius:17px!important;}
+  .gg-topbar{top:86px!important;height:62px!important;left:12px!important;right:12px!important;padding:0 12px!important;border-radius:17px!important;}
   .gg-topbar .gg-tb-av{width:38px!important;height:38px!important;}
   .gg-topbar .gg-tb-name{font-size:14px!important;}
   .gg-topbar .gg-tb-id{font-size:11px!important;padding:2px 8px!important;}
   .gg-topbar .gg-tb-amt{font-size:18px!important;}
-  #app{padding-top:184px!important;}
-  body:not(.gg-profile-open) #app main.screen-container{padding-top:190px!important;}
+  #app{padding-top:158px!important;}
+  body:not(.gg-profile-open) #app main.screen-container{padding-top:164px!important;}
   body.gg-profile-open #app main.screen-container{padding-top:44px!important;}
   body.gg-profile-open #ggBrandLogo{top:0!important;}
   body.gg-profile-open #app{padding-top:44px!important;}
@@ -9495,16 +9495,16 @@ input.input::placeholder,textarea.input::placeholder{color:#64748b!important;}
   #screen-profile .profile-shot{
     position:relative!important;
     top:auto!important;
-    min-height:420px!important;
+    min-height:270px!important;
     height:auto!important;
-    padding:42px 24px 48px!important;
+    padding:34px 24px 16px!important;
     margin:0!important;
     overflow:visible!important;
   }
   #screen-profile .profile-stats-grid{
     position:relative!important;
     clear:both!important;
-    margin-top:32px!important;
+    margin-top:0!important;
     z-index:2!important;
   }
 }

@@ -4508,7 +4508,7 @@ updateUI();
   function openP2pBuyModal(id){var o=(exchangeData.offers||[]).find(function(x){return x.id===id}); if(!o)return; var max=o.maxBuyRub||p2pRubTotal(o), min=o.minBuyRub||1; p2pModalShell('<button class="p2p-x" id="p2pModalClose">×</button><div class="p2p-room-head"><span>'+escapeHtml(p2pOfferId(o))+'</span><b>Покупка GC</b><small>Вы покупатель</small></div><label class="p2p-amount"><span>Сумма</span><input id="p2pBuyAmount" type="number" min="'+min+'" max="'+max+'" value="'+max+'"><em>RUB</em></label><div class="p2p-details"><div class="row"><span>Получаете</span><b id="p2pBuyGc">'+fmt(Math.floor(max*p2pRate(o)))+' GC</b></div><div class="row"><span>Курс</span><b>'+fmt(p2pRateRub(o))+' ₽ / 1 000 GC</b></div><div class="row"><span>Способ</span><b>'+escapeHtml(p2pMethodName(o.method))+'</b></div><div class="row"><span>Лимит</span><b>'+fmt(min)+'–'+fmt(max)+' ₽</b></div></div><div class="p2p-security"><b>Безопасность сделки</b><br>Переводите деньги только по реквизитам внутри сделки.</div><button class="btn btn-primary btn-block" id="p2pCreateDealBtn">Создать сделку</button>'); document.getElementById('p2pModalClose').onclick=p2pCloseModal; var inp=document.getElementById('p2pBuyAmount'); inp.oninput=function(){document.getElementById('p2pBuyGc').textContent=fmt(Math.floor((Number(inp.value)||0)*p2pRate(o)))+' GC';}; document.getElementById('p2pCreateDealBtn').onclick=function(){var rub=Number(inp.value)||0;if(rub<min||rub>max){showToast('Сумма вне лимитов','error');return;}p2pCreateDeal(o.id,rub,Math.floor(rub*p2pRate(o)));};}
   async function p2pCreateDeal(id,rub,gc){try{var r=await p2pAction('take',id,true); openP2pWaitingSeller(r.deal||{id:id,priceRub:rub,amountGc:gc,status:'WAITING_SELLER'},rub,gc);}catch(e){showToast(e.message||'Не удалось создать сделку','error');}}
   function openP2pWaitingSeller(deal,rub,gc){p2pModalShell('<button class="p2p-x" id="p2pModalClose">×</button><div class="p2p-room-head"><span>'+escapeHtml(p2pOfferId(deal))+'</span><b>Ждём продавца</b><small>После принятия вы получите реквизиты</small></div><div class="p2p-ring" id="p2pWaitTimer">10:00</div>'+p2pDealProgress('WAITING_SELLER')+'<button class="btn btn-ghost btn-block" id="p2pCancelWaiting">Отменить</button>');document.getElementById('p2pModalClose').onclick=p2pCloseModal;document.getElementById('p2pCancelWaiting').onclick=function(){p2pAction('cancel',deal.id);p2pCloseModal();};}
-  function openP2pPayDetails(deal){var req=deal.paymentDetails||'Реквизиты появятся после принятия продавцом'; var _num=((String(req).match(/([0-9][0-9 \-]{9,})/)||[])[1]||'').trim(); var _bank=((String(req).match(/банк[^:]*:\s*([^\n|]+)/i)||[])[1]||deal.bank||'').trim(); var _card=''; try{ if(window.ggReqCard&&_num) _card=window.ggReqCard(_bank,_num); }catch(e){} p2pModalShell('<button class="p2p-x" id="p2pModalClose">×</button><div class="p2p-room-head"><span>'+escapeHtml(p2pOfferId(deal))+'</span><b>Сделочная комната</b><small>'+(deal.isBuyer?'Вы покупатель':'Вы продавец')+'</small></div>'+p2pDealProgress(deal.status)+_card+'<div class="p2p-details"><div class="row"><span>GC</span><b>'+fmt(deal.amountGc)+' GC</b></div><div class="row"><span>К оплате</span><b>'+fmt(deal.priceRub)+' ₽</b></div><div class="row"><span>Курс</span><b>'+fmt(p2pRateRub(deal))+' ₽ / 1 000 GC</b></div><div class="row"><span>Способ</span><b>'+escapeHtml(p2pMethodName(deal.method))+'</b></div></div><div class="p2p-security"><b>Безопасность</b><br>Нажимайте «Я оплатил» только после фактического перевода. Продавец подтверждает только после поступления денег.</div><div class="p2p-offer-actions">'+(deal.isBuyer&&deal.status==='DEAL'?'<button class="btn btn-primary" id="p2pPaidBtn">Я оплатил</button>':'')+(deal.isMine&&deal.status==='PAID'?'<button class="btn btn-gold" data-p2p-act="release" data-id="'+deal.id+'">Подтвердить получение</button>':'')+'<button class="btn btn-ghost" data-p2p-act="dispute" data-id="'+deal.id+'">Открыть спор</button></div>');document.getElementById('p2pModalClose').onclick=p2pCloseModal;var paid=document.getElementById('p2pPaidBtn'); if(paid)paid.onclick=function(){p2pAction('paid',deal.id);p2pCloseModal();}; var _cp=document.getElementById('ggCopyBtn'); if(_cp&&window.ggCopy)_cp.onclick=function(){window.ggCopy(_cp.getAttribute('data-copy'),_cp);};}
+  function openP2pPayDetails(deal){var req=deal.paymentDetails||'Реквизиты появятся после принятия продавцом'; p2pModalShell('<button class="p2p-x" id="p2pModalClose">×</button><div class="p2p-room-head"><span>'+escapeHtml(p2pOfferId(deal))+'</span><b>Сделочная комната</b><small>'+(deal.isBuyer?'Вы покупатель':'Вы продавец')+'</small></div>'+p2pDealProgress(deal.status)+'<div class="p2p-details"><div class="row"><span>GC</span><b>'+fmt(deal.amountGc)+' GC</b></div><div class="row"><span>К оплате</span><b>'+fmt(deal.priceRub)+' ₽</b></div><div class="row"><span>Курс</span><b>'+fmt(p2pRateRub(deal))+' ₽ / 1 000 GC</b></div><div class="row"><span>Способ</span><b>'+escapeHtml(p2pMethodName(deal.method))+'</b></div><div class="row"><span>Реквизиты</span><b>'+escapeHtml(req).replace(/\n/g,'<br>')+'</b></div></div><div class="p2p-security"><b>Безопасность</b><br>Нажимайте «Я оплатил» только после фактического перевода. Продавец подтверждает только после поступления денег.</div><div class="p2p-offer-actions">'+(deal.isBuyer&&deal.status==='DEAL'?'<button class="btn btn-primary" id="p2pPaidBtn">Я оплатил</button>':'')+(deal.isMine&&deal.status==='PAID'?'<button class="btn btn-gold" data-p2p-act="release" data-id="'+deal.id+'">Подтвердить получение</button>':'')+'<button class="btn btn-ghost" data-p2p-act="dispute" data-id="'+deal.id+'">Открыть спор</button></div>');document.getElementById('p2pModalClose').onclick=p2pCloseModal;var paid=document.getElementById('p2pPaidBtn'); if(paid)paid.onclick=function(){p2pAction('paid',deal.id);p2pCloseModal();};}
   async function p2pAction(act,id,silent){try{var url='/exchange/'+(act==='take'?'offers/'+id+'/take':'deals/'+id+'/'+act); var body={}; if(act==='dispute') body={reason:prompt('Опишите проблему')||'Спор по оплате'}; var r=await apiRequest(url,{method:'POST',body:JSON.stringify(body)}); if(typeof r.balance==='number'){backendBalance=r.balance;applyBackendBalanceToUI();renderBalances();} if(!silent) showToast('Готово','success'); loadExchange(); return r;}catch(e){if(!silent)showToast(e.message||'Ошибка P2P','error'); throw e;}}
   document.addEventListener('click',function(ev){if(!ev.target||!ev.target.closest)return; var tab=ev.target.closest('[data-ex-tab]'); if(tab){exchangeData.tab=tab.getAttribute('data-ex-tab');renderExchange();return;} var f=ev.target.closest('[data-p2p-filter]'); if(f){exchangeData.filter=f.getAttribute('data-p2p-filter');document.querySelectorAll('[data-p2p-filter]').forEach(function(b){b.classList.toggle('active',b===f)});renderExchange();return;} var buy=ev.target.closest('[data-p2p-buy]'); if(buy){openP2pBuyModal(buy.getAttribute('data-p2p-buy'));return;} var meth=ev.target.closest('[data-method]'); if(meth){exchangeData.method=meth.getAttribute('data-method');document.querySelectorAll('[data-method]').forEach(function(b){b.classList.toggle('active',b===meth)});updateP2pQuote();return;} var payd=ev.target.closest('[data-p2p-paydetails]'); if(payd){var idp=payd.getAttribute('data-p2p-paydetails');var d=(exchangeData.deals||[]).find(function(x){return x.id===idp});if(d)openP2pPayDetails(d);return;} var act=ev.target.closest('[data-p2p-act]'); if(act){p2pAction(act.getAttribute('data-p2p-act'),act.getAttribute('data-id'));return;}});
   document.addEventListener('input',function(ev){if(ev.target&&/p2p(Amount|Price)/.test(ev.target.id))updateP2pQuote();});
@@ -6747,7 +6747,7 @@ updateUI();
   }
 
   function renderLeaderboard(){
-    var box = document.getElementById('leaderboardBox'); if(!box) return;
+    var box = document.getElementById('leaderboardBox');
     var list = (backendLeaderboardUsers && backendLeaderboardUsers.length) ? backendLeaderboardUsers.map(function(u){return {id:u.id,playerId:u.playerId||playerPublicId(u.id),name:u.firstName || u.username || 'Игрок',avatar:u.photoUrl || '👤',balance:u.balance};}) : Object.keys(state.players).map(function(id){ return state.players[id]; }).filter(function(p){ return p && p.name !== 'Аня' && p.name !== 'Максим'; });
     list.sort(function(a,b){ return b.balance - a.balance; });
     var medals = ['1','2','3'];
@@ -6854,7 +6854,7 @@ updateUI();
   }
   var profileExtra = null;
 
-  function profileRegDate(){var u=backendUser||(typeof me==='function'?me():null)||{}; var d=u.createdAt||u.registeredAt||localStorage.getItem('gg_registered_at'); if(!d){d=new Date().toISOString(); localStorage.setItem('gg_registered_at',d);} try{return new Date(d).toLocaleDateString('ru-RU');}catch(e){return '—';}}
+  function profileRegDate(){var u=backendUser||currentUser||{}; var d=u.createdAt||u.registeredAt||localStorage.getItem('gg_registered_at'); if(!d){d=new Date().toISOString(); localStorage.setItem('gg_registered_at',d);} try{return new Date(d).toLocaleDateString('ru-RU');}catch(e){return '—';}}
 
   function trophyData(){
     var total=Number(weekly.wagered||0), won=Number(me().stats&&me().stats.won||0), best=Number(me().stats&&me().stats.biggest||0);
@@ -7098,20 +7098,6 @@ updateUI();
 
   initBackendAuth();
   renderAll();
-  // GG FINAL 4: выставляем ключевые функции в window, чтобы внешние обработчики их находили
-  try{
-    window.apiRequest=apiRequest;
-    window.loadExchange=loadExchange;
-    window.exchangeData=exchangeData;
-    window.showToast=showToast;
-    window.showScreen=showScreen;
-    window.renderBalances=renderBalances;
-    window.applyBackendBalanceToUI=applyBackendBalanceToUI;
-    window.shareProfile=shareProfile;
-    window.ggMe=(typeof me==="function"?me:null);
-    Object.defineProperty(window,"backendBalance",{get:function(){return backendBalance;},set:function(v){backendBalance=v;},configurable:true});
-    Object.defineProperty(window,"backendUser",{get:function(){return backendUser;},set:function(v){backendUser=v;},configurable:true});
-  }catch(e){}
 })();
 </script>
 
@@ -8795,8 +8781,7 @@ input.input::placeholder,textarea.input::placeholder{color:#64748b!important;}
         var paid=document.getElementById('ggPaidBtn'); if(paid) paid.onclick=function(){ showProofUI(d); };
       } else {
         inner = head('Шаг 2 из 3','Ожидание оплаты') + stepsBar(2)
-          + '<div class="gg-timer" id="ggTimer"></div>'
-          + reqCard(extractBank(d.paymentDetails)||d.bank||'', extractNumber(d.paymentDetails)) + amounts(d)
+          + '<div class="gg-timer" id="ggTimer"></div>' + amounts(d)
           + '<div class="gg-wait">Покупатель оплачивает по вашим реквизитам. Дождитесь чека.</div>'
           + '<div class="gg-btns one"><button class="gg-btn ghost" id="ggDisputeBtn">Открыть спор</button></div>';
         shell(inner); startTimer(document.getElementById('ggTimer'), 15*60); bindCommon(d);
@@ -8808,13 +8793,12 @@ input.input::placeholder,textarea.input::placeholder{color:#64748b!important;}
       if(isBuyer){
         inner = head('Шаг 3 из 3','Подтверждение перевода') + stepsBar(3)
           + '<div class="gg-timer" id="ggTimer"></div>' + amounts(d)
-          + (d.receipt? '<div class="gg-note">Чек отправлен: '+E(d.receipt)+'. Ожидаем подтверждение продавца.</div>' : '<div class="gg-note">Ожидаем, пока продавец провери�� оплату.</div>')
+          + (d.receipt? '<div class="gg-note">Чек отправлен: '+E(d.receipt)+'. Ожидаем подтверждение продавца.</div>' : '<div class="gg-note">Ожидаем, пока продавец проверит оплату.</div>')
           + '<div class="gg-btns one"><button class="gg-btn ghost" id="ggDisputeBtn">Открыть спор</button></div>';
         shell(inner); startTimer(document.getElementById('ggTimer'), 10*60); bindCommon(d);
       } else {
         inner = head('Шаг 3 из 3','Подтверждение перевода') + stepsBar(3)
-          + '<div class="gg-timer" id="ggTimer"></div>'
-          + reqCard(extractBank(d.paymentDetails)||d.bank||'', extractNumber(d.paymentDetails)) + amounts(d)
+          + '<div class="gg-timer" id="ggTimer"></div>' + amounts(d)
           + '<div class="gg-note">Проверьте поступление средств'+(d.receipt?' и чек: <b>'+E(d.receipt)+'</b>':'')+'. Если всё верно — подтвердите перевод GC покупателю.</div>'
           + '<div class="gg-btns"><button class="gg-btn ghost" id="ggDisputeBtn">Спор</button><button class="gg-btn green" id="ggReleaseBtn">Подтвердить</button></div>';
         shell(inner); startTimer(document.getElementById('ggTimer'), 10*60); bindCommon(d);
@@ -8830,7 +8814,6 @@ input.input::placeholder,textarea.input::placeholder{color:#64748b!important;}
     shell(head('Сделка','P2P сделка')+amounts(d)+'<div class="gg-btns one"><button class="gg-btn blue" id="ggDoneBtn">Закрыть</button></div>'); var f=document.getElementById('ggDoneBtn'); if(f) f.onclick=closeModal;
   }
   window.renderDealRoom = renderDealRoom;
-  window.ggReqCard = reqCard;
   window.openP2pDealRoom = renderDealRoom;
   window.openP2pWaitingSeller = function(d){ return renderDealRoom(Object.assign({status:'WAITING_SELLER'}, d)); };
   window.openP2pPayDetails    = function(d){ return renderDealRoom(Object.assign({status:'DEAL'}, d)); };
@@ -9142,7 +9125,7 @@ input.input::placeholder,textarea.input::placeholder{color:#64748b!important;}
     ]},
     terms:{t:'Правила и условия',s:'Условия использования',h:[
       ['1. Общие положения','Используя приложение, вы соглашаетесь с настоящими правилами. Gamble Coin не является деньгами и не имеет реальной денежной стоимости.'],
-      ['2. Честная игра','Запрещены боты, мультиаккаунты и любые попытки взлома. ��арушители блокируются без возврата баланса.'],
+      ['2. Честная игра','Запрещены боты, мультиаккаунты и любые попытки взлома. Нарушители блокируются без возврата баланса.'],
       ['3. P2P-сделки','При обмене GC ответственность за перевод денег несут сами участники. Подтверждайте оплату только после фактического получения средств.'],
       ['4. Ответственность','Администрация не несёт ответственности за споры вне escrow и за действия третьих лиц.']
     ]},
@@ -9205,92 +9188,6 @@ input.input::placeholder,textarea.input::placeholder{color:#64748b!important;}
   function boot(){ try{ ggBuildProfileMenu(); }catch(e){} try{ ggAugmentSettings(); }catch(e){} }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot); else boot();
   setTimeout(boot,700); setTimeout(boot,1800);
-})();
-</script>
-<style id="gg-final-4">
-/* прячем старую плавающую кнопку «Поделиться» */
-#screen-profile .profile-share{display:none!important}
-/* ===== Компактная верхняя панель баланса (видна во всех вкладках) ===== */
-.gg-topbar{position:fixed;top:0;left:0;right:0;z-index:1000;display:flex;align-items:center;gap:10px;height:46px;padding:0 12px;box-sizing:border-box;background:rgba(16,18,16,.92);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-bottom:1px solid #223026;box-shadow:0 6px 18px rgba(0,0,0,.35);cursor:pointer;user-select:none}
-.gg-topbar .gg-tb-av{width:32px;height:32px;border-radius:50%;flex:0 0 auto;background:#2a2a2e;display:flex;align-items:center;justify-content:center;font-size:18px;overflow:hidden;box-shadow:0 0 0 1.5px rgba(56,207,99,.6)}
-.gg-topbar .gg-tb-av img{width:100%;height:100%;object-fit:cover;border-radius:50%}
-.gg-topbar .gg-tb-mid{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:1px}
-.gg-topbar .gg-tb-name{font-size:13px;font-weight:800;color:#fff;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
-.gg-topbar .gg-tb-id{align-self:flex-start;display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);border-radius:999px;padding:1px 8px;font-size:11px;font-weight:700;color:#cfe9d8;cursor:pointer;line-height:1.5;max-width:100%}
-.gg-topbar .gg-tb-id .cp{opacity:.7;font-size:10px}
-.gg-topbar .gg-tb-id:active{background:rgba(255,255,255,.16)}
-.gg-topbar .gg-tb-bal{flex:0 0 auto;display:flex;align-items:baseline;gap:3px;background:linear-gradient(135deg,#1b3a2a,#0f1f18);border:1px solid #2a3a30;border-radius:12px;padding:6px 12px}
-.gg-topbar .gg-tb-amt{font-size:16px;font-weight:900;color:#fff;line-height:1;letter-spacing:-.02em}
-.gg-topbar .gg-tb-bal small{font-size:11px;font-weight:800;color:#5fe08a}
-/* Телефон/планшет: панель на всю ширину, контент опускаем ниже */
-@media (max-width:899px){
-  #app{padding-top:46px!important}
-  #screen-exchange .exch-tabs{top:46px!important}
-}
-/* ПК: компактная «пилюля» в правом верхнем углу, поверх верхней навигации */
-@media (min-width:900px){
-  .gg-topbar{left:auto;right:18px;top:11px;height:42px;width:auto;max-width:min(360px,42vw);border-radius:14px;border:1px solid #2a3a30;background:rgba(16,18,16,.96);z-index:1001;padding:0 6px 0 8px;box-shadow:0 8px 22px rgba(0,0,0,.45)}
-  .gg-topbar .gg-tb-bal{padding:5px 10px}
-}
-</style>
-<script id="gg-final-4-js">
-(function(){
-  function txt(id){var e=document.getElementById(id);return e?(e.textContent||"").trim():"";}
-  var __ggWriting=false,__ggQueued=false,__ggMo=null;
-  function ggBuildTopBar(){
-    if(document.getElementById("ggTopBar")){ syncBalanceCard(); return; }
-    if(!document.body) return;
-    var bar=document.createElement("div"); bar.id="ggTopBar"; bar.className="gg-topbar";
-    bar.innerHTML=
-      '<div class="gg-tb-av" id="ggBalAv">🧑</div>'+
-      '<div class="gg-tb-mid">'+
-        '<div class="gg-tb-name" id="ggBalName">Игрок</div>'+
-        '<button class="gg-tb-id" id="ggBalId"><span id="ggBalIdTx">ID: —</span><span class="cp">⧉</span></button>'+
-      '</div>'+
-      '<div class="gg-tb-bal"><span class="gg-tb-amt" id="ggBalAmt">0</span><small>GC</small></div>';
-    document.body.appendChild(bar);
-    var idBtn=document.getElementById("ggBalId");
-    if(idBtn) idBtn.addEventListener("click",function(e){
-      e.stopPropagation();
-      var raw=txt("ggBalIdTx").replace(/^ID:\s*/,"");
-      if(!raw||raw==="—") return;
-      var ok=function(){ if(window.showToast) showToast("ID скопирован"); };
-      if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(raw).then(ok).catch(function(){}); }
-      else { try{var ta=document.createElement("textarea");ta.value=raw;ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();document.execCommand("copy");document.body.removeChild(ta);ok();}catch(e){} }
-    });
-    bar.addEventListener("click",function(){ if(window.showScreen){ try{ showScreen("profile"); }catch(e){} } });
-    syncBalanceCard();
-  }
-  function syncBalanceCard(){
-    // Идемпотентно: пишем в DOM только если значение реально изменилось.
-    if(__ggWriting) return;
-    __ggWriting=true;
-    try{
-      var av=document.getElementById("ggBalAv"); var pav=document.getElementById("profileAvatar");
-      if(av&&pav&&av.innerHTML!==pav.innerHTML) av.innerHTML=pav.innerHTML;
-      var nm=document.getElementById("ggBalName"); var pnm=txt("profileName"); if(nm&&pnm&&nm.textContent!==pnm) nm.textContent=pnm;
-      var idtx=document.getElementById("ggBalIdTx"); var pid=txt("profilePlayerId"); if(idtx&&pid){ var v=(/^ID/.test(pid)?pid:("ID: "+pid)); if(idtx.textContent!==v) idtx.textContent=v; }
-      var amt=document.getElementById("ggBalAmt");
-      if(amt){ var b=txt("profileBalance").replace(/GC/i,"").trim(); if(b&&amt.textContent!==b) amt.textContent=b; }
-    }finally{ __ggWriting=false; }
-  }
-  window.ggSyncBalanceCard=syncBalanceCard;
-  function boot(){ try{ ggBuildTopBar(); }catch(e){} }
-  if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",boot); else boot();
-  setTimeout(boot,700); setTimeout(boot,1800);
-  function __ggSchedule(){
-    if(__ggQueued||__ggWriting) return;
-    __ggQueued=true;
-    requestAnimationFrame(function(){ __ggQueued=false; syncBalanceCard(); });
-  }
-  function __ggAttach(){
-    if(__ggMo) return;
-    var sec=document.getElementById("screen-profile"); if(!sec) return;
-    try{ __ggMo=new MutationObserver(__ggSchedule); __ggMo.observe(sec,{subtree:true,childList:true,characterData:true}); }catch(e){}
-  }
-  __ggAttach(); setTimeout(__ggAttach,700); setTimeout(__ggAttach,1800);
-  // Панель видна во всех вкладках → лёгкая идемпотентная синхронизация всегда.
-  setInterval(syncBalanceCard,800);
 })();
 </script>
 </body>

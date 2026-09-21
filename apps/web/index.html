@@ -1265,7 +1265,7 @@ html,body{margin:0!important;min-width:0!important;background:#050505!important;
       <div class="wheel-prizes">
         <div class="panel-title">Возможные призы</div>
         <div class="wheel-prizes-grid"><span class="wheel-prize-chip">100 GC</span><span class="wheel-prize-chip">200 GC</span><span class="wheel-prize-chip">300 GC</span><span class="wheel-prize-chip">500 GC</span><span class="wheel-prize-chip">750 GC</span><span class="wheel-prize-chip">1000 GC</span><span class="wheel-prize-chip">1500 GC</span><span class="wheel-prize-chip">2500 GC</span></div>
-        <div class="wheel-prizes-note">Один бесплатны������������ спин раз в 24 часа. Выигрыш сразу падает на баланс.</div>
+        <div class="wheel-prizes-note">Один бесплатны�������������� спин раз в 24 часа. Выигрыш сразу падает на баланс.</div>
       </div>
     </section>
 
@@ -3876,7 +3876,7 @@ updateUI();
     }catch(fetchErr){
       var msg = (fetchErr && fetchErr.name === 'AbortError')
         ? 'Сервер долго не отвечает. Попробуйте ещё раз через несколько секунд.'
-        : 'Нет соединения с сервер��м. Пр��верьте деплой Railway и домен API.';
+        : 'Нет соединения с с��рвер��м. Пр��верьте деплой Railway и домен API.';
       var netErr = new Error(msg);
       netErr.original = fetchErr;
       throw netErr;
@@ -4524,7 +4524,7 @@ updateUI();
     var canOpen=mine&&['WAITING_SELLER','DEAL','PAID','DISPUTED'].indexOf(o.status)>=0,canCancel=(o.isCreator||o.isMine||o.isBuyer)&&['OPEN','WAITING_SELLER','DEAL'].indexOf(o.status)>=0;
     var min=o.minBuyRub||1,max=o.maxBuyRub||p2pRubTotal(o),done=o.completedDeals||o.dealsCount||0,success=o.successRate||98;
     var st='<span class="p2p-status '+p2pStatusClass(o.status)+'">'+p2pStatusText(o.status)+'</span>';
-    return '<div class="cb-offer"><div class="cb-offer-top"><div class="cb-user">'+avatarHtml(user.photoUrl||'👤')+'<div><b>'+escapeHtml(p2pUserName(user))+'</b><small>ID '+escapeHtml(user.playerId||'—')+' · '+done+' сделок · '+success+'%</small></div></div><span>'+escapeHtml(p2pOfferId(o))+'</span></div><div class="cb-price"><b>'+fmt(p2pRateRub(o))+' ₽</b><span>за 1 000 GC</span></div><div class="cb-grid"><div><small>Доступно</small><b>'+fmt(o.amountGc)+' GC</b></div><div><small>Лимиты</small><b>'+fmt(min)+'–'+fmt(max)+' ₽</b></div><div><small>Оплата</small><b>'+escapeHtml(p2pMethodName(o.method))+'</b></div><div><small>Статус</small><b>'+st+'</b></div></div><div class="cb-actions">'+(canTake?'<button class="cb-main" data-p2p-buy="'+o.id+'">'+(intent==='buy'?'Продать':'Купить')+' GC</button>':'')+(canAccept?'<button class="cb-main" data-p2p-act="accept" data-id="'+o.id+'">Подтвердить сделку</button>':'')+(canPaid?'<button class="cb-main" data-p2p-paydetails="'+o.id+'">Перейти к оплат��</button>':'')+(canRelease?'<button class="cb-main" data-p2p-act="release" data-id="'+o.id+'">Подтвердить получение</button>':'')+(canOpen?'<button class="cb-ghost" data-p2p-paydetails="'+o.id+'">Открыть сделку</button>':'')+(canCancel?'<button class="cb-ghost" data-p2p-act="cancel" data-id="'+o.id+'">Отменить</button>':'')+'</div></div>';
+    return '<div class="cb-offer"><div class="cb-offer-top"><div class="cb-user">'+avatarHtml(user.photoUrl||'👤')+'<div><b>'+escapeHtml(p2pUserName(user))+'</b><small>ID '+escapeHtml(user.playerId||'—')+' · '+done+' сделок · '+success+'%</small></div></div><span>'+escapeHtml(p2pOfferId(o))+'</span></div><div class="cb-price"><b>'+fmt(p2pRateRub(o))+' ₽</b><span>за 1 000 GC</span></div><div class="cb-grid"><div><small>Доступно</small><b>'+fmt(o.amountGc)+' GC</b></div><div><small>Лимиты</small><b>'+fmt(min)+'–'+fmt(max)+' ₽</b></div><div><small>Оплата</small><b>'+escapeHtml(p2pMethodName(o.method))+'</b></div><div><small>Статус</small><b>'+st+'</b></div></div><div class="cb-actions">'+(canTake?'<button class="cb-main" data-p2p-buy="'+o.id+'">'+(intent==='buy'?'Продать':'Купить')+' GC</button>':'')+(canAccept?'<button class="cb-main" data-p2p-act="accept" data-id="'+o.id+'">Подтвердить сделку</button>':'')+(canPaid?'<button class="cb-main" data-p2p-paydetails="'+o.id+'">��ерейти к оплат��</button>':'')+(canRelease?'<button class="cb-main" data-p2p-act="release" data-id="'+o.id+'">Подтвердить получение</button>':'')+(canOpen?'<button class="cb-ghost" data-p2p-paydetails="'+o.id+'">Открыть сделку</button>':'')+(canCancel?'<button class="cb-ghost" data-p2p-act="cancel" data-id="'+o.id+'">Отменить</button>':'')+'</div></div>';
   }
   function renderExchange(){
     var m=document.getElementById('exchangeMarket'),sell=document.getElementById('exchangeSell'),c=document.getElementById('exchangeCreate'),active=document.getElementById('exchangeMine'),completed=document.getElementById('exchangeAds');if(!m)return;
@@ -9479,13 +9479,15 @@ input.input::placeholder,textarea.input::placeholder{color:#64748b!important;}
 @media (max-width:899px){
   #ggBrandLogo{top:48px!important;height:44px!important;z-index:1005!important;}
   #ggBrandLogo img{height:27px!important;}
-  .gg-topbar{top:86px!important;height:62px!important;left:12px!important;right:12px!important;padding:0 12px!important;border-radius:17px!important;}
-  .gg-topbar .gg-tb-av{width:38px!important;height:38px!important;}
+  .gg-topbar{top:94px!important;height:62px!important;left:12px!important;right:12px!important;padding:0 12px!important;border-radius:17px!important;background:linear-gradient(135deg,rgba(18,24,38,.98),rgba(14,18,31,.98))!important;border:1px solid rgba(94,159,232,.42)!important;box-shadow:0 10px 30px rgba(0,0,0,.42),0 0 0 1px rgba(139,92,246,.08)!important;}
+  .gg-topbar .gg-tb-av{width:38px!important;height:38px!important;box-shadow:0 0 0 2px #5e9fe8,0 0 18px rgba(94,159,232,.3)!important;background:#20283a!important;}
   .gg-topbar .gg-tb-name{font-size:14px!important;}
-  .gg-topbar .gg-tb-id{font-size:11px!important;padding:2px 8px!important;}
-  .gg-topbar .gg-tb-amt{font-size:18px!important;}
-  #app{padding-top:158px!important;}
-  body:not(.gg-profile-open) #app main.screen-container{padding-top:164px!important;}
+  .gg-topbar .gg-tb-id{font-size:11px!important;padding:2px 8px!important;color:#d7e6f7!important;background:rgba(94,159,232,.12)!important;border-color:rgba(94,159,232,.28)!important;}
+  .gg-topbar .gg-tb-amt{font-size:18px!important;color:#fff!important;}
+  .gg-topbar .gg-tb-bal{background:linear-gradient(135deg,rgba(39,131,222,.22),rgba(99,102,241,.18))!important;border-color:rgba(94,159,232,.34)!important;}
+  .gg-topbar .gg-tb-bal small{color:#7dd3fc!important;}
+  #app{padding-top:166px!important;}
+  body:not(.gg-profile-open) #app main.screen-container{padding-top:172px!important;}
   body.gg-profile-open #app main.screen-container{padding-top:44px!important;}
   body.gg-profile-open #ggBrandLogo{top:0!important;}
   body.gg-profile-open #app{padding-top:44px!important;}

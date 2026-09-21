@@ -502,7 +502,7 @@ select.input, input.input{
 .nav-btn.active .ic{transform:translateY(-2px) scale(1.1);}
 
 /* ---------- Toast ---------- */
-#toastLayer{position:fixed;top:66px;left:0;right:0;display:flex;flex-direction:column;align-items:center;gap:8px;z-index:60;pointer-events:none;}
+#toastLayer{position:fixed;top:66px;left:0;right:0;display:flex;flex-direction:column;align-items:center;gap:8px;z-index:100010;pointer-events:none;}
 .toast{
   background:#1E212B;color:#fff;padding:10px 18px;border-radius:999px;font-weight:700;font-size:13px;
   box-shadow:0 8px 20px rgba(0,0,0,0.35);opacity:0;transform:translateY(-8px);transition:all .25s ease;
@@ -4507,7 +4507,7 @@ updateUI();
   function p2pModalShell(inner){p2pCloseModal();document.body.classList.add('p2p-modal-open');document.body.insertAdjacentHTML('beforeend','<div class="p2p-modal" id="p2pBuyModal"><div class="p2p-deal-room"><div class="p2p-drag-handle" id="p2pDragHandle"></div>'+inner+'</div></div>'); var h=document.getElementById('p2pDragHandle'); if(h)h.onclick=p2pCloseModal;}
   function openP2pBuyModal(id){var o=(exchangeData.offers||[]).find(function(x){return x.id===id}); if(!o)return; var max=o.maxBuyRub||p2pRubTotal(o), min=o.minBuyRub||1; p2pModalShell('<button class="p2p-x" id="p2pModalClose">×</button><div class="p2p-room-head"><span>'+escapeHtml(p2pOfferId(o))+'</span><b>Покупка GC</b><small>Вы покупатель</small></div><label class="p2p-amount"><span>Сумма</span><input id="p2pBuyAmount" type="number" min="'+min+'" max="'+max+'" value="'+max+'"><em>RUB</em></label><div class="p2p-details"><div class="row"><span>Получаете</span><b id="p2pBuyGc">'+fmt(Math.floor(max*p2pRate(o)))+' GC</b></div><div class="row"><span>Курс</span><b>'+fmt(p2pRateRub(o))+' ₽ / 1 000 GC</b></div><div class="row"><span>Способ</span><b>'+escapeHtml(p2pMethodName(o.method))+'</b></div><div class="row"><span>Лимит</span><b>'+fmt(min)+'–'+fmt(max)+' ₽</b></div></div><div class="p2p-security"><b>Безопасность сделки</b><br>Переводите деньги только по реквизитам внутри сделки.</div><button class="btn btn-primary btn-block" id="p2pCreateDealBtn">Создать сделку</button>'); document.getElementById('p2pModalClose').onclick=p2pCloseModal; var inp=document.getElementById('p2pBuyAmount'); inp.oninput=function(){document.getElementById('p2pBuyGc').textContent=fmt(Math.floor((Number(inp.value)||0)*p2pRate(o)))+' GC';}; document.getElementById('p2pCreateDealBtn').onclick=function(){var rub=Number(inp.value)||0;if(rub<min||rub>max){showToast('Сумма вне лимитов','error');return;}p2pCreateDeal(o.id,rub,Math.floor(rub*p2pRate(o)));};}
   async function p2pCreateDeal(id,rub,gc){try{var r=await p2pAction('take',id,true); openP2pWaitingSeller(r.deal||{id:id,priceRub:rub,amountGc:gc,status:'WAITING_SELLER'},rub,gc);}catch(e){showToast(e.message||'Не удалось создать сделку','error');}}
-  function openP2pWaitingSeller(deal,rub,gc){p2pModalShell('<button class="p2p-x" id="p2pModalClose">×</button><div class="p2p-room-head"><span>'+escapeHtml(p2pOfferId(deal))+'</span><b>Ждём продавца</b><small>После принятия вы получите реквизиты</small></div><div class="p2p-ring" id="p2pWaitTimer">10:00</div>'+p2pDealProgress('WAITING_SELLER')+'<button class="btn btn-ghost btn-block" id="p2pCancelWaiting">Отменить</button>');document.getElementById('p2pModalClose').onclick=p2pCloseModal;document.getElementById('p2pCancelWaiting').onclick=function(){p2pAction('cancel',deal.id);p2pCloseModal();};}
+  function openP2pWaitingSeller(deal,rub,gc){ if(window.renderDealRoom){ try{ return window.renderDealRoom(Object.assign({}, deal, {status:'WAITING_SELLER', isBuyer:true})); }catch(e){} } p2pModalShell('<button class="p2p-x" id="p2pModalClose">×</button><div class="p2p-room-head"><span>'+escapeHtml(p2pOfferId(deal))+'</span><b>Ждём продавца</b><small>После принятия вы получите реквизиты</small></div><div class="p2p-ring" id="p2pWaitTimer">10:00</div>'+p2pDealProgress('WAITING_SELLER')+'<button class="btn btn-ghost btn-block" id="p2pCancelWaiting">Отменить</button>');document.getElementById('p2pModalClose').onclick=p2pCloseModal;document.getElementById('p2pCancelWaiting').onclick=function(){p2pAction('cancel',deal.id);p2pCloseModal();};}
   function openP2pPayDetails(deal){ if(window.renderDealRoom){ try{ return window.renderDealRoom(Object.assign({status:'DEAL'}, deal)); }catch(e){} } var req=deal.paymentDetails||'Реквизиты появятся после принятия продавцом'; var _num=((String(req).match(/([0-9][0-9 \-]{9,})/)||[])[1]||'').trim(); var _bank=((String(req).match(/банк[^:]*:\s*([^\n|]+)/i)||[])[1]||deal.bank||'').trim(); var _card=''; try{ if(window.ggReqCard&&_num) _card=window.ggReqCard(_bank,_num); }catch(e){} p2pModalShell('<button class="p2p-x" id="p2pModalClose">×</button><div class="p2p-room-head"><span>'+escapeHtml(p2pOfferId(deal))+'</span><b>Сделочная комната</b><small>'+(deal.isBuyer?'Вы покупатель':'Вы продавец')+'</small></div>'+p2pDealProgress(deal.status)+_card+'<div class="p2p-details"><div class="row"><span>GC</span><b>'+fmt(deal.amountGc)+' GC</b></div><div class="row"><span>К оплате</span><b>'+fmt(deal.priceRub)+' ₽</b></div><div class="row"><span>Курс</span><b>'+fmt(p2pRateRub(deal))+' ₽ / 1 000 GC</b></div><div class="row"><span>Способ</span><b>'+escapeHtml(p2pMethodName(deal.method))+'</b></div></div><div class="p2p-security"><b>Безопасность</b><br>Нажимайте «Я оплатил» только после фактического перевода. Продавец подтверждает только после поступления денег.</div><div class="p2p-offer-actions">'+(deal.isBuyer&&deal.status==='DEAL'?'<button class="btn btn-primary" id="p2pPaidBtn">Я оплатил</button>':'')+(deal.isMine&&deal.status==='PAID'?'<button class="btn btn-gold" data-p2p-act="release" data-id="'+deal.id+'">Подтвердить получение</button>':'')+'<button class="btn btn-ghost" data-p2p-act="dispute" data-id="'+deal.id+'">Открыть спор</button></div>');document.getElementById('p2pModalClose').onclick=p2pCloseModal;var paid=document.getElementById('p2pPaidBtn'); if(paid)paid.onclick=function(){p2pAction('paid',deal.id);p2pCloseModal();}; var _cp=document.getElementById('ggCopyBtn'); if(_cp&&window.ggCopy)_cp.onclick=function(){window.ggCopy(_cp.getAttribute('data-copy'),_cp);};}
   async function p2pAction(act,id,silent){try{var url='/exchange/'+(act==='take'?'offers/'+id+'/take':'deals/'+id+'/'+act); var body={}; if(act==='dispute') body={reason:prompt('Опишите проблему')||'Спор по оплате'}; var r=await apiRequest(url,{method:'POST',body:JSON.stringify(body)}); if(typeof r.balance==='number'){backendBalance=r.balance;applyBackendBalanceToUI();renderBalances();} if(!silent) showToast('Готово','success'); loadExchange(); return r;}catch(e){if(!silent)showToast(e.message||'Ошибка P2P','error'); throw e;}}
   document.addEventListener('click',function(ev){if(!ev.target||!ev.target.closest)return; var tab=ev.target.closest('[data-ex-tab]'); if(tab){exchangeData.tab=tab.getAttribute('data-ex-tab');renderExchange();return;} var f=ev.target.closest('[data-p2p-filter]'); if(f){exchangeData.filter=f.getAttribute('data-p2p-filter');document.querySelectorAll('[data-p2p-filter]').forEach(function(b){b.classList.toggle('active',b===f)});renderExchange();return;} var buy=ev.target.closest('[data-p2p-buy]'); if(buy){openP2pBuyModal(buy.getAttribute('data-p2p-buy'));return;} var meth=ev.target.closest('[data-method]'); if(meth){exchangeData.method=meth.getAttribute('data-method');document.querySelectorAll('[data-method]').forEach(function(b){b.classList.toggle('active',b===meth)});updateP2pQuote();return;} var payd=ev.target.closest('[data-p2p-paydetails]'); if(payd){var idp=payd.getAttribute('data-p2p-paydetails');var d=(exchangeData.deals||[]).find(function(x){return x.id===idp});if(d)openP2pPayDetails(d);return;} var act=ev.target.closest('[data-p2p-act]'); if(act){p2pAction(act.getAttribute('data-p2p-act'),act.getAttribute('data-id'));return;}});
@@ -8580,6 +8580,18 @@ input.input::placeholder,textarea.input::placeholder{color:#64748b!important;}
 .gg-kv .k{color:#94a3b8;font-weight:700}
 .gg-kv .v{color:#fff;font-weight:800}
 .gg-note{color:#94a3b8;font-size:13px;font-weight:700;margin:10px 0;line-height:1.4}
+.gg-msg{display:none;margin:2px 0 12px;padding:11px 13px;border-radius:12px;font-size:13px;font-weight:800;line-height:1.35}
+.gg-msg.show{display:block}
+.gg-msg.err{background:rgba(239,68,68,.16);border:1px solid rgba(239,68,68,.55);color:#fecaca}
+.gg-msg.ok{background:rgba(49,208,170,.16);border:1px solid rgba(49,208,170,.55);color:#bbf7e6}
+.gg-role-wrap{text-align:center;margin:2px 0 8px}
+.gg-role{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:900;padding:6px 12px;border-radius:99px}
+.gg-role.buy{background:rgba(37,99,235,.18);color:#93c5fd;border:1px solid rgba(37,99,235,.5)}
+.gg-role.sell{background:rgba(234,179,8,.16);color:#fde68a;border:1px solid rgba(234,179,8,.55)}
+.gg-modal.seller{border-color:rgba(234,179,8,.45);box-shadow:0 -6px 50px rgba(234,179,8,.10)}
+.gg-modal.seller .gg-head .lbl{color:#fde68a}
+.gg-modal.seller .gg-steps .s.on{background:#eab308}
+.gg-modal.seller .gg-btn.green{background:#eab308;color:#111}
 .gg-wait{text-align:center;color:#94a3b8;font-weight:700;margin:10px 0}
 .gg-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
 .gg-btns.one{grid-template-columns:1fr}
@@ -8679,10 +8691,55 @@ input.input::placeholder,textarea.input::placeholder{color:#64748b!important;}
     paint(); _t=setInterval(paint,1000);
   }
 
+  function _dlkey(k){ return 'ggDL:'+k; }
+  function getDeadline(key, seconds){
+    try{ var now=Date.now(); var raw=localStorage.getItem(_dlkey(key));
+      if(raw){ var v=parseInt(raw,10); if(v && v>now-2000) return v; }
+      var d=now+seconds*1000; localStorage.setItem(_dlkey(key), String(d)); return d;
+    }catch(e){ return Date.now()+seconds*1000; }
+  }
+  function clearDeadline(key){ try{ localStorage.removeItem(_dlkey(key)); }catch(e){} }
+  function clearAllDeadlines(d){ if(!d||!d.id) return; ['WAITING','DEAL','PAID'].forEach(function(x){ clearDeadline(d.id+':'+x); }); }
+  var _t2=null;
+  function startTimerP(el, seconds, key, onExpire){
+    stopTimer(); if(_t2){ clearInterval(_t2); _t2=null; }
+    if(!el) return;
+    var deadline = key ? getDeadline(key, seconds) : (Date.now()+seconds*1000);
+    var fired=false;
+    function paint(){
+      var left=Math.round((deadline-Date.now())/1000); if(left<0) left=0;
+      var mm=Math.floor(left/60), ss=left%60;
+      el.innerHTML=(mm<10?'0':'')+mm+':'+(ss<10?'0':'')+ss+' <small>осталось</small>';
+      el.classList.toggle('warn', left<=60 && left>20);
+      el.classList.toggle('crit', left<=20);
+      if(left<=0 && !fired){ fired=true; if(_t2){clearInterval(_t2);_t2=null;} el.innerHTML='00:00 <small>время истекло</small>'; el.classList.add('crit'); if(key) clearDeadline(key); if(typeof onExpire==='function'){ try{ onExpire(); }catch(e){} } }
+    }
+    paint(); _t2=setInterval(paint,1000);
+  }
+  function ggMsg(text, kind){
+    var el=document.getElementById('ggMsg');
+    if(!el){ if(window.showToast) showToast(text, kind==='ok'?'success':'error'); return; }
+    el.className='gg-msg show '+(kind==='ok'?'ok':'err');
+    el.textContent=String(text||'');
+    clearTimeout(el.__t); el.__t=setTimeout(function(){ el.classList.remove('show'); }, kind==='ok'?2200:6000);
+  }
+  window.ggMsg=ggMsg;
+  function roleBadge(isBuyer){ return '<div class="gg-role-wrap"><span class="gg-role '+(isBuyer?'buy':'sell')+'">'+(isBuyer?'👤 Вы покупатель':'🏦 Вы продавец')+'</span></div>'; }
+  function expireCancel(d){
+    if(!d||!d.id) return; clearAllDeadlines(d);
+    api('/exchange/deals/'+d.id+'/cancel','POST',{}).then(function(){
+      renderDealRoom(Object.assign({}, d, {status:'CANCELLED'}));
+      if(window.showToast) showToast('Время истекло — сделка отменена','error');
+      refresh();
+    }).catch(function(){ renderDealRoom(Object.assign({}, d, {status:'CANCELLED'})); });
+  }
+  var _dealRole='buyer';
   // ---------- API ----------
   function api(path, method, body){
-    if(window.apiRequest) return Promise.resolve(window.apiRequest(path, { method:method||'GET', body: body }));
-    return fetch(API+path, { method:method||'GET', headers:{'Content-Type':'application/json'}, body: body?JSON.stringify(body):undefined }).then(function(r){ return r.json(); });
+    var m=method||'GET';
+    var payload=(body!=null)?JSON.stringify(body):undefined;
+    if(window.apiRequest) return Promise.resolve(window.apiRequest(path, { method:m, body: payload }));
+    return fetch(API+path, { method:m, headers:{'Content-Type':'application/json'}, body: payload }).then(function(r){ return r.json(); });
   }
 
   // ---------- модалка ----------
@@ -8691,7 +8748,7 @@ input.input::placeholder,textarea.input::placeholder{color:#64748b!important;}
   function shell(inner){
     closeModal();
     var ov=document.createElement('div'); ov.className='gg-modal-ov'; ov.id='ggDealOv';
-    ov.innerHTML='<div class="gg-modal" id="ggDeal"><button class="gg-x" id="ggXBtn">×</button>'+inner+'</div>';
+    ov.innerHTML='<div class="gg-modal'+(_dealRole==='seller'?' seller':'')+'" id="ggDeal"><button class="gg-x" id="ggXBtn">×</button><div class="gg-msg" id="ggMsg"></div>'+inner+'</div>';
     document.body.appendChild(ov);
     ov.addEventListener('click', function(e){ if(e.target===ov) closeModal(); });
     var x=document.getElementById('ggXBtn'); if(x) x.onclick=closeModal;
@@ -8734,15 +8791,16 @@ input.input::placeholder,textarea.input::placeholder{color:#64748b!important;}
       var map={accept:'DEAL', release:'COMPLETED', cancel:'CANCELLED', dispute:'DISPUTED'};
       renderDealRoom(Object.assign({}, d, { status: map[act]||d.status }));
       refresh();
-    }).catch(function(){ if(window.showToast) showToast('Не удалось выполнить действие'); });
+    }).catch(function(err){ ggMsg((err&&(err.message||err.error))||'Не удалось выполнить действие','err'); });
   }
 
   function markPaid(d, receipt){
     api('/exchange/deals/'+d.id+'/paid','POST',{ receipt: receipt }).then(function(){
-      if(window.showToast) showToast('Чек отправлен');
+      clearDeadline(d.id+':DEAL');
+      if(window.showToast) showToast('Чек отправлен','success');
       renderDealRoom(Object.assign({}, d, { status:'PAID', receipt: receipt }));
       refresh();
-    }).catch(function(){ if(window.showToast) showToast('Ошибка отправки чека'); });
+    }).catch(function(err){ ggMsg((err&&(err.message||err.error))||'Не удалось отправить чек. Попробуйте ещё раз.','err'); });
   }
 
   function showProofUI(d){
@@ -8757,7 +8815,7 @@ input.input::placeholder,textarea.input::placeholder{color:#64748b!important;}
     var send=document.getElementById('ggSendReceipt'); if(send) send.onclick=function(){
       var f=document.getElementById('ggReceipt');
       var fname=(f && f.files && f.files[0]) ? f.files[0].name : '';
-      if(!fname){ if(window.showToast) showToast('Выберите файл чека'); return; }
+      if(!fname){ ggMsg('Выберите файл чека','err'); return; }
       markPaid(d, fname);
     };
   }
@@ -8767,16 +8825,17 @@ input.input::placeholder,textarea.input::placeholder{color:#64748b!important;}
     d = d||{};
     var st = String(d.status||'').toUpperCase();
     var isBuyer = !!d.isBuyer;
+    _dealRole = isBuyer?'buyer':'seller';
     var inner='';
 
     if(st==='WAITING_SELLER' || st==='WAITING'){
-      inner = head('Шаг 1 из 3','Ожидание продавца') + stepsBar(1)
+      inner = roleBadge(isBuyer) + head('Шаг 1 из 3','Ожидание продавца') + stepsBar(1)
         + '<div class="gg-timer" id="ggTimer"></div>' + amounts(d)
         + '<div class="gg-note">Ждём, пока продавец подтвердит сделку. Как только он согласится — откроется оплата.</div>'
         + (isBuyer
             ? '<div class="gg-btns one"><button class="gg-btn red" id="ggCancelBtn">Отмена сделки</button></div>'
             : '<div class="gg-btns"><button class="gg-btn red" id="ggCancelBtn">Отклонить</button><button class="gg-btn green" id="ggAcceptBtn">Принять сделку</button></div>');
-      shell(inner); startTimer(document.getElementById('ggTimer'), 10*60); bindCommon(d);
+      shell(inner); startTimerP(document.getElementById('ggTimer'), 10*60, d.id+':WAITING', function(){ expireCancel(d); }); bindCommon(d);
       var acc=document.getElementById('ggAcceptBtn'); if(acc) acc.onclick=function(){ doAct(d,'accept'); };
       return;
     }
@@ -8785,47 +8844,47 @@ input.input::placeholder,textarea.input::placeholder{color:#64748b!important;}
       if(isBuyer){
         var num = extractNumber(d.paymentDetails);
         var bank = extractBank(d.paymentDetails) || d.bank || '';
-        inner = head('Шаг 2 из 3','Оплата') + stepsBar(2)
+        inner = roleBadge(isBuyer) + head('Шаг 2 из 3','Оплата') + stepsBar(2)
           + '<div class="gg-timer" id="ggTimer"></div>'
           + reqCard(bank, num) + amounts(d)
           + '<div class="gg-note">Переведите точную сумму по реквизитам выше. После оплаты нажмите «Оплатил» и приложите чек.</div>'
           + '<div id="ggProof"></div>'
           + '<div class="gg-btns" id="ggPayBtns"><button class="gg-btn red" id="ggCancelBtn">Отмена сделки</button><button class="gg-btn green" id="ggPaidBtn">Оплатил</button></div>';
-        shell(inner); startTimer(document.getElementById('ggTimer'), 15*60); bindCommon(d);
+        shell(inner); startTimerP(document.getElementById('ggTimer'), 15*60, d.id+':DEAL', function(){ expireCancel(d); }); bindCommon(d);
         var paid=document.getElementById('ggPaidBtn'); if(paid) paid.onclick=function(){ showProofUI(d); };
       } else {
-        inner = head('Шаг 2 из 3','Ожидание оплаты') + stepsBar(2)
+        inner = roleBadge(isBuyer) + head('Шаг 2 из 3','Ожидание оплаты') + stepsBar(2)
           + '<div class="gg-timer" id="ggTimer"></div>'
           + reqCard(extractBank(d.paymentDetails)||d.bank||'', extractNumber(d.paymentDetails)) + amounts(d)
           + '<div class="gg-wait">Покупатель оплачивает по вашим реквизитам. Дождитесь чека.</div>'
           + '<div class="gg-btns one"><button class="gg-btn ghost" id="ggDisputeBtn">Открыть спор</button></div>';
-        shell(inner); startTimer(document.getElementById('ggTimer'), 15*60); bindCommon(d);
+        shell(inner); startTimerP(document.getElementById('ggTimer'), 15*60, d.id+':DEAL', function(){ expireCancel(d); }); bindCommon(d);
       }
       return;
     }
 
     if(st==='PAID'){
       if(isBuyer){
-        inner = head('Шаг 3 из 3','Подтверждение перевода') + stepsBar(3)
+        inner = roleBadge(isBuyer) + head('Шаг 3 из 3','Подтверждение перевода') + stepsBar(3)
           + '<div class="gg-timer" id="ggTimer"></div>' + amounts(d)
           + (d.receipt? '<div class="gg-note">Чек отправлен: '+E(d.receipt)+'. Ожидаем подтверждение продавца.</div>' : '<div class="gg-note">Ожидаем, пока продавец провери�� оплату.</div>')
           + '<div class="gg-btns one"><button class="gg-btn ghost" id="ggDisputeBtn">Открыть спор</button></div>';
-        shell(inner); startTimer(document.getElementById('ggTimer'), 10*60); bindCommon(d);
+        shell(inner); startTimerP(document.getElementById('ggTimer'), 10*60, d.id+':PAID', null); bindCommon(d);
       } else {
-        inner = head('Шаг 3 из 3','Подтверждение перевода') + stepsBar(3)
+        inner = roleBadge(isBuyer) + head('Шаг 3 из 3','Подтверждение перевода') + stepsBar(3)
           + '<div class="gg-timer" id="ggTimer"></div>'
           + reqCard(extractBank(d.paymentDetails)||d.bank||'', extractNumber(d.paymentDetails)) + amounts(d)
           + '<div class="gg-note">Проверьте поступление средств'+(d.receipt?' и чек: <b>'+E(d.receipt)+'</b>':'')+'. Если всё верно — подтвердите перевод GC покупателю.</div>'
           + '<div class="gg-btns"><button class="gg-btn ghost" id="ggDisputeBtn">Спор</button><button class="gg-btn green" id="ggReleaseBtn">Подтвердить</button></div>';
-        shell(inner); startTimer(document.getElementById('ggTimer'), 10*60); bindCommon(d);
+        shell(inner); startTimerP(document.getElementById('ggTimer'), 10*60, d.id+':PAID', null); bindCommon(d);
         var rel=document.getElementById('ggReleaseBtn'); if(rel) rel.onclick=function(){ doAct(d,'release'); };
       }
       return;
     }
 
-    if(st==='COMPLETED'){ shell(head('Готово','Сделка завершена')+'<div class="gg-done">✓ Сделка успешно завершена</div>'+amounts(d)+'<div class="gg-btns one"><button class="gg-btn blue" id="ggDoneBtn">Закрыть</button></div>'); var db=document.getElementById('ggDoneBtn'); if(db) db.onclick=closeModal; refresh(); return; }
-    if(st==='CANCELLED'){ shell(head('Отменено','Сделка отменена')+'<div class="gg-note">Сделка была отменена.</div><div class="gg-btns one"><button class="gg-btn blue" id="ggDoneBtn">Закрыть</button></div>'); var db2=document.getElementById('ggDoneBtn'); if(db2) db2.onclick=closeModal; refresh(); return; }
-    if(st==='DISPUTED'){ shell(head('Спор','Открыт спор')+'<div class="gg-note">По сделке открыт спор. С вами свяжется поддержка.</div><div class="gg-btns one"><button class="gg-btn blue" id="ggDoneBtn">Закрыть</button></div>'); var db3=document.getElementById('ggDoneBtn'); if(db3) db3.onclick=closeModal; refresh(); return; }
+    if(st==='COMPLETED'){ clearAllDeadlines(d); shell(head('Готово','Сделка завершена')+'<div class="gg-done">✓ Сделка успешно завершена</div>'+amounts(d)+'<div class="gg-btns one"><button class="gg-btn blue" id="ggDoneBtn">Закрыть</button></div>'); var db=document.getElementById('ggDoneBtn'); if(db) db.onclick=closeModal; refresh(); return; }
+    if(st==='CANCELLED'){ clearAllDeadlines(d); shell(head('Отменено','Сделка отменена')+'<div class="gg-note">Сделка была отменена.</div><div class="gg-btns one"><button class="gg-btn blue" id="ggDoneBtn">Закрыть</button></div>'); var db2=document.getElementById('ggDoneBtn'); if(db2) db2.onclick=closeModal; refresh(); return; }
+    if(st==='DISPUTED'){ clearAllDeadlines(d); shell(head('Спор','Открыт спор')+'<div class="gg-note">По сделке открыт спор. С вами свяжется поддержка.</div><div class="gg-btns one"><button class="gg-btn blue" id="ggDoneBtn">Закрыть</button></div>'); var db3=document.getElementById('ggDoneBtn'); if(db3) db3.onclick=closeModal; refresh(); return; }
 
     shell(head('Сделка','P2P сделка')+amounts(d)+'<div class="gg-btns one"><button class="gg-btn blue" id="ggDoneBtn">Закрыть</button></div>'); var f=document.getElementById('ggDoneBtn'); if(f) f.onclick=closeModal;
   }

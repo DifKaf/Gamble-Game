@@ -1265,7 +1265,7 @@ html,body{margin:0!important;min-width:0!important;background:#050505!important;
       <div class="wheel-prizes">
         <div class="panel-title">Возможные призы</div>
         <div class="wheel-prizes-grid"><span class="wheel-prize-chip">100 GC</span><span class="wheel-prize-chip">200 GC</span><span class="wheel-prize-chip">300 GC</span><span class="wheel-prize-chip">500 GC</span><span class="wheel-prize-chip">750 GC</span><span class="wheel-prize-chip">1000 GC</span><span class="wheel-prize-chip">1500 GC</span><span class="wheel-prize-chip">2500 GC</span></div>
-        <div class="wheel-prizes-note">Один бесплатны�������������� спин раз в 24 часа. Выигрыш сразу падает на баланс.</div>
+        <div class="wheel-prizes-note">Один бесплатны������������������ спин раз в 24 часа. Выигрыш сразу падает на баланс.</div>
       </div>
     </section>
 
@@ -3406,7 +3406,7 @@ updateUI();
         <div id="coinStreakControls" class="hidden">
           <div class="option-row" id="coinContinueOptions">
             <button class="option-btn" data-val="heads">🦅 Орёл</button>
-            <button class="option-btn" data-val="tails">Ⓣ Решка</button>
+            <button class="option-btn" data-val="tails">Ⓣ Реш��а</button>
           </div>
           <button class="btn btn-gold btn-block" id="coinCashoutBtn" style="margin-top:10px;">Забрать выигрыш (<span id="coinCashoutAmount">0</span> GC)</button>
         </div>
@@ -3648,14 +3648,14 @@ updateUI();
         <div class="profile-online"><i></i> В сети</div>
         <div class="profile-band">⚡ GAMBLE BAND</div>
         <div class="profile-since" id="profileSince">Дата регистрации: —</div>
-        <div class="profile-cups">🏆 <span id="profileScore">0</span></div>
+        <div class="profile-cups"><span class="profile-weekly-label">Ставки за неделю</span><b><span id="profileScore">0</span> GC</b></div>
         <button class="profile-share" id="profileShareBtn">↗ Поделиться</button>
       </div>
       <div class="profile-stats-grid">
         <div><b id="statGamesTotal">0</b><span>Игры</span></div>
-        <div><b id="statWagered">0</b><span>Ставки недели</span></div>
+        <div class="profile-stat-hidden"><b id="statWagered">0</b><span>Ставки недели</span></div>
         <div><b id="statWon">0</b><span>Выиграно</span></div>
-        <div><b id="statBiggest">0</b><span>Рекорд</span></div>
+        <div class="profile-stat-hidden"><b id="statBiggest">0</b><span>Рекорд</span></div>
         <div><b id="profileBalance">0 GC</b><span>Баланс</span></div>
         <div><b id="profilePlayerId">ID: —</b><span>Игрок</span></div>
       </div>
@@ -3876,7 +3876,7 @@ updateUI();
     }catch(fetchErr){
       var msg = (fetchErr && fetchErr.name === 'AbortError')
         ? 'Сервер долго не отвечает. Попробуйте ещё раз через несколько секунд.'
-        : 'Нет соединения с с��рвер��м. Пр��верьте деплой Railway и домен API.';
+        : 'Нет соедине��ия с с��рвер��м. Пр��верьте деплой Railway и домен API.';
       var netErr = new Error(msg);
       netErr.original = fetchErr;
       throw netErr;
@@ -6449,7 +6449,7 @@ updateUI();
   if(transferInput) transferInput.addEventListener('blur', function(){ setTimeout(hideTransferSuggest, 200); });
   async function loadCreatedPromos(){
     var box=document.getElementById('createdPromosList'); if(!box) return;
-    if(!backendReady){ box.innerHTML=Object.keys(localPromos).map(function(code){ var p=localPromos[code]; var used=(p.usedBy||[]).length; var left=Math.max(0,(p.maxUses||1)-used); return '<div class="promo-row"><div><div class="promo-code-name">'+escapeHtml(code)+'</div><div>'+fmt(p.amount)+' GC</div></div><div class="promo-remain">Осталось '+left+'/'+(p.maxUses||1)+'</div></div>'; }).join('') || '<div class="empty-state">Пока нет созданных промокодов.</div>'; return; }
+    if(!backendReady){ box.innerHTML=Object.keys(localPromos).map(function(code){ var p=localPromos[code]; var used=(p.usedBy||[]).length; var left=Math.max(0,(p.maxUses||1)-used); return '<div class="promo-row"><div><div class="promo-code-name">'+escapeHtml(code)+'</div><div>'+fmt(p.amount)+' GC</div></div><div class="promo-remain">Осталось '+left+'/'+(p.maxUses||1)+'</div></div>'; }).join('') || '<div class="empty-state">Пока нет созданных промокодо��.</div>'; return; }
     try{ var data=await apiRequest('/bonus/promocode/list'); box.innerHTML=(data.items||[]).map(function(p){ return '<div class="promo-row"><div><div class="promo-code-name">'+escapeHtml(p.code)+'</div><div>'+fmt(p.amount)+' GC</div></div><div class="promo-remain">Осталось '+p.remaining+'/'+p.maxUses+'</div></div>'; }).join('') || '<div class="empty-state">Пока нет созданных промокодов.</div>'; }catch(e){ box.innerHTML='<div class="empty-state">Ошибка загрузки промокодов</div>'; }
   }
 
@@ -6895,7 +6895,7 @@ updateUI();
     var totalEl=document.getElementById('statGamesTotal'); if(totalEl) totalEl.textContent=fmt(totalGames);
     var level=Math.max(1, Math.min(99, Math.floor(totalGames/5)+1));
     var lvl=document.getElementById('profileLevel'); if(lvl) lvl.textContent=String(level);
-    var score=document.getElementById('profileScore'); if(score) score.textContent=fmt((Number(p.stats.won)||0)+(Number(weekly.wagered)||0));
+    var score=document.getElementById('profileScore'); if(score) score.textContent=fmt(Number(weekly.wagered)||0);
     var since=document.getElementById('profileSince'); if(since){ since.textContent='Дата регистрации: '+(typeof profileRegDate==='function'?profileRegDate():'—'); }
     renderTrophies();
     var adminBtn=document.getElementById('openAdminBtn');
@@ -9113,7 +9113,7 @@ input.input::placeholder,textarea.input::placeholder{color:#64748b!important;}
     {lv:1,t:'Новичок',r:'Доступ к P2P-маркету и ежедневным бонусам'},
     {lv:2,t:'Игрок',r:'+5% к ежедневному бонусу'},
     {lv:3,t:'Бронза',r:'Бронзовая рамка аватара'},
-    {lv:5,t:'Серебро',r:'Ускоренный кэшбэк + сер��бряная рамка'},
+    {lv:5,t:'Серебро',r:'Ус��орен��ый кэшбэк + сер��бряная рамка'},
     {lv:8,t:'Золото',r:'З��лотая рамка + бонус 10 000 GC'},
     {lv:12,t:'Платина',r:'Приоритет в P2P + бонус 25 000 GC'},
     {lv:20,t:'Алмаз',r:'Алмазный бейдж + бонус 100 000 GC'},
@@ -9511,5 +9511,46 @@ input.input::placeholder,textarea.input::placeholder{color:#64748b!important;}
   }
 }
 </style>
+<style id="gg-weekly-profile-polish">
+/* Premium weekly leaderboard */
+#screen-home .home-leaderboard-wrap .section-title{display:flex!important;align-items:center!important;gap:10px!important;margin:0 0 12px!important;font-size:22px!important;font-weight:950!important;letter-spacing:-.035em!important;}
+#screen-home .home-leaderboard-wrap .section-title:before{content:'♛';display:grid;place-items:center;width:36px;height:36px;border-radius:12px;color:#07111f;background:linear-gradient(135deg,#7dd3fc,#a78bfa);box-shadow:0 10px 26px rgba(99,102,241,.28);font-size:19px;}
+#weeklyTopBox.weekly-top-card{position:relative;overflow:hidden;padding:12px!important;border-radius:26px!important;background:linear-gradient(160deg,rgba(17,24,39,.96),rgba(8,13,24,.98))!important;border:1px solid rgba(125,211,252,.16)!important;box-shadow:0 24px 70px rgba(2,6,23,.48),inset 0 1px 0 rgba(255,255,255,.055)!important;}
+#weeklyTopBox.weekly-top-card:before{content:'';position:absolute;inset:-90px -60px auto auto;width:230px;height:230px;border-radius:50%;background:radial-gradient(circle,rgba(99,102,241,.24),transparent 68%);pointer-events:none;}
+#weeklyTopBox .weekly-top-head{position:relative;display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 8px;padding:16px;border-radius:19px;background:linear-gradient(135deg,rgba(14,165,233,.17),rgba(99,102,241,.15));border:1px solid rgba(125,211,252,.14);}
+#weeklyTopBox .weekly-top-head b{font-size:17px!important;line-height:1.15;background:linear-gradient(135deg,#f8fafc,#bae6fd 55%,#c4b5fd);-webkit-background-clip:text;background-clip:text;color:transparent!important;}
+#weeklyTopBox .weekly-top-head b:before{content:'🏆';margin-right:8px;-webkit-text-fill-color:initial;}
+#weeklyTopBox .weekly-top-head small{max-width:145px;color:#9fb1c9!important;line-height:1.35;}
+#weeklyTopBox .weekly-top-row{position:relative;grid-template-columns:44px minmax(0,1fr) auto!important;gap:10px!important;margin-top:7px;padding:11px 10px!important;border:1px solid rgba(148,163,184,.11)!important;border-radius:17px!important;background:rgba(15,23,42,.7)!important;transition:transform .16s,border-color .16s,background .16s;}
+#weeklyTopBox .weekly-top-row:hover{transform:translateY(-1px);border-color:rgba(125,211,252,.28)!important;background:rgba(22,32,51,.9)!important;}
+#weeklyTopBox .weekly-place{display:grid;place-items:center;width:36px;height:36px;border-radius:12px;color:#dbeafe!important;background:linear-gradient(145deg,#202b40,#111827);border:1px solid rgba(148,163,184,.16);font-size:12px;box-shadow:inset 0 1px 0 rgba(255,255,255,.06);}
+#weeklyTopBox .weekly-top-row:nth-child(2){background:linear-gradient(100deg,rgba(245,158,11,.14),rgba(15,23,42,.78))!important;border-color:rgba(251,191,36,.25)!important;}
+#weeklyTopBox .weekly-top-row:nth-child(2) .weekly-place{color:#2b1900!important;background:linear-gradient(135deg,#fde68a,#f59e0b);border:0;box-shadow:0 8px 20px rgba(245,158,11,.22);}
+#weeklyTopBox .weekly-top-row:nth-child(3) .weekly-place{color:#172033!important;background:linear-gradient(135deg,#f1f5f9,#94a3b8);border:0;}
+#weeklyTopBox .weekly-top-row:nth-child(4) .weekly-place{color:#2b160d!important;background:linear-gradient(135deg,#fdba74,#c2410c);border:0;}
+#weeklyTopBox .weekly-name .avatar-badge{width:34px!important;height:34px!important;min-width:34px!important;border:2px solid rgba(125,211,252,.35)!important;box-shadow:0 6px 16px rgba(0,0,0,.28);}
+#weeklyTopBox .weekly-name>span{min-width:0;overflow:hidden;text-overflow:ellipsis;}
+#weeklyTopBox .weekly-name small{color:#8190a8!important;font-size:10px!important;white-space:normal;}
+#weeklyTopBox .weekly-prize{padding:7px 10px!important;border-radius:11px!important;color:#7dd3fc!important;background:rgba(56,189,248,.09)!important;border:1px solid rgba(56,189,248,.18)!important;font-size:12px;}
+#weeklyTopBox .weekly-top-row.mine{box-shadow:inset 3px 0 0 #38bdf8!important;}
+#weeklyTopBox .weekly-top-empty{position:relative;padding:34px 18px!important;border-radius:18px;background:rgba(15,23,42,.55);color:#8998ae!important;}
+/* Simplified profile statistics */
+#screen-profile .profile-stat-hidden{display:none!important;}
+#screen-profile .profile-stats-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;}
+#screen-profile .profile-cups{display:flex!important;flex-direction:column!important;align-items:center!important;gap:4px!important;margin-top:10px!important;}
+#screen-profile .profile-weekly-label{color:#8fa0b8!important;font-size:11px!important;font-weight:850!important;letter-spacing:.035em!important;text-transform:uppercase;}
+#screen-profile .profile-cups b{display:inline-flex;align-items:center;gap:4px;padding:7px 13px;border-radius:12px;background:linear-gradient(135deg,rgba(56,189,248,.13),rgba(139,92,246,.12));border:1px solid rgba(125,211,252,.18);color:#e8f4ff!important;font-size:15px!important;box-shadow:0 8px 24px rgba(2,6,23,.24);}
+/* Full-screen profile atmosphere with a gentle scroll dim */
+body.gg-profile-open{--gg-profile-dim:0;background:radial-gradient(1000px 620px at 50% 3%,rgba(56,189,248,.20),transparent 60%),radial-gradient(850px 560px at 78% 12%,rgba(139,92,246,.18),transparent 62%),linear-gradient(180deg,#111a31 0%,#080d19 56%,#05070d 100%) fixed!important;}
+body.gg-profile-open:after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:#02040a;opacity:var(--gg-profile-dim);transition:opacity .18s linear;}
+body.gg-profile-open #app{position:relative;z-index:1;background:transparent!important;}
+body.gg-profile-open #screen-profile,body.gg-profile-open main.screen-container{background:transparent!important;}
+#screen-profile{min-height:100dvh!important;}
+@media(min-width:900px){body.gg-profile-open #screen-profile{min-height:calc(100vh - 106px)!important;}body.gg-profile-open main.screen-container{min-height:100vh!important;}}
+@media(max-width:520px){#weeklyTopBox .weekly-top-head{display:block!important}#weeklyTopBox .weekly-top-head small{max-width:none;margin-top:7px!important}#weeklyTopBox .weekly-top-row{grid-template-columns:40px minmax(0,1fr) auto!important;padding:10px 8px!important}#weeklyTopBox .weekly-prize{font-size:10px!important;padding:6px 7px!important}}
+</style>
+<script id="gg-profile-scroll-dim">
+(function(){var ticking=false;function paint(){ticking=false;var on=document.body.classList.contains('gg-profile-open');var y=on?(window.scrollY||document.documentElement.scrollTop||0):0;document.body.style.setProperty('--gg-profile-dim',String(Math.min(.16,y/1800)));}function queue(){if(!ticking){ticking=true;requestAnimationFrame(paint)}}window.addEventListener('scroll',queue,{passive:true});new MutationObserver(queue).observe(document.body,{attributes:true,attributeFilter:['class']});queue();})();
+</script>
 </body>
 </html>

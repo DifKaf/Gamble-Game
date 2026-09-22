@@ -7830,6 +7830,22 @@ body.slot-open #dgFullscreenClose{z-index:2147483500!important}
   document.addEventListener('click',function(e){
     if(e.target&&e.target.closest&&e.target.closest('#dgRetryLoad')){e.preventDefault();e.stopImmediatePropagation();window.dgMountGame(true);}
   },true);
+  // Telegram WebView на iOS (WKWebView) сбрасывает содержимое iframe, когда
+  // showScreen переносит #screen-slot в DOM (insertBefore) при навигации: игра
+  // успевала мелькнуть и пропадала на чёрно-синий фон. При каждом входе на слот
+  // проверяем, отрисован ли контент, и при необходимости пере-инжектим srcdoc.
+  function dgEnsureMounted(){
+    var f=document.getElementById('drunkardFrame');if(!f)return;
+    if(!markReady(f)) window.dgMountGame(true);
+  }
+  window.dgEnsureMounted=dgEnsureMounted;
+  var dgSlotMo=new MutationObserver(function(){
+    if(document.body.classList.contains('slot-open')){
+      // Даём браузеру закончить перенос/перезагрузку iframe, затем страхуемся.
+      requestAnimationFrame(function(){ setTimeout(dgEnsureMounted,60); setTimeout(dgEnsureMounted,300); });
+    }
+  });
+  dgSlotMo.observe(document.body,{attributes:true,attributeFilter:['class']});
 })();
 </script>
 </body>

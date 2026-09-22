@@ -1327,6 +1327,7 @@ html,body{margin:0!important;min-width:0!important;background:#050505!important;
 
     <!-- SLOT -->
     <section id="screen-slot" class="screen">
+      <button id="dgFullscreenClose" type="button" aria-label="Закрыть Drunkard Gate">←</button>
       <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>Drunkard Gate</h2><div class="game-user-chip"><span class="avatar-badge gameHeaderAvatar">🧑</span><b class="gameHeaderBalance">0 GC</b></div></div>
       <div class="olympus-embed-wrap"><iframe class="olympus-embed" title="Drunkard Gate" srcdoc="&lt;!DOCTYPE html&gt;
 &lt;html lang=&quot;ru&quot;&gt;
@@ -1840,6 +1841,55 @@ body.pay-info-open #autoBtn{display:none!important;pointer-events:none!important
   .ante-btn,.turbo-btn,.buy-btn{width:46px;height:46px;font-size:1.15em;}
   .slot-bal-row{max-width:900px;}
   .msg{font-size:1.05em;}
+}
+&lt;/style&gt;
+
+&lt;style id=&quot;dg-viewport-fit-final&quot;&gt;
+*{box-sizing:border-box}
+html,body{width:100%;height:100%;min-height:0!important;overflow:hidden!important;overscroll-behavior:none;background:#050110}
+body{height:100dvh!important;min-height:100dvh!important;display:flex!important;align-items:center!important;justify-content:center!important}
+.game{
+  width:100%!important;max-width:1100px!important;height:100dvh!important;max-height:100dvh!important;
+  padding:clamp(8px,1.2dvh,14px) clamp(8px,2vw,22px)!important;
+  gap:clamp(4px,.85dvh,9px)!important;transform:none!important;
+  justify-content:center!important;overflow:hidden!important;
+}
+.game&gt;div:first-child,.msg,.slot-panel{flex:0 0 auto}
+.title{font-size:clamp(1.35em,3.2vmin,2.5em)!important;line-height:1!important}
+.subtitle{font-size:clamp(.38em,1.1vmin,.52em)!important;line-height:1.15!important}
+.gwrap{flex:0 1 auto!important;max-width:100%!important;max-height:58dvh!important;overflow:visible!important}
+.grid{
+  width:min(92vw,calc(48dvh * 1.2),700px)!important;height:auto!important;aspect-ratio:6/5!important;
+  max-height:48dvh!important;max-width:92vw!important;
+}
+.msg{min-height:18px!important;line-height:18px!important;margin:0!important}
+.slot-panel{width:min(94vw,760px)!important;max-width:760px!important;padding:7px 12px 9px!important;gap:5px!important}
+.controls{gap:clamp(6px,1.4vw,12px)!important}
+#autoBtn{display:flex!important;top:14px!important;left:66px!important;right:auto!important}
+#infoBtn{display:flex!important;top:14px!important;left:108px!important;right:auto!important}
+@media(max-width:520px){
+  .game{padding:8px 6px!important;gap:5px!important}
+  .title{font-size:1.35em!important;letter-spacing:3px!important}
+  .subtitle{font-size:.38em!important;letter-spacing:6px!important}
+  .grid{width:min(94vw,calc(43dvh * 1.2))!important;max-height:43dvh!important;gap:3px!important}
+  .slot-panel{width:94vw!important;padding:6px 8px 7px!important;border-radius:19px!important}
+  .slot-win-row{gap:5px!important}.controls{gap:7px!important}
+  .betbox{padding:5px 8px!important}.spinbtn{width:58px!important;height:58px!important}
+  .ante-btn,.turbo-btn,.buy-btn{width:36px!important;height:36px!important}
+}
+@media(max-height:700px){
+  .game{padding:5px!important;gap:3px!important}
+  .title{font-size:1.15em!important}.subtitle{font-size:.32em!important}
+  .grid{width:min(86vw,calc(39dvh * 1.2),560px)!important;max-height:39dvh!important}
+  .slot-panel{padding:4px 8px!important;gap:3px!important}
+  .spinbtn{width:52px!important;height:52px!important}
+  .msg{min-height:15px!important;line-height:15px!important}
+}
+@media(orientation:landscape) and (max-height:600px){
+  .game{max-width:980px!important}
+  .grid{width:min(54vw,calc(58dvh * 1.2),620px)!important;max-height:58dvh!important}
+  .title{font-size:1em!important}.subtitle{display:none!important}
+  .slot-panel{width:min(72vw,700px)!important}
 }
 &lt;/style&gt;
 &lt;/head&gt;
@@ -2733,21 +2783,21 @@ function removeAndDrop(wc, allowMult){
 let balance=1000000, bet=100, anteBetOn=false, turboOn=false, autoSpinOn=false;
 function syncSharedBalanceFromParent(){
   try{
-    if(window.parent && window.parent !== window && window.parent.GambleSharedBalance){
+    if(window.parent &amp;&amp; window.parent !== window &amp;&amp; window.parent.GambleSharedBalance){
       balance = window.parent.GambleSharedBalance.get(); if(!isFinite(balance)) balance = window.parent.GambleSharedBalance.set(0);
     }
   }catch(e){}
 }
 function pushSharedBalanceToParent(){
   try{
-    if(window.parent && window.parent !== window && window.parent.GambleSharedBalance){
+    if(window.parent &amp;&amp; window.parent !== window &amp;&amp; window.parent.GambleSharedBalance){
       window.parent.GambleSharedBalance.set(balance);
     }
   }catch(e){}
 }
 function addSharedBalance(delta){
   try{
-    if(window.parent && window.parent !== window && window.parent.GambleSharedBalance){
+    if(window.parent &amp;&amp; window.parent !== window &amp;&amp; window.parent.GambleSharedBalance){
       balance = window.parent.GambleSharedBalance.add(delta);
       return;
     }
@@ -2755,9 +2805,9 @@ function addSharedBalance(delta){
   balance += delta;
 }
 syncSharedBalanceFromParent();
-setTimeout(function(){ syncSharedBalanceFromParent(); if(typeof updateUI === 'function') updateUI(); }, 50);
-setTimeout(function(){ syncSharedBalanceFromParent(); if(typeof updateUI === 'function') updateUI(); }, 250);
-setTimeout(function(){ syncSharedBalanceFromParent(); if(typeof updateUI === 'function') updateUI(); }, 1000);
+setTimeout(function(){ syncSharedBalanceFromParent(); if(typeof updateUI === &#x27;function&#x27;) updateUI(); }, 50);
+setTimeout(function(){ syncSharedBalanceFromParent(); if(typeof updateUI === &#x27;function&#x27;) updateUI(); }, 250);
+setTimeout(function(){ syncSharedBalanceFromParent(); if(typeof updateUI === &#x27;function&#x27;) updateUI(); }, 1000);
 let totalWin=0, tumbleWin=0, cascMult=1, spinning=false;
 let inFreeSpin=false, freeSpins=0, fsGlobalMult=0;
 
@@ -9611,5 +9661,80 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   .gg-topbar .gg-tb-bal small{color:#7dd3fc!important;}
 }
 </style>
+<style id="gg-mobile-unified-header-final">
+/* Mobile: logo and account data form one seamless header surface. */
+@media (max-width:899px){
+  body:not(.gg-profile-open) #ggBrandLogo{
+    top:48px!important;left:12px!important;right:12px!important;height:47px!important;
+    justify-content:center!important;background:#101827!important;
+    border:1px solid rgba(94,159,232,.42)!important;border-bottom:0!important;
+    border-radius:17px 17px 0 0!important;
+    box-shadow:0 -5px 24px rgba(0,0,0,.26),-8px 0 22px rgba(0,0,0,.16),8px 0 22px rgba(0,0,0,.16)!important;
+    transform:none!important;
+  }
+  body:not(.gg-profile-open) #ggBrandLogo img{height:27px!important;}
+  body:not(.gg-profile-open) .gg-topbar{
+    top:94px!important;left:12px!important;right:12px!important;height:62px!important;
+    padding:0 12px!important;margin:0!important;gap:10px!important;
+    background:#101827!important;
+    border:1px solid rgba(94,159,232,.42)!important;border-top:0!important;
+    border-radius:0 0 17px 17px!important;
+    box-shadow:0 12px 30px rgba(0,0,0,.42),0 0 0 1px rgba(139,92,246,.06)!important;
+  }
+}
+</style>
+
+<style id="gg-desktop-account-logo-alignment-final">
+/* Desktop: account data sits on the same horizontal line as the logo. */
+@media (min-width:900px){
+  body:not(.gg-profile-open) .gg-topbar{
+    top:0!important;right:clamp(170px,15vw,290px)!important;left:auto!important;height:60px!important;
+    align-items:center!important;
+  }
+}
+</style>
+
+<style id="dg-real-fullscreen-window-final">
+#dgFullscreenClose{display:none}
+html.slot-open,body.slot-open{position:fixed!important;inset:0!important;width:100%!important;height:100%!important;overflow:hidden!important;overscroll-behavior:none!important;background:#050110!important}
+body.slot-open #ggBrandLogo,body.slot-open #ggTopBar,body.slot-open .gg-global-bar,body.slot-open .bottom-nav{display:none!important}
+body.slot-open #app.drunkard-standalone{
+  position:fixed!important;inset:0!important;z-index:2147480000!important;
+  width:100vw!important;height:100dvh!important;min-height:0!important;max-width:none!important;
+  margin:0!important;padding:0!important;border:0!important;border-radius:0!important;overflow:hidden!important;background:#050110!important;
+}
+body.slot-open #app.drunkard-standalone main.screen-container{
+  position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;min-height:0!important;max-width:none!important;
+  margin:0!important;padding:0!important;overflow:hidden!important;background:#050110!important;
+}
+body.slot-open #screen-slot.active{
+  display:block!important;position:fixed!important;inset:0!important;z-index:2147481000!important;
+  width:100vw!important;height:100dvh!important;min-height:0!important;max-width:none!important;
+  margin:0!important;padding:0!important;overflow:hidden!important;background:#050110!important;
+}
+body.slot-open #screen-slot .game-header{display:none!important}
+body.slot-open #screen-slot .olympus-embed-wrap{
+  position:absolute!important;inset:0!important;width:100vw!important;height:100dvh!important;min-height:0!important;max-height:none!important;
+  margin:0!important;padding:0!important;border:0!important;border-radius:0!important;box-shadow:none!important;overflow:hidden!important;background:#050110!important;
+}
+body.slot-open #screen-slot .olympus-embed{display:block!important;width:100%!important;height:100%!important;min-height:0!important;border:0!important;background:#050110!important}
+body.slot-open #dgFullscreenClose{
+  display:flex!important;position:fixed!important;top:calc(12px + env(safe-area-inset-top,0px))!important;left:calc(12px + env(safe-area-inset-left,0px))!important;
+  z-index:2147483000!important;width:44px!important;height:44px!important;align-items:center!important;justify-content:center!important;
+  border:1px solid rgba(255,255,255,.24)!important;border-radius:14px!important;background:rgba(6,8,15,.72)!important;color:#fff!important;
+  font-size:24px!important;font-weight:900!important;line-height:1!important;box-shadow:0 8px 24px rgba(0,0,0,.38)!important;
+  -webkit-backdrop-filter:blur(12px)!important;backdrop-filter:blur(12px)!important;cursor:pointer!important;
+}
+</style>
+<script id="dg-real-fullscreen-window-final-js">
+(function(){
+  function closeSlot(){
+    if(window.ggShowScreen){ window.ggShowScreen('slots'); return; }
+    var old=document.querySelector('#screen-slot .back-btn'); if(old) old.click();
+  }
+  document.addEventListener('click',function(e){var b=e.target&&e.target.closest?e.target.closest('#dgFullscreenClose'):null;if(b){e.preventDefault();e.stopPropagation();closeSlot();}});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&document.body.classList.contains('slot-open')){e.preventDefault();closeSlot();}});
+})();
+</script>
 </body>
 </html>

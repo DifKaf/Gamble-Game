@@ -1265,7 +1265,7 @@ html,body{margin:0!important;min-width:0!important;background:#050505!important;
       <div class="wheel-prizes">
         <div class="panel-title">Возможные призы</div>
         <div class="wheel-prizes-grid"><span class="wheel-prize-chip">100 GC</span><span class="wheel-prize-chip">200 GC</span><span class="wheel-prize-chip">300 GC</span><span class="wheel-prize-chip">500 GC</span><span class="wheel-prize-chip">750 GC</span><span class="wheel-prize-chip">1000 GC</span><span class="wheel-prize-chip">1500 GC</span><span class="wheel-prize-chip">2500 GC</span></div>
-        <div class="wheel-prizes-note">Один бесплатны�������������������� спин раз в 24 часа. Выигрыш сразу падает на баланс.</div>
+        <div class="wheel-prizes-note">Один бесплатны���������������������� спин раз в 24 часа. Выигрыш сразу падает на баланс.</div>
       </div>
     </section>
 
@@ -2992,7 +2992,7 @@ async function doSpin(){
     await removeAndDrop(clusters.flatMap(({cls})=&gt;cls), true);
     cc++;
 
-    // New scatters may have dropped in during this cascade — check again.
+    // New scatters may have dropped in during this cascade ��� check again.
     if(await checkScatterTrigger()) return;
   }
 
@@ -3648,7 +3648,7 @@ updateUI();
         <div class="profile-online"><i></i> В сети</div>
         <div class="profile-band">⚡ GAMBLE BAND</div>
         <div class="profile-since" id="profileSince">Дата регистрации: —</div>
-        <div class="profile-cups"><span class="profile-weekly-label">Ставки за неделю</span><b><span id="profileScore">0</span> GC</b></div>
+        <div class="profile-cups"><b><span class="profile-weekly-cup">🏆</span><span id="profileScore">0</span> GC</b><span class="profile-weekly-label">Ставки за неделю</span></div>
         <button class="profile-share" id="profileShareBtn">↗ Поделиться</button>
       </div>
       <div class="profile-stats-grid">
@@ -3712,7 +3712,7 @@ updateUI();
           <option value="ru">Русский</option>
           <option value="en">English</option>
         </select>
-        <div class="settings-hint">Полный перевод интерфейса появится в следующем обновлении.</div>
+        <div class="settings-hint">Язык интерфейса применяется сразу.</div>
       </div>
 
       <div class="panel">
@@ -3875,7 +3875,7 @@ updateUI();
       res = await fetch(API_URL + path, Object.assign({}, options, { headers: headers, signal: controller ? controller.signal : options.signal }));
     }catch(fetchErr){
       var msg = (fetchErr && fetchErr.name === 'AbortError')
-        ? 'Сервер долго не отвечает. Попробуйте ещё раз через несколько секунд.'
+        ? '��ервер долго не отвечает. Попробуйте ещё раз через несколько секунд.'
         : 'Нет соедине��ия с с��рвер��м. Пр��верьте деплой Railway и домен API.';
       var netErr = new Error(msg);
       netErr.original = fetchErr;
@@ -4742,7 +4742,7 @@ updateUI();
     if(hapticsToggle){ hapticsToggle.checked = prefs.haptics; hapticsToggle.addEventListener('change', function(){ prefs.haptics = hapticsToggle.checked; savePrefs(); haptic('light'); }); }
 
     var langSelect = document.getElementById('settingsLanguage');
-    if(langSelect){ langSelect.value = prefs.lang; langSelect.addEventListener('change', function(){ prefs.lang = langSelect.value; savePrefs(); showToast && showToast(prefs.lang === 'en' ? 'Full English translation is coming soon' : 'Полный перевод скоро будет доступен'); }); }
+    if(langSelect){ langSelect.value = prefs.lang; langSelect.addEventListener('change', function(){ prefs.lang = langSelect.value; savePrefs(); setTimeout(function(){ if(window.ggSetLanguage) window.ggSetLanguage(prefs.lang); },0); showToast && showToast(prefs.lang === 'en' ? 'Language changed to English' : 'Язык изменён на русский'); }); }
 
     var themeDarkBtn = document.getElementById('themeDarkBtn'), themeLightBtn = document.getElementById('themeLightBtn');
     if(themeDarkBtn) themeDarkBtn.addEventListener('click', function(){ prefs.theme = 'dark'; savePrefs(); applyTheme(); haptic('light'); });
@@ -4861,7 +4861,7 @@ updateUI();
   function scheduleCatSync(){ if(!backendReady||!catState) return; clearTimeout(catSyncTimer); catSyncTimer=setTimeout(pushCatToServer,650); }
   async function pushCatToServer(){ return; }
   function catPerTap(){return 1+(catState.up.food||0)*2;}
-  function catLevelName(){var lvl=(catState.up.food||0)+(catState.up.toy||0)+(catState.up.scratch||0)+(catState.up.bed||0); if(lvl>=18)return'Кото-магнат'; if(lvl>=12)return'Кот в домике'; if(lvl>=7)return'Игровой кот'; if(lvl>=3)return'Сытый кот'; return'Уличный котёнок';}
+  function catLevelName(){var lvl=(catState.up.food||0)+(catState.up.toy||0)+(catState.up.scratch||0)+(catState.up.bed||0); if(lvl>=18)return'Кото-магнат'; if(lvl>=12)return'Кот в домике'; if(lvl>=7)return'Игровой кот'; if(lvl>=3)return'Сытый кот'; return'Уличн��й котёнок';}
   function upgradeCost(u){return Math.round(u.base*Math.pow(1.7,catState.up[u.key]||0));}
   function renderCat(){ if(!catState) loadCat(); var el; if(el=document.getElementById('catPaws')) el.textContent=fmt(catState.paws); if(el=document.getElementById('catPerTap')) el.textContent='+'+fmt(catPerTap()); if(el=document.getElementById('catIncome')) el.textContent=fmt(catState.up.scratch||0)+'/сек'; if(el=document.getElementById('catLevelName')) el.textContent=catLevelName(); if(el=document.getElementById('catDailyLimit')) el.textContent='Сегодня получено: '+fmt(catState.gcToday||0)+' / 100 GC'; var box=document.getElementById('catUpgrades'); if(box){box.innerHTML=catUpgrades.map(function(u){var lvl=catState.up[u.key]||0,c=upgradeCost(u);return '<div class="cat-upgrade"><div class="cat-upgrade-info"><b>'+u.icon+' '+u.name+' ур. '+lvl+'</b><small>'+u.desc+' · цена '+fmt(c)+' 🐾</small></div><button class="btn btn-primary" data-cat-up="'+u.key+'">Купить</button></div>';}).join(''); box.querySelectorAll('[data-cat-up]').forEach(function(b){b.addEventListener('click',function(){buyCatUpgrade(b.getAttribute('data-cat-up'));});});}}
   function catFloat(txt,x,y){var d=document.createElement('div');d.className='cat-float';d.textContent=txt;d.style.left=x+'px';d.style.top=y+'px';document.body.appendChild(d);setTimeout(function(){d.remove();},850);}
@@ -6217,7 +6217,7 @@ updateUI();
         addHistory(me(),'win', 0, 'Блэкджек: ничья'); syncProfileStats(totalBet, data.winAmount); renderProfile(); refreshMiniGameHistories();
         showTieOverlay(totalBet); haptic('light');
       } else {
-        addHistory(me(),'loss', totalBet, 'Блэкджек: проигрыш'); syncProfileStats(totalBet, data.winAmount || 0); renderProfile(); refreshMiniGameHistories();
+        addHistory(me(),'loss', totalBet, 'Блэкджек: проигр��ш'); syncProfileStats(totalBet, data.winAmount || 0); renderProfile(); refreshMiniGameHistories();
         bjGlowWinningHand('loss');
         haptic('error');
       }
@@ -8952,7 +8952,7 @@ input.input::placeholder,textarea.input::placeholder{color:#64748b!important;}
     if(st==='CANCELLED'){ clearAllDeadlines(d); shell(head('Отменено','Сделка отменена')+'<div class="gg-note">Сделка была отменена.</div><div class="gg-btns one"><button class="gg-btn blue" id="ggDoneBtn">Закрыть</button></div>'); var db2=document.getElementById('ggDoneBtn'); if(db2) db2.onclick=closeModal; refresh(); return; }
     if(st==='DISPUTED'){ clearAllDeadlines(d); shell(head('Спор','Открыт спор')+'<div class="gg-note">По сделке открыт спор. С вами свяжется поддержка.</div><div class="gg-btns one"><button class="gg-btn blue" id="ggDoneBtn">Закрыть</button></div>'); var db3=document.getElementById('ggDoneBtn'); if(db3) db3.onclick=closeModal; refresh(); return; }
 
-    shell(head('Сделка','P2P сделка')+amounts(d)+'<div class="gg-btns one"><button class="gg-btn blue" id="ggDoneBtn">Закрыть</button></div>'); var f=document.getElementById('ggDoneBtn'); if(f) f.onclick=closeModal;
+    shell(head('Сделка','P2P сделк��')+amounts(d)+'<div class="gg-btns one"><button class="gg-btn blue" id="ggDoneBtn">Закрыть</button></div>'); var f=document.getElementById('ggDoneBtn'); if(f) f.onclick=closeModal;
   }
   window.renderDealRoom = renderDealRoom;
   window.ggReqCard = reqCard;
@@ -9276,7 +9276,7 @@ input.input::placeholder,textarea.input::placeholder{color:#64748b!important;}
       ['Споры по P2P','При споре нажмите «Открыть спор» в сделке и опишите ситуацию. Модератор рассмотрит скрины и чеки.']
     ]},
     about:{t:'О приложении',s:'Gamble Game',h:[
-      ['Gamble Game','Развлекательная игра с виртуальной валютой Gamble Coin, мини-играми, уровнями и P2P-обменом между игроками.'],
+      ['Gamble Game','Развлекательная игра с виртуальной валютой Gamble Coin, мини-играми, уровнями и P2P-обмено�� между игроками.'],
       ['Версия','Интерфейс 2.1 · Сделано с любовью для сообщества.']
     ]}
   };
@@ -9552,5 +9552,35 @@ body.gg-profile-open #screen-profile,body.gg-profile-open main.screen-container{
 <script id="gg-profile-scroll-dim">
 (function(){var ticking=false;function paint(){ticking=false;var on=document.body.classList.contains('gg-profile-open');var y=on?(window.scrollY||document.documentElement.scrollTop||0):0;document.body.style.setProperty('--gg-profile-dim',String(Math.min(.16,y/1800)));}function queue(){if(!ticking){ticking=true;requestAnimationFrame(paint)}}window.addEventListener('scroll',queue,{passive:true});new MutationObserver(queue).observe(document.body,{attributes:true,attributeFilter:['class']});queue();})();
 </script>
-</body>
+<style id="gg-profile-top-and-weekly-order-final">
+body.gg-profile-open #ggBrandLogo{display:none!important;}
+body.gg-profile-open .gg-global-bar{background:transparent!important;border-color:transparent!important;box-shadow:none!important;}
+#screen-profile .profile-cups{gap:5px!important;}
+#screen-profile .profile-cups b{order:1;}
+#screen-profile .profile-weekly-label{order:2;}
+#screen-profile .profile-weekly-cup{display:inline-block;margin-right:3px;filter:drop-shadow(0 0 8px rgba(125,211,252,.32));}
+@media(max-width:899px){
+ body.gg-profile-open #app{padding-top:0!important;}
+ body.gg-profile-open #app main.screen-container{padding-top:0!important;}
+ body.gg-profile-open #screen-profile{margin-top:0!important;padding-top:0!important;}
+ body.gg-profile-open #screen-profile .profile-shot{margin-top:0!important;padding-top:calc(112px + env(safe-area-inset-top,0px))!important;background:transparent!important;}
+}
+</style><script id="gg-full-i18n-final">
+(function(){
+'use strict';
+var DICT={"Вы":"You","Звук, тема, язык и вибрация":"Sound, theme, language and vibration","Поделиться профилем":"Share profile","Ставки недели":"Weekly wager","Уличный котёнок":"Street kitten","лапок":"paws","за тап":"per tap","доход":"income","Алмаз":"Diamond","Корона":"Crown","Мешок золота":"Bag of gold","Ключ":"Key","Попугай":"Parrot","Якорь":"Anchor","на линии":"on a payline","Выбери сторон��:":"Choose a side:","��еш��а":"Tails","От��ена":"Cancel","ЮMoney":"YooMoney","Сбербанк":"Sberbank","Озон Банк":"Ozon Bank","Альфа-Банк":"Alfa-Bank","ВТБ":"VTB","Т-Банк":"T-Bank","Газпромбанк":"Gazprombank","Райффайзенбанк":"Raiffeisenbank","ПСБ":"PSB","Версия":"Version","Интерфейс":"Interface","Сделано с любовью для сообщества.":"Made with love for the community.","Забирайте крутые бонусы каждый день":"Claim great bonuses every day","Следующий спин через":"Next spin in","Покупайте и продавайте GC напрямую":"Buy and sell GC directly","Быстрая покупка и продажа Gamble Coin":"Fast Gamble Coin trading","Продолжить играть":"Continue playing","Все игры ›":"All games ›","Слоты":"Slots","Мини игры":"Mini games","Популярные":"Popular","Карты и столы":"Cards and tables","Топ недели":"Weekly leaders","Загрузка...":"Loading...","Бонусы":"Bonuses","Реферальная программа":"Referral program","Промокоды":"Promo codes","Активировать":"Activate","Назад":"Back","Колесо фортуны":"Wheel of Fortune","Крутить колесо":"Spin the wheel","Условия доступа":"Access requirements","Подписаться на канал":"Subscribe to the channel","Проверить заново":"Check again","Возможные призы":"Possible prizes","Один бесплатный спин раз в 24 часа. Выигрыш сразу падает на баланс.":"One free spin every 24 hours. Winnings are credited instantly.","Игры":"Games","Обменять":"Exchange","Сегодня получено:":"Received today:","Джекпот":"Jackpot","Бесплатные спины":"Free spins","Стоп":"Stop","Крутить за":"Spin for","ВСЁ ДЖЕКПОТ":"FULL JACKPOT","заменяет любой символ":"replaces any symbol","где угодно":"anywhere","бонус":"bonus","игровых линий":"paylines","Кости":"Dice","Серия побед:":"Win streak:","Сумма:":"Amount:","Ставка на:":"Bet on:","Меньше 7":"Under 7","Ровно 7":"Exactly 7","Больше 7":"Over 7","Бросить":"Roll","Автоброски":"Auto rolls","Количество бросков":"Number of rolls","Стоп при проигрыше, GC (0 = выкл.)":"Stop after loss, GC (0 = off)","Стоп при выигрыше, GC (0 = выкл.)":"Stop after win, GC (0 = off)","Запустить автоброски":"Start auto rolls","Остановить":"Stop","осталось":"left","История игроков":"Player history","Мои":"Mine","Имя / Ставка":"Name / Bet","Множитель":"Multiplier","Выигрыш":"Winnings","Монетка":"Coin Flip","Выплата:":"Payout:","Выбери сторону":"Choose a side","Орёл":"Heads","Решка":"Tails","Забрать выигрыш":"Collect winnings","Рулетка":"Roulette","Сделай ставку и крути!":"Place a bet and spin!","Отменить ставку":"Cancel bet","Мины":"Mines","Количество мин:":"Number of mines:","Ловушки":"Traps","Начать раунд":"Start round","Серия:":"Streak:","Авто-кэшаут при множителе x":"Auto cashout at multiplier x","Продолжить":"Continue","Дилер":"Dealer","Игрок":"Player","Раздать карты":"Deal cards","У дилера туз. Хотите страховку?":"Dealer has an ace. Take insurance?","Да, страховка":"Yes, insure","Нет, играть дальше":"No, continue","Ещё карту":"Hit","×2 Удвоить":"×2 Double","Играть ещё раз":"Play again","Старт через":"Starts in","Кошелёк":"Wallet","Баланс Gamble Coin":"Gamble Coin balance","Продать GC за ₽ или купить у игроков":"Sell GC for ₽ or buy from players","Открыть":"Open","Перевести Gamble Coin":"Transfer Gamble Coin","Кому:":"Recipient:","Отправить":"Send","История":"History","Покупка и продажа GC за RUB между игроками":"Buy and sell GC for RUB between players","Баланс":"Balance","Купить":"Buy","Продать":"Sell","Активные сделки":"Active deals","Завершенные сделки":"Completed deals","Все":"All","Лучший курс":"Best rate","Объём":"Volume","Создать объявление":"Create offer","Продать GC":"Sell GC","Купить GC":"Buy GC","Количество GC":"GC amount","Курс за 1 000 GC, ₽":"Rate per 1,000 GC, ₽","Мин. лимит, ₽":"Minimum limit, ₽","Реквизиты":"Payment details","Другой банк":"Other bank","Итого":"Total","GC будут заморожены в escrow до завершения сделки.":"GC will be held in escrow until the deal is completed.","Закрыть":"Close","В сети":"Online","Дата регистрации:":"Registration date:","Ставки за неделю":"Weekly wager","Поделиться":"Share","Выиграно":"Won","Трофеи":"Trophies","Админка":"Admin panel","Создать промокод":"Create promo code","Созданный промокод смогут активировать другие игроки.":"Other players will be able to activate the created promo code.","Новый промокод":"New promo code","Созданные промокоды":"Created promo codes","Пока нет созданных промокодов.":"No promo codes created yet.","Настройки":"Settings","Аккаунт":"Account","Язык":"Language","Русский":"Russian","Язык интерфейса применяется сразу.":"The interface language is applied instantly.","Звук и вибрация":"Sound and vibration","Звуковые эффекты":"Sound effects","Вибрация (Telegram)":"Vibration (Telegram)","Тема оформления":"Theme","Тёмная":"Dark","Светлая":"Light","Поддержка":"Support","Написать в поддержку":"Contact support","Правила и условия":"Terms and conditions","Версия и информация":"Version and information","Политика конфиденциальности":"Privacy policy","Как мы работаем с вашими данными":"How we handle your data","Условия использования":"Terms of use","О приложении":"About the app","Gamble Game · версия интерфейса 2.0":"Gamble Game · interface version 2.0","Тех. работы":"Maintenance","Проверяем статус...":"Checking status...","При включении игроки увидят экран “Тех. работы”. Админы смогут пользоваться приложением.":"When enabled, players will see the maintenance screen. Admins can continue using the app.","Включить":"Enable","Игроки":"Players","Споры и сделки":"Disputes and deals","Главная":"Home","Профиль":"Profile","Скоро вернёмся. Идёт обновление приложения.":"We will be back soon. The app is being updated.","Победа!":"Victory!","Вы выиграли":"You won","Забрать":"Collect","Сбросить прогресс?":"Reset progress?","Все балансы, история и статистика демо-игроков будут сброшены к начальным значениям.":"All demo balances, history and statistics will be reset.","Отмена":"Cancel","Сбросить":"Reset","Аккаунт и настройки":"Account and settings","Показать свой профиль друзьям":"Show your profile to friends","Помощь и споры":"Help and disputes","Призовой фонд":"Prize pool","Итоги каждый понедельник: в 00:00":"Results every Monday at 00:00","наиграно за неделю":"wagered this week","игр":"games","Пока нет участников недели":"No weekly participants yet","Уровень":"Level","Создать":"Create","Ожидание продавца":"Waiting for seller","Ожидание покупателя":"Waiting for buyer","Ожидание оплаты":"Waiting for payment","Подтверждение перевода":"Transfer confirmation","Подтвердить":"Confirm","Оплатил":"Paid","Открыт спор":"Dispute opened","Активный":"Active","Завершен":"Completed","Отменен":"Cancelled","Копировать":"Copy","Скопировано":"Copied","СБП":"FPS","Карта":"Card","Номер":"Number","Банк":"Bank","Оплата":"Payment","Ожидание":"Waiting","Подтверждение":"Confirmation","Отмена сделки":"Cancel deal","Отправить чек":"Upload receipt","Прикрепите чек":"Attach a receipt","Безопасная сделка":"Secure deal","Покупатель":"Buyer","Продавец":"Seller","Сумма сделки":"Deal amount","Курс":"Rate","Лимиты":"Limits","Метод оплаты":"Payment method","Мои объявления":"My offers","Мои сделки":"My deals","Найти игрока":"Find player","Введите ID или ник":"Enter ID or username","Недостаточно средств":"Insufficient funds","Ошибка":"Error","Готово":"Done","Сохранить":"Save","Удалить":"Delete","Да":"Yes","Нет":"No"};
+var pairs=Object.keys(DICT).sort(function(a,b){return b.length-a.length;});
+var textSource=new WeakMap(), attrSource=new WeakMap(), busy=false, lang='ru';
+function pref(){try{var p=JSON.parse(localStorage.getItem('gg_settings')||'{}');return p&&p.lang==='en'?'en':'ru'}catch(e){return window.ggSettings&&window.ggSettings.lang==='en'?'en':'ru'}}
+function translate(raw){var out=String(raw);for(var i=0;i<pairs.length;i++){if(out.indexOf(pairs[i])!==-1)out=out.split(pairs[i]).join(DICT[pairs[i]])}return out.replace(/(\d[\d \u00a0]*) GC за неделю/g,'$1 GC this week')}
+function textNode(n,to){var v=n.nodeValue||'';if(to){if(/[А-Яа-яЁё]/.test(v))textSource.set(n,v);var src=textSource.get(n)||v;var t=translate(src);if(t!==v)n.nodeValue=t}else if(textSource.has(n)&&n.nodeValue!==textSource.get(n))n.nodeValue=textSource.get(n)}
+function attrs(el,to){['placeholder','title','aria-label'].forEach(function(a){if(!el.hasAttribute||!el.hasAttribute(a))return;var cache=attrSource.get(el)||{},v=el.getAttribute(a)||'';if(to){if(/[А-Яа-яЁё]/.test(v)){cache[a]=v;attrSource.set(el,cache)}var t=translate(cache[a]||v);if(t!==v)el.setAttribute(a,t)}else if(cache[a]!=null)el.setAttribute(a,cache[a])})}
+function walk(root,to){if(!root)return;if(root.nodeType===3){textNode(root,to);return}if(root.nodeType!==1&&root.nodeType!==9&&root.nodeType!==11)return;if(root.nodeType===1)attrs(root,to);var w=document.createTreeWalker(root,NodeFilter.SHOW_ELEMENT|NodeFilter.SHOW_TEXT);var n;while((n=w.nextNode())){if(n.nodeType===3)textNode(n,to);else attrs(n,to)}}
+function setLanguage(next){lang=next==='en'?'en':'ru';document.documentElement.lang=lang;document.body.classList.toggle('gg-lang-en',lang==='en');busy=true;walk(document.body,lang==='en');busy=false;var s=document.getElementById('settingsLanguage');if(s&&s.value!==lang)s.value=lang;window.dispatchEvent(new CustomEvent('gg:languagechange',{detail:{lang:lang}}))}
+window.ggSetLanguage=setLanguage;
+var mo=new MutationObserver(function(ms){if(busy)return;busy=true;for(var i=0;i<ms.length;i++){var m=ms[i];if(m.type==='characterData')textNode(m.target,lang==='en');for(var j=0;j<m.addedNodes.length;j++)walk(m.addedNodes[j],lang==='en')}busy=false});
+function boot(){lang=pref();setLanguage(lang);mo.observe(document.body,{subtree:true,childList:true,characterData:true});var s=document.getElementById('settingsLanguage');if(s)s.addEventListener('change',function(){try{var p=JSON.parse(localStorage.getItem('gg_settings')||'{}');p.lang=s.value;localStorage.setItem('gg_settings',JSON.stringify(p))}catch(e){}setLanguage(s.value)})}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+})();
+</script></body>
 </html>

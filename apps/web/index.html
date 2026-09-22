@@ -7839,13 +7839,35 @@ body.slot-open #dgFullscreenClose{z-index:2147483500!important}
     if(!markReady(f)) window.dgMountGame(true);
   }
   window.dgEnsureMounted=dgEnsureMounted;
+  // Главная причина чёрно-синего экрана: showScreen выставляет активному
+  // #screen-slot инлайновые height:auto/overflow:visible, из-за чего экран
+  // схлопывается в высоту 0, а его overflow:hidden обрезает абсолютно
+  // спозиционированную .olympus-embed-wrap до нуля — игра есть в DOM, но не
+  // видна. Форсируем корректную полноэкранную раскладку инлайном с important,
+  // который перебивает и авторские !important-правила, и служебные стили навигации.
+  function dgFixLayout(){
+    var scr=document.getElementById('screen-slot');
+    if(!scr||!document.body.classList.contains('slot-open'))return;
+    var wrap=scr.querySelector('.olympus-embed-wrap');
+    var frame=document.getElementById('drunkardFrame');
+    var imp=function(el,k,v){ if(el) el.style.setProperty(k,v,'important'); };
+    imp(scr,'position','relative');imp(scr,'height','100vh');imp(scr,'min-height','100vh');
+    imp(scr,'overflow','visible');imp(scr,'left','auto');imp(scr,'top','auto');
+    imp(wrap,'position','absolute');imp(wrap,'inset','0');imp(wrap,'width','100%');
+    imp(wrap,'height','100%');imp(wrap,'min-height','100%');
+    imp(frame,'width','100%');imp(frame,'height','100%');
+  }
+  window.dgFixLayout=dgFixLayout;
+  function dgOnSlot(){ dgFixLayout(); dgEnsureMounted(); }
   var dgSlotMo=new MutationObserver(function(){
     if(document.body.classList.contains('slot-open')){
+      dgFixLayout();
       // Даём браузеру закончить перенос/перезагрузку iframe, затем страхуемся.
-      requestAnimationFrame(function(){ setTimeout(dgEnsureMounted,60); setTimeout(dgEnsureMounted,300); });
+      requestAnimationFrame(function(){ setTimeout(dgOnSlot,60); setTimeout(dgOnSlot,300); });
     }
   });
   dgSlotMo.observe(document.body,{attributes:true,attributeFilter:['class']});
+  if(document.body.classList.contains('slot-open')) dgOnSlot();
 })();
 </script>
 </body>

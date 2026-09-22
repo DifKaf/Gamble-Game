@@ -1265,7 +1265,7 @@ html,body{margin:0!important;min-width:0!important;background:#050505!important;
       <div class="wheel-prizes">
         <div class="panel-title">Возможные призы</div>
         <div class="wheel-prizes-grid"><span class="wheel-prize-chip">100 GC</span><span class="wheel-prize-chip">200 GC</span><span class="wheel-prize-chip">300 GC</span><span class="wheel-prize-chip">500 GC</span><span class="wheel-prize-chip">750 GC</span><span class="wheel-prize-chip">1000 GC</span><span class="wheel-prize-chip">1500 GC</span><span class="wheel-prize-chip">2500 GC</span></div>
-        <div class="wheel-prizes-note">Один бесплатны������������������ спин раз в 24 часа. Выигрыш сразу падает на баланс.</div>
+        <div class="wheel-prizes-note">Один бесплатны�������������������� спин раз в 24 часа. Выигрыш сразу падает на баланс.</div>
       </div>
     </section>
 
@@ -3406,7 +3406,7 @@ updateUI();
         <div id="coinStreakControls" class="hidden">
           <div class="option-row" id="coinContinueOptions">
             <button class="option-btn" data-val="heads">🦅 Орёл</button>
-            <button class="option-btn" data-val="tails">Ⓣ Реш��а</button>
+            <button class="option-btn" data-val="tails">Ⓣ ��еш��а</button>
           </div>
           <button class="btn btn-gold btn-block" id="coinCashoutBtn" style="margin-top:10px;">Забрать выигрыш (<span id="coinCashoutAmount">0</span> GC)</button>
         </div>
@@ -6670,7 +6670,7 @@ updateUI();
     if(backendReady) applyBackendBalanceToUI();
   }
 
-  // Тот же алгоритм, что и на сервере (utils/playerId.ts). Если API ещё не отдаёт
+  // Тот же алгоритм, что и на сер��ере (utils/playerId.ts). Если API ещё не отдаёт
   // playerId (старая версия бэкенда), берём стабильный ID из UUID игрока,
   // а не прочерк и не об��ий на всех 120001.
   function stablePlayerId(uuid){
@@ -6746,7 +6746,7 @@ updateUI();
   function renderWeeklyTop(){
     var box=document.getElementById('weeklyTopBox'); if(!box) return;
     var list=(weeklyTopItems&&weeklyTopItems.length)?weeklyTopItems:[];
-    list=list.slice().sort(function(a,b){return Number(b.weeklyBet||0)-Number(a.weeklyBet||0);}).map(function(x,i){x.place=i+1;return x;}); var rows=list.map(function(x){var u=x.user||{};var name=u.firstName||u.username||'Игрок';return '<div class="weekly-top-row '+(x.mine?'mine':'')+'"><span class="weekly-place">#'+x.place+'</span><span class="weekly-name">'+avatarHtml(u.photoUrl||'🏆')+'<span>'+escapeHtml(name)+'<small>'+fmt(x.weeklyBet||0)+' GC наиграно за неделю · '+fmt(x.games||0)+' игр</small></span></span><span class="weekly-prize">+'+fmt(x.prize||0)+' GC</span></div>';}).join(''); var end=window.weeklyTopPeriodEnd||'следующий понедельник'; box.innerHTML='<div class="weekly-top-head"><b>Призовой фонд '+fmt(weeklyPrizePool)+' GC</b><small>Итоги в понедельник: '+escapeHtml(String(end).slice(0,10))+'</small></div>'+(rows || '<div class="weekly-top-empty">Пока нет участников недели</div>');
+    list=list.slice().sort(function(a,b){return Number(b.weeklyBet||0)-Number(a.weeklyBet||0);}).map(function(x,i){x.place=i+1;return x;}); var rows=list.map(function(x){var u=x.user||{};var name=u.firstName||u.username||'Игрок';return '<div class="weekly-top-row '+(x.mine?'mine':'')+'"><span class="weekly-place">#'+x.place+'</span><span class="weekly-name">'+avatarHtml(u.photoUrl||'✦')+'<span>'+escapeHtml(name)+'<small>'+fmt(x.weeklyBet||0)+' GC наиграно за неделю · '+fmt(x.games||0)+' игр</small></span></span><span class="weekly-prize">+'+fmt(x.prize||0)+' GC</span></div>';}).join(''); var end=window.weeklyTopPeriodEnd||'следующий понедельник'; box.innerHTML='<div class="weekly-top-head"><b>Призовой фонд '+fmt(weeklyPrizePool)+' GC</b><small>Итоги каждый понедельник: в 00:00</small></div>'+(rows || '<div class="weekly-top-empty">Пока нет участников недели</div>');
   }
 
   function renderLeaderboard(){
@@ -8948,7 +8948,7 @@ input.input::placeholder,textarea.input::placeholder{color:#64748b!important;}
       return;
     }
 
-    if(st==='COMPLETED'){ clearAllDeadlines(d); shell(head('Готово','Сделка завершена')+'<div class="gg-done">✓ Сделка успешно завершена</div>'+amounts(d)+'<div class="gg-btns one"><button class="gg-btn blue" id="ggDoneBtn">Закрыть</button></div>'); var db=document.getElementById('ggDoneBtn'); if(db) db.onclick=closeModal; refresh(); return; }
+    if(st==='COMPLETED'){ clearAllDeadlines(d); shell(head('Готово','Сделка завершена')+'<div class="gg-done">✓ Сделка у��пешно завершена</div>'+amounts(d)+'<div class="gg-btns one"><button class="gg-btn blue" id="ggDoneBtn">Закрыть</button></div>'); var db=document.getElementById('ggDoneBtn'); if(db) db.onclick=closeModal; refresh(); return; }
     if(st==='CANCELLED'){ clearAllDeadlines(d); shell(head('Отменено','Сделка отменена')+'<div class="gg-note">Сделка была отменена.</div><div class="gg-btns one"><button class="gg-btn blue" id="ggDoneBtn">Закрыть</button></div>'); var db2=document.getElementById('ggDoneBtn'); if(db2) db2.onclick=closeModal; refresh(); return; }
     if(st==='DISPUTED'){ clearAllDeadlines(d); shell(head('Спор','Открыт спор')+'<div class="gg-note">По сделке открыт спор. С вами свяжется поддержка.</div><div class="gg-btns one"><button class="gg-btn blue" id="ggDoneBtn">Закрыть</button></div>'); var db3=document.getElementById('ggDoneBtn'); if(db3) db3.onclick=closeModal; refresh(); return; }
 
@@ -9111,7 +9111,7 @@ input.input::placeholder,textarea.input::placeholder{color:#64748b!important;}
   'use strict';
   var TIERS=[
     {lv:1,t:'Новичок',r:'Доступ к P2P-маркету и ежедневным бонусам'},
-    {lv:2,t:'Игрок',r:'+5% к ежедневному бонусу'},
+    {lv:2,t:'Игрок',r:'+5% к ежедневному бон��су'},
     {lv:3,t:'Бронза',r:'Бронзовая рамка аватара'},
     {lv:5,t:'Серебро',r:'Ус��орен��ый кэшбэк + сер��бряная рамка'},
     {lv:8,t:'Золото',r:'З��лотая рамка + бонус 10 000 GC'},
@@ -9519,15 +9519,15 @@ input.input::placeholder,textarea.input::placeholder{color:#64748b!important;}
 #weeklyTopBox.weekly-top-card:before{content:'';position:absolute;inset:-90px -60px auto auto;width:230px;height:230px;border-radius:50%;background:radial-gradient(circle,rgba(99,102,241,.24),transparent 68%);pointer-events:none;}
 #weeklyTopBox .weekly-top-head{position:relative;display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 8px;padding:16px;border-radius:19px;background:linear-gradient(135deg,rgba(14,165,233,.17),rgba(99,102,241,.15));border:1px solid rgba(125,211,252,.14);}
 #weeklyTopBox .weekly-top-head b{font-size:17px!important;line-height:1.15;background:linear-gradient(135deg,#f8fafc,#bae6fd 55%,#c4b5fd);-webkit-background-clip:text;background-clip:text;color:transparent!important;}
-#weeklyTopBox .weekly-top-head b:before{content:'🏆';margin-right:8px;-webkit-text-fill-color:initial;}
+#weeklyTopBox .weekly-top-head b:before{content:'◆';margin-right:8px;color:#7dd3fc;-webkit-text-fill-color:#7dd3fc;text-shadow:0 0 16px rgba(56,189,248,.45);}
 #weeklyTopBox .weekly-top-head small{max-width:145px;color:#9fb1c9!important;line-height:1.35;}
 #weeklyTopBox .weekly-top-row{position:relative;grid-template-columns:44px minmax(0,1fr) auto!important;gap:10px!important;margin-top:7px;padding:11px 10px!important;border:1px solid rgba(148,163,184,.11)!important;border-radius:17px!important;background:rgba(15,23,42,.7)!important;transition:transform .16s,border-color .16s,background .16s;}
 #weeklyTopBox .weekly-top-row:hover{transform:translateY(-1px);border-color:rgba(125,211,252,.28)!important;background:rgba(22,32,51,.9)!important;}
 #weeklyTopBox .weekly-place{display:grid;place-items:center;width:36px;height:36px;border-radius:12px;color:#dbeafe!important;background:linear-gradient(145deg,#202b40,#111827);border:1px solid rgba(148,163,184,.16);font-size:12px;box-shadow:inset 0 1px 0 rgba(255,255,255,.06);}
-#weeklyTopBox .weekly-top-row:nth-child(2){background:linear-gradient(100deg,rgba(245,158,11,.14),rgba(15,23,42,.78))!important;border-color:rgba(251,191,36,.25)!important;}
-#weeklyTopBox .weekly-top-row:nth-child(2) .weekly-place{color:#2b1900!important;background:linear-gradient(135deg,#fde68a,#f59e0b);border:0;box-shadow:0 8px 20px rgba(245,158,11,.22);}
+#weeklyTopBox .weekly-top-row:nth-child(2){background:linear-gradient(100deg,rgba(14,165,233,.16),rgba(79,70,229,.12),rgba(15,23,42,.78))!important;border-color:rgba(125,211,252,.3)!important;}
+#weeklyTopBox .weekly-top-row:nth-child(2) .weekly-place{color:#06121f!important;background:linear-gradient(135deg,#7dd3fc,#6366f1);border:0;box-shadow:0 8px 22px rgba(56,189,248,.28);}
 #weeklyTopBox .weekly-top-row:nth-child(3) .weekly-place{color:#172033!important;background:linear-gradient(135deg,#f1f5f9,#94a3b8);border:0;}
-#weeklyTopBox .weekly-top-row:nth-child(4) .weekly-place{color:#2b160d!important;background:linear-gradient(135deg,#fdba74,#c2410c);border:0;}
+#weeklyTopBox .weekly-top-row:nth-child(4) .weekly-place{color:#f5f3ff!important;background:linear-gradient(135deg,#a78bfa,#6d28d9);border:0;box-shadow:0 8px 20px rgba(139,92,246,.2);}
 #weeklyTopBox .weekly-name .avatar-badge{width:34px!important;height:34px!important;min-width:34px!important;border:2px solid rgba(125,211,252,.35)!important;box-shadow:0 6px 16px rgba(0,0,0,.28);}
 #weeklyTopBox .weekly-name>span{min-width:0;overflow:hidden;text-overflow:ellipsis;}
 #weeklyTopBox .weekly-name small{color:#8190a8!important;font-size:10px!important;white-space:normal;}

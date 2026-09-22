@@ -79,12 +79,9 @@ export async function walletRoutes(app: FastifyInstance) {
   // Полная история переводов с данными второй стороны (аватар, ник, ID).
   app.get('/transfers', { preHandler: [(app as any).authenticate] }, async (request) => {
     const user = await getAuthUser(request)
-    const limit = Math.min(Number((request.query as any).limit) || 100, 200)
-
     const rows = await prisma.walletTransaction.findMany({
       where: { userId: user.id, source: { in: ['transfer-in', 'transfer-out'] } },
-      orderBy: { createdAt: 'desc' },
-      take: limit
+      orderBy: { createdAt: 'desc' }
     })
 
     const ids = Array.from(new Set(rows.map((r) => (r.metadata as any)?.counterpartyId).filter(Boolean))) as string[]

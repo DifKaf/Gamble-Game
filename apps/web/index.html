@@ -1265,7 +1265,7 @@ html,body{margin:0!important;min-width:0!important;background:#050505!important;
       <div class="wheel-prizes">
         <div class="panel-title">Возможные призы</div>
         <div class="wheel-prizes-grid"><span class="wheel-prize-chip">100 GC</span><span class="wheel-prize-chip">200 GC</span><span class="wheel-prize-chip">300 GC</span><span class="wheel-prize-chip">500 GC</span><span class="wheel-prize-chip">750 GC</span><span class="wheel-prize-chip">1000 GC</span><span class="wheel-prize-chip">1500 GC</span><span class="wheel-prize-chip">2500 GC</span></div>
-        <div class="wheel-prizes-note">Один бесплатны���������������������� спин раз в 24 часа. Выигрыш сразу падает на баланс.</div>
+        <div class="wheel-prizes-note">Один бесплатный спин раз в 24 часа. Выигрыш сразу падает на баланс.</div>
       </div>
     </section>
 
@@ -2992,7 +2992,7 @@ async function doSpin(){
     await removeAndDrop(clusters.flatMap(({cls})=&gt;cls), true);
     cc++;
 
-    // New scatters may have dropped in during this cascade ��� check again.
+    // New scatters may have dropped in during this cascade — check again.
     if(await checkScatterTrigger()) return;
   }
 
@@ -3084,7 +3084,7 @@ function showBonusStart(count, opts){
     const ov=document.getElementById(&#x27;bonusStart&#x27;);
     document.getElementById(&#x27;bsCount&#x27;).textContent = (opts.prefix||&#x27;&#x27;) + count;
     document.getElementById(&#x27;bsSub&#x27;).textContent = opts.sub || &#x27;ВЫ ВЫИГРАЛИ&#x27;;
-    document.getElementById(&#x27;bsLabel&#x27;).textContent = opts.label || &#x27;��ЕСПЛАТНЫХ ВРАЩЕНИЙ&#x27;;
+    document.getElementById(&#x27;bsLabel&#x27;).textContent = opts.label || &#x27;БЕСПЛАТНЫХ ВРАЩЕНИЙ&#x27;;
     ov.classList.add(&#x27;show&#x27;);
     doConfetti(80);
     const done=()=&gt;{ ov.removeEventListener(&#x27;click&#x27;,done); ov.classList.remove(&#x27;show&#x27;); res(); };
@@ -3386,7 +3386,7 @@ updateUI();
           <button type="button" class="coin-ladder-nav" id="coinLadderNext">›</button>
         </div>
         <div id="coinBetControls">
-          <div class="panel-title">Выбери сторон��:</div>
+          <div class="panel-title">Выбери сторону:</div>
           <div class="option-row" id="coinOptions">
             <button class="option-btn" data-val="heads">🦅 Орёл</button>
             <button class="option-btn" data-val="tails">Ⓣ Решка</button>
@@ -3406,7 +3406,7 @@ updateUI();
         <div id="coinStreakControls" class="hidden">
           <div class="option-row" id="coinContinueOptions">
             <button class="option-btn" data-val="heads">🦅 Орёл</button>
-            <button class="option-btn" data-val="tails">Ⓣ ��еш��а</button>
+            <button class="option-btn" data-val="tails">Ⓣ Решка</button>
           </div>
           <button class="btn btn-gold btn-block" id="coinCashoutBtn" style="margin-top:10px;">Забрать выигрыш (<span id="coinCashoutAmount">0</span> GC)</button>
         </div>
@@ -3668,7 +3668,7 @@ updateUI();
         <div class="promo-create-grid">
           <input class="input" id="createPromoCode" type="text" placeholder="Название промокода">
           <input class="input" id="createPromoAmount" type="number" min="1" placeholder="Сумма GC">
-          <input class="input" id="createPromoUses" type="number" min="1" placeholder="Количество актив��ций">
+          <input class="input" id="createPromoUses" type="number" min="1" placeholder="Количество активаций">
         </div>
         <button class="btn btn-blue btn-block" id="createPromoBtn" style="margin-top:10px;">Создать промокод</button>
         <div class="promo-created-box" id="createdPromoInfo">Созданный промокод смогут активировать другие игроки.</div>
@@ -3797,7 +3797,7 @@ updateUI();
       <h3>Сбросить прогресс?</h3>
       <p>Все балансы, история и статистика демо-игроков будут сброшены к начальным значениям.</p>
       <div class="modal-actions">
-        <button class="btn btn-ghost" id="modalCancel">От��ена</button>
+        <button class="btn btn-ghost" id="modalCancel">Отмена</button>
         <button class="btn btn-primary" id="modalConfirm">Сбросить</button>
       </div>
     </div>
@@ -3875,8 +3875,8 @@ updateUI();
       res = await fetch(API_URL + path, Object.assign({}, options, { headers: headers, signal: controller ? controller.signal : options.signal }));
     }catch(fetchErr){
       var msg = (fetchErr && fetchErr.name === 'AbortError')
-        ? '��ервер долго не отвечает. Попробуйте ещё раз через несколько секунд.'
-        : 'Нет соедине��ия с с��рвер��м. Пр��верьте деплой Railway и домен API.';
+        ? 'Сервер долго не отвечает. Попробуйте ещё раз через несколько секунд.'
+        : 'Нет соединения с сервером. Проверьте деплой Railway и домен API.';
       var netErr = new Error(msg);
       netErr.original = fetchErr;
       throw netErr;
@@ -4432,25 +4432,28 @@ updateUI();
   }
 
   function copyRefLink(){
-    var link = referralData && (referralData.link || referralData.code);
-    if(!link) return;
-    try{
-      if(navigator.clipboard && navigator.clipboard.writeText){
-        navigator.clipboard.writeText(link).then(function(){ showToast('Ссылка скопирована','success'); }).catch(fallbackCopy);
-      } else fallbackCopy();
-    }catch(e){ fallbackCopy(); }
+    var shown = document.getElementById('refLinkText');
+    var shownValue = shown ? String(shown.textContent || '').trim().replace(/^Код:\s*/i,'') : '';
+    var link = (referralData && (referralData.link || referralData.code)) || shownValue;
+    if(!link){ showToast('Ссылка ещё не готова','error'); return; }
+    function copied(){ showToast('Ссылка скопирована','success'); haptic('success'); }
     function fallbackCopy(){
+      var ta;
       try{
-        var ta = document.createElement('textarea');
-        ta.value = link;
-        ta.style.position = 'fixed'; ta.style.opacity = '0';
-        document.body.appendChild(ta);
-        ta.select();
-        document.execCommand('copy');
-        document.body.removeChild(ta);
-        showToast('Ссылка скопирована','success');
-      }catch(err){ showToast('Скопируйте ссылку вручную','error'); }
+        ta=document.createElement('textarea'); ta.value=link; ta.setAttribute('readonly','');
+        ta.style.position='fixed'; ta.style.left='-9999px'; ta.style.top='0'; ta.style.opacity='0';
+        document.body.appendChild(ta); ta.focus(); ta.select(); ta.setSelectionRange(0,ta.value.length);
+        if(!document.execCommand('copy')) throw new Error('copy failed');
+        copied();
+      }catch(err){
+        if(shown && window.getSelection){ var range=document.createRange(); range.selectNodeContents(shown); var sel=window.getSelection(); sel.removeAllRanges(); sel.addRange(range); }
+        showToast('Ссылка выделена — нажмите «Копировать»','error');
+      }finally{ if(ta&&ta.parentNode) ta.parentNode.removeChild(ta); }
     }
+    try{
+      if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(link).then(copied).catch(fallbackCopy);
+      else fallbackCopy();
+    }catch(e){ fallbackCopy(); }
   }
 
   function shareRefLink(){
@@ -4524,7 +4527,7 @@ updateUI();
     var canOpen=mine&&['WAITING_SELLER','DEAL','PAID','DISPUTED'].indexOf(o.status)>=0,canCancel=(o.isCreator||o.isMine||o.isBuyer)&&['OPEN','WAITING_SELLER','DEAL'].indexOf(o.status)>=0;
     var min=o.minBuyRub||1,max=o.maxBuyRub||p2pRubTotal(o),done=o.completedDeals||o.dealsCount||0,success=o.successRate||98;
     var st='<span class="p2p-status '+p2pStatusClass(o.status)+'">'+p2pStatusText(o.status)+'</span>';
-    return '<div class="cb-offer"><div class="cb-offer-top"><div class="cb-user">'+avatarHtml(user.photoUrl||'👤')+'<div><b>'+escapeHtml(p2pUserName(user))+'</b><small>ID '+escapeHtml(user.playerId||'—')+' · '+done+' сделок · '+success+'%</small></div></div><span>'+escapeHtml(p2pOfferId(o))+'</span></div><div class="cb-price"><b>'+fmt(p2pRateRub(o))+' ₽</b><span>за 1 000 GC</span></div><div class="cb-grid"><div><small>Доступно</small><b>'+fmt(o.amountGc)+' GC</b></div><div><small>Лимиты</small><b>'+fmt(min)+'–'+fmt(max)+' ₽</b></div><div><small>Оплата</small><b>'+escapeHtml(p2pMethodName(o.method))+'</b></div><div><small>Статус</small><b>'+st+'</b></div></div><div class="cb-actions">'+(canTake?'<button class="cb-main" data-p2p-buy="'+o.id+'">'+(intent==='buy'?'Продать':'Купить')+' GC</button>':'')+(canAccept?'<button class="cb-main" data-p2p-act="accept" data-id="'+o.id+'">Подтвердить сделку</button>':'')+(canPaid?'<button class="cb-main" data-p2p-paydetails="'+o.id+'">��ерейти к оплат��</button>':'')+(canRelease?'<button class="cb-main" data-p2p-act="release" data-id="'+o.id+'">Подтвердить получение</button>':'')+(canOpen?'<button class="cb-ghost" data-p2p-paydetails="'+o.id+'">Открыть сделку</button>':'')+(canCancel?'<button class="cb-ghost" data-p2p-act="cancel" data-id="'+o.id+'">Отменить</button>':'')+'</div></div>';
+    return '<div class="cb-offer"><div class="cb-offer-top"><div class="cb-user">'+avatarHtml(user.photoUrl||'👤')+'<div><b>'+escapeHtml(p2pUserName(user))+'</b><small>ID '+escapeHtml(user.playerId||'—')+' · '+done+' сделок · '+success+'%</small></div></div><span>'+escapeHtml(p2pOfferId(o))+'</span></div><div class="cb-price"><b>'+fmt(p2pRateRub(o))+' ₽</b><span>за 1 000 GC</span></div><div class="cb-grid"><div><small>Доступно</small><b>'+fmt(o.amountGc)+' GC</b></div><div><small>Лимиты</small><b>'+fmt(min)+'–'+fmt(max)+' ₽</b></div><div><small>Оплата</small><b>'+escapeHtml(p2pMethodName(o.method))+'</b></div><div><small>Статус</small><b>'+st+'</b></div></div><div class="cb-actions">'+(canTake?'<button class="cb-main" data-p2p-buy="'+o.id+'">'+(intent==='buy'?'Продать':'Купить')+' GC</button>':'')+(canAccept?'<button class="cb-main" data-p2p-act="accept" data-id="'+o.id+'">Подтвердить сделку</button>':'')+(canPaid?'<button class="cb-main" data-p2p-paydetails="'+o.id+'">Перейти к оплату</button>':'')+(canRelease?'<button class="cb-main" data-p2p-act="release" data-id="'+o.id+'">Подтвердить получение</button>':'')+(canOpen?'<button class="cb-ghost" data-p2p-paydetails="'+o.id+'">Открыть сделку</button>':'')+(canCancel?'<button class="cb-ghost" data-p2p-act="cancel" data-id="'+o.id+'">Отменить</button>':'')+'</div></div>';
   }
   function renderExchange(){
     var m=document.getElementById('exchangeMarket'),sell=document.getElementById('exchangeSell'),c=document.getElementById('exchangeCreate'),active=document.getElementById('exchangeMine'),completed=document.getElementById('exchangeAds');if(!m)return;
@@ -4861,7 +4864,7 @@ updateUI();
   function scheduleCatSync(){ if(!backendReady||!catState) return; clearTimeout(catSyncTimer); catSyncTimer=setTimeout(pushCatToServer,650); }
   async function pushCatToServer(){ return; }
   function catPerTap(){return 1+(catState.up.food||0)*2;}
-  function catLevelName(){var lvl=(catState.up.food||0)+(catState.up.toy||0)+(catState.up.scratch||0)+(catState.up.bed||0); if(lvl>=18)return'Кото-магнат'; if(lvl>=12)return'Кот в домике'; if(lvl>=7)return'Игровой кот'; if(lvl>=3)return'Сытый кот'; return'Уличн��й котёнок';}
+  function catLevelName(){var lvl=(catState.up.food||0)+(catState.up.toy||0)+(catState.up.scratch||0)+(catState.up.bed||0); if(lvl>=18)return'Кото-магнат'; if(lvl>=12)return'Кот в домике'; if(lvl>=7)return'Игровой кот'; if(lvl>=3)return'Сытый кот'; return'Уличный котёнок';}
   function upgradeCost(u){return Math.round(u.base*Math.pow(1.7,catState.up[u.key]||0));}
   function renderCat(){ if(!catState) loadCat(); var el; if(el=document.getElementById('catPaws')) el.textContent=fmt(catState.paws); if(el=document.getElementById('catPerTap')) el.textContent='+'+fmt(catPerTap()); if(el=document.getElementById('catIncome')) el.textContent=fmt(catState.up.scratch||0)+'/сек'; if(el=document.getElementById('catLevelName')) el.textContent=catLevelName(); if(el=document.getElementById('catDailyLimit')) el.textContent='Сегодня получено: '+fmt(catState.gcToday||0)+' / 100 GC'; var box=document.getElementById('catUpgrades'); if(box){box.innerHTML=catUpgrades.map(function(u){var lvl=catState.up[u.key]||0,c=upgradeCost(u);return '<div class="cat-upgrade"><div class="cat-upgrade-info"><b>'+u.icon+' '+u.name+' ур. '+lvl+'</b><small>'+u.desc+' · цена '+fmt(c)+' 🐾</small></div><button class="btn btn-primary" data-cat-up="'+u.key+'">Купить</button></div>';}).join(''); box.querySelectorAll('[data-cat-up]').forEach(function(b){b.addEventListener('click',function(){buyCatUpgrade(b.getAttribute('data-cat-up'));});});}}
   function catFloat(txt,x,y){var d=document.createElement('div');d.className='cat-float';d.textContent=txt;d.style.left=x+'px';d.style.top=y+'px';document.body.appendChild(d);setTimeout(function(){d.remove();},850);}
@@ -5391,7 +5394,7 @@ updateUI();
           renderDie(d0, diceVals[0]); renderDie(d1, diceVals[1]);
           var diceSumEl=document.getElementById('diceSum'); if(diceSumEl) diceSumEl.textContent = roll;
           var won = result.winAmount > 0;
-          if(won){ diceWinStreak += 1; addHistory(me(),'win', result.winAmount, 'Кос��и: ��ум��а '+roll); showWinOverlay(result.winAmount); haptic('success'); }
+          if(won){ diceWinStreak += 1; addHistory(me(),'win', result.winAmount, 'Кости: сумма '+roll); showWinOverlay(result.winAmount); haptic('success'); }
           else { diceWinStreak = 0; addHistory(me(),'loss', bet, 'Кости: сумма '+roll); haptic('error'); }
           updateDiceStreakBadge();
           renderAll();
@@ -6217,7 +6220,7 @@ updateUI();
         addHistory(me(),'win', 0, 'Блэкджек: ничья'); syncProfileStats(totalBet, data.winAmount); renderProfile(); refreshMiniGameHistories();
         showTieOverlay(totalBet); haptic('light');
       } else {
-        addHistory(me(),'loss', totalBet, 'Блэкджек: проигр��ш'); syncProfileStats(totalBet, data.winAmount || 0); renderProfile(); refreshMiniGameHistories();
+        addHistory(me(),'loss', totalBet, 'Блэкджек: проигрыш'); syncProfileStats(totalBet, data.winAmount || 0); renderProfile(); refreshMiniGameHistories();
         bjGlowWinningHand('loss');
         haptic('error');
       }
@@ -6449,7 +6452,7 @@ updateUI();
   if(transferInput) transferInput.addEventListener('blur', function(){ setTimeout(hideTransferSuggest, 200); });
   async function loadCreatedPromos(){
     var box=document.getElementById('createdPromosList'); if(!box) return;
-    if(!backendReady){ box.innerHTML=Object.keys(localPromos).map(function(code){ var p=localPromos[code]; var used=(p.usedBy||[]).length; var left=Math.max(0,(p.maxUses||1)-used); return '<div class="promo-row"><div><div class="promo-code-name">'+escapeHtml(code)+'</div><div>'+fmt(p.amount)+' GC</div></div><div class="promo-remain">Осталось '+left+'/'+(p.maxUses||1)+'</div></div>'; }).join('') || '<div class="empty-state">Пока нет созданных промокодо��.</div>'; return; }
+    if(!backendReady){ box.innerHTML=Object.keys(localPromos).map(function(code){ var p=localPromos[code]; var used=(p.usedBy||[]).length; var left=Math.max(0,(p.maxUses||1)-used); return '<div class="promo-row"><div><div class="promo-code-name">'+escapeHtml(code)+'</div><div>'+fmt(p.amount)+' GC</div></div><div class="promo-remain">Осталось '+left+'/'+(p.maxUses||1)+'</div></div>'; }).join('') || '<div class="empty-state">Пока нет созданных промокодов.</div>'; return; }
     try{ var data=await apiRequest('/bonus/promocode/list'); box.innerHTML=(data.items||[]).map(function(p){ return '<div class="promo-row"><div><div class="promo-code-name">'+escapeHtml(p.code)+'</div><div>'+fmt(p.amount)+' GC</div></div><div class="promo-remain">Осталось '+p.remaining+'/'+p.maxUses+'</div></div>'; }).join('') || '<div class="empty-state">Пока нет созданных промокодов.</div>'; }catch(e){ box.innerHTML='<div class="empty-state">Ошибка загрузки промокодов</div>'; }
   }
 
@@ -6670,9 +6673,9 @@ updateUI();
     if(backendReady) applyBackendBalanceToUI();
   }
 
-  // Тот же алгоритм, что и на сер��ере (utils/playerId.ts). Если API ещё не отдаёт
+  // Тот же алгоритм, что и на сервере (utils/playerId.ts). Если API ещё не отдаёт
   // playerId (старая версия бэкенда), берём стабильный ID из UUID игрока,
-  // а не прочерк и не об��ий на всех 120001.
+  // а не прочерк и не общий на всех 120001.
   function stablePlayerId(uuid){
     var str = String(uuid || '');
     if(!str) return null;
@@ -6766,8 +6769,18 @@ updateUI();
   function readTransfersCache(){
     try{ var raw = localStorage.getItem(transfersCacheKey()); var arr = raw ? JSON.parse(raw) : []; return Array.isArray(arr) ? arr : []; }catch(e){ return []; }
   }
+  function mergeTransferHistory(primary, saved){
+    var byId=Object.create(null), merged=[];
+    (primary||[]).concat(saved||[]).forEach(function(item){
+      if(!item) return;
+      var key=item.id||[item.direction,item.amount,item.createdAt,(item.counterparty&&item.counterparty.id)||''].join('|');
+      if(byId[key]) return; byId[key]=true; merged.push(item);
+    });
+    merged.sort(function(a,b){ return new Date(b.createdAt||0).getTime()-new Date(a.createdAt||0).getTime(); });
+    return merged;
+  }
   function writeTransfersCache(list){
-    try{ localStorage.setItem(transfersCacheKey(), JSON.stringify((list || []).slice(0, 100))); }catch(e){}
+    try{ localStorage.setItem(transfersCacheKey(), JSON.stringify(list||[])); }catch(e){ console.warn('Transfer history cache is full',e); }
   }
   function transfersFromTransactions(list){
     return (list || []).filter(function(t){ return t.source === 'transfer-in' || t.source === 'transfer-out'; }).map(function(t){
@@ -6822,16 +6835,17 @@ updateUI();
       var cached = readTransfersCache();
       if(cached.length) box.innerHTML = cached.map(transferRowHtml).join('');
       loadTransferHistory().then(function(transfers){
-        writeTransfersCache(transfers);
-        if(!transfers.length){
+        var fullHistory=mergeTransferHistory(transfers,cached);
+        writeTransfersCache(fullHistory);
+        if(!fullHistory.length){
           box.innerHTML = '<div class="empty-state">Пока нет переводов.</div>';
           return;
         }
-        box.innerHTML = transfers.map(transferRowHtml).join('');
+        box.innerHTML = fullHistory.map(transferRowHtml).join('');
       }).catch(function(err){
         // Сохранённую историю не затираем ошибкой.
         if(cached.length) return;
-        var reason = (err && err.message) ? err.message : 'нет связи с серверо��';
+        var reason = (err && err.message) ? err.message : 'нет связи с сервером';
         if(/Unauthorized|401/i.test(reason)) reason = 'требуется вход через Telegram';
         if(/Not Found|404/i.test(reason)) reason = 'сервер ещё не обновлён';
         box.innerHTML = '<div class="empty-state">История переводов недоступна: ' + escapeHtml(reason) +
@@ -6869,7 +6883,7 @@ updateUI();
       {code:'roulette', icon:'🎡', title:'Roulette', sub:'Ставки 25 000 GC', ok:total>=25000},
       {code:'mines', icon:'💣', title:'Mines', sub:'Рекорд 10 000 GC', ok:best>=10000},
       {code:'blackjack', icon:'🃏', title:'Blackjack', sub:'Ставки 50 000 GC', ok:total>=50000},
-      {code:'baccarat', icon:'♦️', title:'Baccarat', sub:'��ыиграть 25 000 GC', ok:won>=25000},
+      {code:'baccarat', icon:'♦️', title:'Baccarat', sub:'Выиграть 25 000 GC', ok:won>=25000},
       {code:'p2p', icon:'⇄', title:'P2P Trader', sub:'Открыть обменник', ok:Boolean(exchangeData && exchangeData.deals && exchangeData.deals.length)}
     ];
   }
@@ -8919,7 +8933,7 @@ input.input::placeholder,textarea.input::placeholder{color:#64748b!important;}
         shell(inner); startTimerP(document.getElementById('ggTimer'), 15*60, d.id+':DEAL', function(){ expireCancel(d); }, _anchor); bindCommon(d);
         var paid=document.getElementById('ggPaidBtn'); if(paid) paid.onclick=function(){ showProofUI(d); };
       } else {
-        inner = roleBadge(isBuyer) + head('Шаг 2 из 3','Ож��дание оплаты') + stepsBar(2)
+        inner = roleBadge(isBuyer) + head('Шаг 2 из 3','Ожидание оплаты') + stepsBar(2)
           + '<div class="gg-timer" id="ggTimer"></div>'
           + reqCard(extractBank(d.paymentDetails)||d.bank||'', extractNumber(d.paymentDetails)) + amounts(d)
           + '<div class="gg-wait">Покупатель оплачивает по вашим реквизитам. Дождитесь чека.</div>'
@@ -8933,7 +8947,7 @@ input.input::placeholder,textarea.input::placeholder{color:#64748b!important;}
       if(isBuyer){
         inner = roleBadge(isBuyer) + head('Шаг 3 из 3','Подтверждение перевода') + stepsBar(3)
           + '<div class="gg-timer" id="ggTimer"></div>' + amounts(d)
-          + (d.receipt? receiptView(d,false) + '<div class="gg-note">Чек отправлен. Ожидаем подтверждение продавца.</div>' : '<div class="gg-note">Ожидаем, пока продавец провери�� оплату.</div>')
+          + (d.receipt? receiptView(d,false) + '<div class="gg-note">Чек отправлен. Ожидаем подтверждение продавца.</div>' : '<div class="gg-note">Ожидаем, пока продавец проверит оплату.</div>')
           + '<div class="gg-btns one"><button class="gg-btn ghost" id="ggDisputeBtn">Открыть спор</button></div>';
         shell(inner); startTimerP(document.getElementById('ggTimer'), 10*60, d.id+':PAID', null, _anchor); bindCommon(d);
       } else {
@@ -8948,11 +8962,11 @@ input.input::placeholder,textarea.input::placeholder{color:#64748b!important;}
       return;
     }
 
-    if(st==='COMPLETED'){ clearAllDeadlines(d); shell(head('Готово','Сделка завершена')+'<div class="gg-done">✓ Сделка у��пешно завершена</div>'+amounts(d)+'<div class="gg-btns one"><button class="gg-btn blue" id="ggDoneBtn">Закрыть</button></div>'); var db=document.getElementById('ggDoneBtn'); if(db) db.onclick=closeModal; refresh(); return; }
+    if(st==='COMPLETED'){ clearAllDeadlines(d); shell(head('Готово','Сделка завершена')+'<div class="gg-done">✓ Сделка успешно завершена</div>'+amounts(d)+'<div class="gg-btns one"><button class="gg-btn blue" id="ggDoneBtn">Закрыть</button></div>'); var db=document.getElementById('ggDoneBtn'); if(db) db.onclick=closeModal; refresh(); return; }
     if(st==='CANCELLED'){ clearAllDeadlines(d); shell(head('Отменено','Сделка отменена')+'<div class="gg-note">Сделка была отменена.</div><div class="gg-btns one"><button class="gg-btn blue" id="ggDoneBtn">Закрыть</button></div>'); var db2=document.getElementById('ggDoneBtn'); if(db2) db2.onclick=closeModal; refresh(); return; }
     if(st==='DISPUTED'){ clearAllDeadlines(d); shell(head('Спор','Открыт спор')+'<div class="gg-note">По сделке открыт спор. С вами свяжется поддержка.</div><div class="gg-btns one"><button class="gg-btn blue" id="ggDoneBtn">Закрыть</button></div>'); var db3=document.getElementById('ggDoneBtn'); if(db3) db3.onclick=closeModal; refresh(); return; }
 
-    shell(head('Сделка','P2P сделк��')+amounts(d)+'<div class="gg-btns one"><button class="gg-btn blue" id="ggDoneBtn">Закрыть</button></div>'); var f=document.getElementById('ggDoneBtn'); if(f) f.onclick=closeModal;
+    shell(head('Сделка','P2P сделка')+amounts(d)+'<div class="gg-btns one"><button class="gg-btn blue" id="ggDoneBtn">Закрыть</button></div>'); var f=document.getElementById('ggDoneBtn'); if(f) f.onclick=closeModal;
   }
   window.renderDealRoom = renderDealRoom;
   window.ggReqCard = reqCard;
@@ -8960,7 +8974,7 @@ input.input::placeholder,textarea.input::placeholder{color:#64748b!important;}
   window.openP2pWaitingSeller = function(d){ return renderDealRoom(Object.assign({status:'WAITING_SELLER'}, d)); };
   window.openP2pPayDetails    = function(d){ return renderDealRoom(Object.assign({status:'DEAL'}, d)); };
 
-  // ---------- иконки ��анков в форме создания ----------
+  // ---------- иконки банков в форме создания ----------
   function mountBankPicker(){
     var sel=document.getElementById('sbpBank');
     if(!sel || document.getElementById('bankPicker')) return;
@@ -9078,14 +9092,14 @@ input.input::placeholder,textarea.input::placeholder{color:#64748b!important;}
 .gg-create-card{display:flex!important;flex-direction:column;align-items:center;justify-content:center;gap:10px;min-height:130px;cursor:pointer;background:linear-gradient(135deg,#0ea5e9,#6366f1)!important;border:0!important;color:#fff!important;text-align:center;box-shadow:0 14px 34px rgba(37,99,235,.3)!important;}
 .gg-create-card .gg-cc-plus{font-size:32px;font-weight:900;line-height:1;width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;}
 .gg-create-card .gg-cc-lbl{font-size:15px;font-weight:900;}
-/* --- фон профиля на весь экр��н + повыше --- */
+/* --- фон профиля на весь экран + повыше --- */
 #screen-profile{background:radial-gradient(140% 82% at 50% -8%,#1b2748 0%,#0c1120 52%,#06070a 100%)!important;padding-top:0!important;}
 #screen-profile .profile-shot{background:transparent!important;box-shadow:none!important;padding-top:20px!important;min-height:auto!important;}
 #screen-profile #openAdminBtn,#screen-profile #togglePromoCreator{background:linear-gradient(135deg,#0ea5e9,#6366f1)!important;border:0!important;color:#fff!important;box-shadow:0 12px 30px rgba(37,99,235,.28)!important;border-radius:16px!important;}
 /* --- плашка уровня кликабельная --- */
 #ggLevelPill,#screen-profile .profile-level-badge{cursor:pointer!important;}
 #ggLevelPill{transition:transform .12s}#ggLevelPill:active{transform:scale(.96)}
-/* --- ��одалка Gamble Pass --- */
+/* --- Модалка Gamble Pass --- */
 .ggbp-ov{position:fixed;inset:0;z-index:99999;background:rgba(4,6,12,.72);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);display:flex;align-items:flex-end;justify-content:center;padding:0}
 .ggbp{width:100%;max-width:460px;max-height:88vh;overflow:auto;background:#0b1120;border:1px solid #223049;border-radius:24px 24px 0 0;padding:18px 18px calc(28px + env(safe-area-inset-bottom));box-shadow:0 -24px 70px rgba(0,0,0,.6)}
 @media(min-width:560px){.ggbp-ov{align-items:center}.ggbp{border-radius:24px}}
@@ -9111,10 +9125,10 @@ input.input::placeholder,textarea.input::placeholder{color:#64748b!important;}
   'use strict';
   var TIERS=[
     {lv:1,t:'Новичок',r:'Доступ к P2P-маркету и ежедневным бонусам'},
-    {lv:2,t:'Игрок',r:'+5% к ежедневному бон��су'},
+    {lv:2,t:'Игрок',r:'+5% к ежедневному бонусу'},
     {lv:3,t:'Бронза',r:'Бронзовая рамка аватара'},
-    {lv:5,t:'Серебро',r:'Ус��орен��ый кэшбэк + сер��бряная рамка'},
-    {lv:8,t:'Золото',r:'З��лотая рамка + бонус 10 000 GC'},
+    {lv:5,t:'Серебро',r:'Ускоренный кэшбэк + серебряная рамка'},
+    {lv:8,t:'Золото',r:'Золотая рамка + бонус 10 000 GC'},
     {lv:12,t:'Платина',r:'Приоритет в P2P + бонус 25 000 GC'},
     {lv:20,t:'Алмаз',r:'Алмазный бейдж + бонус 100 000 GC'},
     {lv:35,t:'Легенда',r:'Легендарное оформление профиля'},
@@ -9201,7 +9215,7 @@ input.input::placeholder,textarea.input::placeholder{color:#64748b!important;}
       var pd=document.getElementById('p2pDetails'); if(pd)pd.value='';
       try{ if(!window.exchangeData)window.exchangeData={}; window.exchangeData.tab='active'; }catch(e){}
       if(window.loadExchange) loadExchange();
-    }catch(e){ show((e&&e.message)||'Не удалос�� создать объявление',false); }
+    }catch(e){ show((e&&e.message)||'Не удалось создать объявление',false); }
     finally{ if(btn){btn.disabled=false;btn.textContent=orig||'Создать объявление';} }
   }
   window.ggFinalCreateOffer=ggFinalCreateOffer;
@@ -9267,7 +9281,7 @@ input.input::placeholder,textarea.input::placeholder{color:#64748b!important;}
     ]},
     terms:{t:'Правила и условия',s:'Условия использования',h:[
       ['1. Общие положения','Используя приложение, вы соглашаетесь с настоящими правилами. Gamble Coin не является деньгами и не имеет реальной денежной стоимости.'],
-      ['2. Честная игра','Запрещены боты, мультиаккаунты и любые попытки взлома. ��арушители блокируются без возврата баланса.'],
+      ['2. Честная игра','Запрещены боты, мультиаккаунты и любые попытки взлома. Нарушители блокируются без возврата баланса.'],
       ['3. P2P-сделки','При обмене GC ответственность за перевод денег несут сами участники. Подтверждайте оплату только после фактического получения средств.'],
       ['4. Ответственность','Администрация не несёт ответственности за споры вне escrow и за действия третьих лиц.']
     ]},
@@ -9276,7 +9290,7 @@ input.input::placeholder,textarea.input::placeholder{color:#64748b!important;}
       ['Споры по P2P','При споре нажмите «Открыть спор» в сделке и опишите ситуацию. Модератор рассмотрит скрины и чеки.']
     ]},
     about:{t:'О приложении',s:'Gamble Game',h:[
-      ['Gamble Game','Развлекательная игра с виртуальной валютой Gamble Coin, мини-играми, уровнями и P2P-обмено�� между игроками.'],
+      ['Gamble Game','Развлекательная игра с виртуальной валютой Gamble Coin, мини-играми, уровнями и P2P-обменом между игроками.'],
       ['Версия','Интерфейс 2.1 · Сделано с любовью для сообщества.']
     ]}
   };
@@ -9568,7 +9582,7 @@ body.gg-profile-open .gg-global-bar{background:transparent!important;border-colo
 </style><script id="gg-full-i18n-final">
 (function(){
 'use strict';
-var DICT={"Вы":"You","Звук, тема, язык и вибрация":"Sound, theme, language and vibration","Поделиться профилем":"Share profile","Ставки недели":"Weekly wager","Уличный котёнок":"Street kitten","лапок":"paws","за тап":"per tap","доход":"income","Алмаз":"Diamond","Корона":"Crown","Мешок золота":"Bag of gold","Ключ":"Key","Попугай":"Parrot","Якорь":"Anchor","на линии":"on a payline","Выбери сторон��:":"Choose a side:","��еш��а":"Tails","От��ена":"Cancel","ЮMoney":"YooMoney","Сбербанк":"Sberbank","Озон Банк":"Ozon Bank","Альфа-Банк":"Alfa-Bank","ВТБ":"VTB","Т-Банк":"T-Bank","Газпромбанк":"Gazprombank","Райффайзенбанк":"Raiffeisenbank","ПСБ":"PSB","Версия":"Version","Интерфейс":"Interface","Сделано с любовью для сообщества.":"Made with love for the community.","Забирайте крутые бонусы каждый день":"Claim great bonuses every day","Следующий спин через":"Next spin in","Покупайте и продавайте GC напрямую":"Buy and sell GC directly","Быстрая покупка и продажа Gamble Coin":"Fast Gamble Coin trading","Продолжить играть":"Continue playing","Все игры ›":"All games ›","Слоты":"Slots","Мини игры":"Mini games","Популярные":"Popular","Карты и столы":"Cards and tables","Топ недели":"Weekly leaders","Загрузка...":"Loading...","Бонусы":"Bonuses","Реферальная программа":"Referral program","Промокоды":"Promo codes","Активировать":"Activate","Назад":"Back","Колесо фортуны":"Wheel of Fortune","Крутить колесо":"Spin the wheel","Условия доступа":"Access requirements","Подписаться на канал":"Subscribe to the channel","Проверить заново":"Check again","Возможные призы":"Possible prizes","Один бесплатный спин раз в 24 часа. Выигрыш сразу падает на баланс.":"One free spin every 24 hours. Winnings are credited instantly.","Игры":"Games","Обменять":"Exchange","Сегодня получено:":"Received today:","Джекпот":"Jackpot","Бесплатные спины":"Free spins","Стоп":"Stop","Крутить за":"Spin for","ВСЁ ДЖЕКПОТ":"FULL JACKPOT","заменяет любой символ":"replaces any symbol","где угодно":"anywhere","бонус":"bonus","игровых линий":"paylines","Кости":"Dice","Серия побед:":"Win streak:","Сумма:":"Amount:","Ставка на:":"Bet on:","Меньше 7":"Under 7","Ровно 7":"Exactly 7","Больше 7":"Over 7","Бросить":"Roll","Автоброски":"Auto rolls","Количество бросков":"Number of rolls","Стоп при проигрыше, GC (0 = выкл.)":"Stop after loss, GC (0 = off)","Стоп при выигрыше, GC (0 = выкл.)":"Stop after win, GC (0 = off)","Запустить автоброски":"Start auto rolls","Остановить":"Stop","осталось":"left","История игроков":"Player history","Мои":"Mine","Имя / Ставка":"Name / Bet","Множитель":"Multiplier","Выигрыш":"Winnings","Монетка":"Coin Flip","Выплата:":"Payout:","Выбери сторону":"Choose a side","Орёл":"Heads","Решка":"Tails","Забрать выигрыш":"Collect winnings","Рулетка":"Roulette","Сделай ставку и крути!":"Place a bet and spin!","Отменить ставку":"Cancel bet","Мины":"Mines","Количество мин:":"Number of mines:","Ловушки":"Traps","Начать раунд":"Start round","Серия:":"Streak:","Авто-кэшаут при множителе x":"Auto cashout at multiplier x","Продолжить":"Continue","Дилер":"Dealer","Игрок":"Player","Раздать карты":"Deal cards","У дилера туз. Хотите страховку?":"Dealer has an ace. Take insurance?","Да, страховка":"Yes, insure","Нет, играть дальше":"No, continue","Ещё карту":"Hit","×2 Удвоить":"×2 Double","Играть ещё раз":"Play again","Старт через":"Starts in","Кошелёк":"Wallet","Баланс Gamble Coin":"Gamble Coin balance","Продать GC за ₽ или купить у игроков":"Sell GC for ₽ or buy from players","Открыть":"Open","Перевести Gamble Coin":"Transfer Gamble Coin","Кому:":"Recipient:","Отправить":"Send","История":"History","Покупка и продажа GC за RUB между игроками":"Buy and sell GC for RUB between players","Баланс":"Balance","Купить":"Buy","Продать":"Sell","Активные сделки":"Active deals","Завершенные сделки":"Completed deals","Все":"All","Лучший курс":"Best rate","Объём":"Volume","Создать объявление":"Create offer","Продать GC":"Sell GC","Купить GC":"Buy GC","Количество GC":"GC amount","Курс за 1 000 GC, ₽":"Rate per 1,000 GC, ₽","Мин. лимит, ₽":"Minimum limit, ₽","Реквизиты":"Payment details","Другой банк":"Other bank","Итого":"Total","GC будут заморожены в escrow до завершения сделки.":"GC will be held in escrow until the deal is completed.","Закрыть":"Close","В сети":"Online","Дата регистрации:":"Registration date:","Ставки за неделю":"Weekly wager","Поделиться":"Share","Выиграно":"Won","Трофеи":"Trophies","Админка":"Admin panel","Создать промокод":"Create promo code","Созданный промокод смогут активировать другие игроки.":"Other players will be able to activate the created promo code.","Новый промокод":"New promo code","Созданные промокоды":"Created promo codes","Пока нет созданных промокодов.":"No promo codes created yet.","Настройки":"Settings","Аккаунт":"Account","Язык":"Language","Русский":"Russian","Язык интерфейса применяется сразу.":"The interface language is applied instantly.","Звук и вибрация":"Sound and vibration","Звуковые эффекты":"Sound effects","Вибрация (Telegram)":"Vibration (Telegram)","Тема оформления":"Theme","Тёмная":"Dark","Светлая":"Light","Поддержка":"Support","Написать в поддержку":"Contact support","Правила и условия":"Terms and conditions","Версия и информация":"Version and information","Политика конфиденциальности":"Privacy policy","Как мы работаем с вашими данными":"How we handle your data","Условия использования":"Terms of use","О приложении":"About the app","Gamble Game · версия интерфейса 2.0":"Gamble Game · interface version 2.0","Тех. работы":"Maintenance","Проверяем статус...":"Checking status...","При включении игроки увидят экран “Тех. работы”. Админы смогут пользоваться приложением.":"When enabled, players will see the maintenance screen. Admins can continue using the app.","Включить":"Enable","Игроки":"Players","Споры и сделки":"Disputes and deals","Главная":"Home","Профиль":"Profile","Скоро вернёмся. Идёт обновление приложения.":"We will be back soon. The app is being updated.","Победа!":"Victory!","Вы выиграли":"You won","Забрать":"Collect","Сбросить прогресс?":"Reset progress?","Все балансы, история и статистика демо-игроков будут сброшены к начальным значениям.":"All demo balances, history and statistics will be reset.","Отмена":"Cancel","Сбросить":"Reset","Аккаунт и настройки":"Account and settings","Показать свой профиль друзьям":"Show your profile to friends","Помощь и споры":"Help and disputes","Призовой фонд":"Prize pool","Итоги каждый понедельник: в 00:00":"Results every Monday at 00:00","наиграно за неделю":"wagered this week","игр":"games","Пока нет участников недели":"No weekly participants yet","Уровень":"Level","Создать":"Create","Ожидание продавца":"Waiting for seller","Ожидание покупателя":"Waiting for buyer","Ожидание оплаты":"Waiting for payment","Подтверждение перевода":"Transfer confirmation","Подтвердить":"Confirm","Оплатил":"Paid","Открыт спор":"Dispute opened","Активный":"Active","Завершен":"Completed","Отменен":"Cancelled","Копировать":"Copy","Скопировано":"Copied","СБП":"FPS","Карта":"Card","Номер":"Number","Банк":"Bank","Оплата":"Payment","Ожидание":"Waiting","Подтверждение":"Confirmation","Отмена сделки":"Cancel deal","Отправить чек":"Upload receipt","Прикрепите чек":"Attach a receipt","Безопасная сделка":"Secure deal","Покупатель":"Buyer","Продавец":"Seller","Сумма сделки":"Deal amount","Курс":"Rate","Лимиты":"Limits","Метод оплаты":"Payment method","Мои объявления":"My offers","Мои сделки":"My deals","Найти игрока":"Find player","Введите ID или ник":"Enter ID or username","Недостаточно средств":"Insufficient funds","Ошибка":"Error","Готово":"Done","Сохранить":"Save","Удалить":"Delete","Да":"Yes","Нет":"No"};
+var DICT={"Вы":"You","Звук, тема, язык и вибрация":"Sound, theme, language and vibration","Поделиться профилем":"Share profile","Ставки недели":"Weekly wager","Уличный котёнок":"Street kitten","лапок":"paws","за тап":"per tap","доход":"income","Алмаз":"Diamond","Корона":"Crown","Мешок золота":"Bag of gold","Ключ":"Key","Попугай":"Parrot","Якорь":"Anchor","на линии":"on a payline","Выбери сторону:":"Choose a side:","Решка":"Tails","Отмена":"Cancel","ЮMoney":"YooMoney","Сбербанк":"Sberbank","Озон Банк":"Ozon Bank","Альфа-Банк":"Alfa-Bank","ВТБ":"VTB","Т-Банк":"T-Bank","Газпромбанк":"Gazprombank","Райффайзенбанк":"Raiffeisenbank","ПСБ":"PSB","Версия":"Version","Интерфейс":"Interface","Сделано с любовью для сообщества.":"Made with love for the community.","Забирайте крутые бонусы каждый день":"Claim great bonuses every day","Следующий спин через":"Next spin in","Покупайте и продавайте GC напрямую":"Buy and sell GC directly","Быстрая покупка и продажа Gamble Coin":"Fast Gamble Coin trading","Продолжить играть":"Continue playing","Все игры ›":"All games ›","Слоты":"Slots","Мини игры":"Mini games","Популярные":"Popular","Карты и столы":"Cards and tables","Топ недели":"Weekly leaders","Загрузка...":"Loading...","Бонусы":"Bonuses","Реферальная программа":"Referral program","Промокоды":"Promo codes","Активировать":"Activate","Назад":"Back","Колесо фортуны":"Wheel of Fortune","Крутить колесо":"Spin the wheel","Условия доступа":"Access requirements","Подписаться на канал":"Subscribe to the channel","Проверить заново":"Check again","Возможные призы":"Possible prizes","Один бесплатный спин раз в 24 часа. Выигрыш сразу падает на баланс.":"One free spin every 24 hours. Winnings are credited instantly.","Игры":"Games","Обменять":"Exchange","Сегодня получено:":"Received today:","Джекпот":"Jackpot","Бесплатные спины":"Free spins","Стоп":"Stop","Крутить за":"Spin for","ВСЁ ДЖЕКПОТ":"FULL JACKPOT","заменяет любой символ":"replaces any symbol","где угодно":"anywhere","бонус":"bonus","игровых линий":"paylines","Кости":"Dice","Серия побед:":"Win streak:","Сумма:":"Amount:","Ставка на:":"Bet on:","Меньше 7":"Under 7","Ровно 7":"Exactly 7","Больше 7":"Over 7","Бросить":"Roll","Автоброски":"Auto rolls","Количество бросков":"Number of rolls","Стоп при проигрыше, GC (0 = выкл.)":"Stop after loss, GC (0 = off)","Стоп при выигрыше, GC (0 = выкл.)":"Stop after win, GC (0 = off)","Запустить автоброски":"Start auto rolls","Остановить":"Stop","осталось":"left","История игроков":"Player history","Мои":"Mine","Имя / Ставка":"Name / Bet","Множитель":"Multiplier","Выигрыш":"Winnings","Монетка":"Coin Flip","Выплата:":"Payout:","Выбери сторону":"Choose a side","Орёл":"Heads","Решка":"Tails","Забрать выигрыш":"Collect winnings","Рулетка":"Roulette","Сделай ставку и крути!":"Place a bet and spin!","Отменить ставку":"Cancel bet","Мины":"Mines","Количество мин:":"Number of mines:","Ловушки":"Traps","Начать раунд":"Start round","Серия:":"Streak:","Авто-кэшаут при множителе x":"Auto cashout at multiplier x","Продолжить":"Continue","Дилер":"Dealer","Игрок":"Player","Раздать карты":"Deal cards","У дилера туз. Хотите страховку?":"Dealer has an ace. Take insurance?","Да, страховка":"Yes, insure","Нет, играть дальше":"No, continue","Ещё карту":"Hit","×2 Удвоить":"×2 Double","Играть ещё раз":"Play again","Старт через":"Starts in","Кошелёк":"Wallet","Баланс Gamble Coin":"Gamble Coin balance","Продать GC за ₽ или купить у игроков":"Sell GC for ₽ or buy from players","Открыть":"Open","Перевести Gamble Coin":"Transfer Gamble Coin","Кому:":"Recipient:","Отправить":"Send","История":"History","Покупка и продажа GC за RUB между игроками":"Buy and sell GC for RUB between players","Баланс":"Balance","Купить":"Buy","Продать":"Sell","Активные сделки":"Active deals","Завершенные сделки":"Completed deals","Все":"All","Лучший курс":"Best rate","Объём":"Volume","Создать объявление":"Create offer","Продать GC":"Sell GC","Купить GC":"Buy GC","Количество GC":"GC amount","Курс за 1 000 GC, ₽":"Rate per 1,000 GC, ₽","Мин. лимит, ₽":"Minimum limit, ₽","Реквизиты":"Payment details","Другой банк":"Other bank","Итого":"Total","GC будут заморожены в escrow до завершения сделки.":"GC will be held in escrow until the deal is completed.","Закрыть":"Close","В сети":"Online","Дата регистрации:":"Registration date:","Ставки за неделю":"Weekly wager","Поделиться":"Share","Выиграно":"Won","Трофеи":"Trophies","Админка":"Admin panel","Создать промокод":"Create promo code","Созданный промокод смогут активировать другие игроки.":"Other players will be able to activate the created promo code.","Новый промокод":"New promo code","Созданные промокоды":"Created promo codes","Пока нет созданных промокодов.":"No promo codes created yet.","Настройки":"Settings","Аккаунт":"Account","Язык":"Language","Русский":"Russian","Язык интерфейса применяется сразу.":"The interface language is applied instantly.","Звук и вибрация":"Sound and vibration","Звуковые эффекты":"Sound effects","Вибрация (Telegram)":"Vibration (Telegram)","Тема оформления":"Theme","Тёмная":"Dark","Светлая":"Light","Поддержка":"Support","Написать в поддержку":"Contact support","Правила и условия":"Terms and conditions","Версия и информация":"Version and information","Политика конфиденциальности":"Privacy policy","Как мы работаем с вашими данными":"How we handle your data","Условия использования":"Terms of use","О приложении":"About the app","Gamble Game · версия интерфейса 2.0":"Gamble Game · interface version 2.0","Тех. работы":"Maintenance","Проверяем статус...":"Checking status...","При включении игроки увидят экран “Тех. работы”. Админы смогут пользоваться приложением.":"When enabled, players will see the maintenance screen. Admins can continue using the app.","Включить":"Enable","Игроки":"Players","Споры и сделки":"Disputes and deals","Главная":"Home","Профиль":"Profile","Скоро вернёмся. Идёт обновление приложения.":"We will be back soon. The app is being updated.","Победа!":"Victory!","Вы выиграли":"You won","Забрать":"Collect","Сбросить прогресс?":"Reset progress?","Все балансы, история и статистика демо-игроков будут сброшены к начальным значениям.":"All demo balances, history and statistics will be reset.","Отмена":"Cancel","Сбросить":"Reset","Аккаунт и настройки":"Account and settings","Показать свой профиль друзьям":"Show your profile to friends","Помощь и споры":"Help and disputes","Призовой фонд":"Prize pool","Итоги каждый понедельник: в 00:00":"Results every Monday at 00:00","наиграно за неделю":"wagered this week","игр":"games","Пока нет участников недели":"No weekly participants yet","Уровень":"Level","Создать":"Create","Ожидание продавца":"Waiting for seller","Ожидание покупателя":"Waiting for buyer","Ожидание оплаты":"Waiting for payment","Подтверждение перевода":"Transfer confirmation","Подтвердить":"Confirm","Оплатил":"Paid","Открыт спор":"Dispute opened","Активный":"Active","Завершен":"Completed","Отменен":"Cancelled","Копировать":"Copy","Скопировано":"Copied","СБП":"FPS","Карта":"Card","Номер":"Number","Банк":"Bank","Оплата":"Payment","Ожидание":"Waiting","Подтверждение":"Confirmation","Отмена сделки":"Cancel deal","Отправить чек":"Upload receipt","Прикрепите чек":"Attach a receipt","Безопасная сделка":"Secure deal","Покупатель":"Buyer","Продавец":"Seller","Сумма сделки":"Deal amount","Курс":"Rate","Лимиты":"Limits","Метод оплаты":"Payment method","Мои объявления":"My offers","Мои сделки":"My deals","Найти игрока":"Find player","Введите ID или ник":"Enter ID or username","Недостаточно средств":"Insufficient funds","Ошибка":"Error","Готово":"Done","Сохранить":"Save","Удалить":"Delete","Да":"Yes","Нет":"No"};
 var pairs=Object.keys(DICT).sort(function(a,b){return b.length-a.length;});
 var textSource=new WeakMap(), attrSource=new WeakMap(), busy=false, lang='ru';
 function pref(){try{var p=JSON.parse(localStorage.getItem('gg_settings')||'{}');return p&&p.lang==='en'?'en':'ru'}catch(e){return window.ggSettings&&window.ggSettings.lang==='en'?'en':'ru'}}
@@ -9582,5 +9596,20 @@ var mo=new MutationObserver(function(ms){if(busy)return;busy=true;for(var i=0;i<
 function boot(){lang=pref();setLanguage(lang);mo.observe(document.body,{subtree:true,childList:true,characterData:true});var s=document.getElementById('settingsLanguage');if(s)s.addEventListener('change',function(){try{var p=JSON.parse(localStorage.getItem('gg_settings')||'{}');p.lang=s.value;localStorage.setItem('gg_settings',JSON.stringify(p))}catch(e){}setLanguage(s.value)})}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
 })();
-</script></body>
+</script>
+<style id="gg-request-fixes-ref-history-desktop-clean">
+#screen-bonuses .game-header .back-btn{display:none!important;}
+#screen-bonuses .game-header{grid-template-columns:1fr!important;}
+#screen-bonuses .game-header h2{text-align:left!important;}
+@media (min-width:900px){
+  .gg-topbar{top:72px!important;right:42px!important;left:auto!important;height:62px!important;width:auto!important;max-width:min(430px,42vw)!important;padding:0!important;gap:12px!important;background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important;}
+  .gg-topbar .gg-tb-av{width:38px!important;height:38px!important;background:#20283a!important;box-shadow:0 0 0 2px #5e9fe8,0 0 18px rgba(94,159,232,.3)!important;}
+  .gg-topbar .gg-tb-name{font-size:14px!important;}
+  .gg-topbar .gg-tb-id{font-size:11px!important;padding:2px 8px!important;color:#d7e6f7!important;background:rgba(94,159,232,.12)!important;border-color:rgba(94,159,232,.28)!important;}
+  .gg-topbar .gg-tb-bal{padding:8px 13px!important;background:linear-gradient(135deg,rgba(39,131,222,.22),rgba(99,102,241,.18))!important;border:1px solid rgba(94,159,232,.34)!important;border-radius:13px!important;}
+  .gg-topbar .gg-tb-amt{font-size:18px!important;color:#fff!important;}
+  .gg-topbar .gg-tb-bal small{color:#7dd3fc!important;}
+}
+</style>
+</body>
 </html>

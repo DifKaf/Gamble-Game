@@ -1,0 +1,2023 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="color-scheme" content="dark">
+<title>DRUNKARD GATE</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;overflow:hidden;background:#050110;color-scheme:dark}
+body{
+  background:
+    radial-gradient(ellipse at 50% 0%,rgba(120,30,80,.45) 0%,rgba(60,30,90,.55) 55%,rgba(10,5,20,.92) 100%),
+    #050110;
+  font-family:'Baloo 2',sans-serif;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-height:100vh;user-select:none;
+}
+#ptcl{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.pt{position:absolute;border-radius:50%;animation:ptF linear infinite;opacity:0}
+@keyframes ptF{0%{opacity:0;transform:translateY(0) scale(1)}10%{opacity:.9}90%{opacity:.9}100%{opacity:0;transform:translateY(-110vh) scale(.5)}}
+.game{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:7px;padding:10px}
+/* Title */
+.title{font-size:clamp(1.5em,4.5vw,2.4em);font-weight:900;letter-spacing:5px;
+  background:linear-gradient(180deg,#f7e8f0 0%,#b3548a 35%,#7c4aa8 65%,#2e8fb8 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 0 18px rgba(120,40,80,.75)) drop-shadow(0 0 40px rgba(90,40,120,.55))}
+.subtitle{font-size:.48em;letter-spacing:9px;color:rgba(190,130,165,.7);margin-top:2px;font-style:italic}
+/* Stats */
+.stats{display:flex;gap:7px;width:100%;max-width:700px}
+.stat{flex:1;padding:6px 8px;border-radius:10px;text-align:center;
+  background:rgba(5,0,20,.75);border:1px solid rgba(160,100,255,.2);backdrop-filter:blur(10px)}
+.sl{font-size:.4em;letter-spacing:3px;color:rgba(180,140,255,.5);margin-bottom:2px}
+.sv{font-size:.85em;font-weight:700;color:#ffd700}
+/* Tumble win banner shown above the reel grid — visible only while there is an active tumble win */
+.totalWinBar{
+  position:relative;z-index:3;display:flex;flex-direction:row;align-items:center;justify-content:center;
+  gap:8px;padding:6px 14px 8px;margin-bottom:6px;text-align:center;
+}
+.twInner{
+  display:flex;flex-direction:column;align-items:center;gap:1px;
+  opacity:0;transform:translateY(-8px) scale(.92);pointer-events:none;
+  transition:opacity .35s ease,transform .35s ease;
+}
+.twInner.show{opacity:1;transform:translateY(0) scale(1);pointer-events:auto}
+.twLbl{font-size:.62em;letter-spacing:4px;color:rgba(200,160,255,.65);font-weight:600}
+.twVal{
+  font-size:1.5em;font-weight:900;line-height:1;
+  background:linear-gradient(180deg,#fff8d0 0%,#ffd700 35%,#ff9500 70%,#d4360a 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 0 10px rgba(255,160,0,.7));
+  transition:transform .2s ease;
+}
+.twVal.bump{animation:twBump .4s ease}
+@keyframes twBump{0%{transform:scale(1)}35%{transform:scale(1.22)}100%{transform:scale(1)}}
+.twVal.multBump{animation:twMultBump .6s ease}
+@keyframes twMultBump{0%{transform:scale(1)}30%{transform:scale(1.55) rotate(-4deg)}60%{transform:scale(1.18) rotate(3deg)}100%{transform:scale(1)}}
+/* Compact bonus-round multiplier dot, pinned almost to the far-left edge of the tumble-win bar, shown only during free spins */
+.fsMultDot{
+  position:absolute;left:2px;top:50%;transform:translateY(-50%);
+  display:none;align-items:center;justify-content:center;
+  width:32px;height:32px;border-radius:50%;
+  background:linear-gradient(135deg,#d1d5db,#4b5563);color:#f5f5f5;
+  font-size:.72em;font-weight:900;border:1.5px solid rgba(255,255,255,.4);
+  box-shadow:0 0 14px rgba(200,200,200,.6);
+}
+.fsMultDot.on{display:flex}
+.fsMultDot.bump{animation:fsDotBump .6s ease}
+@keyframes fsDotBump{0%{transform:translateY(-50%) scale(1)}30%{transform:translateY(-50%) scale(1.35) rotate(-4deg)}60%{transform:translateY(-50%) scale(1.12) rotate(3deg)}100%{transform:translateY(-50%) scale(1)}}
+.flyMult{
+  position:fixed;left:0;top:0;z-index:9999;transform:translate(-50%,-50%) scale(1);
+  padding:6px 12px;border-radius:10px;font-weight:900;font-size:1.05em;color:#1a0e00;
+  box-shadow:0 0 22px rgba(255,200,0,.85),0 0 40px rgba(255,140,0,.5);
+  transition:left .6s cubic-bezier(.3,.85,.35,1),top .6s cubic-bezier(.3,.85,.35,1),transform .6s ease,opacity .6s ease;
+  pointer-events:none;
+}
+/* Multiply-equation popup on the total-win banner: shows "win × X" then resolves to "= result" */
+.twEquation{
+  position:fixed;left:0;top:0;z-index:9998;transform:translate(-50%,-50%) scale(.5);opacity:0;
+  padding:0;border-radius:0;font-weight:800;font-size:clamp(.85em,3vw,1.2em);color:#fff8dc;font-family:Georgia,serif;
+  background:transparent;border:0;box-shadow:none;
+  text-shadow:0 0 10px rgba(255,190,50,.95),0 0 3px rgba(0,0,0,.8),0 2px 3px rgba(0,0,0,.7);
+  white-space:nowrap;pointer-events:none;
+  transition:opacity .35s ease,transform .35s ease;
+}
+.twEquation.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
+.twEquation.result{color:#fff8dc}
+.sv.fs-active{color:#f472b6;animation:fsPulse 1s ease infinite;font-size:.55em;letter-spacing:.5px}
+.fsNum{font-size:12px;font-weight:900;vertical-align:middle;margin-left:4px;display:inline-block;line-height:1}
+@keyframes fsPulse{0%,100%{filter:brightness(1)}50%{filter:brightness(1.6)}}
+/* Grid */
+.gwrap{
+  position:relative;padding:8px;border-radius:18px;
+  background:rgba(0,0,0,.65);border:2px solid rgba(90,40,130,.4);
+  box-shadow:0 0 50px rgba(70,20,130,.35),0 0 100px rgba(50,10,100,.15),inset 0 0 40px rgba(50,10,100,.07);
+  backdrop-filter:blur(10px);overflow:hidden;
+}
+.gaura{position:absolute;inset:0;border-radius:18px;pointer-events:none;
+  background:conic-gradient(from 0deg,transparent 80%,rgba(160,100,255,.035) 85%,transparent 90%);
+  animation:aR 14s linear infinite}
+@keyframes aR{to{transform:rotate(360deg)}}
+/* Free spins overlay glow */
+.gwrap.fs-mode{border-color:rgba(244,114,182,.6);box-shadow:0 0 60px rgba(120,40,80,.55),0 0 120px rgba(244,114,182,.25),inset 0 0 50px rgba(244,114,182,.08)}
+.grid{
+  display:grid;grid-template-columns:repeat(6,1fr);grid-template-rows:repeat(5,1fr);
+  gap:4px;width:clamp(320px,90vw,630px);height:clamp(265px,54vw,525px);
+  overflow:hidden;position:relative;border-radius:10px;
+}
+/* Cells */
+.cell{
+  border-radius:9px;
+  background:rgba(10,4,30,.65);border:1px solid rgba(100,60,200,.18);
+  position:relative;display:flex;align-items:center;justify-content:center;
+  transition:border-color .2s;
+}
+.cell svg{width:74%;height:74%;flex-shrink:0;display:block}
+.cell.win{border-color:rgba(255,215,0,.5)}
+.cell.win svg{animation:wP .7s cubic-bezier(.45,0,.55,1) infinite alternate}
+@keyframes wP{0%{transform:scale(1)}100%{transform:scale(1.16)}}
+.cell.blast svg{animation:bO .32s cubic-bezier(.35,0,.7,1) forwards;will-change:transform,opacity}
+@keyframes bO{0%{transform:scale(1);opacity:1}30%{transform:scale(1.26);opacity:1}62%{transform:scale(1.42);opacity:.8}100%{transform:scale(.12);opacity:0}}
+/* Gates-style weighty drop: accelerating fall + squash-and-stretch bounce landing */
+.cell.drop{z-index:6}
+.cell.drop svg{animation:dI .42s cubic-bezier(.2,.75,.32,1) both;will-change:transform,opacity}
+@keyframes dI{
+  0%{transform:translate3d(0,calc(-1 * var(--fy,180%)),0) scaleY(1.07) scaleX(.95);opacity:0}
+  14%{opacity:1}
+  62%{transform:translate3d(0,0,0) scaleY(.9) scaleX(1.08);opacity:1}
+  78%{transform:translate3d(0,-7%,0) scaleY(1.04) scaleX(.98);opacity:1}
+  90%{transform:translate3d(0,0,0) scaleY(.985) scaleX(1.015);opacity:1}
+  100%{transform:translate3d(0,0,0) scale(1);opacity:1}
+}
+.cell.vanishing svg,.cell.vanishing .cellmult{animation:symVanish .14s ease-in forwards}
+@keyframes symVanish{
+  0%{opacity:1;transform:scale(1) translate3d(0,0,0)}
+  100%{opacity:0;transform:scale(.5) translate3d(0,12%,0)}
+}
+.cell.drop .csh{animation:impactFlash .42s linear}
+@keyframes impactFlash{0%,56%{opacity:0}64%{opacity:.5}100%{opacity:0}}
+.cell.scatter-glow{border-color:rgba(255,100,50,.7);animation:scGlow .8s ease infinite}
+@keyframes scGlow{0%,100%{box-shadow:0 0 8px rgba(255,100,50,.6)}50%{box-shadow:0 0 22px rgba(255,180,50,.9)}}
+.csh{position:absolute;inset:0;border-radius:9px;opacity:0;
+  background:radial-gradient(circle,var(--sc,gold) 0%,transparent 70%);
+  transition:opacity .3s;pointer-events:none}
+.cell.win .csh{opacity:.3}
+/* Floating win amount shown on a winning symbol during a cascade */
+.winPop{
+  position:absolute;top:50%;left:50%;z-index:30;pointer-events:none;white-space:nowrap;
+  font-weight:800;font-size:clamp(.85em,3vw,1.2em);color:#fff8dc;font-family:Georgia,serif;
+  text-shadow:0 0 10px rgba(255,190,50,.95),0 0 3px rgba(0,0,0,.8),0 2px 3px rgba(0,0,0,.7);
+  animation:winPopIn 1.15s cubic-bezier(.22,1,.36,1) forwards;
+}
+@keyframes winPopIn{
+  0%{transform:translate(-50%,-50%) scale(.3);opacity:0}
+  16%{transform:translate(-50%,-62%) scale(1.2);opacity:1}
+  32%{transform:translate(-50%,-62%) scale(1);opacity:1}
+  78%{transform:translate(-50%,-92%) scale(1);opacity:1}
+  100%{transform:translate(-50%,-135%) scale(.9);opacity:0}
+}
+/* Orb multipliers on grid */
+.orb{
+  position:absolute;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-weight:900;color:#fff;
+  border:2px solid rgba(255,255,255,.5);pointer-events:none;z-index:25;
+  animation:oA .38s cubic-bezier(.18,1.5,.4,1),oB 2s ease-in-out .38s infinite;
+  font-family:'Baloo 2',sans-serif;
+}
+@keyframes oA{from{transform:scale(0) rotate(-180deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
+@keyframes oB{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-8px) scale(1.04)}}
+.orb.gone{animation:oG .4s ease forwards!important}
+@keyframes oG{to{transform:scale(2.8);opacity:0}}
+/* Multiplier symbols that fall on the grid like normal symbols */
+.cellmult{
+  position:absolute;inset:11%;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Baloo 2',sans-serif;font-weight:900;color:#fff;
+  font-size:.82em;letter-spacing:-.5px;
+  border:2px solid rgba(255,255,255,.55);
+  box-shadow:0 0 16px rgba(255,190,60,.65),inset 0 0 10px rgba(255,255,255,.25);
+  z-index:20;text-shadow:0 1px 3px rgba(0,0,0,.5);
+  animation:mPulse 1.6s ease-in-out infinite;
+}
+@keyframes mPulse{0%,100%{transform:scale(1);filter:brightness(1)}50%{transform:scale(1.06);filter:brightness(1.25)}}
+.cell.drop .cellmult{animation:dI .42s cubic-bezier(.2,.75,.32,1) both,mPulse 1.6s ease-in-out .42s infinite}
+/* Global multiplier badge */
+.gmult-badge{
+  position:absolute;top:-12px;right:-12px;border-radius:12px;
+  padding:3px 10px;background:linear-gradient(135deg,#f59e0b,#dc2626);
+  font-size:.62em;font-weight:900;color:#fff;
+  box-shadow:0 0 18px rgba(245,158,11,.8);opacity:0;transition:opacity .3s;z-index:30;
+  border:1.5px solid rgba(255,255,255,.4);white-space:nowrap;
+}
+.gmult-badge.on{opacity:1}
+/* Scatter counter */
+.scatter-bar{
+  position:absolute;bottom:-12px;left:50%;transform:translateX(-50%);
+  display:flex;gap:5px;z-index:30;
+}
+.sc-dot{
+  width:12px;height:12px;border-radius:50%;
+  background:rgba(255,100,50,.25);border:1.5px solid rgba(255,100,50,.4);
+  transition:all .3s;
+}
+.sc-dot.lit{background:#ff6432;border-color:#ff9060;box-shadow:0 0 8px rgba(255,100,50,.8)}
+/* Controls */
+.controls{display:flex;gap:7px;width:100%;max-width:700px;align-items:stretch}
+.betbox{background:rgba(0,0,0,.55);border:1px solid rgba(160,100,255,.22);border-radius:12px;padding:7px 11px;
+  display:flex;flex-direction:column;align-items:center;gap:3px;min-width:80px}
+.betlbl{font-size:.38em;letter-spacing:3px;color:rgba(180,140,255,.5)}
+.betrow{display:flex;align-items:center;gap:5px}
+.bb{width:28px;height:28px;border-radius:7px;border:1px solid rgba(160,100,255,.38);
+  background:rgba(100,40,200,.28);color:#c4b5fd;font-size:.95em;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:all .15s}
+.bb:hover{background:rgba(140,70,255,.48);box-shadow:0 0 10px rgba(140,70,255,.5)}
+.betv{min-width:32px;text-align:center;color:#fff;font-size:.82em;font-weight:700}
+.spinbtn{
+  flex:1;height:50px;border-radius:13px;border:none;
+  background:linear-gradient(135deg,#7c3aed,#a855f7,#ec4899);
+  color:#fff;font-size:.88em;font-weight:700;letter-spacing:4px;
+  cursor:pointer;transition:all .2s;box-shadow:0 4px 28px rgba(168,85,247,.5);
+  overflow:hidden;position:relative;font-family:'Baloo 2',sans-serif;
+}
+.spinbtn::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;
+  background:linear-gradient(45deg,transparent 40%,rgba(255,255,255,.1) 50%,transparent 60%);
+  transform:rotate(45deg) translateX(-120%);transition:transform .6s}
+.spinbtn:hover::before{transform:rotate(45deg) translateX(120%)}
+.spinbtn:hover{transform:translateY(-2px);box-shadow:0 8px 36px rgba(168,85,247,.7)}
+.spinbtn:active:not(:disabled){transform:translateY(1px)}
+.spinbtn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.ante-btn,.buy-btn{
+  height:50px;border-radius:13px;border:none;
+  font-size:.62em;font-weight:700;letter-spacing:2px;
+  cursor:pointer;transition:all .2s;font-family:'Baloo 2',sans-serif;
+  padding:0 10px;white-space:nowrap;
+}
+.ante-btn{background:linear-gradient(135deg,#b45309,#d97706);color:#fff;box-shadow:0 4px 18px rgba(180,83,9,.4)}
+.ante-btn.on{background:linear-gradient(135deg,#f59e0b,#fbbf24);color:#000;box-shadow:0 4px 24px rgba(245,158,11,.6)}
+.buy-btn{background:linear-gradient(135deg,#0e7490,#0891b2);color:#fff;box-shadow:0 4px 18px rgba(8,145,178,.4)}
+.turbo-btn{height:50px;border-radius:13px;border:none;font-size:.62em;font-weight:700;letter-spacing:2px;
+  cursor:pointer;transition:all .2s;font-family:'Baloo 2',sans-serif;padding:0 10px;white-space:nowrap;
+  background:linear-gradient(135deg,#334155,#475569);color:#cbd5e1;box-shadow:0 4px 18px rgba(51,65,85,.4)}
+.turbo-btn.on{background:linear-gradient(135deg,#1a7f91,#2a7fa8);color:#000;box-shadow:0 4px 24px rgba(56,189,248,.65)}
+.ante-btn:hover,.buy-btn:hover,.turbo-btn:hover{transform:translateY(-1px)}
+.ante-btn:disabled,.buy-btn:disabled,.turbo-btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+/* Slot-style control panel (round buttons, WIN/Balance rows) */
+.slot-panel{width:100%;max-width:700px;display:flex;flex-direction:column;align-items:center;gap:8px;padding:10px 16px 12px;border-radius:26px;background:linear-gradient(180deg,rgba(35,15,55,.9) 0%,rgba(15,5,30,.94) 100%);border:2px solid rgba(140,60,110,.55);box-shadow:0 10px 30px rgba(70,20,110,.35),inset 0 0 22px rgba(140,60,120,.12);}
+.slot-win-row{display:flex;align-items:center;gap:8px;}
+.slot-win-lbl{font-size:.5em;letter-spacing:3px;color:#cc6fa8;font-weight:700;}
+.slot-win-val{font-size:.95em;font-weight:900;color:#fff;}
+.controls{display:flex;gap:12px;width:100%;align-items:center;justify-content:center;max-width:none;}
+.betbox{background:rgba(30,10,45,.6);border:1px solid rgba(140,60,110,.5);border-radius:999px;padding:6px 12px;display:flex;flex-direction:row;align-items:center;gap:8px;min-width:0;}
+.betcol{display:flex;flex-direction:column;align-items:center;gap:1px;min-width:44px;}
+.betlbl{font-size:.34em;letter-spacing:2px;color:rgba(190,120,165,.75);}
+.bb{width:26px;height:26px;border-radius:50%;border:1px solid rgba(140,60,110,.55);background:rgba(60,20,85,.5);color:#d9a8c4;font-size:.9em;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0;}
+.bb:hover{background:rgba(110,40,100,.65);box-shadow:0 0 10px rgba(140,60,110,.65)}
+.betv{min-width:28px;text-align:center;color:#fff;font-size:.8em;font-weight:700}
+.spinbtn{width:64px;height:64px;flex:0 0 auto;border-radius:50%;border:3px solid rgba(255,255,255,.7);background:radial-gradient(circle at 35% 30%,#cbb0c2,#a8578f 40%,#6b3f95 72%,#4a2a72 100%);color:#fff;font-size:1.7em;font-weight:900;cursor:pointer;transition:all .2s;box-shadow:0 4px 22px rgba(120,30,80,.6),inset 0 2px 6px rgba(255,255,255,.6);overflow:hidden;position:relative;display:flex;align-items:center;justify-content:center;padding:0;}
+.spin-ic{display:inline-block;line-height:1;}
+.spinbtn:hover{transform:translateY(-2px) scale(1.03);box-shadow:0 8px 22px rgba(0,0,0,.55)}
+.spinbtn:active:not(:disabled){transform:translateY(1px) scale(.98)}
+.spinbtn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.slot-side-icons{display:flex;gap:8px;flex-shrink:0;}
+.ante-btn,.buy-btn,.turbo-btn{width:38px;height:38px;border-radius:50%;border:none;padding:0;display:flex;align-items:center;justify-content:center;font-size:1.05em;cursor:pointer;transition:all .2s;flex-shrink:0;white-space:normal;letter-spacing:0;}
+.ante-btn{background:linear-gradient(135deg,#a8447f,#a8425a);color:#fff;box-shadow:0 3px 12px rgba(120,40,80,.55)}
+.ante-btn.on{background:linear-gradient(135deg,#d9a8c2,#c98aab);color:#831843;box-shadow:0 4px 16px rgba(140,50,90,.7)}
+.buy-btn{background:linear-gradient(135deg,#1a7f91,#2a7fa8);color:#062a33;box-shadow:0 3px 12px rgba(30,80,100,.55)}
+.turbo-btn{background:linear-gradient(135deg,#5b4a94,#4a5aa8);color:#fff;box-shadow:0 3px 12px rgba(60,50,110,.55)}
+.turbo-btn.on{background:linear-gradient(135deg,#fde68a,#fcd34d);color:#78350f;box-shadow:0 4px 16px rgba(252,211,77,.7)}
+.slot-bal-row{display:flex;align-items:center;gap:10px;width:100%;justify-content:center;padding:9px 16px;margin-top:2px;border-top:1px solid rgba(140,60,110,.35);background:rgba(15,8,25,.5);border-radius:14px;box-shadow:inset 0 0 14px rgba(255,215,120,.08);}
+.slot-bal-lbl{font-size:.46em;letter-spacing:2px;color:rgba(235,190,215,.9);font-weight:700;}
+.slot-bal-val{font-size:1em;font-weight:900;color:#ffe9a8;text-shadow:0 0 10px rgba(255,215,120,.85),0 0 22px rgba(255,180,60,.55);letter-spacing:.5px;}
+.slot-mode-badge{font-size:.36em;letter-spacing:1px;color:rgba(170,150,205,.85);}
+/* Message */
+.msg{min-height:22px;text-align:center;font-size:.63em;letter-spacing:3px;
+  color:rgba(150,120,190,.7);width:100%;max-width:700px;transition:color .2s}
+.msg.w{color:#ffd700;font-weight:700;animation:mP .3s ease}
+.msg.bw{color:#fb923c;font-size:.78em;font-weight:900;animation:mP .3s ease}
+.msg.mg{color:#f472b6;font-size:.9em;font-weight:900;animation:mP .3s ease}
+.msg.sc{color:#ff9060;font-weight:700;animation:mP .3s ease}
+@keyframes mP{0%{transform:scale(.82)}70%{transform:scale(1.1)}100%{transform:scale(1)}}
+/* Big multiplier flash */
+#bmWrap{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:500}
+#bmTxt{font-size:clamp(4em,13vw,8em);font-weight:900;font-family:'Baloo 2',sans-serif;
+  background:linear-gradient(180deg,#fff 0%,#ffd700 40%,#ff9500 80%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 0 28px rgba(255,200,0,1));opacity:0}
+#bmTxt.fl{animation:bmF 1.2s ease forwards}
+@keyframes bmF{0%{opacity:0;transform:scale(.35)}18%{opacity:1;transform:scale(1.1)}70%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(.85)}}
+/* FS trigger flash */
+#fsFlash{position:fixed;inset:0;background:rgba(244,114,182,.18);opacity:0;pointer-events:none;z-index:400;transition:opacity .4s}
+/* Confetti */
+#cfEl{position:fixed;inset:0;pointer-events:none;z-index:450}
+.cfp{position:absolute;animation:cfD linear forwards}
+@keyframes cfD{0%{opacity:1;transform:translateY(-30px) rotate(0)}100%{opacity:0;transform:translateY(110vh) rotate(900deg)}}
+/* Paytable */
+.paytbl{display:flex;flex-wrap:wrap;gap:4px;justify-content:center;width:100%;max-width:700px}
+.pi{display:flex;align-items:center;gap:3px;padding:3px 7px;
+  background:rgba(0,0,0,.4);border:1px solid rgba(120,80,200,.18);border-radius:7px}
+.pi svg{width:22px;height:22px;flex-shrink:0}
+.pi-pay{font-size:.5em;color:#fcd34d;font-weight:700}
+#infoBtn{position:fixed;top:10px;right:10px;left:auto;width:34px;height:34px;border-radius:50%;z-index:9999;
+  border:1px solid rgba(160,100,255,.3);background:rgba(0,0,0,.5);
+  color:rgba(200,160,255,.9);font-size:1.1em;font-weight:900;cursor:pointer;z-index:100;
+  display:flex;align-items:center;justify-content:center;transition:all .2s;font-family:'Baloo 2',sans-serif;}
+#infoBtn:hover{background:rgba(100,40,200,.45);box-shadow:0 0 14px rgba(160,100,255,.5)}
+#autoBtn{position:fixed;top:52px;left:10px;width:34px;height:34px;border-radius:50%;
+  border:1px solid rgba(160,100,255,.3);background:rgba(0,0,0,.5);
+  color:rgba(200,160,255,.9);font-size:1.1em;font-weight:900;cursor:pointer;z-index:100;
+  display:flex;align-items:center;justify-content:center;transition:all .2s;font-family:'Baloo 2',sans-serif;}
+#autoBtn:hover{background:rgba(100,40,200,.45);box-shadow:0 0 14px rgba(160,100,255,.5)}
+#autoBtn.on{background:linear-gradient(135deg,#f59e0b,#fbbf24);color:#000;border-color:transparent;box-shadow:0 0 16px rgba(245,158,11,.7)}
+#infoModal{display:none;position:fixed;inset:0;z-index:999;
+  background:rgba(0,0,0,.78);backdrop-filter:blur(8px);
+  align-items:center;justify-content:center;}
+#infoModal.open{display:flex}
+.mbox{background:radial-gradient(ellipse at 50% 0%,#1a0540 0%,#070215 80%);
+  border:1.5px solid rgba(160,100,255,.45);border-radius:20px;
+  padding:22px 24px;max-width:660px;width:95vw;max-height:90vh;overflow-y:auto;
+  box-shadow:0 0 60px rgba(120,40,255,.5);position:relative;}
+.mbox::-webkit-scrollbar{width:5px}
+.mbox::-webkit-scrollbar-thumb{background:rgba(160,100,255,.4);border-radius:3px}
+.mtitle{text-align:center;font-size:1.6em;font-weight:900;letter-spacing:5px;margin-bottom:18px;
+  background:linear-gradient(180deg,#fff8d0 0%,#ffd700 40%,#ff9500 80%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 0 12px rgba(255,160,0,.8));}
+.mclose{position:absolute;top:13px;right:15px;background:none;border:none;
+  color:rgba(200,160,255,.75);font-size:1.5em;cursor:pointer;line-height:1;transition:color .15s;}
+.mclose:hover{color:#fff}
+.msec{font-size:.78em;letter-spacing:4px;color:rgba(190,155,255,.7);margin:18px 0 9px;text-transform:uppercase;}
+.prow{display:flex;align-items:center;gap:11px;padding:8px 11px;border-radius:10px;
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);margin-bottom:5px;}
+.prow svg{width:54px;height:54px;flex-shrink:0}
+.pinfo{flex:1}
+.pname{font-size:.95em;font-weight:700;letter-spacing:2px;margin-bottom:6px;}
+.ptiers{display:flex;gap:6px;flex-wrap:wrap;}
+.ptier{padding:4px 9px;border-radius:6px;font-size:.72em;font-weight:700;
+  background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);}
+.ptier b{color:#ffd700}
+.prow.sc-row{border-color:rgba(255,150,50,.3);background:rgba(255,100,50,.06);}
+.prow.wl-row{border-color:rgba(253,224,71,.3);background:rgba(253,224,71,.06);}
+.mech{display:flex;gap:11px;margin-bottom:11px;align-items:flex-start;}
+.mico{font-size:1.3em;flex-shrink:0;width:26px;text-align:center;margin-top:1px;}
+.mtxt{font-size:.82em;color:rgba(225,208,255,.9);line-height:1.6;}
+.mtxt b{color:#ffd700}
+
+/* FS Win Summary Overlay */
+#winOverlay{
+  display:none;position:fixed;inset:0;z-index:998;
+  background:rgba(0,0,0,.88);backdrop-filter:blur(12px);
+  align-items:center;justify-content:center;
+  flex-direction:column;gap:18px;
+}
+#winOverlay.show{display:flex}
+
+/* Buy Bonus Confirm Overlay */
+#buyConfirmOverlay{
+  display:none;position:fixed;inset:0;z-index:999;
+  background:rgba(0,0,0,.88);backdrop-filter:blur(12px);
+  align-items:center;justify-content:center;
+}
+#buyConfirmOverlay.show{display:flex}
+.bc-box{
+  background:linear-gradient(160deg,#1b0f33,#2a1550);
+  border:1px solid rgba(168,85,247,.4);border-radius:20px;
+  padding:32px 30px;max-width:340px;width:88%;text-align:center;
+  box-shadow:0 20px 60px rgba(0,0,0,.6);
+}
+.bc-title{
+  font-size:1.05em;font-weight:900;letter-spacing:1px;color:#ffd700;
+  margin-bottom:10px;font-family:'Baloo 2',sans-serif;
+}
+.bc-cost{
+  font-size:.85em;color:rgba(225,208,255,.9);margin-bottom:22px;
+}
+.bc-cost b{color:#f472b6;font-size:1.15em;}
+.bc-actions{display:flex;gap:16px;justify-content:center;}
+.bc-btn{
+  width:58px;height:58px;border-radius:50%;border:none;cursor:pointer;
+  font-size:1.4em;font-weight:900;display:flex;align-items:center;justify-content:center;
+}
+.bc-yes{background:linear-gradient(135deg,#16a34a,#4ade80);color:#fff;}
+.bc-no{background:linear-gradient(135deg,#dc2626,#f87171);color:#fff;}
+.wo-title{
+  font-size:clamp(1.2em,4vw,2em);font-weight:900;letter-spacing:6px;
+  color:#f472b6;text-shadow:0 0 30px rgba(244,114,182,.8);
+  animation:woPulse 1s ease infinite;
+}
+@keyframes woPulse{0%,100%{filter:brightness(1)}50%{filter:brightness(1.5)}}
+.wo-label{
+  font-size:.55em;letter-spacing:5px;color:rgba(200,160,255,.6);
+}
+.wo-amount{
+  font-size:clamp(3em,12vw,7em);font-weight:900;
+  font-family:'Baloo 2',sans-serif;
+  background:linear-gradient(180deg,#fff 0%,#ffd700 35%,#ff9500 70%,#dc2626 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 0 30px rgba(255,180,0,1));
+  animation:woCount .6s cubic-bezier(.2,1.4,.4,1);
+}
+@keyframes woCount{from{transform:scale(.3);opacity:0}to{transform:scale(1);opacity:1}}
+.wo-mult{
+  font-size:.8em;font-weight:700;color:#a78bfa;
+  letter-spacing:3px;
+}
+.wo-close{
+  margin-top:8px;padding:12px 40px;border-radius:14px;border:none;
+  background:linear-gradient(135deg,#7c3aed,#a855f7,#ec4899);
+  color:#fff;font-size:.8em;font-weight:700;letter-spacing:4px;
+  cursor:pointer;font-family:'Baloo 2',sans-serif;
+  box-shadow:0 4px 28px rgba(90,40,120,.55);
+  transition:all .2s;
+}
+.wo-close:hover{transform:translateY(-2px);box-shadow:0 8px 36px rgba(168,85,247,.8)}
+.wo-spins{font-size:.6em;letter-spacing:3px;color:rgba(200,160,255,.55);}
+
+/* Bonus start splash */
+#bonusStart{
+  display:none;position:fixed;inset:0;z-index:1000;cursor:pointer;
+  background:radial-gradient(circle at 50% 40%,rgba(60,20,90,.92),rgba(0,0,0,.95));
+  backdrop-filter:blur(10px);
+  align-items:center;justify-content:center;flex-direction:column;gap:26px;
+  animation:bsFade .35s ease;
+}
+#bonusStart.show{display:flex}
+@keyframes bsFade{from{opacity:0}to{opacity:1}}
+.bs-frame{
+  position:relative;padding:44px 52px 40px;border-radius:22px;
+  background:linear-gradient(160deg,rgba(30,20,60,.85),rgba(15,8,30,.9));
+  border:4px solid transparent;
+  background-clip:padding-box;
+  box-shadow:0 0 0 4px #a97a1e,0 0 0 8px #6b4a12,0 0 60px rgba(255,190,60,.45),inset 0 0 40px rgba(255,190,60,.12);
+  text-align:center;
+  animation:bsPop .5s cubic-bezier(.2,1.5,.4,1);
+}
+@keyframes bsPop{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
+.bs-frame::before,.bs-frame::after{
+  content:'';position:absolute;left:12px;right:12px;height:3px;
+  background:linear-gradient(90deg,transparent,#ffd97a,#c9962e,#ffd97a,transparent);
+  border-radius:3px;
+}
+.bs-frame::before{top:10px}.bs-frame::after{bottom:10px}
+.bs-gem{
+  font-size:2.4em;color:#4ade80;
+  filter:drop-shadow(0 0 16px rgba(74,222,128,.9));
+  margin-bottom:6px;animation:bsGem 1.6s ease-in-out infinite;
+}
+@keyframes bsGem{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-6px) rotate(8deg)}}
+.bs-title{
+  font-family:'Baloo 2',sans-serif;font-weight:900;
+  font-size:clamp(2em,9vw,3.4em);letter-spacing:2px;line-height:1;
+  background:linear-gradient(180deg,#eaf4ff 0%,#7db8ff 45%,#2f6bd6 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 2px 0 #123) drop-shadow(0 0 24px rgba(90,150,255,.8));
+  animation:woPulse 1.2s ease infinite;
+}
+.bs-sub{margin-top:14px;font-size:.9em;font-weight:700;letter-spacing:4px;color:#ffe9a8;text-shadow:0 0 14px rgba(255,200,80,.7)}
+.bs-count{
+  margin:10px auto 6px;width:min(78vw,300px);padding:6px 0;border-radius:12px;
+  background:linear-gradient(180deg,#1e4fa0,#0b2a63);
+  border:2px solid #ffd97a;box-shadow:0 0 22px rgba(60,120,240,.6),inset 0 2px 10px rgba(255,255,255,.25);
+  font-family:'Baloo 2',sans-serif;font-weight:900;font-size:clamp(2.4em,11vw,4em);color:#fff;
+  text-shadow:0 0 20px rgba(140,190,255,1);
+  animation:woCount .6s cubic-bezier(.2,1.4,.4,1);
+}
+.bs-label{font-size:1em;font-weight:900;letter-spacing:3px;color:#ffd35a;text-shadow:0 0 16px rgba(255,190,60,.8)}
+.bs-hint{font-size:.72em;letter-spacing:3px;color:rgba(230,210,255,.7);animation:bsBlink 1.4s ease-in-out infinite}
+@keyframes bsBlink{0%,100%{opacity:.35}50%{opacity:1}}
+
+.cell.spinning svg{
+  animation:spF 68ms ease-in-out;
+}
+@keyframes spF{
+  0%{opacity:.3;transform:scaleY(.7) translateY(-8%)}
+  40%{opacity:.85;transform:scaleY(1.05) translateY(2%)}
+  100%{opacity:1;transform:scaleY(1) translateY(0)}
+}
+
+/* Info button top-right */
+#infoBtn{display:block!important;top:160px!important;left:20px!important;right:auto!important;z-index:9999!important;}
+
+/* Hide floating slot buttons when payout info is open */
+body.pay-info-open #infoBtn,
+body.pay-info-open #autoBtn{display:none!important;pointer-events:none!important;}
+#infoModal.open{z-index:10000!important;}
+
+
+/* User fix: raise Drunkard Gate slot and move info below auto-spin */
+.game{padding-top:86px!important;gap:10px!important;transform:translateY(-58px);}
+#autoBtn{top:118px!important;left:20px!important;right:auto!important;}
+#infoBtn{top:160px!important;left:20px!important;right:auto!important;}
+@media (max-width:430px){
+  .game{padding-top:82px!important;transform:translateY(-54px);}
+  #autoBtn{top:116px!important;left:20px!important;}
+  #infoBtn{top:158px!important;left:20px!important;}
+}
+/* Desktop / PC layout */
+@media (min-width:900px){
+  .game{gap:14px;padding:22px 26px;max-width:1100px;}
+  .title{font-size:clamp(2em,3vw,3.1em);}
+  .subtitle{font-size:.5em;letter-spacing:11px;}
+  .grid{width:clamp(460px,44vw,740px);height:clamp(380px,36vw,610px);gap:6px;}
+  .slot-panel{max-width:900px;padding:14px 22px 16px;}
+  .controls{max-width:900px;gap:12px;}
+  .betbox{min-width:100px;padding:9px 16px;}
+  .betv{font-size:1em;}
+  .spinbtn{width:76px;height:76px;}
+  .ante-btn,.turbo-btn,.buy-btn{width:46px;height:46px;font-size:1.15em;}
+  .slot-bal-row{max-width:900px;}
+  .msg{font-size:1.05em;}
+}
+</style>
+
+<style id="dg-viewport-fit-final">
+*{box-sizing:border-box}
+html,body{width:100%;height:100%;min-height:0!important;overflow:hidden!important;overscroll-behavior:none;background:#050110}
+body{height:100dvh!important;min-height:100dvh!important;display:flex!important;align-items:center!important;justify-content:center!important}
+.game{
+  width:100%!important;max-width:1100px!important;height:100dvh!important;max-height:100dvh!important;
+  padding:clamp(8px,1.2dvh,14px) clamp(8px,2vw,22px)!important;
+  gap:clamp(4px,.85dvh,9px)!important;transform:none!important;
+  justify-content:center!important;overflow:hidden!important;
+}
+.game>div:first-child,.msg,.slot-panel{flex:0 0 auto}
+.title{font-size:clamp(1.35em,3.2vmin,2.5em)!important;line-height:1!important}
+.subtitle{font-size:clamp(.38em,1.1vmin,.52em)!important;line-height:1.15!important}
+.gwrap{flex:0 1 auto!important;max-width:100%!important;max-height:58dvh!important;overflow:visible!important}
+.grid{
+  width:min(92vw,calc(48dvh * 1.2),700px)!important;height:auto!important;aspect-ratio:6/5!important;
+  max-height:48dvh!important;max-width:92vw!important;
+}
+.msg{min-height:18px!important;line-height:18px!important;margin:0!important}
+.slot-panel{width:min(94vw,760px)!important;max-width:760px!important;padding:7px 12px 9px!important;gap:5px!important}
+.controls{gap:clamp(6px,1.4vw,12px)!important}
+#autoBtn{display:flex!important;top:14px!important;left:66px!important;right:auto!important}
+#infoBtn{display:flex!important;top:14px!important;left:108px!important;right:auto!important}
+@media(max-width:520px){
+  .game{padding:8px 6px!important;gap:5px!important}
+  .title{font-size:1.35em!important;letter-spacing:3px!important}
+  .subtitle{font-size:.38em!important;letter-spacing:6px!important}
+  .grid{width:min(94vw,calc(43dvh * 1.2))!important;max-height:43dvh!important;gap:3px!important}
+  .slot-panel{width:94vw!important;padding:6px 8px 7px!important;border-radius:19px!important}
+  .slot-win-row{gap:5px!important}.controls{gap:7px!important}
+  .betbox{padding:5px 8px!important}.spinbtn{width:58px!important;height:58px!important}
+  .ante-btn,.turbo-btn,.buy-btn{width:36px!important;height:36px!important}
+}
+@media(max-height:700px){
+  .game{padding:5px!important;gap:3px!important}
+  .title{font-size:1.15em!important}.subtitle{font-size:.32em!important}
+  .grid{width:min(86vw,calc(39dvh * 1.2),560px)!important;max-height:39dvh!important}
+  .slot-panel{padding:4px 8px!important;gap:3px!important}
+  .spinbtn{width:52px!important;height:52px!important}
+  .msg{min-height:15px!important;line-height:15px!important}
+}
+@media(orientation:landscape) and (max-height:600px){
+  .game{max-width:980px!important}
+  .grid{width:min(54vw,calc(58dvh * 1.2),620px)!important;max-height:58dvh!important}
+  .title{font-size:1em!important}.subtitle{display:none!important}
+  .slot-panel{width:min(72vw,700px)!important}
+}
+</style>
+</head>
+<body>
+<div id="ptcl"></div>
+<div id="cfEl"></div>
+<div id="bmWrap"><span id="bmTxt"></span></div>
+<div id="fsFlash"></div>
+<button id="infoBtn">&#9432;</button>
+<button id="autoBtn" title="Авто-спин">&#8635;</button>
+
+<div class="game">
+  <div style="text-align:center">
+    <div class="title">DRUNKARD GATE</div>
+    <div class="subtitle">drink &amp; win</div>
+  </div>
+
+  <div class="gwrap" id="gWrap">
+    <div class="gaura"></div>
+    <div class="totalWinBar" id="totalWinBar">
+      <div class="fsMultDot" id="fsMultDot">×1</div>
+      <div class="twInner" id="twInner">
+        <span class="twLbl">Выигрыш за падения</span>
+        <span class="twVal" id="totalWinVal">0</span>
+      </div>
+    </div>
+    <div class="gmult-badge" id="gBadge">×0</div>
+    <div class="scatter-bar" id="scBar"></div>
+    <div class="grid" id="gEl"></div>
+  </div>
+
+  <div class="msg" id="msgEl">НАЖМИТЕ SPIN</div>
+
+  <div class="slot-panel">
+    <div class="slot-win-row"><span class="slot-win-lbl">ВЫИГРЫШ</span><span class="slot-win-val" id="totalInfoVal">0</span></div>
+    <div class="controls">
+      <div class="betbox">
+        <button class="bb" id="bDn">−</button>
+        <div class="betcol"><div class="betlbl">СТАВКА</div><div class="betv" id="betEl">100</div></div>
+        <button class="bb" id="bUp">+</button>
+      </div>
+      <button class="spinbtn" id="spBtn"><span class="spin-ic">↻</span></button>
+      <div class="slot-side-icons">
+        <button class="ante-btn" id="anteBtn" title="ANTE BET +25%">♦</button>
+        <button class="turbo-btn" id="turboBtn" title="Turbo Spin">⚡</button>
+        <button class="buy-btn" id="buyBtn" title="Купить бонус">🛒</button>
+      </div>
+    </div>
+    <div class="slot-bal-row">
+      <span class="slot-bal-lbl">Баланс</span>
+      <span class="slot-bal-val" id="balEl">1000000</span>
+      <span class="slot-mode-badge" id="modeEl">BASE</span>
+    </div>
+  </div>
+
+</div>
+
+
+<div id="infoModal">
+<div class="mbox">
+  <button class="mclose" id="mClose">&times;</button>
+  <div class="mtitle">&#9432; ТАБЛИЦА ВЫПЛАТ</div>
+  <div class="msec">&#128293; Высокие символы</div>
+  <div id="mHigh"></div>
+  <div class="msec">&#128142; Средние символы</div>
+  <div id="mMid"></div>
+  <div class="msec">&#11088; Низкие символы</div>
+  <div id="mLow"></div>
+  <div class="msec">&#9889; Специальные</div>
+  <div id="mSpec"></div>
+  <div class="msec">&#9881; Механика</div>
+  <div class="mech"><div class="mico">&#128203;</div><div class="mtxt"><b>6×5, Pay Anywhere.</b> Кластер от <b>8+ одинаковых символов</b> в любом месте поля (горизонталь + вертикаль).</div></div>
+  <div class="mech"><div class="mico">&#128175;</div><div class="mtxt"><b>Падение (Tumble).</b> После каждого спина выигрышные символы исчезают, сверху падают новые. Падение продолжается, пока есть выигрыши (без ограничений).</div></div>
+  <div class="mech"><div class="mico">&#127384;</div><div class="mtxt"><b>Символы-множители.</b> Падают на поле <b>как символы</b> (×2 — ×1000) во время вращений и падений — как в основной игре, так и в фриспинах. В конце последовательности все множители на поле <b>суммируются</b> и умножают общий выигрыш. В фриспинах множитель <b>накапливается глобально</b>.</div></div>
+  <div class="mech"><div class="mico">&#129347;</div><div class="mtxt"><b>Scatter (Стакан).</b> 4+ = <b>15 фриспинов</b>. В FS: 3+ Scatter = <b>+5 спинов</b>.</div></div>
+  <div class="mech"><div class="mico">&#128176;</div><div class="mtxt"><b>Ante Bet</b> +25% к ставке — повышает шанс Scatter.</div></div>
+  <div class="mech"><div class="mico">&#128722;</div><div class="mtxt"><b>Купить бонус</b> — мгновенные 15 фриспинов за <b>100× ставки</b>.</div></div>
+</div>
+</div>
+
+<div id="buyConfirmOverlay">
+  <div class="bc-box">
+    <div class="bc-title">КУПИТЬ БЕСПЛАТНЫЕ СПИНЫ</div>
+    <div class="bc-cost">Стоимость: <b id="bcCost">×100</b> от ставки</div>
+    <div class="bc-actions">
+      <button class="bc-btn bc-no" id="bcNo">✕</button>
+      <button class="bc-btn bc-yes" id="bcYes">✓</button>
+    </div>
+  </div>
+</div>
+<div id="winOverlay">
+  <div class="wo-title">BONUS COMPLETE</div>
+  <div class="wo-label">ИТОГОВЫЙ ВЫИГРЫШ</div>
+  <div class="wo-amount" id="woAmount">0</div>
+  <div class="wo-mult" id="woMult"></div>
+  <div class="wo-spins" id="woSpins"></div>
+  <button class="wo-close" id="woClose">ПРОДОЛЖИТЬ →</button>
+</div>
+<div id="bonusStart">
+  <div class="bs-frame">
+    <div class="bs-gem">◆</div>
+    <div class="bs-title">ПОЗДРАВЛЯЕМ!</div>
+    <div class="bs-sub" id="bsSub">ВЫ ВЫИГРАЛИ</div>
+    <div class="bs-count" id="bsCount">15</div>
+    <div class="bs-label" id="bsLabel">БЕСПЛАТНЫХ ВРАЩЕНИЙ</div>
+  </div>
+  <div class="bs-hint">НАЖМИТЕ В ЛЮБОМ МЕСТЕ, ЧТОБЫ ПРОДОЛЖИТЬ...</div>
+</div>
+<script>
+// ===================================================================
+// SVG SYMBOLS (9 hand-crafted)
+// ===================================================================
+const SVG = [
+// 0: SCATTER — ГРАНЁНЫЙ СТАКАН (водка)
+`<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <linearGradient id="zg" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#f0f9ff"/><stop offset="100%" stop-color="#7dd3fc"/></linearGradient>
+  <linearGradient id="zgl" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#e0f2fe" stop-opacity=".92"/><stop offset="100%" stop-color="#93c5fd" stop-opacity=".5"/></linearGradient>
+</defs>
+<!-- Vodka fill -->
+<path d="M26 35 L54 35 L51 66 Q40 69 29 66 Z" fill="url(#zgl)"/>
+<!-- Liquid surface -->
+<ellipse cx="40" cy="35" rx="14" ry="2.4" fill="#e0f2fe" opacity=".9"/>
+<!-- Glass body (faceted tumbler) -->
+<path d="M24 21 L56 21 L51 67 Q40 70 29 67 Z" fill="none" stroke="#e0f2fe" stroke-width="2.4" stroke-linejoin="round"/>
+<!-- Rim ring -->
+<ellipse cx="40" cy="21" rx="16" ry="3.4" fill="none" stroke="#f0f9ff" stroke-width="2"/>
+<!-- Facet lines -->
+<line x1="31" y1="23" x2="32" y2="66" stroke="#bae6fd" stroke-width="1.2" opacity=".75"/>
+<line x1="40" y1="24" x2="40" y2="68" stroke="#bae6fd" stroke-width="1.2" opacity=".75"/>
+<line x1="49" y1="23" x2="48" y2="66" stroke="#bae6fd" stroke-width="1.2" opacity=".75"/>
+<!-- Highlight -->
+<path d="M28 25 L31 25 L28 62 L26 60 Z" fill="#fff" opacity=".5"/>
+<!-- Scatter glow dots -->
+<circle cx="10" cy="10" r="3" fill="#f97316" opacity=".7"/>
+<circle cx="70" cy="10" r="3" fill="#f97316" opacity=".7"/>
+<circle cx="10" cy="70" r="3" fill="#f97316" opacity=".7"/>
+<circle cx="70" cy="70" r="3" fill="#f97316" opacity=".7"/>
+<text x="40" y="79" text-anchor="middle" font-size="7" fill="#f97316" font-weight="bold" font-family="Georgia,serif" letter-spacing="1">SCATTER</text>
+</svg>`,
+// 1: HIGH — BEER (ПИВО)
+`<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+<defs><linearGradient id="dr" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#fde047"/><stop offset="100%" stop-color="#b45309"/></linearGradient></defs>
+<!-- Handle -->
+<path d="M52 36 Q66 36 66 48 Q66 60 52 60" fill="none" stroke="#fbbf24" stroke-width="4"/>
+<!-- Mug body -->
+<rect x="22" y="24" width="30" height="46" rx="4" fill="url(#dr)" stroke="#fbbf24" stroke-width="1.5"/>
+<!-- Foam -->
+<path d="M20 26 Q20 15 28 15 Q30 9 38 13 Q44 7 50 15 Q58 14 54 26 Z" fill="#fffbeb" stroke="#fef9c3" stroke-width="1"/>
+<circle cx="26" cy="17" r="4" fill="#fffbeb"/>
+<circle cx="37" cy="13" r="5" fill="#fffbeb"/>
+<circle cx="47" cy="16" r="4" fill="#fffbeb"/>
+<!-- Bubbles -->
+<circle cx="30" cy="40" r="2" fill="rgba(255,255,255,.5)"/>
+<circle cx="41" cy="50" r="2.5" fill="rgba(255,255,255,.45)"/>
+<circle cx="34" cy="60" r="1.8" fill="rgba(255,255,255,.4)"/>
+<circle cx="44" cy="36" r="1.5" fill="rgba(255,255,255,.5)"/>
+<!-- Highlight -->
+<rect x="26" y="28" width="4" height="38" rx="2" fill="rgba(255,255,255,.3)"/>
+</svg>`,
+// 2: HIGH — CIGARETTE (СИГАРЕТА)
+`<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+<g transform="rotate(-28 40 47)">
+<!-- Cigarette paper body -->
+<rect x="10" y="42" width="44" height="11" rx="2" fill="#f9fafb" stroke="#d1d5db" stroke-width="1"/>
+<!-- Band between paper and filter -->
+<rect x="45" y="42" width="3" height="11" fill="#d97706"/>
+<!-- Filter -->
+<rect x="48" y="42" width="18" height="11" rx="2" fill="#f59e0b" stroke="#d97706" stroke-width="1"/>
+<circle cx="53" cy="47" r="1" fill="#b45309"/>
+<circle cx="58" cy="47" r="1" fill="#b45309"/>
+<circle cx="63" cy="47" r="1" fill="#b45309"/>
+<!-- Ember tip -->
+<rect x="10" y="42" width="6" height="11" fill="#7f1d1d"/>
+<rect x="10" y="42" width="3" height="11" fill="#ef4444"/>
+<circle cx="11" cy="47" r="2.4" fill="#fde047"/>
+</g>
+<!-- Smoke -->
+<path d="M22 30 Q28 23 23 17 Q19 12 25 6" stroke="rgba(255,255,255,.5)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+<path d="M30 34 Q35 28 31 22" stroke="rgba(255,255,255,.3)" stroke-width="2" fill="none" stroke-linecap="round"/>
+</svg>`,
+// 3: MID — LIGHTER (ЗАЖИГАЛКА)
+`<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+<defs><linearGradient id="ch" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#e0f2ff"/><stop offset="50%" stop-color="#60a5fa"/><stop offset="100%" stop-color="#1e3a8a"/></linearGradient></defs>
+<!-- Body -->
+<rect x="27" y="34" width="26" height="40" rx="5" fill="url(#ch)" stroke="#93c5fd" stroke-width="1.5"/>
+<!-- Body highlight -->
+<rect x="31" y="38" width="4" height="32" rx="2" fill="rgba(255,255,255,.35)"/>
+<!-- Label -->
+<rect x="32" y="48" width="16" height="16" rx="2" fill="rgba(255,255,255,.18)" stroke="rgba(255,255,255,.35)" stroke-width=".6"/>
+<!-- Metal top -->
+<rect x="29" y="25" width="22" height="11" rx="2" fill="#cbd5e1" stroke="#94a3b8" stroke-width="1"/>
+<!-- Spark wheel -->
+<circle cx="35" cy="25" r="3.2" fill="#e2e8f0" stroke="#64748b" stroke-width="1"/>
+<!-- Nozzle -->
+<rect x="43" y="19" width="4" height="7" fill="#94a3b8"/>
+<!-- Flame -->
+<path d="M45 19 Q40 10 45 2 Q50 9 48 15 Q47 19 45 19 Z" fill="#f97316" stroke="#fbbf24" stroke-width=".8"/>
+<path d="M45 17 Q42 11 45 7 Q47 11 46 15 Q46 17 45 17 Z" fill="#fde047"/>
+</svg>`,
+// 4: MID — 10 RUBLE COIN
+`<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+<defs><radialGradient id="pt" cx="40%" cy="35%" r="60%"><stop offset="0%" stop-color="#fdf4ff"/><stop offset="50%" stop-color="#c084fc"/><stop offset="100%" stop-color="#6b21a8"/></radialGradient></defs>
+<!-- Coin body -->
+<circle cx="40" cy="40" r="30" fill="url(#pt)" stroke="#a855f7" stroke-width="2"/>
+<circle cx="40" cy="40" r="26" fill="none" stroke="#7e22ce" stroke-width="1" opacity=".6"/>
+<!-- Inner ring -->
+<circle cx="40" cy="40" r="20" fill="none" stroke="#e9d5ff" stroke-width="1" opacity=".5"/>
+<!-- Denomination: 10 rubles -->
+<text x="40" y="43" text-anchor="middle" font-size="22" font-weight="bold" fill="#4c1d95" font-family="Georgia,serif">10</text>
+<text x="40" y="56" text-anchor="middle" font-size="10" font-weight="bold" fill="#4c1d95" font-family="Georgia,serif" letter-spacing="1">РУБ</text>
+<!-- Edge texture -->
+<circle cx="40" cy="11" r="1.5" fill="#a855f7" opacity=".6"/>
+<circle cx="40" cy="69" r="1.5" fill="#a855f7" opacity=".6"/>
+<circle cx="11" cy="40" r="1.5" fill="#a855f7" opacity=".6"/>
+<circle cx="69" cy="40" r="1.5" fill="#a855f7" opacity=".6"/>
+<!-- Highlight -->
+<ellipse cx="33" cy="32" rx="8" ry="5" fill="rgba(255,255,255,.3)" transform="rotate(-20 33 32)"/>
+</svg>`,
+// 5: MID — 5 RUBLE COIN
+`<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+<defs><radialGradient id="ru" cx="40%" cy="35%" r="60%"><stop offset="0%" stop-color="#f0f9ff"/><stop offset="50%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#075985"/></radialGradient></defs>
+<!-- Coin body -->
+<circle cx="40" cy="40" r="30" fill="url(#ru)" stroke="#0ea5e9" stroke-width="2"/>
+<circle cx="40" cy="40" r="26" fill="none" stroke="#0369a1" stroke-width="1" opacity=".6"/>
+<!-- Inner ring -->
+<circle cx="40" cy="40" r="20" fill="none" stroke="#bae6fd" stroke-width="1" opacity=".5"/>
+<!-- Denomination: 5 rubles -->
+<text x="40" y="43" text-anchor="middle" font-size="26" font-weight="bold" fill="#0c4a6e" font-family="Georgia,serif">5</text>
+<text x="40" y="57" text-anchor="middle" font-size="10" font-weight="bold" fill="#0c4a6e" font-family="Georgia,serif" letter-spacing="1">РУБ</text>
+<!-- Edge texture -->
+<circle cx="40" cy="11" r="1.5" fill="#0ea5e9" opacity=".6"/>
+<circle cx="40" cy="69" r="1.5" fill="#0ea5e9" opacity=".6"/>
+<circle cx="11" cy="40" r="1.5" fill="#0ea5e9" opacity=".6"/>
+<circle cx="69" cy="40" r="1.5" fill="#0ea5e9" opacity=".6"/>
+<!-- Highlight -->
+<ellipse cx="33" cy="32" rx="8" ry="5" fill="rgba(255,255,255,.3)" transform="rotate(-20 33 32)"/>
+</svg>`,
+// 6: LOW — 2 RUBLE COIN
+`<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+<defs><radialGradient id="gm" cx="40%" cy="35%" r="60%"><stop offset="0%" stop-color="#f0fdf4"/><stop offset="50%" stop-color="#4ade80"/><stop offset="100%" stop-color="#166534"/></radialGradient></defs>
+<!-- Coin body -->
+<circle cx="40" cy="40" r="30" fill="url(#gm)" stroke="#22c55e" stroke-width="2"/>
+<circle cx="40" cy="40" r="26" fill="none" stroke="#15803d" stroke-width="1" opacity=".6"/>
+<!-- Inner ring -->
+<circle cx="40" cy="40" r="20" fill="none" stroke="#86efac" stroke-width="1" opacity=".5"/>
+<!-- Denomination: 2 rubles -->
+<text x="40" y="43" text-anchor="middle" font-size="26" font-weight="bold" fill="#14532d" font-family="Georgia,serif">2</text>
+<text x="40" y="57" text-anchor="middle" font-size="10" font-weight="bold" fill="#14532d" font-family="Georgia,serif" letter-spacing="1">РУБ</text>
+<!-- Edge texture -->
+<circle cx="40" cy="11" r="1.5" fill="#22c55e" opacity=".6"/>
+<circle cx="40" cy="69" r="1.5" fill="#22c55e" opacity=".6"/>
+<circle cx="11" cy="40" r="1.5" fill="#22c55e" opacity=".6"/>
+<circle cx="69" cy="40" r="1.5" fill="#22c55e" opacity=".6"/>
+<!-- Highlight -->
+<ellipse cx="33" cy="32" rx="8" ry="5" fill="rgba(255,255,255,.3)" transform="rotate(-20 33 32)"/>
+</svg>`,
+// 7: LOW — ANCIENT COIN
+`<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+<defs><radialGradient id="cn" cx="40%" cy="35%" r="60%"><stop offset="0%" stop-color="#fefce8"/><stop offset="50%" stop-color="#fbbf24"/><stop offset="100%" stop-color="#78350f"/></radialGradient></defs>
+<!-- Coin body -->
+<circle cx="40" cy="40" r="30" fill="url(#cn)" stroke="#f59e0b" stroke-width="2"/>
+<circle cx="40" cy="40" r="26" fill="none" stroke="#d97706" stroke-width="1" opacity=".6"/>
+<!-- Inner ring -->
+<circle cx="40" cy="40" r="20" fill="none" stroke="#fbbf24" stroke-width="1" opacity=".5"/>
+<!-- Denomination: 1 ruble -->
+<text x="40" y="43" text-anchor="middle" font-size="26" font-weight="bold" fill="#78350f" font-family="Georgia,serif">1</text>
+<text x="40" y="57" text-anchor="middle" font-size="10" font-weight="bold" fill="#78350f" font-family="Georgia,serif" letter-spacing="1">РУБ</text>
+<!-- Edge texture -->
+<circle cx="40" cy="11" r="1.5" fill="#f59e0b" opacity=".6"/>
+<circle cx="40" cy="69" r="1.5" fill="#f59e0b" opacity=".6"/>
+<circle cx="11" cy="40" r="1.5" fill="#f59e0b" opacity=".6"/>
+<circle cx="69" cy="40" r="1.5" fill="#f59e0b" opacity=".6"/>
+<!-- Highlight -->
+<ellipse cx="33" cy="32" rx="8" ry="5" fill="rgba(255,255,255,.3)" transform="rotate(-20 33 32)"/>
+</svg>`,
+// 8: HIGH — VODKA BOTTLE (БУТЫЛКА ВОДКИ)
+`<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+<defs><linearGradient id="vk" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#f0f9ff"/><stop offset="100%" stop-color="#7dd3fc"/></linearGradient></defs>
+<!-- Cap -->
+<rect x="35" y="6" width="10" height="7" rx="1" fill="#cbd5e1" stroke="#94a3b8" stroke-width=".8"/>
+<!-- Neck -->
+<rect x="36" y="13" width="8" height="12" fill="url(#vk)" stroke="#bae6fd" stroke-width=".8"/>
+<!-- Body -->
+<path d="M32 25 Q30 30 30 36 L30 68 Q30 72 34 72 L46 72 Q50 72 50 68 L50 36 Q50 30 48 25 Z" fill="url(#vk)" stroke="#bae6fd" stroke-width="1.2"/>
+<!-- Liquid -->
+<path d="M30 40 L50 40 L50 68 Q50 72 46 72 L34 72 Q30 72 30 68 Z" fill="rgba(147,197,253,.35)"/>
+<!-- Label -->
+<rect x="31" y="46" width="18" height="18" rx="2" fill="#f8fafc" stroke="#cbd5e1" stroke-width=".8"/>
+<text x="40" y="54" text-anchor="middle" font-size="7" font-weight="bold" fill="#0c4a6e" font-family="Georgia,serif">VODKA</text>
+<line x1="33" y1="57" x2="47" y2="57" stroke="#0ea5e9" stroke-width="1"/>
+<text x="40" y="62" text-anchor="middle" font-size="4.5" fill="#0369a1" font-family="Georgia,serif">40%</text>
+<!-- Highlight -->
+<rect x="34" y="30" width="3" height="36" rx="1.5" fill="rgba(255,255,255,.5)"/>
+</svg>`,
+// 9: HIGH — DRUNKARD (ПЬЯНИЦА)
+`<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+<defs><linearGradient id="bm" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#fca5a5"/><stop offset="100%" stop-color="#b91c1c"/></linearGradient></defs>
+<!-- Shoulders / shirt -->
+<path d="M18 74 Q18 58 30 54 L50 54 Q62 58 62 74 Z" fill="#1e40af" stroke="#1e3a8a" stroke-width="1"/>
+<!-- Collar -->
+<path d="M35 54 L40 60 L45 54" fill="#1e3a8a"/>
+<!-- Neck -->
+<rect x="35" y="46" width="10" height="10" fill="#f0a58a"/>
+<!-- Face (flushed) -->
+<ellipse cx="40" cy="34" rx="15" ry="16" fill="#f3b0a0" stroke="#e08a70" stroke-width="1"/>
+<!-- Red cheeks -->
+<circle cx="30" cy="38" r="4" fill="rgba(239,68,68,.45)"/>
+<circle cx="50" cy="38" r="4" fill="rgba(239,68,68,.45)"/>
+<!-- Red drinker nose -->
+<ellipse cx="40" cy="38" rx="4" ry="5" fill="#ef4444"/>
+<ellipse cx="38.5" cy="36.5" rx="1.5" ry="2" fill="#fca5a5" opacity=".7"/>
+<!-- Droopy half-closed eyes -->
+<path d="M30 30 Q34 33 38 30" stroke="#7f1d1d" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M42 30 Q46 33 50 30" stroke="#7f1d1d" stroke-width="2" fill="none" stroke-linecap="round"/>
+<circle cx="34" cy="31" r="1" fill="#3b2f2f"/>
+<circle cx="46" cy="31" r="1" fill="#3b2f2f"/>
+<!-- Brows -->
+<path d="M29 25 Q34 23 38 25" stroke="#8a5a3b" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+<path d="M42 25 Q46 23 51 25" stroke="#8a5a3b" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+<!-- Goofy smile -->
+<path d="M33 44 Q40 50 47 44" stroke="#7f1d1d" stroke-width="2" fill="none" stroke-linecap="round"/>
+<!-- Messy hair -->
+<path d="M25 24 Q24 12 40 11 Q56 12 55 24 Q50 18 40 18 Q30 18 25 24 Z" fill="#5b3a1a" stroke="#4a2f14" stroke-width=".8"/>
+<path d="M28 16 Q30 12 34 13" stroke="#5b3a1a" stroke-width="2" fill="none" stroke-linecap="round"/>
+<!-- Booze fumes / hiccup -->
+<circle cx="58" cy="24" r="2" fill="rgba(134,239,172,.5)"/>
+<circle cx="62" cy="18" r="1.5" fill="rgba(134,239,172,.4)"/>
+<text x="58" y="14" font-size="7" fill="#86efac" font-family="Georgia,serif" opacity=".8">z</text>
+</svg>`,
+];
+
+// ===================================================================
+// SYMBOL CONFIG — 0=scatter/zeus, 1=пиво, 2=сигарета, 3=зажигалка,
+//                 4=10руб, 5=5руб, 6=2руб, 7=1руб, 8=бутылка водки, 9=пьяница
+// pays[count] where count = 8,9,10,11,12+ (index 0-4)
+// ===================================================================
+const SCATTER_ID = 0;
+const WILD_ID = -1;
+const SYMS = [
+  {id:0,name:'Стакан',   w:1.4,pays:[0,0,0,0,0],   isScatter:true, color:'#7dd3fc'},
+  {id:1,name:'Пиво',      w:4.5,  pays:[2,2,5,5,15],       color:'#f59e0b'},
+  {id:2,name:'Сигарета',  w:5,  pays:[1.5,1.5,2,2,12],   color:'#e5e7eb'},
+  {id:3,name:'Зажигалка', w:6.5,  pays:[1,1,1.5,1.5,10],   color:'#60a5fa'},
+  {id:4,name:'10 руб', w:8,  pays:[0.8,0.8,1.2,1.2,8], color:'#e879f9'},
+  {id:5,name:'5 руб',  w:10,  pays:[0.5,0.5,1,1,5],     color:'#7dd3fc'},
+  {id:6,name:'2 руб', w:11.5, pays:[0.4,0.4,0.9,0.9,4], color:'#86efac'},
+  {id:7,name:'1 руб', w:15, pays:[0.25,0.25,0.75,0.75,2], color:'#fbbf24'},
+  {id:8,name:'Бутылка водки', w:3, pays:[2.5,2.5,10,10,25], color:'#bae6fd'},
+  {id:9,name:'Пьяница',       w:1.5, pays:[10,10,25,25,50],   color:'#f87171'},
+];
+const TW = SYMS.reduce((s,x)=>s+x.w,0);
+function rSym(anteBet){
+  // Ante bet increases scatter weight
+  const scatterBonus = anteBet ? 2 : 0;
+  const totalW = TW + scatterBonus;
+  let r = Math.random() * totalW;
+  for(const s of SYMS){
+    let w = s.w + (s.id===SCATTER_ID ? scatterBonus : 0);
+    r -= w;
+    if(r <= 0) return s;
+  }
+  return SYMS[7];
+}
+
+// Random NON-scatter symbol (used to enforce max one scatter per reel/column)
+function rSymNoSc(anteBet){
+  let s; let guard=0;
+  do { s=rSym(anteBet); } while(s.isScatter && ++guard<40);
+  return s.isScatter ? SYMS[7] : s;
+}
+// True if column c already contains a scatter (optionally ignoring row exceptR)
+function colHasScatter(c, exceptR){
+  for(let r=0;r<ROWS;r++){ if(r!==exceptR && grid[c] && grid[c][r] && grid[c][r].isScatter) return true; }
+  return false;
+}
+
+// Pay index from cluster size
+function payIndex(n){
+  if(n>=12) return 4;
+  if(n>=11) return 3;
+  if(n>=10) return 2;
+  if(n>=9)  return 1;
+  if(n>=8)  return 0;
+  return -1; // no pay
+}
+
+// ===================================================================
+// AUDIO ENGINE
+// ===================================================================
+const ACls = window.AudioContext||window.webkitAudioContext;
+let ac=null,mst=null,bgG=null,sfG=null,drG=null,sndOn=true;
+const bgTm=[];
+
+function initAudio(){
+  return;
+  if(ac) return;
+  ac=new ACls();
+  mst=ac.createGain(); mst.gain.value=0.7; mst.connect(ac.destination);
+  bgG=ac.createGain(); bgG.gain.value=0.5; bgG.connect(mst);
+  sfG=ac.createGain(); sfG.gain.value=0.9; sfG.connect(mst);
+  drG=ac.createGain(); drG.gain.value=0.5; drG.connect(mst);
+  schedMusic(false);
+}
+
+function mkO(f,type,g,t0,dur,dest,fEnd){
+  const o=ac.createOscillator(),gn=ac.createGain();
+  o.type=type; o.frequency.setValueAtTime(f,t0);
+  if(fEnd) o.frequency.linearRampToValueAtTime(fEnd,t0+dur);
+  gn.gain.setValueAtTime(0,t0);
+  gn.gain.linearRampToValueAtTime(g,t0+.015);
+  gn.gain.exponentialRampToValueAtTime(.0001,t0+dur);
+  o.connect(gn); gn.connect(dest); o.start(t0); o.stop(t0+dur+.05);
+}
+function mkN(g,t0,dur,lp,dest){
+  const len=Math.min(dur+.1,.6);
+  const buf=ac.createBuffer(1,Math.floor(ac.sampleRate*len),ac.sampleRate);
+  const d=buf.getChannelData(0); for(let i=0;i<d.length;i++) d[i]=Math.random()*2-1;
+  const src=ac.createBufferSource(),f=ac.createBiquadFilter(),gn=ac.createGain();
+  src.buffer=buf; f.type='lowpass'; f.frequency.value=lp;
+  gn.gain.setValueAtTime(0,t0); gn.gain.linearRampToValueAtTime(g,t0+.005); gn.gain.exponentialRampToValueAtTime(.0001,t0+dur);
+  src.connect(f); f.connect(gn); gn.connect(dest);
+  try{src.start(t0);src.stop(t0+len);}catch(e){}
+}
+
+const BPM=120,BEAT=60/BPM,BAR=BEAT*4;
+const SCALE=[293.66,349.23,392,440,523.25,587.33,698.46,880];
+const BASS_B=[73.42,87.31,98,110,87.31,98,73.42,65.41];
+const BASS_FS=[146.83,174.61,196,220,174.61,196,146.83,130.81]; // FS bass octave up
+
+function schedMusic(freeSpinMode){
+  return;
+  if(!ac||!sndOn) return;
+  const t=ac.currentTime+.06;
+  const BARS=8;
+  bgG.gain.setTargetAtTime(freeSpinMode?.65:.5,t,.1);
+  drG.gain.setTargetAtTime(.5,t,.1);
+  // Drums
+  for(let b=0;b<BARS*4;b++){
+    const tb=t+b*BEAT;
+    if(b%4===0||b%4===2){ mkO(160,'sine',.9,tb,.34,drG,40); mkN(.15,tb,.05,200,drG); }
+    if(b%4===1||b%4===3){ mkN(.55,tb,.17,6000,drG); mkO(200,'triangle',.3,tb,.12,drG,120); }
+    mkN(b%8===3?.1:.05,tb,b%8===3?.2:.07,12000,drG);
+    mkN(.05,tb+BEAT/2,b%8===7?.18:.06,12000,drG);
+  }
+  // Bass
+  const bSeq=[0,0,1,0,2,2,1,0,3,3,2,1,1,1,0,2];
+  const bassNotes = freeSpinMode ? BASS_FS : BASS_B;
+  for(let i=0;i<BARS*4;i++){
+    const tb=t+i*BEAT, freq=bassNotes[bSeq[i%bSeq.length]];
+    const o=ac.createOscillator(),lp=ac.createBiquadFilter(),g=ac.createGain();
+    o.type='sawtooth'; o.frequency.setValueAtTime(freq,tb);
+    lp.type='lowpass'; lp.frequency.value=320; lp.Q.value=8;
+    g.gain.setValueAtTime(0,tb); g.gain.linearRampToValueAtTime(.42,tb+.02); g.gain.exponentialRampToValueAtTime(.0001,tb+BEAT*.8);
+    o.connect(lp); lp.connect(g); g.connect(bgG); o.start(tb); o.stop(tb+BEAT);
+    mkO(freq*.5,'sine',.25,tb,BEAT*.78,bgG);
+  }
+  // Chords (FS = more intense, higher)
+  const chBase=[[293.66,349.23,440,587.33],[261.63,329.63,392,523.25],[233.08,293.66,349.23,466.16],[220,293.66,349.23,440]];
+  const chFS=[[587.33,698.46,880,1174.66],[523.25,659.26,784,1046.5],[466.16,587.33,698.46,932.33],[440,587.33,698.46,880]];
+  const chords = freeSpinMode ? chFS : chBase;
+  for(let c=0;c<BARS;c++){
+    const ch=chords[c%4],tb=t+c*BAR;
+    ch.forEach(f=>{ mkO(f,'sine',freeSpinMode?.08:.065,tb,BAR*.88,bgG); mkO(f*2,'triangle',freeSpinMode?.04:.03,tb,BAR*.88,bgG); });
+  }
+  // Melody
+  const mel=[[7,.5],[6,.5],[7,1],[5,.5],[6,.5],[4,1],[5,.5],[4,.5],[2,1.5],[3,.5],[4,.5],[5,.5],[4,.5],[3,1],[2,.5],[1,.5],[0,1],[0,2],[5,.5],[6,.5],[7,1],[6,.5],[7,.5],[5,1],[4,.5],[3,.5],[2,1],[3,.5],[4,.5],[5,1],[4,.5],[3,.5],[2,2]];
+  const mMult = freeSpinMode ? 2 : 1; // FS: melody octave up
+  let mt=t;
+  mel.forEach(([idx,dur])=>{
+    const f=SCALE[Math.min(idx,SCALE.length-1)]*mMult;
+    mkO(f,'triangle',freeSpinMode?.2:.16,mt,dur*BEAT*.85,bgG);
+    mkO(f*2,'sine',freeSpinMode?.07:.05,mt,dur*BEAT*.7,bgG);
+    mt+=dur*BEAT;
+  });
+  const arp=[587.33,698.46,880,1046.5,880,698.46].map(f=>f*(freeSpinMode?2:1));
+  for(let i=0;i<BARS*8;i++) mkO(arp[i%arp.length],'sine',freeSpinMode?.055:.04,t+i*BEAT/2,BEAT*.32,bgG);
+  const id=setTimeout(()=>{ if(sndOn&&ac) schedMusic(inFreeSpin); },(BARS*BAR-.1)*1000);
+  bgTm.push(id);
+}
+function stopBg(){
+  bgTm.forEach(clearTimeout); bgTm.length=0;
+  // Instantly silence any currently-playing background music/drums instead of
+  // letting the already-scheduled notes ring out for up to 8 more bars.
+  if(ac){ bgG.gain.setTargetAtTime(0,ac.currentTime,.05); drG.gain.setTargetAtTime(0,ac.currentTime,.05); }
+}
+
+function sfx(type){
+  return;
+  if(!ac||!sndOn) return;
+  const t=ac.currentTime;
+  if(type==='click') mkO(660,'sine',.28,t,.08,sfG);
+  else if(type==='land'){ mkO(220,'sine',.4,t,.07,sfG); mkN(.2,t,.08,500,sfG); }
+  else if(type==='cascade') [523,659,784].forEach((f,i)=>mkO(f,'triangle',.3,t+i*.07,.15,sfG));
+  else if(type==='scatter'){ [440,554,659,880,1108].forEach((f,i)=>mkO(f,'sine',.4,t+i*.08,.2,sfG)); mkN(.12,t,.5,8000,sfG); }
+  else if(type==='fsstart'){ [261,329,392,523,659,784,1047,1319,1568,2093].forEach((f,i)=>{ mkO(f,'triangle',.45,t+i*.05,.3,sfG); mkO(f*1.5,'sine',.15,t+i*.05,.22,sfG); }); }
+  else if(type==='bigwin'){ [523,659,784,1047,1319].forEach((f,i)=>mkO(f,'sine',.38,t+i*.06,.2,sfG)); }
+  else if(type==='mega'){ [261,329,392,523,659,784,1047,1319,1568].forEach((f,i)=>{ mkO(f,'triangle',.42,t+i*.05,.28,sfG); mkO(f*1.5,'sine',.12,t+i*.05,.2,sfG); }); }
+  else if(type==='lose'){ mkO(200,'sawtooth',.18,t,.06,sfG); mkO(150,'sawtooth',.14,t+.1,.3,sfG,90); }
+  else if(type==='mult'){ mkO(1047,'sine',.25,t,.06,sfG); mkO(1319,'sine',.2,t+.07,.1,sfG); mkO(1568,'sine',.15,t+.15,.1,sfG); }
+}
+
+// ===================================================================
+// PARTICLES
+// ===================================================================
+const pEl=document.getElementById('ptcl');
+for(let i=0;i<60;i++){
+  const p=document.createElement('div'); p.className='pt';
+  const sz=Math.random()*3+.8, h=200+Math.random()*160;
+  p.style.cssText=`width:${sz}px;height:${sz}px;left:${Math.random()*100}%;bottom:-10px;background:hsl(${h},80%,72%);animation-duration:${7+Math.random()*10}s;animation-delay:${Math.random()*10}s;`;
+  pEl.appendChild(p);
+}
+
+// ===================================================================
+// GRID
+// ===================================================================
+const COLS=6,ROWS=5;
+let grid=[];
+const cells=[];
+const gEl=document.getElementById('gEl');
+
+function buildGrid(){
+  gEl.innerHTML=''; cells.length=0;
+  for(let r=0;r<ROWS;r++) for(let c=0;c<COLS;c++){
+    const div=document.createElement('div'); div.className='cell';
+    div.innerHTML='<div class="csh"></div>';
+    gEl.appendChild(div);
+    if(!cells[c]) cells[c]=[];
+    cells[c][r]=div;
+  }
+}
+buildGrid();
+
+// Кэш разобранных SVG: раньше на каждый символ парсился innerHTML
+// (30 разборов разметки на один дроп) — основной источник лагов на телефоне.
+const SYM_TPL=[];
+function symNode(id){
+  let t=SYM_TPL[id];
+  if(!t){ const d=document.createElement('div'); d.innerHTML=SVG[id]; t=d.querySelector('svg'); SYM_TPL[id]=t; }
+  return t ? t.cloneNode(true) : null;
+}
+// Высота ячейки замеряется один раз: чтение offsetHeight посреди анимации
+// заставляло браузер пересчитывать layout на каждый символ.
+let CELL_H=0;
+function measureCell(){ const el=cells[0]&&cells[0][0]; if(el&&el.offsetHeight) CELL_H=el.offsetHeight+4; return CELL_H||64; }
+window.addEventListener('resize',()=>{ CELL_H=0; });
+// Тайминги как в Gates of Olympus: короткий дроп и лесенка по колонкам/рядам.
+const DROP_DUR=0.42, DROP_COL=0.055, DROP_ROW=0.028;
+
+function setSym(c,r,sym,anim,fall){
+  const el=cells[c][r];
+  el.className='cell'+(anim?' '+anim:'');
+  el.style.setProperty('--sc',sym?sym.color:'gold');
+  const old=el.querySelector('svg'); if(old) old.remove();
+  const oldm=el.querySelector('.cellmult'); if(oldm) oldm.remove();
+  // Waterfall stagger: lower rows land first, upper rows follow (Gates-style tumble)
+  const delay = anim==='drop' ? (c*DROP_COL + (ROWS-1-r)*DROP_ROW) : 0;
+  // Real fall distance (px) so symbols visibly fall from above instead of popping in place.
+  // The grid clips at its outer edge, so a symbol travels DOWN across cells into its slot.
+  let fy='180%';
+  let til='0deg';
+  if(anim==='drop'){
+    const rp=CELL_H||measureCell();
+    fy=(Math.max(fall==null?1.4:fall,0.7)*rp)+'px';
+    til='0deg';
+  }
+  const csh=el.querySelector('.csh'); if(csh) csh.style.animationDelay=delay+'s';
+  if(sym && sym.isMult){
+    const d=document.createElement('div'); d.className='cellmult';
+    d.textContent='×'+sym.mult;
+    d.style.background=multBg(sym.mult);
+    if(sym.mult>=100) d.style.fontSize='.64em';
+    else if(sym.mult>=25) d.style.fontSize='.72em';
+    if(anim==='drop'){ d.style.setProperty('--fy',fy); d.style.animation=`dI ${DROP_DUR}s cubic-bezier(.2,.75,.32,1) ${delay}s both, mPulse 1.6s ease-in-out ${(delay+DROP_DUR).toFixed(3)}s infinite`; }
+    else d.style.animation='mPulse 1.6s ease-in-out infinite';
+    el.appendChild(d);
+  } else if(sym){
+    const s=symNode(sym.id);
+    if(s){ s.style.animationDelay=delay+'s'; if(anim==='drop'){ s.style.setProperty('--fy',fy); } el.appendChild(s); }
+  }
+  // scatter glow
+  if(sym && sym.isScatter) el.classList.add('scatter-glow');
+}
+
+function fillGrid(anteBet){
+  grid=[];
+  for(let c=0;c<COLS;c++){
+    grid[c]=[];
+    let hasSc=false;
+    for(let r=0;r<ROWS;r++){
+      let s=rSym(anteBet);
+      if(s.isScatter){ if(hasSc) s=rSymNoSc(anteBet); else hasSc=true; }
+      grid[c][r]=s; setSym(c,r,grid[c][r],'drop');
+    }
+  }
+}
+
+// Before a new spin: make the previously-landed symbols vanish first, then
+// the new symbols fall in from above (Gates of Olympus style reveal).
+async function clearGridVanish(){
+  for(let c=0;c<COLS;c++) for(let r=0;r<ROWS;r++) cells[c][r].classList.add('vanishing');
+  await wait(120);
+  for(let c=0;c<COLS;c++) for(let r=0;r<ROWS;r++){
+    const el=cells[c][r];
+    el.className='cell';
+    const old=el.querySelector('svg'); if(old) old.remove();
+    const oldm=el.querySelector('.cellmult'); if(oldm) oldm.remove();
+  }
+}
+
+// Count scatter symbols on grid
+function countScatters(){
+  let cnt=0;
+  for(let c=0;c<COLS;c++) for(let r=0;r<ROWS;r++) if(grid[c][r].isScatter) cnt++;
+  return cnt;
+}
+
+// Update scatter dots UI
+function updateScatterBar(count){
+  const bar=document.getElementById('scBar');
+  const dots=bar.querySelectorAll('.sc-dot');
+  dots.forEach((d,i)=>d.classList.toggle('lit',i<count));
+}
+
+// ===================================================================
+// PAYS ANYWHERE — 8+ same-id symbols anywhere on the grid (no cluster/adjacency required)
+// ===================================================================
+function findClustersIn(g){
+  const groups={}; // symId -> array of [c,r] positions anywhere on the grid
+  for(let c=0;c<COLS;c++) for(let r=0;r<ROWS;r++){
+    const sym=g[c][r];
+    if(!sym||sym.isScatter||sym.isWild||sym.isMult) continue;
+    (groups[sym.id]=groups[sym.id]||[]).push([c,r]);
+  }
+  const out=[];
+  for(const sid in groups){
+    if(groups[sid].length>=8) out.push({symId:+sid, cls:groups[sid]});
+  }
+  return out;
+}
+function findClusters(){ return findClustersIn(grid); }
+
+// ===================================================================
+// MULTIPLIER ORBS
+// ===================================================================
+const gWrap=document.getElementById('gWrap');
+let orbs=[];
+const ORB_MULTS=[2,3,4,5,6,8,10,12,15,20,25,50,100,250,500,1000];
+// Unified odds per multiplier-drop opportunity, out of 100000, INCLUDING the chance
+// that no multiplier appears at all (ORB_NONE_WEIGHT). This yields, of all opportunities:
+// x2-x5 ≈ 15%, x10-x25 ≈ 3.5%, x50-x100 ≈ 1%, x250-x500 < 0.1%.
+const ORB_NONE_WEIGHT=79400;
+const ORB_WEIGHTS=[6000,4200,3000,1800,600,400,1225,875,700,420,280,700,300,60,20,20];
+const ORB_COLORS=[
+  'linear-gradient(135deg,#16a34a,#4ade80)',
+  'linear-gradient(135deg,#2563eb,#60a5fa)',
+  'linear-gradient(135deg,#9333ea,#e879f9)',
+  'linear-gradient(135deg,#dc2626,#f87171)',
+  'linear-gradient(135deg,#d97706,#fbbf24)',
+  'linear-gradient(135deg,#0891b2,#38bdf8)',
+  'linear-gradient(135deg,#be185d,#f472b6)',
+  'linear-gradient(135deg,#fbbf24,#fff)',
+];
+
+function pickOrbMult(){
+  const tw=ORB_WEIGHTS.reduce((a,b)=>a+b,0);
+  let r=Math.random()*tw;
+  for(let i=0;i<ORB_MULTS.length;i++){ r-=ORB_WEIGHTS[i]; if(r<=0) return ORB_MULTS[i]; }
+  return 2;
+}
+
+// Single unified draw for "does a multiplier symbol land here, and with which value"?
+// Returns null when no multiplier should spawn.
+function pickMultOrNone(){
+  const tw=ORB_NONE_WEIGHT+ORB_WEIGHTS.reduce((a,b)=>a+b,0);
+  let r=Math.random()*tw;
+  r-=ORB_NONE_WEIGHT; if(r<=0) return null;
+  for(let i=0;i<ORB_MULTS.length;i++){ r-=ORB_WEIGHTS[i]; if(r<=0) return ORB_MULTS[i]; }
+  return null;
+}
+
+function spawnOrb(){
+  const m=pickOrbMult();
+  const idx=ORB_MULTS.indexOf(m);
+  const orb=document.createElement('div'); orb.className='orb';
+  orb.textContent=`×${m}`;
+  const sz = m>=100 ? 56 : m>=25 ? 50 : 44;
+  orb.style.cssText=`width:${sz}px;height:${sz}px;font-size:${m>=100?.62:.68}em;background:${ORB_COLORS[Math.min(idx,ORB_COLORS.length-1)]};`;
+  const gR=gEl.getBoundingClientRect(),wR=gWrap.getBoundingClientRect();
+  orb.style.left=(gR.left-wR.left+10+Math.random()*(gR.width-70))+'px';
+  orb.style.top=(gR.top-wR.top+10+Math.random()*(gR.height-70))+'px';
+  gWrap.appendChild(orb); orbs.push({el:orb,mult:m}); sfx('mult');
+  return m;
+}
+
+function clearOrbs(){
+  orbs.forEach(o=>{o.el.classList.add('gone');setTimeout(()=>o.el.remove(),500);});
+  orbs=[];
+}
+
+// ===================================================================
+// MULTIPLIER SYMBOLS (fall on the grid like normal symbols)
+// ===================================================================
+const MULT_ID=-2;
+function makeMultSym(m){
+  if(m===undefined || m===null) m=pickOrbMult();
+  return {id:MULT_ID, isMult:true, mult:m, name:'×'+m, color:'#fbbf24'};
+}
+// Readable, high-contrast gradient for a multiplier symbol (bigger = more premium)
+function multBg(m){
+  if(m>=100) return 'linear-gradient(135deg,#dc2626,#fbbf24)'; // fiery gold-red
+  if(m>=25)  return 'linear-gradient(135deg,#be185d,#f472b6)';
+  if(m>=10)  return 'linear-gradient(135deg,#9333ea,#e879f9)';
+  if(m>=6)   return 'linear-gradient(135deg,#2563eb,#60a5fa)';
+  return 'linear-gradient(135deg,#16a34a,#4ade80)';
+}
+// Sum of all multiplier symbols currently on the grid
+function gridMults(){
+  const a=[];
+  for(let c=0;c<COLS;c++) for(let r=0;r<ROWS;r++){
+    const s=grid[c][r]; if(s && s.isMult) a.push(s.mult);
+  }
+  return a;
+}
+// Same as gridMults() but also returns each multiplier's grid position, so we
+// can animate the symbol flying from its cell to the total-win display.
+function gridMultsWithPos(){
+  const a=[];
+  for(let c=0;c<COLS;c++) for(let r=0;r<ROWS;r++){
+    const s=grid[c][r]; if(s && s.isMult) a.push({mult:s.mult,c,r});
+  }
+  return a;
+}
+// Animates a multiplier symbol flying from its grid cell up to the total-win
+// banner, then pulses the displayed total win to sell the "multiply" moment.
+async function flyMultToTotal(m){
+  const bar=document.getElementById('totalWinBar');
+  const twInner=document.getElementById('twInner');
+  const cellEl=cells[m.c] && cells[m.c][m.r];
+  if(!bar || !cellEl) return;
+  if(twInner) twInner.classList.add('show');
+  const barRect=bar.getBoundingClientRect();
+  const rect=cellEl.getBoundingClientRect();
+  const fly=document.createElement('div');
+  fly.className='flyMult';
+  fly.textContent='×'+m.mult;
+  fly.style.background=multBg(m.mult);
+  fly.style.left=(rect.left+rect.width/2)+'px';
+  fly.style.top=(rect.top+rect.height/2)+'px';
+  document.body.appendChild(fly);
+  void fly.offsetHeight;
+  await new Promise(res=>requestAnimationFrame(()=>requestAnimationFrame(res)));
+  fly.style.left=(barRect.left+barRect.width/2)+'px';
+  fly.style.top=(barRect.top+barRect.height/2)+'px';
+  fly.style.transform='translate(-50%,-50%) scale(.25)';
+  fly.style.opacity='0';
+  await wait(560);
+  fly.remove();
+  const twEl=document.getElementById('totalWinVal');
+  if(twEl){ twEl.classList.remove('multBump'); void twEl.offsetWidth; twEl.classList.add('multBump'); }
+}
+
+// Shows "win × X" on the total-win banner, then resolves it into "= result"
+// while updating the real total-win number, to sell the multiply moment.
+async function showMultiplyEquation(base, mult, result){
+  const bar=document.getElementById('totalWinBar');
+  const twInner=document.getElementById('twInner');
+  const twEl=document.getElementById('totalWinVal');
+  if(!bar || !twEl) return;
+
+  // Показываем умножение прямо в строке «Выигрыш за падения» —
+  // без отдельной всплывающей таблички, тем же цветом и размером.
+  if(twInner) twInner.classList.add('show');
+  tumbleWin=result;
+  twEl.textContent=`${base} × ${mult}`;
+  twEl.classList.remove('multBump'); void twEl.offsetWidth; twEl.classList.add('multBump');
+
+  await wait(850);
+
+  twEl.textContent=result;
+  twEl.classList.remove('multBump'); void twEl.offsetWidth; twEl.classList.add('multBump');
+  const tiEl=document.getElementById('totalInfoVal'); if(tiEl) tiEl.textContent=totalWin;
+  await wait(300);
+}
+
+async function flySymbolToTotal(sourceEl, mult){
+  const bar=document.getElementById('totalWinBar');
+  if(!bar || !sourceEl) return;
+  const barRect=bar.getBoundingClientRect();
+  const rect=sourceEl.getBoundingClientRect();
+  const fly=document.createElement('div');
+  fly.className='flyMult';
+  fly.textContent='×'+mult;
+  fly.style.background=multBg(mult);
+  fly.style.left=(rect.left+rect.width/2)+'px';
+  fly.style.top=(rect.top+rect.height/2)+'px';
+  document.body.appendChild(fly);
+  void fly.offsetHeight;
+  await new Promise(res=>requestAnimationFrame(()=>requestAnimationFrame(res)));
+  fly.style.left=(barRect.left+barRect.width/2)+'px';
+  fly.style.top=(barRect.top+barRect.height/2)+'px';
+  fly.style.transform='translate(-50%,-50%) scale(.25)';
+  fly.style.opacity='0';
+  await wait(560);
+  fly.remove();
+}
+
+async function playMultiplySequence(base, multsPos, extraMult, result){
+  const twInner=document.getElementById('twInner');
+  const twEl=document.getElementById('totalWinVal');
+  if(!twEl) return;
+  if(twInner) twInner.classList.add('show');
+  tumbleWin=result;
+  let running=0;
+  for(const m of multsPos){
+    await flySymbolToTotal(cells[m.c] && cells[m.c][m.r], m.mult);
+    running += m.mult;
+    sfx('mult');
+    twEl.textContent=`${base} × ${running}`;
+    twEl.classList.remove('multBump'); void twEl.offsetWidth; twEl.classList.add('multBump');
+    await wait(320);
+  }
+  if(extraMult>0){
+    await flySymbolToTotal(document.getElementById('fsMultDot'), extraMult);
+    running += extraMult;
+    sfx('mult');
+    twEl.textContent=`${base} × ${running}`;
+    twEl.classList.remove('multBump'); void twEl.offsetWidth; twEl.classList.add('multBump');
+    await wait(320);
+  }
+  await wait(550);
+  twEl.textContent=result;
+  twEl.classList.remove('multBump'); void twEl.offsetWidth; twEl.classList.add('multBump');
+  const tiEl=document.getElementById('totalInfoVal'); if(tiEl) tiEl.textContent=totalWin;
+  await wait(300);
+}
+
+// ===================================================================
+// CASCADES
+// ===================================================================
+function removeAndDrop(wc, allowMult){
+  return new Promise(res=>{
+    wc.forEach(([c,r])=>cells[c][r].className='cell blast');
+    setTimeout(()=>{
+      // Collapse (Gates-style): winning symbols exploded above; survivors fall DOWN to fill
+      // the gaps, and brand-new symbols fall in from the top ON TOP of the survivors.
+      const winSet=new Set(wc.map(([c,r])=>c+':'+r));
+      const newCells=[];
+      for(let c=0;c<COLS;c++){
+        // Surviving (non-winning) symbols top->bottom, remembering their old row
+        const survivors=[];
+        for(let r=0;r<ROWS;r++){ if(!winSet.has(c+':'+r) && grid[c][r]) survivors.push({sym:grid[c][r],oldR:r}); }
+        const gaps=ROWS-survivors.length; // number of new symbols needed at the top
+        const assign=new Array(ROWS);
+        let hasSc=survivors.some(o=>o.sym.isScatter); // enforce max one scatter per reel
+        for(let r=0;r<gaps;r++){
+          let s=rSym(anteBetOn);
+          if(s.isScatter){ if(hasSc) s=rSymNoSc(anteBetOn); else hasSc=true; }
+          assign[r]={sym:s,isNew:true,animate:true,fall:gaps}; // new symbols fall from above the grid as a block
+        }
+        for(let i=0;i<survivors.length;i++){
+          const r=gaps+i;
+          // Only animate a survivor if it actually moved down; fall = number of rows it dropped
+          assign[r]={sym:survivors[i].sym,isNew:false,animate:(r!==survivors[i].oldR),fall:(r-survivors[i].oldR)};
+        }
+        for(let r=0;r<ROWS;r++){
+          grid[c][r]=assign[r].sym;
+          if(assign[r].animate) setSym(c,r,assign[r].sym,'drop',assign[r].fall);
+          if(assign[r].isNew) newCells.push([c,r]);
+        }
+      }
+      // Multiplier symbols fall in together with the newly dropped symbols
+      if(allowMult && newCells.length){
+        const mv=pickMultOrNone();
+        if(mv!==null){
+          const i=Math.floor(Math.random()*newCells.length);
+          const [c,r]=newCells[i];
+          grid[c][r]=makeMultSym(mv);
+          setSym(c,r,grid[c][r],'drop',r+1);
+          sfx('mult');
+        }
+      }
+      setTimeout(res,420);
+    },220);
+  });
+}
+
+// ===================================================================
+// GAME STATE
+// ===================================================================
+let balance=1000000, bet=100, anteBetOn=false, turboOn=false, autoSpinOn=false;
+function syncSharedBalanceFromParent(){
+  try{
+    if(window.parent && window.parent !== window && window.parent.GambleSharedBalance){
+      balance = window.parent.GambleSharedBalance.get(); if(!isFinite(balance)) balance = window.parent.GambleSharedBalance.set(0);
+    }
+  }catch(e){}
+}
+function pushSharedBalanceToParent(){
+  try{
+    if(window.parent && window.parent !== window && window.parent.GambleSharedBalance){
+      window.parent.GambleSharedBalance.set(balance);
+    }
+  }catch(e){}
+}
+function addSharedBalance(delta){
+  try{
+    if(window.parent && window.parent !== window && window.parent.GambleSharedBalance){
+      balance = window.parent.GambleSharedBalance.add(delta);
+      return;
+    }
+  }catch(e){}
+  balance += delta;
+}
+syncSharedBalanceFromParent();
+setTimeout(function(){ syncSharedBalanceFromParent(); if(typeof updateUI === 'function') updateUI(); }, 50);
+setTimeout(function(){ syncSharedBalanceFromParent(); if(typeof updateUI === 'function') updateUI(); }, 250);
+setTimeout(function(){ syncSharedBalanceFromParent(); if(typeof updateUI === 'function') updateUI(); }, 1000);
+let totalWin=0, tumbleWin=0, cascMult=1, spinning=false;
+let inFreeSpin=false, freeSpins=0, fsGlobalMult=0;
+
+function actualStake(){ return anteBetOn ? Math.round(bet*1.25) : bet; }
+
+function updateScatterDots(){
+  const bar=document.getElementById('scBar');
+  bar.innerHTML='';
+  for(let i=0;i<4;i++){
+    const d=document.createElement('div'); d.className='sc-dot'; bar.appendChild(d);
+  }
+}
+updateScatterDots();
+
+function updateUI(){
+  syncSharedBalanceFromParent();
+  document.getElementById('balEl').textContent=balance;
+  { const tiEl=document.getElementById('totalInfoVal');
+    if(tiEl) tiEl.textContent=totalWin;
+  }
+  { const twEl=document.getElementById('totalWinVal');
+    if(twEl && twEl.textContent!==String(tumbleWin)){
+      twEl.textContent=tumbleWin;
+      twEl.classList.remove('bump'); void twEl.offsetWidth; twEl.classList.add('bump');
+    } else if(twEl){ twEl.textContent=tumbleWin; }
+  }
+  { const twInner=document.getElementById('twInner');
+    if(twInner) twInner.classList.toggle('show', tumbleWin>0);
+  }
+  { const dot=document.getElementById('fsMultDot');
+    if(dot){
+      const nv=`×${fsGlobalMult}`;
+      if(inFreeSpin){
+        dot.classList.add('on');
+        if(dot.textContent!==nv){
+          dot.textContent=nv;
+          dot.classList.remove('bump'); void dot.offsetWidth; dot.classList.add('bump');
+        }
+      } else {
+        dot.classList.remove('on');
+        dot.textContent=nv;
+      }
+    }
+  }
+  document.getElementById('betEl').textContent=bet;
+  document.getElementById('bDn').disabled=inFreeSpin;
+  document.getElementById('bUp').disabled=inFreeSpin;
+  if(inFreeSpin) document.getElementById('anteBtn').disabled=true;
+  document.getElementById('modeEl').innerHTML=inFreeSpin?`ОСТАЛОСЬ БЕСПЛАТНЫХ ВРАЩЕНИЙ:<span class="fsNum">${freeSpins}</span>`:'Обычный';
+  if(inFreeSpin){
+    document.getElementById('modeEl').classList.add('fs-active');
+    document.getElementById('gWrap').classList.add('fs-mode');
+  } else {
+    document.getElementById('modeEl').classList.remove('fs-active');
+    document.getElementById('gWrap').classList.remove('fs-mode');
+  }
+  const gb=document.getElementById('gBadge');
+  if(!inFreeSpin && cascMult>1){ gb.textContent=`×${cascMult}`; gb.classList.add('on'); }
+  else gb.classList.remove('on');
+}
+
+async function doSpin(){
+  if(spinning) return;
+  initAudio();
+  const stake=actualStake();
+  if(!inFreeSpin && balance<stake){ setMsg('НЕДОСТАТОЧНО МОНЕТ!','sc'); return; }
+  spinning=true;
+  document.getElementById('spBtn').disabled=true;
+  document.getElementById('anteBtn').disabled=true;
+  document.getElementById('buyBtn').disabled=true;
+  if(inFreeSpin){ freeSpins=Math.max(0,freeSpins-1); }
+  try{
+  if(!inFreeSpin){ addSharedBalance(-stake); totalWin=0; }
+  tumbleWin=0;
+  cascMult=1;
+  if(!inFreeSpin) fsGlobalMult=0;
+  clearOrbs();
+  setMsg('...','');
+  sfx('click');
+  updateUI();
+
+  // Pre-decide final symbols
+  const finalGrid = [];
+  for(let fc=0;fc<COLS;fc++){
+    finalGrid[fc]=[];
+    let hasSc=false; // max one scatter per reel
+    for(let fr=0;fr<ROWS;fr++){
+      let s=rSym(anteBetOn);
+      if(s.isScatter){ if(hasSc) s=rSymNoSc(anteBetOn); else hasSc=true; }
+      finalGrid[fc][fr]=s;
+    }
+  }
+
+  // Halve the natural chance that a spin lands a win at all: if the freshly
+  // dealt grid would already pay out, a coin flip has a 50% chance to break
+  // up every qualifying cluster (re-rolling extra symbols) before it's shown.
+  {
+    if(findClustersIn(finalGrid).length>0 && Math.random()<0.5){
+      let guard=0, cl;
+      while((cl=findClustersIn(finalGrid)).length>0 && guard<20){
+        for(const g of cl){
+          for(let i=7;i<g.cls.length;i++){
+            const [cc,rr]=g.cls[i];
+            let ns; do{ ns=rSymNoSc(anteBetOn); } while(ns.id===g.symId);
+            finalGrid[cc][rr]=ns;
+          }
+        }
+        guard++;
+      }
+    }
+  }
+
+  // Gates-of-Olympus style: the previous symbols vanish first, then the
+  // new symbols drop straight into place column by column with a falling
+  // animation - no cycling through random symbols.
+  await clearGridVanish();
+  grid=[];
+  measureCell();
+  // Стиль Gates of Olympus: все символы выставляются одним проходом, а лесенка
+  // падения задаётся через animation-delay в CSS. Раньше здесь было 30 await
+  // подряд по 42 мс плюс паузы по 210 мс — отсюда бралась рваная выдача.
+  for(let stopC=0;stopC<COLS;stopC++){
+    grid[stopC]=[];
+    for(let r=0;r<ROWS;r++){
+      grid[stopC][r]=finalGrid[stopC][r];
+      setSym(stopC,r,grid[stopC][r],'drop');
+    }
+  }
+  for(let landC=0;landC<COLS;landC++){
+    const sd=Math.round(DROP_COL*landC*1000*(turboOn?0.22:1));
+    setTimeout(()=>sfx('land'), sd);
+  }
+  await wait(Math.round((DROP_COL*(COLS-1)+DROP_ROW*(ROWS-1)+DROP_DUR)*1000)+40);
+
+  // A multiplier symbol may also land on the initial drop (falls as a symbol)
+  {
+    const mv=pickMultOrNone();
+    if(mv!==null){
+      const spots=[];
+      for(let c=0;c<COLS;c++) for(let r=0;r<ROWS;r++){ if(!grid[c][r].isScatter) spots.push([c,r]); }
+      if(spots.length){
+        const i=Math.floor(Math.random()*spots.length);
+        const [c,r]=spots[i];
+        grid[c][r]=makeMultSym(mv);
+        setSym(c,r,grid[c][r],'drop',r+1);
+        sfx('mult');
+      }
+    }
+  }
+
+  // Count scatters on initial grid
+  let scatterCount=countScatters();
+  updateScatterBar(scatterCount);
+
+  let bonusTriggered=false, retriggered=false;
+
+  // Re-checks the scatter count every time the grid changes (initial settle AND
+  // every tumble/cascade refill), so scatters that fall in mid-sequence still
+  // count toward the total — e.g. 3 scatters land, a cascade hits, 1 more scatter
+  // drops in (4 total) => the bonus fires right there, not just on the first drop.
+  async function checkScatterTrigger(){
+    scatterCount=countScatters();
+    updateScatterBar(scatterCount);
+
+    if(!inFreeSpin && !bonusTriggered && scatterCount>=4){
+      bonusTriggered=true;
+      sfx('scatter');
+      await wait(400);
+      setMsg(`${scatterCount} SCATTER! АКТИВАЦИЯ ФРИСПИНОВ!`,'sc');
+      await triggerFreeSpins(15);
+      spinning=false;
+      document.getElementById('spBtn').disabled=false;
+      document.getElementById('anteBtn').disabled=false;
+      document.getElementById('buyBtn').disabled=false;
+      updateUI();
+      return true;
+    }
+
+    // Retrigger inside free spins: 3+ scatters accumulated on the reels (initial
+    // settle or fallen in during a cascade) => +5 spins.
+    if(inFreeSpin && !retriggered && scatterCount>=3){
+      retriggered=true;
+      sfx('scatter');
+      await wait(300);
+      await showBonusStart(5, {prefix:'+', label:'ДОПОЛНИТЕЛЬНЫХ СПИНОВ'});
+      freeSpins+=5;
+      setMsg(`+5 ФРИСПИНОВ! Всего: ${freeSpins}`,'sc');
+      updateUI();
+      await wait(300);
+    }
+    return false;
+  }
+
+  if(await checkScatterTrigger()) return;
+
+  let spinWin=0, cc=0;
+  // ПАДЕНИЕ (Tumble): выигрышные символы исчезают, сверху падают новые.
+  // Символы-множители падают на поле вместе с обычными. В базовой игре в конце
+  // Последовательности все множители на поле суммируются и умножают общий выигрыш.
+  // В фриспинах множитель накапливается глобально на весь бонусный раунд.
+  while(true){
+    const clusters=findClusters();
+    if(!clusters.length) break;
+
+    // Calculate base win of this cascade (без множителя) up front so we can
+    // display it on a symbol while the win is highlighted, not after.
+    let rWin=0;
+    clusters.forEach(({symId,cls})=>{
+      const sym=SYMS.find(s=>s.id===symId)||SYMS[7];
+      const pi=payIndex(cls.length);
+      if(pi>=0) rWin+=sym.pays[pi]*stake;
+    });
+    rWin=Math.round(rWin);
+
+    // Highlight wins
+    clusters.forEach(({cls})=>cls.forEach(([c,r])=>cells[c][r].className='cell win'));
+
+    // Show the cascade's win amount floating on one of the winning symbols
+    if(rWin>0) showWinPop(clusters, rWin, stake);
+
+    await wait(1200);
+
+    spinWin+=rWin; tumbleWin=spinWin; totalWin+=rWin;
+    // Отражаем текущие множители-символы на поле в интерфейсе
+    { const gm=gridMults(); cascMult = gm.length ? gm.reduce((a,b)=>a+b,0) : 1; }
+    updateUI();
+
+    if(totalWin>=stake*30) sfx('mega');
+    else if(totalWin>=stake*8) sfx('bigwin');
+    else if(rWin>0) sfx('cascade');
+
+    await removeAndDrop(clusters.flatMap(({cls})=>cls), true);
+    cc++;
+
+    // New scatters may have dropped in during this cascade — check again.
+    if(await checkScatterTrigger()) return;
+  }
+
+  // Собираем все символы-множители, оставшиеся на поле в конце последовательности
+  const finalMultsPos=gridMultsWithPos();
+  const finalMults=finalMultsPos.map(m=>m.mult);
+  if(!inFreeSpin && spinWin>0 && finalMults.length){
+    // Базовая игра: символы-множители улетают к общему выигрышу,
+    // суммируются, и итоговая сумма умножает выигрыш сыгровки.
+    const totMult=finalMults.reduce((a,b)=>a+b,0);
+    cascMult=totMult;
+    const winBefore=spinWin;
+    const bonus=Math.round(spinWin*(totMult-1));
+    spinWin+=bonus; totalWin+=bonus;
+    sfx(totMult>=50?'mega':'bigwin');
+    await playMultiplySequence(winBefore, finalMultsPos, 0, spinWin);
+    updateUI();
+    await wait(300);
+  }
+  if(inFreeSpin && spinWin>0){
+    // Фриспины: множители накапливаются глобально и умножают выигрыш последовательности
+    // Умножает выигрыш этого спина только если в этот спин на барабане действительно выпала x.
+    const add=finalMults.reduce((a,b)=>a+b,0);
+    if(add>0){
+      const prevGlobalMult=fsGlobalMult;
+      fsGlobalMult+=add;
+      const winBefore=spinWin;
+      const bonus=Math.round(spinWin*(fsGlobalMult-1));
+      spinWin+=bonus; totalWin+=bonus;
+      sfx(fsGlobalMult>=50?'mega':'bigwin');
+      await playMultiplySequence(winBefore, finalMultsPos, prevGlobalMult, spinWin);
+    }
+    updateUI();
+    await wait(add>0?300:200);
+  }
+
+  // Обычный спин зачисляется одной итоговой суммой после всех каскадов и множителей.
+  if(!inFreeSpin && spinWin>0){ addSharedBalance(spinWin); updateUI(); }
+
+  // Report result
+  if(!spinWin && !inFreeSpin){ sfx('lose'); setMsg('НЕ ПОВЕЗЛО...','sc'); }
+  else if(spinWin>0){
+    const rt=totalWin/stake;
+    if(rt>=80){ setMsg(`МЕГА ДЖЕКПОТ! +${totalWin}`,'mg'); doConfetti(120); }
+    else if(rt>=15){ setMsg(`БОЛЬШОЙ ВЫИГРЫШ! +${totalWin}`,'bw'); doConfetti(50); }
+    else setMsg(`+${spinWin}`,'w');
+  }
+
+  // FS: вращение уже списано в начале спина; запускаем следующее или завершаем бонус.
+  if(inFreeSpin){
+    if(freeSpins>0){
+      updateUI();
+      setMsg(`ФРИСПИН! Осталось: ${freeSpins}  ×${fsGlobalMult}`,'w');
+      spinning=false;
+      setTimeout(doSpin, turboOn?160:700); // AUTO next free spin
+      return;
+    } else {
+      inFreeSpin=false;
+      stopBg(); schedMusic(false);
+      // Весь бонусный выигрыш зачисляется только после окончания последнего вращения.
+      if(totalWin>0){ addSharedBalance(totalWin); updateUI(); }
+      showWinOverlay(totalWin, fsGlobalMult);
+    }
+  }
+
+  
+  }catch(e){console.error('Spin error:',e);}finally{
+    spinning=false;
+    document.getElementById('spBtn').disabled=false;
+    document.getElementById('anteBtn').disabled=false;
+    document.getElementById('buyBtn').disabled=false;
+    updateUI();
+    // AUTO-SPIN: chain the next base-game spin automatically while enabled.
+    if(autoSpinOn){
+      const woOpen=document.getElementById('winOverlay').classList.contains('show');
+      if(!inFreeSpin && !woOpen && balance>=actualStake()){
+        setTimeout(()=>{ if(autoSpinOn && !spinning) doSpin(); }, turboOn?300:900);
+      } else if(!inFreeSpin && balance<actualStake()){
+        autoSpinOn=false;
+        document.getElementById('autoBtn').classList.remove('on');
+      }
+    }
+  }
+}
+
+function showBonusStart(count, opts){
+  opts = opts || {};
+  return new Promise(res=>{
+    const ov=document.getElementById('bonusStart');
+    document.getElementById('bsCount').textContent = (opts.prefix||'') + count;
+    document.getElementById('bsSub').textContent = opts.sub || 'ВЫ ВЫИГРАЛИ';
+    document.getElementById('bsLabel').textContent = opts.label || 'БЕСПЛАТНЫХ ВРАЩЕНИЙ';
+    ov.classList.add('show');
+    doConfetti(80);
+    const done=()=>{ ov.removeEventListener('click',done); ov.classList.remove('show'); res(); };
+    // small delay so an accidental carry-over click doesn't skip it instantly
+    setTimeout(()=>ov.addEventListener('click',done),450);
+  });
+}
+
+async function triggerFreeSpins(count){
+  inFreeSpin=true; freeSpins=count; fsGlobalMult=0;
+  // Flash
+  const fl=document.getElementById('fsFlash');
+  fl.style.opacity='1'; setTimeout(()=>fl.style.opacity='0',500);
+  sfx('fsstart'); doConfetti(60);
+  // Show the "ПОЗДРАВЛЯЕМ! ВЫ ВЫИГРАЛИ N БЕСПЛАТНЫХ ВРАЩЕНИЙ" splash and
+  // wait for the player to click before the bonus game starts spinning.
+  await showBonusStart(count);
+  setMsg(`${count} ФРИСПИНОВ АКТИВИРОВАНО!`,'mg');
+  stopBg(); schedMusic(true);
+  await wait(900);
+  spinning=false;
+  updateUI();
+  setTimeout(doSpin, turboOn?100:400); // AUTO start first free spin
+}
+
+function showWinOverlay(amount, mult) {
+  const ov = document.getElementById('winOverlay');
+  document.getElementById('woAmount').textContent = amount;
+  document.getElementById('woMult').textContent = mult > 1 ? `Макс. множитель: ×${mult}` : '';
+  document.getElementById('woSpins').textContent = `Баланс: ${balance}`;
+  ov.classList.add('show');
+  doConfetti(150); sfx('mega');
+  document.getElementById('woClose').onclick = () => {
+    ov.classList.remove('show');
+    document.getElementById('spBtn').disabled = false;
+    document.getElementById('anteBtn').disabled = false;
+    document.getElementById('buyBtn').disabled = false;
+    updateUI();
+  };
+}
+
+function flashMult(txt){
+  const el=document.getElementById('bmTxt');
+  el.textContent=txt; el.className='';
+  void el.offsetWidth; el.className='fl';
+  setTimeout(()=>el.className='',1300);
+}
+
+// Floats the cascade's win amount on top of one of the winning symbols
+// (the cluster with the biggest payout), Gates-of-Olympus style.
+function showWinPop(clusters, amount, stake){
+  let best=null, bestPay=-1;
+  clusters.forEach(({symId,cls})=>{
+    const sym=SYMS.find(s=>s.id===symId)||SYMS[7];
+    const pi=payIndex(cls.length);
+    const pay=pi>=0 ? sym.pays[pi]*(stake||0) : 0;
+    if(pay>bestPay && cls.length){ bestPay=pay; best=cls; }
+  });
+  if(!best || !best.length) return;
+  const [c,r]=best[Math.floor(best.length/2)];
+  const el=cells[c] && cells[c][r]; if(!el) return;
+  const old=el.querySelector('.winPop'); if(old) old.remove();
+  const d=document.createElement('div'); d.className='winPop';
+  d.textContent='+'+amount;
+  el.appendChild(d);
+  setTimeout(()=>{ if(d.parentNode) d.remove(); },1150);
+}
+function wait(ms){ return new Promise(r=>setTimeout(r, turboOn ? Math.max(1,Math.round(ms*0.22)) : ms)); }
+function setMsg(t,c){ const el=document.getElementById('msgEl'); el.textContent=t; el.className='msg '+c; }
+
+const CFC=['#ffd700','#f472b6','#a855f7','#60a5fa','#34d399','#fb923c'];
+function doConfetti(n){
+  const el=document.getElementById('cfEl');
+  for(let i=0;i<n;i++){
+    const p=document.createElement('div'); p.className='cfp';
+    const sz=5+Math.random()*9;
+    p.style.cssText=`left:${Math.random()*100}%;top:-20px;background:${CFC[~~(Math.random()*CFC.length)]};width:${sz}px;height:${sz}px;border-radius:${Math.random()>.5?'50%':'2px'};animation-duration:${1.5+Math.random()*2.5}s;animation-delay:${Math.random()*.5}s;`;
+    el.appendChild(p); setTimeout(()=>p.remove(),4000);
+  }
+}
+
+// ===================================================================
+// CONTROLS
+// ===================================================================
+const BETS=[10,25,50,100,250,500,1000,2500,5000,10000]; let bIdx=0;
+document.getElementById('bDn').onclick=()=>{ initAudio(); if(inFreeSpin) return; if(bIdx>0){bIdx--;bet=BETS[bIdx];updateUI();sfx('click');} };
+document.getElementById('bUp').onclick=()=>{ initAudio(); if(inFreeSpin) return; if(bIdx<BETS.length-1){bIdx++;bet=BETS[bIdx];updateUI();sfx('click');} };
+document.getElementById('spBtn').onclick=doSpin;
+// Родительское приложение глушит и возвращает звук без перезагрузки iframe.
+window.addEventListener('message',function(ev){
+  var msg = ev && ev.data;
+  if(msg === 'dg-stop-audio'){ try{ stopBg(); if(ac && ac.suspend) ac.suspend(); }catch(e){} }
+  if(msg === 'dg-resume-audio'){ try{ if(ac && ac.resume) ac.resume(); }catch(e){} }
+});
+document.addEventListener('keydown',e=>{ if(e.code==='Space'&&!spinning){e.preventDefault();doSpin();} });
+
+document.getElementById('anteBtn').onclick=()=>{
+  initAudio();
+  if(inFreeSpin) return;
+  anteBetOn=!anteBetOn;
+  document.getElementById('anteBtn').classList.toggle('on',anteBetOn);
+  updateUI(); sfx('click');
+};
+
+document.getElementById('buyBtn').onclick=()=>{
+  initAudio();
+  if(spinning) return;
+  const cost=bet*100;
+  if(balance<cost){ setMsg(`НУЖНО ${cost} ДЛЯ ПОКУПКИ БОНУСА`,'sc'); return; }
+  document.getElementById('bcCost').innerHTML=`×100 <span style="opacity:.8">(${cost})</span>`;
+  document.getElementById('buyConfirmOverlay').classList.add('show');
+  sfx('click');
+};
+
+document.getElementById('bcNo').onclick=()=>{
+  document.getElementById('buyConfirmOverlay').classList.remove('show');
+  sfx('click');
+};
+
+document.getElementById('bcYes').onclick=()=>{
+  document.getElementById('buyConfirmOverlay').classList.remove('show');
+  if(spinning) return;
+  const cost=bet*100;
+  if(balance<cost){ setMsg(`НУЖНО ${cost} ДЛЯ ПОКУПКИ БОНУСА`,'sc'); return; }
+  addSharedBalance(-cost); totalWin=0;
+  setMsg(`БОНУС КУПЛЕН ЗА ${cost}!`,'mg');
+  triggerFreeSpins(15);
+  sfx('fsstart');
+  updateUI();
+};
+
+document.getElementById('turboBtn').onclick=()=>{
+  turboOn=!turboOn;
+  document.getElementById('turboBtn').classList.toggle('on',turboOn);
+};
+document.getElementById('autoBtn').onclick=()=>{
+  initAudio();
+  autoSpinOn=!autoSpinOn;
+  document.getElementById('autoBtn').classList.toggle('on',autoSpinOn);
+  sfx('click');
+  if(autoSpinOn && !spinning) doSpin();
+};
+updateUI();
+
+// === INFO MODAL ===
+(function(){
+  var COUNTS=[8,9,10,11,12];
+  function makeRows(ids, containerId) {
+    var cont = document.getElementById(containerId);
+    if(!cont) return;
+    ids.forEach(function(id){
+      var s = SYMS[id];
+      var row = document.createElement('div'); row.className='prow';
+      var tmp = document.createElement('div'); tmp.innerHTML = SVG[id];
+      var sv = tmp.querySelector('svg'); if(sv) row.appendChild(sv);
+      var info = document.createElement('div'); info.className='pinfo';
+      var nm = document.createElement('div'); nm.className='pname';
+      nm.style.color = s.color; nm.textContent = s.name; info.appendChild(nm);
+      var tiers = document.createElement('div'); tiers.className='ptiers';
+      // Merge consecutive tiers that pay the same multiplier into one row,
+      // e.g. 8 and 9 symbols both paying 0.25x become a single "8-9: 0.25x".
+      var i=0;
+      while(i<s.pays.length){
+        var p=s.pays[i];
+        if(p<=0){ i++; continue; }
+        var j=i;
+        while(j+1<s.pays.length && s.pays[j+1]===p) j++;
+        var label;
+        if(j===s.pays.length-1) label=COUNTS[i]+'+';
+        else if(i===j) label=String(COUNTS[i]);
+        else label=COUNTS[i]+'-'+COUNTS[j];
+        var t = document.createElement('div'); t.className='ptier';
+        t.innerHTML = label+': <b>'+p+'&times;</b>'; tiers.appendChild(t);
+        i=j+1;
+      }
+      info.appendChild(tiers); row.appendChild(info); cont.appendChild(row);
+    });
+  }
+  makeRows([9,8,1,2],'mHigh');
+  makeRows([3,4,5],'mMid');
+  makeRows([6,7],'mLow');
+  // Special rows
+  var spec = document.getElementById('mSpec');
+  if(spec){
+    var sr=document.createElement('div'); sr.className='prow sc-row';
+    var st=document.createElement('div'); st.innerHTML=SVG[0];
+    var ssv=st.querySelector('svg'); if(ssv) sr.appendChild(ssv);
+    var si=document.createElement('div'); si.className='pinfo';
+    si.innerHTML='<div class="pname" style="color:#f97316">Стакан (Scatter)</div>'
+      +'<div class="ptiers">'
+      +'<div class="ptier">4+ &#8594; <b>15 FREE SPINS</b></div>'
+      +'<div class="ptier">+3 в FS &#8594; <b>+5 спинов</b></div>'
+      +'</div>';
+    sr.appendChild(si); spec.appendChild(sr);
+  }
+  // Handlers
+  var modal = document.getElementById('infoModal');
+  function openPayInfo(){
+    modal.classList.add('open');
+    document.body.classList.add('pay-info-open');
+  }
+  function closePayInfo(){
+    modal.classList.remove('open');
+    document.body.classList.remove('pay-info-open');
+  }
+  document.getElementById('infoBtn').addEventListener('click', openPayInfo);
+  document.getElementById('mClose').addEventListener('click', closePayInfo);
+  modal.addEventListener('click', function(e){
+    if(e.target === modal) closePayInfo();
+  });
+  document.addEventListener('keydown', function(e){
+    if(e.key==='Escape') closePayInfo();
+  });
+})();
+</script>
+</body>
+</html>

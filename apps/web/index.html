@@ -7766,7 +7766,7 @@ body.slot-open #dgFullscreenClose{z-index:2147483500!important}
   function bind(){var p=parts();if(!p.frame||p.frame.dataset.dgBound)return;p.frame.dataset.dgBound='1';p.frame.addEventListener('load',ready);p.frame.addEventListener('error',function(){clearTimeout(timer);var x=parts();if(x.loader){x.loader.classList.add('has-error');if(x.text)x.text.textContent='Ошибка загрузки игры'}});try{if(p.frame.contentDocument&&p.frame.contentDocument.readyState==='complete'&&p.frame.contentDocument.body&&p.frame.contentDocument.body.children.length)ready()}catch(e){}}
   document.addEventListener('click',function(e){
     var retry=e.target&&e.target.closest?e.target.closest('#dgRetryLoad'):null;
-    if(retry){var p=parts();if(p.frame){waiting();var base=p.frame.getAttribute('src').split('?')[0];p.frame.src=base+'?v='+Date.now()}return}
+    if(retry){waiting();if(window.dgMountGame){window.dgMountGame(true);}return}
     var open=e.target&&e.target.closest?e.target.closest('[data-open="slot"]'):null;if(open){bind();waiting()}
   },true);
   var mo=new MutationObserver(function(){bind();if(document.body.classList.contains('slot-open')){var p=parts();if(p.frame&&p.frame.contentDocument&&p.frame.contentDocument.readyState==='complete')ready()}});
@@ -7806,14 +7806,20 @@ body.slot-open #dgFullscreenClose{z-index:2147483500!important}
     try{
       var raw=atob(GAME_B64),bytes=new Uint8Array(raw.length);
       for(var i=0;i<raw.length;i++)bytes[i]=raw.charCodeAt(i);
-      if(activeUrl)URL.revokeObjectURL(activeUrl);
-      activeUrl=URL.createObjectURL(new Blob([bytes],{type:'text/html;charset=utf-8'}));
+      // Раньше игра монтировалась через blob:-URL в iframe.src. В Telegram WebView
+      // на iOS (WKWebView) blob:-адрес в iframe не грузится — из-за этого был серый
+      // экран. srcdoc работает во всех WebView и остаётся same-origin, поэтому
+      // markReady по-прежнему видит контент.
+      var gameHtml=(typeof TextDecoder!=='undefined')
+        ? new TextDecoder('utf-8').decode(bytes)
+        : decodeURIComponent(escape(raw));
       frame.onload=function(){markReady(frame)};
       frame.onerror=function(){
         var l=document.getElementById('dgSlotLoader'),t=document.getElementById('dgLoaderText');
         if(l)l.classList.add('has-error');if(t)t.textContent='Ошибка загрузки игры';
       };
-      frame.src=activeUrl;
+      frame.removeAttribute('src');
+      frame.srcdoc=gameHtml;
     }catch(e){
       var l=document.getElementById('dgSlotLoader'),t=document.getElementById('dgLoaderText');
       if(l)l.classList.add('has-error');if(t)t.textContent='Ошибка запуска игры';

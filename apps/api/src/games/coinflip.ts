@@ -1,1 +1,2 @@
-export function playCoinflip(p:{betAmount:number; payload?:{side?:'heads'|'tails'}}){ const selected=p.payload?.side||'heads'; const result=Math.random()<.5?'heads':'tails'; const win=selected===result; const multiplier=1.9; const winAmount=win?Math.floor(p.betAmount*multiplier):0; return {game:'coinflip',selected,result,win,multiplier,winAmount} }
+import { randomInt, randomFloat } from '../utils/random.js'
+export function playCoinflip(p:{betAmount:number; payload?:{side?:'heads'|'tails'}}){ const selected=p.payload?.side||'heads'; const result=randomInt(2)===0?'heads':'tails'; const win=selected===result; const multiplier=1.9; const winAmount=win?Math.floor(p.betAmount*multiplier):0; return {game:'coinflip',selected,result,win,multiplier,winAmount} }

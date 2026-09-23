@@ -1,3 +1,4 @@
+import { randomInt, randomFloat } from '../utils/random.js'
 function evalRouletteBet(bet:any, number:number, color:'red'|'black'|'green'){
   const amount = Number(bet.amount) || 0
   const payload = bet.payload || bet
@@ -23,14 +24,14 @@ function evalRouletteBet(bet:any, number:number, color:'red'|'black'|'green'){
     else if(outside === 'row2'){ win = [2,5,8,11,14,17,20,23,26,29,32,35].includes(number); multiplier = 3 }
     else if(outside === 'row3'){ win = [1,4,7,10,13,16,19,22,25,28,31,34].includes(number); multiplier = 3 }
   } else {
-    selectedType = 'color'; selected = selectedColor || 'red'; multiplier = color === 'green' ? 14 : 2; win = selected === color
+    selectedType = 'color'; selected = selectedColor || 'red'; multiplier = selected === 'green' ? 36 : 2; win = selected === color
   }
   const winAmount = win ? amount * multiplier : 0
   return {amount, selected, selectedType, win, multiplier, winAmount}
 }
 
 export function playRoulette(p:{betAmount:number; payload?:{color?:'red'|'black'|'green'; number?:number; outside?:string; bets?:Array<any>}}){
-  const number = Math.floor(Math.random()*37)
+  const number = randomInt(37)
   const redNumbers = [1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]
   const color = number===0 ? 'green' : redNumbers.includes(number) ? 'red' : 'black'
   const bets = Array.isArray(p.payload?.bets) && p.payload!.bets.length ? p.payload!.bets : [{amount:p.betAmount,payload:p.payload||{color:'red'}}]

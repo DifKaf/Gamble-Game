@@ -1,3 +1,4 @@
+import { randomFloat } from '../utils/random.js'
 import { Prisma } from '@prisma/client'
 
 type Tx = Prisma.TransactionClient
@@ -44,7 +45,7 @@ async function grantNewPlayerLuck(tx: Tx, userId: string, stake: bigint, source?
 	await tx.user.update({ where: { id: userId }, data: { gamesPlayed: { increment: 1 } } })
 	const { chance, multiplier } = luckState(playedBefore)
 	if (chance <= 0 || multiplier <= 1) return
-	if (Math.random() > chance) return
+	if (randomFloat() > chance) return
 	const bonus = BigInt(Math.round(Number(stake) * (multiplier - 1)))
 	if (bonus <= 0n) return
 	// Атомарный UPDATE вместо "прочитать баланс -> сложить -> записать": под нагрузкой

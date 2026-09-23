@@ -143,7 +143,9 @@ export async function walletRoutes(app: FastifyInstance) {
     // Пользователь явно попросил вернуть старый клиентский слот Drunkard Gate и
     // осознанно принял риск по балансу — поэтому мост включён по умолчанию.
     // Явно выставленный ALLOW_LEGACY_GAME_ADJUST=false всё ещё может выключить его.
-    if (process.env.ALLOW_LEGACY_GAME_ADJUST === 'false') {
+    // Мост позволяет клиенту начислить себе любую сумму. Так как GC можно продать
+    // через P2P-биржу, по умолчанию он ВЫКЛЮЧЕН. Включить: ALLOW_LEGACY_GAME_ADJUST=true.
+    if (process.env.ALLOW_LEGACY_GAME_ADJUST !== 'true') {
       return reply.code(410).send({ error: 'Legacy endpoint removed. Use the dedicated game endpoints.' })
     }
 

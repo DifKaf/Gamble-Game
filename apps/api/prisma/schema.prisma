@@ -22,6 +22,7 @@ enum GameCode {
   ROULETTE
   MINES
   BLACKJACK
+  LIMBO
 }
 
 enum GameSessionStatus {

@@ -1,3 +1,4 @@
+import { randomInt, randomFloat } from '../utils/random.js'
 import { FastifyInstance } from 'fastify'
 import { z } from 'zod'
 import { prisma } from '../db.js'
@@ -10,8 +11,8 @@ const RANKS = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
 const SUITS = ['S', 'H', 'D', 'C']
 
 function drawCard(): Card {
-  const rank = RANKS[Math.floor(Math.random() * RANKS.length)]
-  const suit = SUITS[Math.floor(Math.random() * SUITS.length)]
+  const rank = RANKS[randomInt(RANKS.length)]
+  const suit = SUITS[randomInt(SUITS.length)]
   return { rank, suit }
 }
 

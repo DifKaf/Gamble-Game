@@ -1,16 +1,46 @@
+import { randomInt } from '../utils/random.js'
 type BacSide = 'player' | 'banker' | 'tie'
+
+// Классический Punto Banco: третья карта по официальным правилам.
+// Выплаты: игрок ×2, банкир ×1.95 (комиссия 5%), ничья ×9 (8:1).
+// Преимущество казино: ~1.24% / ~1.06% / ~14.4%.
+export const BACCARAT_MULTIPLIERS: Record<BacSide, number> = { player: 2, banker: 1.95, tie: 9 }
+
+function card() { return randomInt(13) + 1 }
+function val(c: number) { return c >= 10 ? 0 : c }
+function total(cards: number[]) { return cards.reduce((s, c) => s + val(c), 0) % 10 }
+
+function bankerDraws(bankerTotal: number, playerThird: number | null) {
+  if (playerThird === null) return bankerTotal <= 5
+  const t = val(playerThird)
+  if (bankerTotal <= 2) return true
+  if (bankerTotal === 3) return t !== 8
+  if (bankerTotal === 4) return t >= 2 && t <= 7
+  if (bankerTotal === 5) return t >= 4 && t <= 7
+  if (bankerTotal === 6) return t === 6 || t === 7
+  return false
+}
+
+export function dealBaccarat() {
+  const player = [card(), card()]
+  const banker = [card(), card()]
+  const natural = total(player) >= 8 || total(banker) >= 8
+  let playerThird: number | null = null
+  if (!natural) {
+    if (total(player) <= 5) { playerThird = card(); player.push(playerThird) }
+    if (bankerDraws(total(banker), playerThird)) banker.push(card())
+  }
+  const playerTotal = total(player)
+  const bankerTotal = total(banker)
+  const winner: BacSide = playerTotal === bankerTotal ? 'tie' : playerTotal > bankerTotal ? 'player' : 'banker'
+  return { player, banker, playerTotal, bankerTotal, winner, natural }
+}
 
 export function playBaccarat(p:{
   betAmount:number
   payload?:{ side?:BacSide; bets?:Array<{side?:string; amount?:number}> }
 }){
-  function card(){ return Math.floor(Math.random()*13)+1 }
-  function val(c:number){ return c>=10?0:c }
-  const player=[card(),card()]
-  const banker=[card(),card()]
-  const playerTotal=(val(player[0])+val(player[1]))%10
-  const bankerTotal=(val(banker[0])+val(banker[1]))%10
-  const winner:BacSide=playerTotal===bankerTotal?'tie':(playerTotal>bankerTotal?'player':'banker')
+  const { player, banker, playerTotal, bankerTotal, winner, natural } = dealBaccarat()
 
   const rawBets = Array.isArray(p.payload?.bets) ? p.payload!.bets! : []
   const bets = rawBets
@@ -23,15 +53,13 @@ export function playBaccarat(p:{
   let paidWin=0
   let refundAmount=0
   const settled=bets.map((b)=>{
+    // При ничьей ставки на игрока и банкира возвращаются.
     if(winner==='tie' && b.side!=='tie'){
       refundAmount += b.amount
       return { ...b, payout:b.amount, push:true }
     }
     if(b.side===winner){
-      // Ставка на игрока с выплатой x2 была точно безубыточной (RTP=100%), казино не имело преимущества.
-      // Привели к единой марже казино, как и у ставки на банкира.
-      const multiplier=winner==='tie'?8:1.95
-      const payout=Math.floor(b.amount*multiplier)
+      const payout=Math.floor(b.amount*BACCARAT_MULTIPLIERS[winner])
       paidWin += payout
       return { ...b, payout, push:false }
     }
@@ -48,6 +76,7 @@ export function playBaccarat(p:{
     banker,
     playerTotal,
     bankerTotal,
+    natural,
     win:winAmount>0,
     multiplier,
     winAmount,

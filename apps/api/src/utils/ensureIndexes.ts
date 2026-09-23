@@ -5,6 +5,11 @@ import { prisma } from '../db.js'
 // а ручной psql на проде делать никто не будет.
 const STATEMENTS: Array<{ name: string; sql: string }> = [
 	{
+		// Новая игра Limbo: значение enum добавляем без миграции.
+		name: 'GameCode_LIMBO',
+		sql: `ALTER TYPE "GameCode" ADD VALUE IF NOT EXISTS 'LIMBO'`,
+	},
+	{
 		// Лидерборд: ORDER BY balance DESC LIMIT 50 без индекса = сортировка всех игроков.
 		name: 'User_balance_idx',
 		sql: 'CREATE INDEX IF NOT EXISTS "User_balance_idx" ON "User"("balance" DESC)',

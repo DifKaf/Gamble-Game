@@ -1,3 +1,4 @@
+import { sampleUnique } from '../utils/random.js'
 import { FastifyInstance } from 'fastify'
 import { z } from 'zod'
 import { prisma } from '../db.js'
@@ -10,7 +11,7 @@ const cashoutSchema = z.object({ sessionId:z.string() })
 const TOTAL_CELLS = 25
 const HOUSE_EDGE = 0.03
 function fairMultiplier(mineCount:number, opened:number){ let mult=1; for(let i=0;i<opened;i++){ mult *= (TOTAL_CELLS - i) / (TOTAL_CELLS - mineCount - i) } return mult }
-function makeMines(count:number){ const s=new Set<number>(); while(s.size<count) s.add(Math.floor(Math.random()*25)); return Array.from(s) }
+function makeMines(count:number){ return sampleUnique(TOTAL_CELLS, count) }
 function payoutFor(bet:number, opened:number, mineCount:number){ if(opened<=0) return { multiplier:1, payout:bet }; const mult=Math.round(fairMultiplier(mineCount, opened)*(1-HOUSE_EDGE)*100)/100; return { multiplier:mult, payout:Math.round(bet*mult) } }
 
 export async function minesRoutes(app:FastifyInstance){

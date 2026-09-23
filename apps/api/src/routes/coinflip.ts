@@ -1,3 +1,4 @@
+import { randomInt, randomFloat } from '../utils/random.js'
 import { FastifyInstance } from 'fastify'
 import { z } from 'zod'
 import { prisma } from '../db.js'
@@ -10,7 +11,7 @@ const cashoutSchema = z.object({ sessionId:z.string() })
 const PER_FLIP_MULTIPLIER = 1.9
 function multiplierFor(streak:number){ return Math.round(Math.pow(PER_FLIP_MULTIPLIER, streak)*100)/100 }
 function payoutFor(bet:number, streak:number){ if(streak<=0) return { multiplier:0, payout:0 }; const mult=multiplierFor(streak); return { multiplier:mult, payout:Math.round(bet*mult) } }
-function flip():'heads'|'tails'{ return Math.random()<0.5 ? 'heads' : 'tails' }
+function flip():'heads'|'tails'{ return randomInt(2)===0 ? 'heads' : 'tails' }
 
 export async function coinflipRoutes(app:FastifyInstance){
  app.post('/start',{preHandler:[(app as any).authenticate]},async(req,rep)=>{

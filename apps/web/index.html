@@ -1297,6 +1297,7 @@ html,body{margin:0!important;min-width:0!important;background:#050505!important;
         <button class="game-card img-card" data-open="mines" aria-label="Mines"><img src="assets/card-mines.jpg" alt="Mines" class="img-card-media"></button>
         <button class="game-card img-card" data-open="blackjack" aria-label="Blackjack"><img src="assets/card-blackjack.jpg" alt="Blackjack" class="img-card-media"></button>
         <button class="game-card img-card" data-open="baccarat" aria-label="Baccarat"><img src="assets/card-baccarat.jpg" alt="Baccarat" class="img-card-media"></button>
+        <button class="game-card img-card" data-open="limbo" aria-label="Limbo"><img src="assets/card-limbo.svg" alt="Limbo" class="img-card-media"></button>
       </div>
     </section>
 
@@ -1374,9 +1375,9 @@ html,body{margin:0!important;min-width:0!important;background:#050505!important;
         <div class="dice-sum">Сумма: <b id="diceSum">—</b></div>
         <div class="panel-title">Ставка на:</div>
         <div class="option-row" id="diceOptions">
-          <button class="option-btn" data-val="under">Меньше 7<small>x1.9</small></button>
-          <button class="option-btn" data-val="exact">Ровно 7<small>x5</small></button>
-          <button class="option-btn" data-val="over">Больше 7<small>x1.9</small></button>
+          <button class="option-btn" data-val="under">Меньше 7<small>x2.33</small></button>
+          <button class="option-btn" data-val="exact">Ровно 7<small>x5.82</small></button>
+          <button class="option-btn" data-val="over">Больше 7<small>x2.33</small></button>
         </div>
         <div class="baccarat-bet-top">
           <div class="baccarat-bet-input-wrap">
@@ -1401,6 +1402,34 @@ html,body{margin:0!important;min-width:0!important;background:#050505!important;
           <div class="settings-hint" id="diceAutoSummary"></div>
         </div>
         <div class="gh-box" data-gh-game="dice"><div class="gh-tabs"><div class="gh-title">История игроков</div><div class="gh-tab-actions" data-gh-tabs="dice"><button type="button" class="active" data-scope="live">Live</button><button type="button" data-scope="mine">Мои</button></div></div><div class="gh-head"><span>Имя / Ставка</span><span>Множитель</span><span>Выигрыш</span></div><div id="diceGameHistory"></div></div>
+      </div>
+    </section>
+
+    <!-- LIMBO -->
+    <section id="screen-limbo" class="screen">
+      <div class="game-header"><button class="back-btn" data-back="1">←</button><h2>Limbo</h2></div>
+      <div class="panel">
+        <div class="limbo-stage"><div class="limbo-result" id="limboResult">1.00×</div><div class="limbo-hint" id="limboHint">Выбери цель — если множитель дойдёт до неё, ты выиграл</div></div>
+        <div class="limbo-recent" id="limboRecent"></div>
+        <div class="limbo-grid">
+          <label class="limbo-field"><span>Целевой множитель</span><input type="number" inputmode="decimal" min="1.01" max="1000" step="0.01" id="limboTarget" value="2.00"></label>
+          <label class="limbo-field"><span>Шанс выигрыша</span><input type="text" id="limboChance" value="49.50%" readonly></label>
+        </div>
+        <div class="limbo-presets" id="limboPresets"><button type="button" data-t="1.5">1.5×</button><button type="button" data-t="2">2×</button><button type="button" data-t="5">5×</button><button type="button" data-t="10">10×</button><button type="button" data-t="100">100×</button></div>
+        <div class="baccarat-bet-top">
+          <div class="baccarat-bet-input-wrap">
+            <input type="number" inputmode="numeric" min="10" max="5000000" step="1" id="limboCustomBet" value="10">
+            <span>GC</span>
+            <div class="baccarat-bet-step"><button type="button" id="limboMinusBtn">−</button><button type="button" id="limboPlusBtn">+</button></div>
+          </div>
+        </div>
+        <div class="baccarat-bet-tools">
+          <button type="button" data-bet-tool="half" data-target="limbo">/2</button>
+          <button type="button" data-bet-tool="double" data-target="limbo">x2</button>
+        </div>
+        <div class="limbo-profit">Выигрыш при победе: <b id="limboProfit">20</b> GC</div>
+        <button class="btn btn-green btn-block" id="limboPlayBtn" style="margin-top:14px;">Играть</button>
+        <div class="gh-box" data-gh-game="limbo"></div>
       </div>
     </section>
 
@@ -1585,7 +1614,7 @@ html,body{margin:0!important;min-width:0!important;background:#050505!important;
           <div class="baccarat-choice-title">Выбери сторону</div>
           <div class="bac-betting-layout" id="baccaratOptions">
             <button class="bac-bet-zone bac-player" data-val="player">PLAYER<small>x2</small><span class="bac-chip-on-zone" id="bacChipPlayer"></span></button>
-            <button class="bac-bet-zone bac-tie" data-val="tie">TIE<small>x8</small><span class="bac-chip-on-zone" id="bacChipTie"></span></button>
+            <button class="bac-bet-zone bac-tie" data-val="tie">TIE<small>x9</small><span class="bac-chip-on-zone" id="bacChipTie"></span></button>
             <button class="bac-bet-zone bac-banker" data-val="banker">BANKER<small>x1.95</small><span class="bac-chip-on-zone" id="bacChipBanker"></span></button>
           </div>
           <button type="button" class="game-cancel-bet-btn" id="baccaratCancelBetBtn" disabled>Отменить ставку</button>
@@ -3361,6 +3390,49 @@ html,body{margin:0!important;min-width:0!important;background:#050505!important;
   /* ================= DICE ================= */
   var diceOptCtl = buildOptionRow('diceOptions', function(){});
   var diceBetCtl = wireBetStepTools('diceCustomBet', 'diceMinusBtn', 'dicePlusBtn', 'dice', 10, 5000000);
+
+  /* ================= Limbo ================= */
+  (function(){
+    var limboBetCtl = wireBetStepTools('limboCustomBet', 'limboMinusBtn', 'limboPlusBtn', 'limbo', 10, 5000000);
+    var tEl = document.getElementById('limboTarget'), cEl = document.getElementById('limboChance');
+    var resEl = document.getElementById('limboResult'), hintEl = document.getElementById('limboHint');
+    var profitEl = document.getElementById('limboProfit'), btn = document.getElementById('limboPlayBtn');
+    var recentEl = document.getElementById('limboRecent'), betEl = document.getElementById('limboCustomBet');
+    if(!tEl || !btn) return;
+    var playing = false;
+    function target(){ var v = Number(tEl.value); if(!isFinite(v)) v = 2; return Math.min(1000, Math.max(1.01, Math.floor(v*100)/100)); }
+    function refresh(){ var t = target(); cEl.value = (99/t).toFixed(2) + '%'; profitEl.textContent = Math.floor(limboBetCtl.get()*t); }
+    tEl.addEventListener('input', refresh); tEl.addEventListener('change', function(){ tEl.value = target().toFixed(2); refresh(); });
+    if(betEl){ betEl.addEventListener('input', refresh); }
+    document.querySelectorAll('[data-target="limbo"],#limboMinusBtn,#limboPlusBtn').forEach(function(b){ b.addEventListener('click', function(){ setTimeout(refresh, 0); }); });
+    document.querySelectorAll('#limboPresets [data-t]').forEach(function(b){ b.addEventListener('click', function(){ tEl.value = Number(b.getAttribute('data-t')).toFixed(2); refresh(); haptic('light'); }); });
+    function pushRecent(v, won){ var s = document.createElement('span'); s.className = won ? 'w' : ''; s.textContent = v.toFixed(2)+'×'; recentEl.insertBefore(s, recentEl.firstChild); while(recentEl.children.length > 12) recentEl.removeChild(recentEl.lastChild); }
+    function animateTo(final, done){
+      var start = performance.now(), dur = Math.min(900, 350 + Math.log(final)*120);
+      function step(now){ var k = Math.min(1, (now-start)/dur); var e = 1 - Math.pow(1-k, 3); var v = 1 + (final-1)*e; resEl.textContent = v.toFixed(2)+'×'; if(k < 1) requestAnimationFrame(step); else done(); }
+      requestAnimationFrame(step);
+    }
+    btn.addEventListener('click', function(){
+      if(playing) return;
+      var bet = limboBetCtl.get(), t = target();
+      if(backendReady && backendBalance < bet){ showToast('Недостаточно Gamble Coin!','error'); haptic('error'); return; }
+      playing = true; btn.disabled = true; resEl.classList.remove('win','lose'); resEl.textContent = '1.00×'; haptic('medium');
+      serverBet('limbo', bet, { target: t }, {deferBalance:true}).then(function(result){
+        var final = Number(result.result) || 1;
+        animateTo(final, function(){
+          commitServerBetResult(result);
+          var won = Number(result.winAmount) > 0;
+          resEl.classList.add(won ? 'win' : 'lose');
+          hintEl.textContent = won ? ('Победа! Цель '+t.toFixed(2)+'× достигнута') : ('Не хватило до '+t.toFixed(2)+'×');
+          pushRecent(final, won);
+          if(won){ addHistory(me(),'win', result.winAmount, 'Limbo: '+final.toFixed(2)+'×'); showWinOverlay(result.winAmount); haptic('success'); }
+          else { addHistory(me(),'loss', bet, 'Limbo: '+final.toFixed(2)+'×'); haptic('error'); }
+          renderAll(); playing = false; btn.disabled = false;
+        });
+      }).catch(function(e){ showToast(e.message || 'Ошибка ставки','error'); haptic('error'); playing = false; btn.disabled = false; });
+    });
+    refresh();
+  })();
   var DICE_PIPS = {
     1:[5],
     2:[1,9],
@@ -7870,5 +7942,21 @@ body.slot-open #dgFullscreenClose{z-index:2147483500!important}
   if(document.body.classList.contains('slot-open')) dgOnSlot();
 })();
 </script>
+<style>
+.limbo-stage{position:relative;margin:6px 0 12px;padding:34px 12px;border-radius:18px;background:radial-gradient(120% 90% at 50% 0%,rgba(139,92,246,.35),rgba(17,12,40,.9));text-align:center;overflow:hidden}
+.limbo-result{font-size:clamp(46px,14vw,72px);font-weight:900;letter-spacing:1px;color:#fff;text-shadow:0 4px 24px rgba(139,92,246,.6);transition:color .2s,transform .2s;font-variant-numeric:tabular-nums}
+.limbo-result.win{color:#34d399;text-shadow:0 0 28px rgba(52,211,153,.7);transform:scale(1.06)}
+.limbo-result.lose{color:#f87171;text-shadow:0 0 28px rgba(248,113,113,.6)}
+.limbo-hint{margin-top:6px;font-size:13px;opacity:.7}
+.limbo-recent{display:flex;gap:6px;overflow-x:auto;margin-bottom:12px;min-height:26px}
+.limbo-recent span{flex:0 0 auto;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:800;background:rgba(248,113,113,.18);color:#fca5a5}
+.limbo-recent span.w{background:rgba(52,211,153,.18);color:#6ee7b7}
+.limbo-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.limbo-field{display:flex;flex-direction:column;gap:6px;font-size:12px;opacity:.95}
+.limbo-field input{width:100%;box-sizing:border-box;padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.3);color:#fff;font-size:16px;font-weight:800;text-align:center}
+.limbo-presets{display:flex;gap:6px;margin:10px 0 4px}
+.limbo-presets button{flex:1;padding:8px 0;border-radius:10px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);color:#fff;font-weight:800}
+.limbo-profit{margin-top:10px;font-size:13px;opacity:.85;text-align:center}
+</style>
 </body>
 </html>

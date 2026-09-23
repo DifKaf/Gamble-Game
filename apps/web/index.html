@@ -1147,7 +1147,7 @@ html,body{margin:0!important;min-width:0!important;background:#050505!important;
       <div class="gg-logo-wrap" data-nav="home">
         <img src="assets/gamble-logo.png" class="gg-global-logo" alt="Gamble">
       </div>
-      <div class="game-user-chip gg-global-chip"><span class="avatar-badge gameHeaderAvatar">🧑</span><b class="gameHeaderBalance">0 GC</b></div>
+      <div class="game-user-chip gg-global-chip"><span class="avatar-badge gameHeaderAvatar">🧑</span><b class="gameHeaderBalance">0 GC</b><button type="button" class="gg-topup-btn" aria-label="Пополнить баланс" title="Пополнить"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button></div>
     </div>
   </div>
 
@@ -1635,7 +1635,7 @@ html,body{margin:0!important;min-width:0!important;background:#050505!important;
         <div class="amount" id="walletBalance">0 GC</div>
       </div>
 
-      <div class="panel dep-panel hidden" id="depPanel" style="margin-top:16px;">
+      <div class="panel dep-panel" id="depPanel" style="margin-top:16px;">
         <div class="dep-head"><span class="dep-logo">💎</span><div><b>Пополнить через CryptoBot</b><small id="depAssets">USDT · TON · BTC</small></div></div>
         <div class="dep-presets" id="depPresets"><button type="button" data-usd="0.12">0.12 $</button><button type="button" data-usd="1.2">1.2 $</button><button type="button" data-usd="6">6 $</button><button type="button" data-usd="12">12 $</button><button type="button" data-usd="60">60 $</button></div>
         <div class="field-label">Сумма, $:</div>
@@ -3454,12 +3454,12 @@ html,body{margin:0!important;min-width:0!important;background:#050505!important;
     });
     apiRequest('/deposit/config').then(function(c){
       cfg = Object.assign(cfg, c || {});
-      if(c && c.enabled) panel.classList.remove('hidden');
+      if(!c || !c.enabled){ btn.disabled = true; setStatus('Пополнение пока не подключено: на сервере не указан CRYPTOPAY_TOKEN', 'error'); }
       if(c && Array.isArray(c.assets)) document.getElementById('depAssets').textContent = c.assets.join(' · ');
       amountEl.min = cfg.minUsd; amountEl.max = cfg.maxUsd; showRate();
       if(!c || !c.p2pEnabled) document.querySelectorAll('.p2p-widget,.p2p-wallet-card').forEach(function(el){ el.classList.add('p2p-off'); });
       refresh();
-    }).catch(function(){ document.querySelectorAll('.p2p-widget,.p2p-wallet-card').forEach(function(el){ el.classList.add('p2p-off'); }); });
+    }).catch(function(){ btn.disabled = true; setStatus('Сервер не отвечает или на нём старая версия без пополнения', 'error'); document.querySelectorAll('.p2p-widget,.p2p-wallet-card').forEach(function(el){ el.classList.add('p2p-off'); }); });
     refresh();
   })();
 
@@ -8043,5 +8043,39 @@ body.slot-open #dgFullscreenClose{z-index:2147483500!important}
 .dep-status.bad{background:rgba(248,113,113,.14);color:#fca5a5}
 .p2p-off{display:none!important}
 </style>
+
+<style id="gg-topup-style">
+.gg-global-chip{max-width:214px!important;padding-right:5px!important;}
+.gg-topup-btn{flex:0 0 26px!important;width:26px!important;height:26px!important;min-width:26px!important;margin-left:2px!important;padding:0!important;border:0!important;border-radius:50%!important;display:flex!important;align-items:center!important;justify-content:center!important;cursor:pointer!important;pointer-events:auto!important;background:linear-gradient(135deg,#ff9a2e,#ff5e1a)!important;box-shadow:0 2px 8px rgba(255,110,30,.45)!important;transition:transform .12s ease,filter .12s ease!important;}
+.gg-topup-btn svg{width:16px;height:16px;fill:none;stroke:#fff;stroke-width:3;stroke-linecap:round;}
+.gg-topup-btn:hover{filter:brightness(1.1);}
+.gg-topup-btn:active{transform:scale(.9);}
+@media (max-width:899px){.gg-global-chip{max-width:184px!important;}}
+@media (max-width:390px){.gg-global-chip{max-width:168px!important;}.gg-topup-btn{flex-basis:24px!important;width:24px!important;height:24px!important;min-width:24px!important;}}
+@media (max-width:340px){.gg-global-chip{max-width:156px!important;}}
+.dep-panel.dep-flash{animation:depFlash 1.2s ease;}
+@keyframes depFlash{0%,100%{box-shadow:none}30%{box-shadow:0 0 0 2px #ff8a2a,0 0 24px rgba(255,138,42,.5)}}
+</style>
+<script id="gg-topup-script">
+(function(){
+  function openTopup(e){
+    if(e){ e.preventDefault(); e.stopPropagation(); }
+    try{ if(window.Telegram && Telegram.WebApp && Telegram.WebApp.HapticFeedback) Telegram.WebApp.HapticFeedback.impactOccurred('light'); }catch(_){}
+    var navBtn = document.querySelector('.nav-btn[data-nav="wallet"]');
+    if(navBtn) navBtn.click();
+    setTimeout(function(){
+      var p = document.getElementById('depPanel'); if(!p) return;
+      p.scrollIntoView({behavior:'smooth', block:'center'});
+      p.classList.remove('dep-flash'); void p.offsetWidth; p.classList.add('dep-flash');
+      var inp = document.getElementById('depAmount'); if(inp && !document.getElementById('depBtn').disabled) setTimeout(function(){ try{ inp.focus({preventScroll:true}); }catch(_){} }, 450);
+    }, 120);
+  }
+  document.addEventListener('click', function(e){
+    var b = e.target && e.target.closest ? e.target.closest('.gg-topup-btn') : null;
+    if(b) openTopup(e);
+  }, true);
+  window.openTopup = openTopup;
+})();
+</script>
 </body>
 </html>

@@ -8,6 +8,25 @@ import { prisma } from '../db.js'
 //
 // Все шаги идемпотентные — повторный запуск ничего не ломает.
 const STATEMENTS: Array<string> = [
+	// Пополнения через CryptoBot. invoiceId уникален — один счёт нельзя зачислить дважды.
+	`CREATE TABLE IF NOT EXISTS "CryptoDeposit" (
+		"id" TEXT NOT NULL,
+		"userId" TEXT NOT NULL,
+		"invoiceId" BIGINT NOT NULL,
+		"amountUsd" TEXT NOT NULL,
+		"amountGc" BIGINT NOT NULL,
+		"status" TEXT NOT NULL DEFAULT 'PENDING',
+		"payUrl" TEXT,
+		"miniAppUrl" TEXT,
+		"paidAsset" TEXT,
+		"paidAmount" TEXT,
+		"createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+		"paidAt" TIMESTAMP(3),
+		CONSTRAINT "CryptoDeposit_pkey" PRIMARY KEY ("id")
+	)`,
+	`CREATE UNIQUE INDEX IF NOT EXISTS "CryptoDeposit_invoiceId_key" ON "CryptoDeposit"("invoiceId")`,
+	`CREATE INDEX IF NOT EXISTS "CryptoDeposit_userId_createdAt_idx" ON "CryptoDeposit"("userId", "createdAt")`,
+
 	// Рефералы: кто кого пригласил и какие бонусы уже выплачены.
 	`CREATE TABLE IF NOT EXISTS "Referral" (
 		"id" TEXT NOT NULL,

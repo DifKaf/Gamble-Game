@@ -6,6 +6,10 @@ import { prisma } from '../db.js'
 const STATEMENTS: Array<{ name: string; sql: string }> = [
 	{
 		// Новая игра Limbo: значение enum добавляем без миграции.
+		name: 'TransactionType_DEPOSIT',
+		sql: `ALTER TYPE "TransactionType" ADD VALUE IF NOT EXISTS 'DEPOSIT'`,
+	},
+	{
 		name: 'GameCode_LIMBO',
 		sql: `ALTER TYPE "GameCode" ADD VALUE IF NOT EXISTS 'LIMBO'`,
 	},

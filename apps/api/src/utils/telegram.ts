@@ -9,17 +9,87 @@ function botToken() {
 	return String(process.env.TELEGRAM_BOT_TOKEN || '').trim()
 }
 
+// Анимированные (кастомные) эмодзи Telegram.
+// TELEGRAM_CUSTOM_EMOJI — JSON «обычный эмодзи → custom_emoji_id», например:
+//   TELEGRAM_CUSTOM_EMOJI={"🤝":"5368324170671202286","✅":"5427009714745517609"}
+// ID удобно взять из набора: npm run emoji:pack -- <имя_набора> (см. src/scripts/emojiPack.ts).
+// Важно: Telegram разрешает ботам кастомные эмодзи, только если у бота есть доп. юзернейм
+// с Fragment. Если Telegram откажет — сообщение уйдёт с обычными эмодзи, уведомление не потеряется.
+let emojiMapCache: Array<[string, string]> | null = null
+let customEmojiDisabled = false
+
+function customEmojiMap(): Array<[string, string]> {
+	if (emojiMapCache) return emojiMapCache
+	let parsed: Record<string, unknown> = {}
+	try {
+		parsed = JSON.parse(String(process.env.TELEGRAM_CUSTOM_EMOJI || '{}'))
+	} catch {
+		console.warn('TELEGRAM_CUSTOM_EMOJI: неверный JSON, анимированные эмодзи выключены')
+	}
+	// Длинные ключи первыми: «❤️‍🔥» не должен распасться на «❤️».
+	emojiMapCache = Object.entries(parsed)
+		.filter(([k, v]) => k && /^\d{5,25}$/.test(String(v)))
+		.map(([k, v]) => [k, String(v)] as [string, string])
+		.sort((a, b) => b[0].length - a[0].length)
+	return emojiMapCache
+}
+
+export function withCustomEmoji(text: string): string {
+	const map = customEmojiMap()
+	if (!map.length || customEmojiDisabled) return text
+	let out = ''
+	let i = 0
+	outer: while (i < text.length) {
+		// Не трогаем содержимое HTML-тегов.
+		if (text[i] === '<') {
+			const end = text.indexOf('>', i)
+			if (end < 0) { out += text.slice(i); break }
+			out += text.slice(i, end + 1); i = end + 1; continue
+		}
+		for (const [emoji, id] of map) {
+			const plain = emoji.replace(/\uFE0F/g, '')
+			for (const variant of plain === emoji ? [emoji] : [emoji, plain]) {
+				if (text.startsWith(variant, i)) {
+					out += `<tg-emoji emoji-id="${id}">${emoji}</tg-emoji>`
+					i += variant.length
+					if (text[i] === '\uFE0F') i++
+					continue outer
+				}
+			}
+		}
+		out += text[i]; i++
+	}
+	return out
+}
+
+async function postMessage(token: string, chatId: string, text: string) {
+	const res = await fetch(TELEGRAM_API + token + '/sendMessage', {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify({ chat_id: chatId, text, parse_mode: 'HTML', disable_web_page_preview: true })
+	})
+	return (await res.json().catch(() => ({}))) as any
+}
+
 export async function sendTelegramMessage(telegramId: string | bigint | number, text: string) {
 	const token = botToken()
 	if (!token || telegramId == null || telegramId === '') return false
+	const chatId = String(telegramId)
 	try {
-		const res = await fetch(TELEGRAM_API + token + '/sendMessage', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ chat_id: String(telegramId), text, parse_mode: 'HTML', disable_web_page_preview: true })
-		})
-		const body: any = await res.json().catch(() => ({}))
-		return Boolean(body?.ok)
+		const rich = withCustomEmoji(text)
+		const body = await postMessage(token, chatId, rich)
+		if (body?.ok) return true
+		if (rich !== text) {
+			// Боту нельзя кастомные эмодзи или ID устарел — шлём обычный текст.
+			const description = String(body?.description || '')
+			if (/custom emoji|emoji/i.test(description)) {
+				customEmojiDisabled = true
+				console.warn('Telegram отклонил анимированные эмодзи, выключаю до перезапуска: ' + description)
+			}
+			const plain = await postMessage(token, chatId, text)
+			return Boolean(plain?.ok)
+		}
+		return false
 	} catch {
 		return false
 	}

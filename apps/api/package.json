@@ -9,7 +9,8 @@
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "fix:player-ids": "tsx src/scripts/fixPlayerIds.ts",
-    "prisma:studio": "prisma studio"
+    "prisma:studio": "prisma studio",
+    "emoji:pack": "tsx src/scripts/emojiPack.ts"
   },
   "dependencies": {
     "@fastify/cors": "^9.0.1",

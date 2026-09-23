@@ -76,7 +76,7 @@ export async function applyBalanceChange(p: {
 	tx: Tx
 	userId: string
 	amount: bigint
-	type: 'BET' | 'WIN' | 'BONUS' | 'REFUND' | 'ADMIN_ADJUSTMENT'
+	type: 'BET' | 'WIN' | 'BONUS' | 'REFUND' | 'ADMIN_ADJUSTMENT' | 'DEPOSIT'
 	source?: string
 	metadata?: any
 }) {

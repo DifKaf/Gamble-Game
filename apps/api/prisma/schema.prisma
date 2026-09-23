@@ -13,6 +13,7 @@ enum TransactionType {
   BONUS
   REFUND
   ADMIN_ADJUSTMENT
+  DEPOSIT
 }
 
 enum GameCode {

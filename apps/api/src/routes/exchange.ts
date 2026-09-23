@@ -29,8 +29,19 @@ function dealView(row:any, viewerId?:string){
 }
 async function loadDeal(id:string){ return prisma.exchangeRequest.findUnique({ where:{id}, include:{ user:true, buyer:true } as any } as any) }
 
+// P2P выключен по умолчанию (P2P_ENABLED=true — включить). Когда выключен, нельзя создавать
+// и принимать новые сделки, но уже начатые можно довести: оплатить, подтвердить, отменить
+// или открыть спор — иначе монеты в эскроу застрянут.
+const P2P_ENABLED = String(process.env.P2P_ENABLED || 'false') === 'true'
+const P2P_BLOCKED_WHEN_OFF = [/^\/offers\/?$/, /^\/offers\/[^/]+\/take$/, /^\/deals\/[^/]+\/accept$/]
+
 export async function exchangeRoutes(app:FastifyInstance){
- app.get('/config', async()=>({ minGc:MIN_GC, maxGc:MAX_GC, feePercent:FEE_PCT, suggestedRate:GC_PER_RUB, methods:METHODS }))
+ app.addHook('onRequest', async(req,rep)=>{
+  if(P2P_ENABLED || req.method!=='POST') return
+  const path=String(req.url||'').split('?')[0].replace(/^\/exchange/,'')
+  if(P2P_BLOCKED_WHEN_OFF.some(r=>r.test(path))) return rep.code(503).send({ error:'P2P временно отключён', p2pDisabled:true })
+ })
+ app.get('/config', async()=>({ enabled:P2P_ENABLED, minGc:MIN_GC, maxGc:MAX_GC, feePercent:FEE_PCT, suggestedRate:GC_PER_RUB, methods:METHODS }))
  app.get('/offers',{preHandler:[(app as any).authenticate]},async(req)=>{ const u=await getAuthUser(req); const rows=await prisma.exchangeRequest.findMany({where:{status:'OPEN'},orderBy:{createdAt:'desc'},take:40,include:{user:true,buyer:true} as any} as any); return {offers:rows.map(r=>dealView(r,u.id))} })
  app.get('/mine',{preHandler:[(app as any).authenticate]},async(req)=>{ const u=await getAuthUser(req); const rows=await prisma.exchangeRequest.findMany({where:{OR:[{userId:u.id},{buyerId:u.id}]},orderBy:{createdAt:'desc'},take:80,include:{user:true,buyer:true} as any} as any); return {deals:rows.map(r=>dealView(r,u.id))} })
  app.post('/offers',{preHandler:[(app as any).authenticate]},async(req,rep)=>{

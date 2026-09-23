@@ -1634,6 +1634,16 @@ html,body{margin:0!important;min-width:0!important;background:#050505!important;
         <div class="amount" id="walletBalance">0 GC</div>
       </div>
 
+      <div class="panel dep-panel hidden" id="depPanel" style="margin-top:16px;">
+        <div class="dep-head"><span class="dep-logo">💎</span><div><b>Пополнить через CryptoBot</b><small id="depAssets">USDT · TON · BTC</small></div></div>
+        <div class="dep-presets" id="depPresets"><button type="button" data-usd="1">1 $</button><button type="button" data-usd="5">5 $</button><button type="button" data-usd="10">10 $</button><button type="button" data-usd="25">25 $</button><button type="button" data-usd="50">50 $</button></div>
+        <div class="field-label">Сумма, $:</div>
+        <input class="input" id="depAmount" type="number" inputmode="decimal" min="1" step="0.01" value="5">
+        <div class="dep-gets">Вы получите: <b id="depGc">5 000</b> GC</div>
+        <button class="btn btn-green btn-block" id="depBtn" style="margin-top:12px;">Пополнить</button>
+        <div class="dep-status hidden" id="depStatus"></div>
+      </div>
+
       <button class="p2p-wallet-card" data-nav="exchange">
         <div><b>P2P</b><small>Продать GC за ₽ или купить у игроков</small></div>
         <span>Открыть</span>
@@ -3390,6 +3400,65 @@ html,body{margin:0!important;min-width:0!important;background:#050505!important;
   /* ================= DICE ================= */
   var diceOptCtl = buildOptionRow('diceOptions', function(){});
   var diceBetCtl = wireBetStepTools('diceCustomBet', 'diceMinusBtn', 'dicePlusBtn', 'dice', 10, 5000000);
+
+  /* ================= Пополнение через CryptoBot ================= */
+  (function(){
+    var panel = document.getElementById('depPanel'); if(!panel) return;
+    var amountEl = document.getElementById('depAmount'), gcEl = document.getElementById('depGc');
+    var btn = document.getElementById('depBtn'), statusEl = document.getElementById('depStatus');
+    var cfg = { gcPerUsd:1000, minUsd:1, maxUsd:500 }, pollTimer = null, pollUntil = 0, current = null;
+    function fmt(n){ return Math.floor(Number(n)||0).toLocaleString('ru-RU'); }
+    function usd(){ var v = Math.round((Number(amountEl.value)||0)*100)/100; return v; }
+    function refresh(){ gcEl.textContent = fmt(usd()*cfg.gcPerUsd); document.querySelectorAll('#depPresets [data-usd]').forEach(function(b){ b.classList.toggle('active', Number(b.getAttribute('data-usd'))===usd()); }); }
+    function setStatus(text, kind){ statusEl.textContent = text; statusEl.className = 'dep-status' + (kind ? ' '+kind : ''); }
+    function openPay(d){
+      var link = d.payUrl || d.miniAppUrl; if(!link) return;
+      try{ if(tg && tg.openTelegramLink && /^https:\/\/t\.me\//.test(link)){ tg.openTelegramLink(link); return; } }catch(e){}
+      window.open(link, '_blank');
+    }
+    function stopPoll(){ if(pollTimer){ clearInterval(pollTimer); pollTimer = null; } }
+    async function check(){
+      if(!current) return;
+      if(Date.now() > pollUntil){ stopPoll(); setStatus('Счёт больше не отслеживается. Если вы оплатили — GC придут автоматически.', ''); return; }
+      try{
+        var d = await apiRequest('/deposit/'+encodeURIComponent(current.id)+'/check', { method:'POST' });
+        if(d.status === 'PAID'){
+          stopPoll(); current = null;
+          setStatus('✅ Оплата получена: +'+fmt(d.amountGc)+' GC', 'ok');
+          showToast('Баланс пополнен на '+fmt(d.amountGc)+' GC','success'); haptic('success');
+          lastBalanceRouteRefresh = 0; refreshBackendBalanceForScreen();
+        } else if(d.status === 'EXPIRED'){
+          stopPoll(); current = null; setStatus('Срок счёта истёк. Создайте новый.', 'bad');
+        }
+      }catch(e){}
+    }
+    function startPoll(){ stopPoll(); pollUntil = Date.now() + 35*60*1000; pollTimer = setInterval(check, 5000); }
+    document.addEventListener('visibilitychange', function(){ if(!document.hidden && current) check(); });
+    amountEl.addEventListener('input', refresh);
+    document.querySelectorAll('#depPresets [data-usd]').forEach(function(b){ b.addEventListener('click', function(){ amountEl.value = b.getAttribute('data-usd'); refresh(); haptic('light'); }); });
+    btn.addEventListener('click', async function(){
+      var v = usd();
+      if(!(v >= cfg.minUsd && v <= cfg.maxUsd)){ showToast('Сумма от '+cfg.minUsd+' до '+cfg.maxUsd+' $','error'); return; }
+      if(!backendReady) await initBackendAuth();
+      btn.disabled = true; setStatus('Создаём счёт…', '');
+      try{
+        var d = await apiRequest('/deposit/invoice', { method:'POST', body: JSON.stringify({ amountUsd: v }) });
+        current = d; startPoll();
+        setStatus('Счёт на '+v+' $ открыт в CryptoBot. После оплаты GC появятся здесь автоматически.', '');
+        openPay(d);
+      }catch(e){ setStatus(e.message || 'Не удалось создать счёт', 'bad'); showToast(e.message || 'Ошибка','error'); }
+      btn.disabled = false;
+    });
+    apiRequest('/deposit/config').then(function(c){
+      cfg = Object.assign(cfg, c || {});
+      if(c && c.enabled) panel.classList.remove('hidden');
+      if(c && Array.isArray(c.assets)) document.getElementById('depAssets').textContent = c.assets.join(' · ');
+      amountEl.min = cfg.minUsd; amountEl.max = cfg.maxUsd;
+      if(!c || !c.p2pEnabled) document.querySelectorAll('.p2p-widget,.p2p-wallet-card').forEach(function(el){ el.classList.add('p2p-off'); });
+      refresh();
+    }).catch(function(){ document.querySelectorAll('.p2p-widget,.p2p-wallet-card').forEach(function(el){ el.classList.add('p2p-off'); }); });
+    refresh();
+  })();
 
   /* ================= Limbo ================= */
   (function(){
@@ -7957,6 +8026,19 @@ body.slot-open #dgFullscreenClose{z-index:2147483500!important}
 .limbo-presets{display:flex;gap:6px;margin:10px 0 4px}
 .limbo-presets button{flex:1;padding:8px 0;border-radius:10px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);color:#fff;font-weight:800}
 .limbo-profit{margin-top:10px;font-size:13px;opacity:.85;text-align:center}
+</style>
+<style>
+.dep-panel .dep-head{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.dep-panel .dep-logo{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-size:22px;background:linear-gradient(135deg,#2aa3ef,#1b6fd1)}
+.dep-panel .dep-head small{display:block;opacity:.7;font-size:12px;margin-top:2px}
+.dep-presets{display:flex;gap:6px;margin-bottom:10px}
+.dep-presets button{flex:1;padding:9px 0;border-radius:10px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);color:#fff;font-weight:800}
+.dep-presets button.active{border-color:#2aa3ef;background:rgba(42,163,239,.2)}
+.dep-gets{margin-top:8px;font-size:13px;opacity:.85}
+.dep-status{margin-top:10px;padding:10px 12px;border-radius:12px;font-size:13px;background:rgba(42,163,239,.14)}
+.dep-status.ok{background:rgba(52,211,153,.16);color:#6ee7b7}
+.dep-status.bad{background:rgba(248,113,113,.14);color:#fca5a5}
+.p2p-off{display:none!important}
 </style>
 </body>
 </html>

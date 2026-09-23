@@ -8,9 +8,17 @@ import { sendTelegramMessage } from '../utils/telegram.js'
 import { createInvoice, cryptoPayEnabled, getInvoice, verifyWebhookSignature, CryptoInvoice } from '../utils/cryptoPay.js'
 
 // Пополнение баланса GC через @CryptoBot. Только покупка: вывода нет.
-const GC_PER_USD = Number(process.env.DEPOSIT_GC_PER_USD || 1000)
-const MIN_USD = Number(process.env.DEPOSIT_MIN_USD || 1)
-const MAX_USD = Number(process.env.DEPOSIT_MAX_USD || 500)
+// Курс: сколько $ стоит 1000 GC (по умолчанию 0.12 $ = 1000 GC)
+const USD_PER_1000_GC = Number(process.env.DEPOSIT_USD_PER_1000_GC || 0.12)
+const MIN_USD = Number(process.env.DEPOSIT_MIN_USD || 0.1)
+const MAX_USD = Number(process.env.DEPOSIT_MAX_USD || 1000)
+const RATE_MICRO_USD = BigInt(Math.round(USD_PER_1000_GC * 1_000_000))
+const GC_PER_USD = 1000 / USD_PER_1000_GC
+// Точный пересчёт в целых числах (без ошибок округления float): 0.12 $ -> ровно 1000 GC
+function usdToGc(amountUsd: string): bigint {
+	const microUsd = BigInt(Math.round(Number(amountUsd) * 100)) * BigInt(10_000)
+	return (microUsd * BigInt(1000)) / RATE_MICRO_USD
+}
 const ASSETS = String(process.env.DEPOSIT_ASSETS || 'USDT,TON,BTC').replace(/\s+/g, '')
 const EXPIRES_IN = Number(process.env.DEPOSIT_INVOICE_TTL_SEC || 1800)
 const MAX_PENDING = 3
@@ -85,6 +93,7 @@ export async function depositRoutes(app: FastifyInstance) {
 		enabled: cryptoPayEnabled(),
 		p2pEnabled: p2pEnabled(),
 		gcPerUsd: GC_PER_USD,
+		usdPer1000Gc: USD_PER_1000_GC,
 		minUsd: MIN_USD,
 		maxUsd: MAX_USD,
 		assets: ASSETS.split(','),
@@ -96,7 +105,7 @@ export async function depositRoutes(app: FastifyInstance) {
 		const parsed = invoiceSchema.safeParse(req.body)
 		if (!parsed.success) return rep.code(400).send({ error: `Сумма от ${MIN_USD} до ${MAX_USD} $` })
 		const amountUsd = (Math.round(parsed.data.amountUsd * 100) / 100).toFixed(2)
-		const amountGc = BigInt(Math.floor(Number(amountUsd) * GC_PER_USD))
+		const amountGc = usdToGc(amountUsd)
 		const pending = (await prisma.$queryRawUnsafe(
 			`SELECT COUNT(*)::int AS n FROM "CryptoDeposit" WHERE "userId" = $1 AND status = 'PENDING' AND "createdAt" > NOW() - INTERVAL '30 minutes'`,
 			u.id,

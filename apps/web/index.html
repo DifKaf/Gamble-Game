@@ -1099,6 +1099,7 @@ body.theme-light .settings-gear-btn{background:#EEF0F5!important;border-color:rg
 
 .p2p-widget{width:100%;border:0;border-radius:22px;padding:18px;margin:12px 0 18px;display:flex;align-items:center;justify-content:space-between;text-align:left;color:#fff;background:radial-gradient(circle at 85% 15%,rgba(51,144,236,.55),transparent 34%),linear-gradient(135deg,#151923,#252b3b 55%,#101217);box-shadow:0 18px 40px rgba(0,0,0,.28),inset 0 0 0 1px rgba(255,255,255,.08);overflow:hidden;position:relative;cursor:pointer}.p2p-widget:before{content:"";position:absolute;inset:-1px;background:linear-gradient(120deg,transparent,rgba(255,255,255,.18),transparent);transform:translateX(-100%);animation:p2pShine 5s ease-in-out infinite}@keyframes p2pShine{50%,100%{transform:translateX(100%)}}.p2p-kicker{font-size:11px;font-weight:950;letter-spacing:.14em;color:#74b7ff}.p2p-title{font-size:20px;font-weight:950;letter-spacing:-.03em;margin-top:4px}.p2p-sub{font-size:12px;color:rgba(255,255,255,.66);font-weight:750;margin-top:5px;line-height:1.35}.p2p-orb{width:70px;height:70px;border-radius:22px;background:linear-gradient(135deg,#3390ec,#31d0aa);display:flex;align-items:center;justify-content:center;font-size:34px;font-weight:950;box-shadow:0 14px 32px rgba(51,144,236,.35);flex:0 0 auto}.p2p-wallet-card{width:100%;margin-top:14px;border:1px solid #2b3548;background:linear-gradient(135deg,#151923,#202638);border-radius:18px;color:#fff;padding:16px;display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left}.p2p-wallet-card b{display:block;font-size:17px}.p2p-wallet-card small{display:block;color:#9ba6b8;margin-top:3px}.p2p-wallet-card span{background:#3390ec;color:white;border-radius:12px;padding:9px 12px;font-weight:900;font-size:12px}.p2p-hero{margin-top:0}.exch-pane.hidden{display:none!important}#screen-exchange .panel{background:#191919!important;border:1px solid #272727!important;color:#fff}.exch-method{background:#232323!important;color:#fff!important;border-color:#333!important}.exch-method.active{background:rgba(51,144,236,.18)!important;border-color:#3390ec!important}.exch-tab{background:#202020!important;color:#aaa!important}.exch-tab.active{background:#3390ec!important;color:#fff!important}.exch-offer{border-bottom:1px solid #292929!important}.exch-offer-top small,.exch-offer-price small,.exch-role,.exch-note{color:#a1a1a1!important}.exch-offer-price{color:#31d0aa!important}.exch-warn{color:#ff7b72!important}@media(max-width:520px){.p2p-title{font-size:18px}.p2p-orb{width:58px;height:58px;border-radius:18px;font-size:28px}}
 
+.dep-rate{font-size:12px;opacity:.7;margin:4px 0 8px}
 </style>
 
 <style id="head-final-layout-fix">
@@ -1636,9 +1637,9 @@ html,body{margin:0!important;min-width:0!important;background:#050505!important;
 
       <div class="panel dep-panel hidden" id="depPanel" style="margin-top:16px;">
         <div class="dep-head"><span class="dep-logo">💎</span><div><b>Пополнить через CryptoBot</b><small id="depAssets">USDT · TON · BTC</small></div></div>
-        <div class="dep-presets" id="depPresets"><button type="button" data-usd="1">1 $</button><button type="button" data-usd="5">5 $</button><button type="button" data-usd="10">10 $</button><button type="button" data-usd="25">25 $</button><button type="button" data-usd="50">50 $</button></div>
+        <div class="dep-presets" id="depPresets"><button type="button" data-usd="0.12">0.12 $</button><button type="button" data-usd="1.2">1.2 $</button><button type="button" data-usd="6">6 $</button><button type="button" data-usd="12">12 $</button><button type="button" data-usd="60">60 $</button></div>
         <div class="field-label">Сумма, $:</div>
-        <input class="input" id="depAmount" type="number" inputmode="decimal" min="1" step="0.01" value="5">
+        <input class="input" id="depAmount" type="number" inputmode="decimal" min="0.1" max="1000" step="0.01" value="1.2">
         <div class="dep-gets">Вы получите: <b id="depGc">5 000</b> GC</div>
         <button class="btn btn-green btn-block" id="depBtn" style="margin-top:12px;">Пополнить</button>
         <div class="dep-status hidden" id="depStatus"></div>
@@ -3406,10 +3407,12 @@ html,body{margin:0!important;min-width:0!important;background:#050505!important;
     var panel = document.getElementById('depPanel'); if(!panel) return;
     var amountEl = document.getElementById('depAmount'), gcEl = document.getElementById('depGc');
     var btn = document.getElementById('depBtn'), statusEl = document.getElementById('depStatus');
-    var cfg = { gcPerUsd:1000, minUsd:1, maxUsd:500 }, pollTimer = null, pollUntil = 0, current = null;
+    var cfg = { usdPer1000Gc:0.12, minUsd:0.1, maxUsd:1000 }, pollTimer = null, pollUntil = 0, current = null;
+    function gcFor(v){ var rate = Math.round((Number(cfg.usdPer1000Gc)||0.12)*1000000); return Math.floor(Math.round(v*100)*10000*1000/rate); }
+    function showRate(){ var el = document.getElementById('depRate'); if(!el){ el = document.createElement('div'); el.id = 'depRate'; el.className = 'dep-rate'; var pr = document.getElementById('depPresets'); pr.parentNode.insertBefore(el, pr); } el.textContent = 'Курс: ' + cfg.usdPer1000Gc + ' $ = 1 000 GC · от ' + cfg.minUsd + ' до ' + cfg.maxUsd + ' $'; }
     function fmt(n){ return Math.floor(Number(n)||0).toLocaleString('ru-RU'); }
     function usd(){ var v = Math.round((Number(amountEl.value)||0)*100)/100; return v; }
-    function refresh(){ gcEl.textContent = fmt(usd()*cfg.gcPerUsd); document.querySelectorAll('#depPresets [data-usd]').forEach(function(b){ b.classList.toggle('active', Number(b.getAttribute('data-usd'))===usd()); }); }
+    function refresh(){ gcEl.textContent = fmt(gcFor(usd())); document.querySelectorAll('#depPresets [data-usd]').forEach(function(b){ b.classList.toggle('active', Number(b.getAttribute('data-usd'))===usd()); }); }
     function setStatus(text, kind){ statusEl.textContent = text; statusEl.className = 'dep-status' + (kind ? ' '+kind : ''); }
     function openPay(d){
       var link = d.payUrl || d.miniAppUrl; if(!link) return;
@@ -3453,7 +3456,7 @@ html,body{margin:0!important;min-width:0!important;background:#050505!important;
       cfg = Object.assign(cfg, c || {});
       if(c && c.enabled) panel.classList.remove('hidden');
       if(c && Array.isArray(c.assets)) document.getElementById('depAssets').textContent = c.assets.join(' · ');
-      amountEl.min = cfg.minUsd; amountEl.max = cfg.maxUsd;
+      amountEl.min = cfg.minUsd; amountEl.max = cfg.maxUsd; showRate();
       if(!c || !c.p2pEnabled) document.querySelectorAll('.p2p-widget,.p2p-wallet-card').forEach(function(el){ el.classList.add('p2p-off'); });
       refresh();
     }).catch(function(){ document.querySelectorAll('.p2p-widget,.p2p-wallet-card').forEach(function(el){ el.classList.add('p2p-off'); }); });

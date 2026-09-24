@@ -1144,6 +1144,32 @@ window.ggChipFmt=function(n){ n=Math.round(Number(n)||0); var a=Math.abs(n);
   if(a>=1e9) return f(n/1e9,'B'); if(a>=1e6) return f(n/1e6,'M'); if(a>=1e4) return f(n/1e3,'K'); return String(n); };
 var ggChipFmt=window.ggChipFmt;
 </script>
+<style id="gg-v12-style">
+#ggLevelPill{display:none!important}
+#ggIdChip{display:flex!important;width:max-content;margin-left:auto!important;margin-right:auto!important}
+#ggResume{position:fixed;left:12px;right:12px;bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:9999;max-width:460px;margin:0 auto;padding:14px 16px;border-radius:16px;background:linear-gradient(135deg,#132033,#1b1433);border:1px solid rgba(250,204,21,.45);box-shadow:0 12px 40px rgba(0,0,0,.55);color:#e6edf7;animation:ggRsIn .35s ease}
+@keyframes ggRsIn{from{transform:translateY(20px);opacity:0}to{transform:none;opacity:1}}
+.gg-rs-t{font-weight:900;font-size:15px;color:#facc15;margin-bottom:4px}.gg-rs-s{font-size:13px;opacity:.9;line-height:1.35}
+.gg-rs-b{display:flex;gap:8px;margin-top:10px}.gg-rs-b .btn{flex:1;padding:10px 8px}
+.gg-tr-title{font-weight:900;font-size:16px;margin:2px 2px 10px}
+.gg-tr-head{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.gg-tr-sum{padding:10px 12px;border-radius:12px;background:rgba(148,163,184,.08);border:1px solid rgba(148,163,184,.16)}
+.gg-tr-sum small{display:block;font-size:11px;opacity:.7;text-transform:uppercase;letter-spacing:.04em}.gg-tr-sum b{font-size:15px}
+.gg-tr-sum.in b{color:#4ade80}.gg-tr-sum.out b{color:#f87171}
+.gg-tr-tabs{display:flex;gap:6px;margin-bottom:6px}
+.gg-tr-tabs button{flex:1;padding:8px 6px;border-radius:10px;border:1px solid rgba(148,163,184,.2);background:transparent;color:#cbd5e1;font-weight:800;font-size:12px;cursor:pointer}
+.gg-tr-tabs button.on{background:rgba(250,204,21,.16);border-color:rgba(250,204,21,.5);color:#facc15}
+.gg-tr-day{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;opacity:.6;margin:12px 2px 4px}
+.gg-pager{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:12px}
+.gg-pager span{font-size:12px;opacity:.75;text-align:center}
+.gg-pager button{padding:8px 12px;border-radius:10px;border:1px solid rgba(148,163,184,.25);background:rgba(148,163,184,.08);color:#e6edf7;font-weight:800;cursor:pointer}
+.gg-pager button:disabled{opacity:.35;cursor:default}
+.gg-atr-row{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center;padding:10px;border-radius:12px;background:rgba(148,163,184,.06);border:1px solid rgba(148,163,184,.12);margin-top:8px}
+.gg-atr-p b{display:block;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.gg-atr-p small{font-size:11px;opacity:.65}
+.gg-atr-p.r{text-align:right}
+.gg-atr-mid{display:flex;flex-direction:column;align-items:center;gap:2px}.gg-atr-mid small{font-size:10px;opacity:.6;white-space:nowrap}
+.gg-atr-amt{font-weight:900;color:#facc15;font-size:13px;white-space:nowrap}.gg-atr-arrow{opacity:.6}
+</style>
 </head>
 <body>
 <div id="app">
@@ -1835,6 +1861,11 @@ var ggChipFmt=window.ggChipFmt;
         <div id="adminUsers" class="admin-list"></div>
       </div>
       <div class="panel" style="margin-top:12px;">
+        <div class="panel-title">Переводы игроков</div>
+        <input class="input" id="adminTrQuery" type="text" placeholder="Ник или ID отправителя / получателя">
+        <div id="adminTransfers" class="admin-list"></div>
+      </div>
+      <div class="panel" style="margin-top:12px;">
         <div class="panel-title">Споры и сделки</div>
       </div>
     </section>
@@ -2029,6 +2060,7 @@ var ggChipFmt=window.ggChipFmt;
       }
       backendBalance = auth.user.balance;
       backendReady = true;
+      setTimeout(function(){ try{ ggResumeGames(); }catch(e){ console.warn('resume',e); } }, 700);
       applyBackendBalanceToUI();
       saveState();
       setInterval(function(){ if(backendReady) applyBackendBalanceToUI(); }, 1000);
@@ -2490,7 +2522,7 @@ var ggChipFmt=window.ggChipFmt;
     if(cached){ show(cached); }
     else {
       box.innerHTML='<div class="quest-reset" style="margin-top:0;">Получаем вашу реферальную ссылку…</div>';
-      apiRequest('/referrals/bot').then(function(b){ var l=ggBuildRefLink(b&&b.username, b&&b.appName, pid); if(l){ try{ localStorage.setItem('gg_ref_link',l); }catch(_){} if(!referralData) show(l); } }).catch(function(){});
+      apiRequest('/referrals/bot').then(function(b){ var l=(b&&b.link&&pid!=='—') ? b.link+(b.link.indexOf('?')>=0?'&':'?')+'startapp=ref_'+String(pid).replace(/[^0-9]/g,'') : ggBuildRefLink(b&&b.username, b&&b.appName, pid); if(l){ try{ localStorage.setItem('gg_ref_link',l); }catch(_){} if(!referralData) show(l); } }).catch(function(){});
     }
     if(ggRefRetry<4){ ggRefRetry++; setTimeout(function(){ if(!referralData) loadReferrals(); }, 2500*ggRefRetry); }
     return;
@@ -2882,10 +2914,32 @@ var ggChipFmt=window.ggChipFmt;
     }catch(e){ showToast(e.message||'Ошибка техработ','error'); }
   }
 
+
+  var ggAdmTrPage=1, ggAdmTrTimer=null;
+  function ggAdmParty(u){ u=u||{}; return '<b>'+escapeHtml(u.name||'Игрок')+'</b><small>'+(u.username?('@'+escapeHtml(u.username)+' · '):'')+'ID '+escapeHtml(String(u.playerId||'—'))+'</small>'; }
+  async function loadAdminTransfers(page){
+    var box=document.getElementById('adminTransfers'); if(!box) return;
+    ggAdmTrPage=page||1;
+    var q=(document.getElementById('adminTrQuery')||{}).value||'';
+    if(!box.innerHTML) box.innerHTML='<div class="empty-state">Загружаем…</div>';
+    try{
+      var d=await apiRequest('/admin/transfers?page='+ggAdmTrPage+'&q='+encodeURIComponent(q));
+      var rows=(d.transfers||[]).map(function(t){
+        var dt=new Date(t.createdAt), time=isNaN(dt.getTime())?'':(dt.toLocaleDateString('ru-RU')+' '+dt.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}));
+        return '<div class="gg-atr-row"><div class="gg-atr-p">'+ggAdmParty(t.from)+'</div><div class="gg-atr-mid"><span class="gg-atr-amt">'+fmt(t.amount)+' GC</span><span class="gg-atr-arrow">→</span><small>'+time+'</small></div><div class="gg-atr-p r">'+ggAdmParty(t.to)+'</div></div>';
+      }).join('');
+      var pages=d.pages||0;
+      box.innerHTML=(rows||'<div class="empty-state">Переводов не найдено.</div>')
+        +(pages>1?'<div class="gg-pager"><button type="button" data-ap="'+(ggAdmTrPage-1)+'"'+(ggAdmTrPage<=1?' disabled':'')+'>‹ Назад</button><span>Стр. '+ggAdmTrPage+' из '+pages+' · всего '+fmt(d.total||0)+'</span><button type="button" data-ap="'+(ggAdmTrPage+1)+'"'+(ggAdmTrPage>=pages?' disabled':'')+'>Вперёд ›</button></div>':'');
+      [].slice.call(box.querySelectorAll('[data-ap]')).forEach(function(b){ b.onclick=function(){ loadAdminTransfers(parseInt(b.getAttribute('data-ap'),10)||1); }; });
+    }catch(e){ box.innerHTML='<div class="empty-state">Не удалось загрузить переводы: '+escapeHtml((e&&e.message)||'ошибка')+'</div>'; }
+  }
+  (function(){ var inp=document.getElementById('adminTrQuery'); if(inp) inp.addEventListener('input', function(){ clearTimeout(ggAdmTrTimer); ggAdmTrTimer=setTimeout(function(){ loadAdminTransfers(1); }, 350); }); })();
   async function loadAdmin(){
     if(!backendReady || !(backendUser && backendUser.admin)) return;
     try{
       checkMaintenance();
+      loadAdminTransfers(1);
       var ov = await apiRequest('/admin/overview');
       var box = document.getElementById('adminOverview');
       if(box){
@@ -4251,6 +4305,50 @@ var ggChipFmt=window.ggChipFmt;
   var minesContinueBtn = document.getElementById('minesContinueBtn');
   if(minesContinueBtn) minesContinueBtn.addEventListener('click', function(){ endMinesRound(); });
 
+  // v12: незавершённые игры живут на сервере — после перезапуска можно забрать выигрыш или продолжить.
+  async function ggResumeGames(){
+    if(!backendReady) return;
+    var found=[];
+    try{
+      var c=await apiRequest('/games/coinflip/active');
+      if(c && c.session && !coinState){
+        var s=c.session;
+        coinState={ sessionId:s.sessionId, bet:s.bet, streak:s.streak, multiplier:s.multiplier, payout:s.payout };
+        updateCoinStreakUI(); showCoinStreakControls(); setCoinGlow('win');
+        found.push({ screen:'coinflip', name:'Coinflip', payout:s.payout, mult:s.multiplier });
+      }
+    }catch(e){}
+    try{
+      var m=await apiRequest('/games/mines/active');
+      if(m && m.session && !minesState){
+        var ms=m.session, opened=(ms.openedCells||[]).slice();
+        minesState={ sessionId:ms.sessionId, bet:ms.bet, mineCount:ms.mineCount, revealed:opened.length, multiplier:ms.multiplier||1, openedCells:opened };
+        var sp=document.getElementById('minesSetupPanel'), gp=document.getElementById('minesGamePanel');
+        if(sp) sp.classList.add('hidden'); if(gp) gp.classList.remove('hidden');
+        renderMinesGrid();
+        var set={}; opened.forEach(function(i){ set[i]=true; });
+        document.querySelectorAll('#minesGrid .mine-tile').forEach(function(t){ if(set[parseInt(t.dataset.idx,10)]){ t.classList.add('safe'); t.textContent='💎'; t.disabled=true; } });
+        updateMinesLadder(opened.length);
+        var mm=document.getElementById('minesMult'); if(mm) mm.textContent='x'+Number(minesState.multiplier).toFixed(2);
+        var mp=document.getElementById('minesPayout'); if(mp) mp.textContent=fmt(ms.payout||0);
+        var cb=document.getElementById('minesCashoutBtn'); if(cb){ cb.classList.remove('hidden'); cb.disabled = opened.length===0; }
+        var sl=document.getElementById('minesStreakLabel'); if(sl) sl.textContent='Серия: '+opened.length;
+        found.push({ screen:'mines', name:'Mines', payout:ms.payout||0, mult:minesState.multiplier });
+      }
+    }catch(e){}
+    if(found.length) ggShowResumeBanner(found[0]);
+  }
+  function ggShowResumeBanner(g){
+    var old=document.getElementById('ggResume'); if(old) old.remove();
+    var el=document.createElement('div'); el.id='ggResume';
+    el.innerHTML='<div class="gg-rs-t">Незавершённая игра · '+g.name+'</div>'
+      +'<div class="gg-rs-s">'+(g.payout>0 ? ('Вас ждёт выигрыш <b>'+fmt(g.payout)+' GC</b> (x'+Number(g.mult).toFixed(2)+'). Заберите его или играйте дальше.') : 'Раунд не закончен — можно продолжить.')+'</div>'
+      +'<div class="gg-rs-b"><button type="button" class="btn btn-primary" data-go>Вернуться в игру</button><button type="button" class="btn btn-ghost" data-x>Позже</button></div>';
+    el.querySelector('[data-go]').onclick=function(){ el.remove(); showScreen(g.screen); };
+    el.querySelector('[data-x]').onclick=function(){ el.remove(); };
+    document.body.appendChild(el);
+  }
+
   document.getElementById('minesCashoutBtn').addEventListener('click', async function(){
     if(!minesState || minesState.ended) return;
     minesState.ended = true;
@@ -5019,6 +5117,37 @@ var ggChipFmt=window.ggChipFmt;
       return transfersFromTransactions(legacy.transactions);
     }
   }
+
+  var ggTrState={ page:1, filter:'all' };
+  function ggDayLabel(d){
+    var t=new Date(), y=new Date(); y.setDate(t.getDate()-1);
+    if(d.toDateString()===t.toDateString()) return 'Сегодня';
+    if(d.toDateString()===y.toDateString()) return 'Вчера';
+    return d.toLocaleDateString('ru-RU',{ day:'numeric', month:'long', year:'numeric' });
+  }
+  function ggRenderTransfers(box, list){
+    list=list||[];
+    var f=ggTrState.filter, inSum=0, outSum=0;
+    list.forEach(function(t){ if(t.direction==='in') inSum+=Number(t.amount)||0; else outSum+=Number(t.amount)||0; });
+    var arr=list.filter(function(t){ return f==='all' || t.direction===f; });
+    var per=10, pages=Math.max(1, Math.ceil(arr.length/per));
+    if(ggTrState.page>pages) ggTrState.page=pages;
+    var p=ggTrState.page, slice=arr.slice((p-1)*per, p*per);
+    var html='<div class="gg-tr-title">История переводов</div>'
+      +'<div class="gg-tr-head"><div class="gg-tr-sum in"><small>Получено</small><b>+'+fmt(inSum)+' GC</b></div><div class="gg-tr-sum out"><small>Отправлено</small><b>−'+fmt(outSum)+' GC</b></div></div>'
+      +'<div class="gg-tr-tabs">'+[['all','Все ('+list.length+')'],['in','Входящие'],['out','Исходящие']].map(function(x){ return '<button type="button" data-f="'+x[0]+'" class="'+(f===x[0]?'on':'')+'">'+x[1]+'</button>'; }).join('')+'</div>';
+    var last=null;
+    slice.forEach(function(t){
+      var d=new Date(t.createdAt), day=isNaN(d.getTime())?'':ggDayLabel(d);
+      if(day!==last){ html+='<div class="gg-tr-day">'+day+'</div>'; last=day; }
+      html+=transferRowHtml(t);
+    });
+    if(!slice.length) html+='<div class="empty-state">'+(list.length?'В этом разделе переводов нет.':'Пока нет переводов.')+'</div>';
+    if(pages>1) html+='<div class="gg-pager"><button type="button" data-p="'+(p-1)+'"'+(p<=1?' disabled':'')+'>‹ Назад</button><span>Стр. '+p+' из '+pages+'</span><button type="button" data-p="'+(p+1)+'"'+(p>=pages?' disabled':'')+'>Вперёд ›</button></div>';
+    box.innerHTML=html;
+    [].slice.call(box.querySelectorAll('[data-f]')).forEach(function(b){ b.onclick=function(){ ggTrState.filter=b.getAttribute('data-f'); ggTrState.page=1; ggRenderTransfers(box, list); }; });
+    [].slice.call(box.querySelectorAll('[data-p]')).forEach(function(b){ b.onclick=function(){ ggTrState.page=parseInt(b.getAttribute('data-p'),10)||1; ggRenderTransfers(box, list); try{ box.scrollIntoView({ behavior:'smooth', block:'start' }); }catch(e){} }; });
+  }
   function transferRowHtml(t){
     var isPlus = t.direction === 'in';
     var cp = t.counterparty || {};
@@ -5043,7 +5172,7 @@ var ggChipFmt=window.ggChipFmt;
     var box = document.getElementById('historyBox');
     if(backendReady){
       var cached = readTransfersCache();
-      if(cached.length) box.innerHTML = cached.map(transferRowHtml).join('');
+      if(cached.length) ggRenderTransfers(box, cached);
       loadTransferHistory().then(function(transfers){
         var fullHistory=mergeTransferHistory(transfers,cached);
         writeTransfersCache(fullHistory);
@@ -5051,7 +5180,7 @@ var ggChipFmt=window.ggChipFmt;
           box.innerHTML = '<div class="empty-state">Пока нет переводов.</div>';
           return;
         }
-        box.innerHTML = fullHistory.map(transferRowHtml).join('');
+        ggRenderTransfers(box, fullHistory);
       }).catch(function(err){
         // Сохранённую историю не затираем ошибкой.
         if(cached.length) return;
@@ -7268,7 +7397,7 @@ input.input::placeholder,textarea.input::placeholder{color:#64748b!important;}
       if(online && online.parentNode) online.parentNode.insertBefore(chip, online.nextSibling);
     }
     var lvlEl=document.getElementById('profileLevel');
-    if(lvlEl && !document.getElementById('ggLevelPill')){
+    if(false && lvlEl && !document.getElementById('ggLevelPill')){
       var lvl=(lvlEl.textContent||'1').trim().replace(/[^0-9]/g,'')||'1';
       var band=sc.querySelector('.profile-band');
       var pill=document.createElement('div'); pill.id='ggLevelPill'; pill.className='gg-level-pill';
@@ -7635,7 +7764,7 @@ input.input::placeholder,textarea.input::placeholder{color:#64748b!important;}
 </style>
 <script id="gg-p2p-and-topbar-final-js">
 (function(){
-  function syncTopbar(){var profile=document.getElementById('screen-profile'),bar=document.getElementById('ggTopBar'),on=!!(profile&&profile.classList.contains('active'));document.body.classList.toggle('gg-profile-open',on);if(bar)bar.classList.toggle('gg-hide-on-profile',on)}
+  function syncTopbar(){var profile=document.getElementById('screen-profile'),bar=document.getElementById('ggTopBar'),on=!!(profile&&profile.classList.contains('active'));document.body.classList.toggle('gg-profile-bg',on);document.body.classList.remove('gg-profile-open');if(bar)bar.classList.remove('gg-hide-on-profile')}
   var mo=new MutationObserver(syncTopbar);function boot(){var p=document.getElementById('screen-profile');if(p)mo.observe(p,{attributes:true,attributeFilter:['class']});syncTopbar()}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();setTimeout(boot,800);
 })();
 </script>
@@ -7707,16 +7836,16 @@ input.input::placeholder,textarea.input::placeholder{color:#64748b!important;}
 #screen-profile .profile-weekly-label{color:#8fa0b8!important;font-size:11px!important;font-weight:850!important;letter-spacing:.035em!important;text-transform:uppercase;}
 #screen-profile .profile-cups b{display:inline-flex;align-items:center;gap:4px;padding:7px 13px;border-radius:12px;background:linear-gradient(135deg,rgba(56,189,248,.13),rgba(139,92,246,.12));border:1px solid rgba(125,211,252,.18);color:#e8f4ff!important;font-size:15px!important;box-shadow:0 8px 24px rgba(2,6,23,.24);}
 /* Full-screen profile atmosphere with a gentle scroll dim */
-body.gg-profile-open{--gg-profile-dim:0;background:radial-gradient(1000px 620px at 50% 3%,rgba(56,189,248,.20),transparent 60%),radial-gradient(850px 560px at 78% 12%,rgba(139,92,246,.18),transparent 62%),linear-gradient(180deg,#111a31 0%,#080d19 56%,#05070d 100%) fixed!important;}
-body.gg-profile-open:after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:#02040a;opacity:var(--gg-profile-dim);transition:opacity .18s linear;}
-body.gg-profile-open #app{position:relative;z-index:1;background:transparent!important;}
-body.gg-profile-open #screen-profile,body.gg-profile-open main.screen-container{background:transparent!important;}
+body.gg-profile-bg{--gg-profile-dim:0;background:radial-gradient(1000px 620px at 50% 3%,rgba(56,189,248,.20),transparent 60%),radial-gradient(850px 560px at 78% 12%,rgba(139,92,246,.18),transparent 62%),linear-gradient(180deg,#111a31 0%,#080d19 56%,#05070d 100%) fixed!important;}
+body.gg-profile-bg:after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:#02040a;opacity:var(--gg-profile-dim);transition:opacity .18s linear;}
+body.gg-profile-bg #app{position:relative;z-index:1;background:transparent!important;}
+body.gg-profile-bg #screen-profile,body.gg-profile-bg main.screen-container{background:transparent!important;}
 #screen-profile{min-height:100dvh!important;}
-@media(min-width:900px){body.gg-profile-open #screen-profile{min-height:calc(100vh - 106px)!important;}body.gg-profile-open main.screen-container{min-height:100vh!important;}}
+@media(min-width:900px){body.gg-profile-bg #screen-profile{min-height:calc(100vh - 106px)!important;}body.gg-profile-bg main.screen-container{min-height:100vh!important;}}
 @media(max-width:520px){#weeklyTopBox .weekly-top-head{display:block!important}#weeklyTopBox .weekly-top-head small{max-width:none;margin-top:7px!important}#weeklyTopBox .weekly-top-row{grid-template-columns:40px minmax(0,1fr) auto!important;padding:10px 8px!important}#weeklyTopBox .weekly-prize{font-size:10px!important;padding:6px 7px!important}}
 </style>
 <script id="gg-profile-scroll-dim">
-(function(){var ticking=false;function paint(){ticking=false;var on=document.body.classList.contains('gg-profile-open');var y=on?(window.scrollY||document.documentElement.scrollTop||0):0;document.body.style.setProperty('--gg-profile-dim',String(Math.min(.16,y/1800)));}function queue(){if(!ticking){ticking=true;requestAnimationFrame(paint)}}window.addEventListener('scroll',queue,{passive:true});new MutationObserver(queue).observe(document.body,{attributes:true,attributeFilter:['class']});queue();})();
+(function(){var ticking=false;function paint(){ticking=false;var on=document.body.classList.contains('gg-profile-bg');var y=on?(window.scrollY||document.documentElement.scrollTop||0):0;document.body.style.setProperty('--gg-profile-dim',String(Math.min(.16,y/1800)));}function queue(){if(!ticking){ticking=true;requestAnimationFrame(paint)}}window.addEventListener('scroll',queue,{passive:true});new MutationObserver(queue).observe(document.body,{attributes:true,attributeFilter:['class']});queue();})();
 </script>
 <style id="gg-profile-top-and-weekly-order-final">
 body.gg-profile-open #ggBrandLogo{display:none!important;}

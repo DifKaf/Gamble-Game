@@ -52,11 +52,19 @@ export async function resolveBotInfo() {
 	return botInfo
 }
 
+export function miniAppLink() {
+	const raw = String(process.env.TELEGRAM_MINIAPP_LINK || '').trim().replace(/[?&]startapp=[^&]*/, '')
+	return /^https:\/\/t\.me\/[A-Za-z0-9_]+\/[A-Za-z0-9_]+/.test(raw) ? raw : ''
+}
+
 export function inviteLink(user: { playerId?: number | null; id: string }) {
 	const bot = (String(process.env.TELEGRAM_BOT_USERNAME || '').replace(/^@/, '').trim()) || botInfo?.username || ''
 	const code = inviteCode(user)
 	const appName = String(process.env.TELEGRAM_APP_NAME || '').replace(/^\/+|\/+$/g, '').trim()
 	const TG_BASE = String.fromCharCode(104,116,116,112,115) + "://t.me/"
+	// Самый надёжный вариант: точная ссылка на рабочее Mini App (например t.me/MyBot/play).
+	const direct = miniAppLink()
+	if (direct) return { url: direct + (direct.includes('?') ? '&' : '?') + 'startapp=' + code, code, configured: true }
 	if (bot) {
 		// t.me/<bot>/<app>?startapp=… — открывает конкретное Mini App;
 		// t.me/<bot>?startapp=… — открывает главное Mini App бота (настраивается в @BotFather).
@@ -358,6 +366,7 @@ export async function publicBotInfo() {
 	const info = env ? null : await resolveBotInfo()
 	return {
 		username: env || info?.username || null,
+		link: miniAppLink() || null,
 		appName: String(process.env.TELEGRAM_APP_NAME || '').replace(/^\/+|\/+$/g, '').trim() || null
 	}
 }

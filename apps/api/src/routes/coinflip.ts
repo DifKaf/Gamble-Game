@@ -14,6 +14,14 @@ function payoutFor(bet:number, streak:number){ if(streak<=0) return { multiplier
 function flip():'heads'|'tails'{ return randomInt(2)===0 ? 'heads' : 'tails' }
 
 export async function coinflipRoutes(app:FastifyInstance){
+ // Незавершённая серия (например, сел телефон): можно забрать выигрыш или продолжить.
+ app.get('/active',{preHandler:[(app as any).authenticate]},async(req)=>{
+  const user=await getAuthUser(req)
+  const s=await prisma.coinflipSession.findFirst({where:{userId:user.id,status:'CREATED',streak:{gte:1}},orderBy:{createdAt:'desc'}})
+  if(!s) return {session:null}
+  const calc=payoutFor(Number(s.betAmount),s.streak)
+  return {session:{sessionId:s.id,bet:Number(s.betAmount),streak:s.streak,multiplier:calc.multiplier,payout:calc.payout,createdAt:s.createdAt}}
+ })
  app.post('/start',{preHandler:[(app as any).authenticate]},async(req,rep)=>{
   const user=await getAuthUser(req)
   const parsed=startSchema.safeParse(req.body)

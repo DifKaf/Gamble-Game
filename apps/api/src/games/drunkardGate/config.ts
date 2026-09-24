@@ -1,4 +1,4 @@
-export const ENGINE_VERSION = 'dg-1.1.0-double-symbol'
+export const ENGINE_VERSION = 'dg-1.3.0-server-jp'
 export const MIN_BET = 10
 export const MAX_BET = 10000
 export const BUY_BONUS_COST_MULTIPLIER = 100
@@ -25,7 +25,7 @@ export type SymbolDef = {
 }
 
 export const SYMS: SymbolDef[] = [
-	{ id: 0, name: 'Стакан', w: 1.4, pays: [0, 0, 0, 0, 0], isScatter: true, color: '#7dd3fc' },
+	{ id: 0, name: 'Стакан', w: 1.6, pays: [0, 0, 0, 0, 0], isScatter: true, color: '#7dd3fc' },
 	{ id: 1, name: 'Пиво', w: 4.5, pays: [2, 2, 5, 5, 15], color: '#f59e0b' },
 	{ id: 2, name: 'Сигарета', w: 5, pays: [1.5, 1.5, 2, 2, 12], color: '#e5e7eb' },
 	{ id: 3, name: 'Зажигалка', w: 6.5, pays: [1, 1, 1.5, 1.5, 10], color: '#60a5fa' },
@@ -45,8 +45,10 @@ export const ORB_WEIGHTS = [6000, 4200, 3000, 1800, 600, 400, 1225, 875, 700, 42
 export const GLOBAL_MULT_CAP = 40
 // Итоговая калибровка RTP (Return To Player) по результатам симуляции движка,
 // чтобы казино всегда оставалось в плюсе независимо от цепочек фриспинов/множителей.
-export const BASE_WIN_SCALE = 0.5
-export const ANTE_WIN_SCALE = 0.54
+export const BASE_WIN_SCALE = 0.295
+export const ANTE_WIN_SCALE = 0.178
+// Фриспины считаются отдельно: база скупее, бонус чаще и крупнее. Цель RTP ~92%.
+export const FREE_WIN_SCALE = 2.3
 
 export function publicPaytable() {
 	return {
@@ -72,3 +74,8 @@ export function publicPaytable() {
 		})),
 	}
 }
+
+// Потолок выигрыша за один спин (как у Pragmatic): не больше 5000x ставки.
+export const MAX_WIN_X = 5000
+// Купленный бонус стоит 100x, а в среднем давал ~98x. Коэффициент приводит его к ~92%.
+export const BUY_WIN_FACTOR = 0.94

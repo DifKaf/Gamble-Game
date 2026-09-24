@@ -18,6 +18,9 @@ import {
 	GLOBAL_MULT_CAP,
 	BASE_WIN_SCALE,
 	ANTE_WIN_SCALE,
+	FREE_WIN_SCALE,
+	MAX_WIN_X,
+	BUY_WIN_FACTOR,
 	type SymbolDef,
 } from './config.js'
 import { makeRng } from './rng.js'
@@ -55,6 +58,7 @@ export type PlaySpinInput = {
 	mode: 'base' | 'free'
 	freeSpinsLeft: number
 	globalMult: number
+	purchased?: boolean
 }
 
 export type SpinOutcome = {
@@ -71,6 +75,7 @@ export type SpinOutcome = {
 	freeSpinsLeft: number
 	globalMult: number
 	triggeredFreeSpins: boolean
+	purchased?: boolean
 	frames: SpinFrame[]
 }
 
@@ -375,7 +380,9 @@ export function playSpin(input: PlaySpinInput): SpinOutcome {
 		}
 	}
 
-	const win = Math.max(0, Math.round(spinWin * (ante ? ANTE_WIN_SCALE : BASE_WIN_SCALE)))
+	const purchased = mode === 'free' && Boolean(input.purchased)
+	const scale = (mode === 'free' ? FREE_WIN_SCALE : ante ? ANTE_WIN_SCALE : BASE_WIN_SCALE) * (purchased ? BUY_WIN_FACTOR : 1)
+	const win = Math.min(Math.round(stake * MAX_WIN_X), Math.max(0, Math.round(spinWin * scale)))
 	return {
 		engineVersion: ENGINE_VERSION,
 		mode,
@@ -390,6 +397,7 @@ export function playSpin(input: PlaySpinInput): SpinOutcome {
 		freeSpinsLeft,
 		globalMult,
 		triggeredFreeSpins,
+		purchased,
 		frames,
 	}
 }

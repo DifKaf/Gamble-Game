@@ -5,6 +5,8 @@ import { getAuthUser } from '../auth/getUser.js'
 import { applyBalanceChange, settleRound } from '../wallet/wallet.js'
 import { playSpin, stakeFor } from '../games/drunkardGate/engine.js'
 import { newSeed, seedHash } from '../games/drunkardGate/rng.js'
+import { contributeAndRoll, ensureJackpotTable, getJackpot } from '../utils/slotJackpot.js'
+import { sendTelegramMessage } from '../utils/telegram.js'
 import {
 	BUY_BONUS_COST_MULTIPLIER,
 	ENGINE_VERSION,
@@ -76,7 +78,8 @@ function toRecord(args: {
 		scatters: outcome.scatters,
 		cascades: outcome.cascades,
 		freeSpinsAwarded: outcome.freeSpinsAwarded,
-	}
+		purchased: outcome.purchased,
+	} as SpinRecord
 }
 
 /** Повторное проигрывание спина из записи (идемпотентные ретраи и аудит). */
@@ -90,6 +93,7 @@ function replay(record: SpinRecord) {
 		mode: record.mode,
 		freeSpinsLeft: record.freeSpinsLeftBefore,
 		globalMult: record.globalMultBefore,
+		purchased: (record as any).purchased,
 	})
 }
 
@@ -116,6 +120,11 @@ export async function drunkardGateRoutes(app: FastifyInstance) {
 	// Пейтейбл и правила — чтобы клиент ничего не дублировал у себя.
 	app.get('/config', async () => publicPaytable())
 
+	// Публичная сумма джекпота для счётчика в слоте.
+	app.get('/jackpot', async () => {
+		try { return await getJackpot() } catch { return { amount: 0, min: 0, lastWin: null } }
+	})
+
 	// Восстановление состояния после перезагрузки Mini App посреди бонусного раунда.
 	app.get('/state', { preHandler: [(app as any).authenticate] }, async (req) => {
 		const user = await getAuthUser(req)
@@ -140,6 +149,7 @@ export async function drunkardGateRoutes(app: FastifyInstance) {
 		}
 		const body = parsed.data
 		const clientSeed = body.clientSeed ?? ''
+		const jpReady = await ensureJackpotTable().then(() => true).catch(() => false)
 
 		// Идемпотентность базовых спинов: повторный запрос не списывает ставку второй раз.
 		if (body.requestId) {
@@ -199,6 +209,7 @@ export async function drunkardGateRoutes(app: FastifyInstance) {
 						mode: 'free',
 						freeSpinsLeft: active.freeSpinsLeft,
 						globalMult: active.globalMult,
+						purchased: active.purchased,
 					})
 
 					// Во время бонусной игры баланс не меняется: копим выигрыш раунда.
@@ -372,9 +383,30 @@ export async function drunkardGateRoutes(app: FastifyInstance) {
 					})
 				}
 
+				// Джекпот: копится из ставок, срывается случайно (шанс растёт со ставкой).
+				let jackpot: { pool: number; won: number } | null = null
+				if (jpReady) {
+					const uname = (user as any).username ? '@' + (user as any).username : (user as any).firstName || null
+					jackpot = await contributeAndRoll(tx, Number(outcome.stake), user.id, uname)
+					if (jackpot.won > 0) {
+						const paidJp = await applyBalanceChange({
+							tx,
+							userId: user.id,
+							amount: BigInt(jackpot.won),
+							type: 'WIN',
+							source: 'drunkard-gate-jackpot',
+							metadata: { game: 'drunkard-gate', kind: 'jackpot', stake: Number(outcome.stake) },
+						})
+						balance = Number(paidJp.balance)
+						const tgId = (user as any).telegramId
+						if (tgId) sendTelegramMessage(tgId, `🎉 ДЖЕКПОТ в Drunkard Gate! Вы выиграли ${jackpot.won.toLocaleString('ru-RU')} GC`).catch(() => {})
+					}
+				}
+
 				return {
 					balance,
 					spin: outcome,
+					jackpot,
 					round: roundView(round),
 					fairness: {
 						engineVersion: ENGINE_VERSION,

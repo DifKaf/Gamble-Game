@@ -145,7 +145,8 @@ export async function walletRoutes(app: FastifyInstance) {
     // Явно выставленный ALLOW_LEGACY_GAME_ADJUST=false всё ещё может выключить его.
     // Мост позволяет клиенту начислить себе любую сумму. Так как GC можно продать
     // через P2P-биржу, по умолчанию он ВЫКЛЮЧЕН. Включить: ALLOW_LEGACY_GAME_ADJUST=true.
-    if (process.env.ALLOW_LEGACY_GAME_ADJUST !== 'true') {
+    // v15: Drunkard Gate считается на сервере, мост закрыт НАВСЕГДА — иначе клиент может начислить себе любую сумму.
+    if (true) {
       return reply.code(410).send({ error: 'Legacy endpoint removed. Use the dedicated game endpoints.' })
     }
 

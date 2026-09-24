@@ -1546,7 +1546,8 @@ function updateUI(){
   else gb.classList.remove('on');
 }
 
-async function doSpin(){
+async function doSpin(){ const api=dgApi(); if(api) return doServerSpin(api); return doSpinLocal(); }
+async function doSpinLocal(){
   if(spinning) return;
   initAudio();
   const stake=actualStake();
@@ -1805,6 +1806,224 @@ async function doSpin(){
   }
 }
 
+// ===================================================================
+// SERVER MODE (v15): результат спина решает сервер, игра только анимирует.
+// ===================================================================
+function dgApi(){
+  try{ const p=window.parent; if(p && p!==window && p.GambleSlotApi && p.GambleSlotApi.ready()) return p.GambleSlotApi; }catch(e){}
+  return null;
+}
+function dgReqId(){ return 'dg-'+Date.now()+'-'+Math.random().toString(36).slice(2,10); }
+function dgCell(x){
+  if(!x) return SYMS[7];
+  if(x.kind==='mult') return makeMultSym(x.mult);
+  return SYMS.find(s=>s.id===x.id)||SYMS[7];
+}
+function dgSetBalance(api,b){ if(typeof b==='number' && isFinite(b)){ balance=b; try{ api.setBalance(b); }catch(e){} } }
+function dgPost(api,path,body){ return api.request('/games/drunkard-gate'+path,{method:'POST',body:JSON.stringify(body)}); }
+function dgBtns(dis){ ['spBtn','anteBtn','buyBtn'].forEach(id=>{ const el=document.getElementById(id); if(el) el.disabled=dis; }); }
+function dgFmt(n){ return Math.round(Number(n)||0).toLocaleString('ru-RU'); }
+
+async function dgDropTo(wc, ng){
+  wc.forEach(([c,r])=>{ if(cells[c]&&cells[c][r]) cells[c][r].className='cell blast'; });
+  await wait(330);
+  const hit=new Set(wc.map(([c,r])=>c+':'+r));
+  for(let c=0;c<COLS;c++) for(let r=0;r<ROWS;r++){
+    const n=dgCell(ng[c][r]); const o=grid[c][r];
+    const same=o && o.id===n.id && (o.mult||0)===(n.mult||0);
+    if(!same || hit.has(c+':'+r)){ grid[c][r]=n; setSym(c,r,n,'drop'); }
+  }
+  sfx('land');
+  await wait(Math.round((DROP_COL*(COLS-1)+DROP_ROW*(ROWS-1)+DROP_DUR)*1000)+40);
+}
+
+async function doServerSpin(api){
+  if(spinning) return;
+  initAudio();
+  const stake=actualStake();
+  if(!inFreeSpin && balance<stake){ setMsg('НЕДОСТАТОЧНО МОНЕТ!','sc'); return; }
+  spinning=true; dgBtns(true);
+  let res;
+  try{
+    setMsg('...',''); sfx('click');
+    res=await dgPost(api,'/spin',{betAmount:bet, ante:anteBetOn, requestId:dgReqId()});
+  }catch(e){
+    setMsg(String((e&&e.message)||'ОШИБКА СЕРВЕРА').slice(0,60),'sc');
+    spinning=false; dgBtns(false); autoSpinOn=false; try{document.getElementById('autoBtn').classList.remove('on');}catch(_){}
+    updateUI(); return;
+  }
+  try{
+    const sp=res.spin||{}; const frames=sp.frames||[];
+    const isFree=sp.mode==='free';
+    if(isFree && !inFreeSpin){ inFreeSpin=true; }
+    if(isFree){ freeSpins=Math.max(0,freeSpins-1); }
+    else { balance=Math.max(0,balance-stake); try{api.setBalance(balance);}catch(e){} totalWin=0; fsGlobalMult=0; }
+    const last=frames.length?frames[frames.length-1]:null;
+    const raw=last&&last.spinWin?last.spinWin:0;
+    const k=raw>0?(sp.win/raw):0;
+    tumbleWin=0; cascMult=1; clearOrbs(); updateUI();
+
+    await clearGridVanish();
+    grid=[]; measureCell();
+    const g0=frames[0]?frames[0].grid:[];
+    for(let c=0;c<COLS;c++){
+      grid[c]=[];
+      for(let r=0;r<ROWS;r++){ grid[c][r]=dgCell(g0[c]&&g0[c][r]); setSym(c,r,grid[c][r],'drop'); }
+    }
+    for(let landC=0;landC<COLS;landC++){ const sd=Math.round(DROP_COL*landC*1000*(turboOn?0.22:1)); setTimeout(()=>sfx('land'),sd); }
+    await wait(Math.round((DROP_COL*(COLS-1)+DROP_ROW*(ROWS-1)+DROP_DUR)*1000)+40);
+    if(gridMults().length) sfx('mult');
+
+    let scatterCount=countScatters(); updateScatterBar(scatterCount);
+    let spinWin=0;
+    for(let i=1;i<frames.length;i++){
+      const f=frames[i];
+      if(f.clusters && f.clusters.length){
+        const rWin=Math.round((f.tumbleWin||0)*k);
+        const cl=f.clusters.map(x=>({symId:x.symId, cls:x.cells}));
+        cl.forEach(({cls})=>cls.forEach(([c,r])=>{ if(cells[c]&&cells[c][r]) cells[c][r].className='cell win'; }));
+        if(rWin>0) showWinPop(cl, rWin, stake);
+        await wait(1200);
+        spinWin+=rWin; tumbleWin=spinWin; totalWin+=rWin;
+        { const gm=gridMults(); cascMult=gm.length?gm.reduce((a,b)=>a+b,0):1; }
+        updateUI();
+        if(totalWin>=stake*30) sfx('mega'); else if(totalWin>=stake*8) sfx('bigwin'); else if(rWin>0) sfx('cascade');
+        await dgDropTo(cl.flatMap(x=>x.cls), f.grid);
+        scatterCount=countScatters(); updateScatterBar(scatterCount);
+      } else if(f.mults && f.mults.length){
+        const winBefore=spinWin;
+        const target=Math.round((f.winAfterMult||f.spinWin||0)*k);
+        const pos=f.mults.map(m=>({mult:m.mult,c:m.c,r:m.r}));
+        const prev=isFree?fsGlobalMult:0;
+        if(isFree) fsGlobalMult=f.appliedMult||fsGlobalMult;
+        cascMult=f.appliedMult||1;
+        totalWin+=target-spinWin; spinWin=target;
+        sfx((f.appliedMult||0)>=50?'mega':'bigwin');
+        await playMultiplySequence(winBefore,pos,prev,spinWin);
+        updateUI(); await wait(300);
+      }
+    }
+    if(spinWin!==sp.win){ totalWin+=sp.win-spinWin; spinWin=sp.win; }
+    if(isFree) fsGlobalMult=sp.globalMult||fsGlobalMult;
+
+    if(!isFree && sp.triggeredFreeSpins){
+      dgSetBalance(api,res.balance);
+      sfx('scatter'); await wait(400);
+      setMsg(`${scatterCount} SCATTER! АКТИВАЦИЯ ФРИСПИНОВ!`,'sc');
+      spinning=false; dgBtns(false);
+      dgJackpotFromRes(res);
+      await triggerFreeSpins(sp.freeSpinsAwarded||15);
+      return;
+    }
+    if(isFree && sp.freeSpinsAwarded>0){
+      sfx('scatter'); await wait(300);
+      await showBonusStart(sp.freeSpinsAwarded,{prefix:'+',label:'ДОПОЛНИТЕЛЬНЫХ СПИНОВ'});
+    }
+
+    if(!isFree){
+      dgSetBalance(api,res.balance); updateUI();
+      if(!spinWin){ sfx('lose'); setMsg('НЕ ПОВЕЗЛО...','sc'); }
+      else {
+        const rt=spinWin/stake;
+        if(rt>=80){ setMsg(`МЕГА ВЫИГРЫШ! +${spinWin}`,'mg'); doConfetti(120); }
+        else if(rt>=15){ setMsg(`БОЛЬШОЙ ВЫИГРЫШ! +${spinWin}`,'bw'); doConfetti(50); }
+        else setMsg(`+${spinWin}`,'w');
+      }
+      dgJackpotFromRes(res);
+      if(res.jackpot && res.jackpot.won>0){ await dgShowJackpotWin(res.jackpot.won); }
+    } else {
+      freeSpins=res.round?Number(res.round.freeSpinsLeft)||0:0;
+      if(spinWin>0) setMsg(`+${spinWin}`,'w');
+      if(freeSpins>0){
+        updateUI();
+        setMsg(`ФРИСПИН! Осталось: ${freeSpins}  ×${fsGlobalMult}`,'w');
+        spinning=false;
+        setTimeout(doSpin, turboOn?160:700);
+        return;
+      }
+      inFreeSpin=false;
+      stopBg(); schedMusic(false);
+      const roundWin=typeof res.roundWin==='number'?res.roundWin:totalWin;
+      totalWin=roundWin;
+      dgSetBalance(api,res.balance); updateUI();
+      showWinOverlay(roundWin, fsGlobalMult);
+    }
+  }catch(e){ console.error('Server spin error:',e); try{ const st=await api.request('/games/drunkard-gate/state'); dgSetBalance(api,st.balance); }catch(_){} }
+  finally{
+    spinning=false; dgBtns(false); updateUI();
+    if(autoSpinOn){
+      const woOpen=document.getElementById('winOverlay').classList.contains('show');
+      if(!inFreeSpin && !woOpen && balance>=actualStake()){
+        setTimeout(()=>{ if(autoSpinOn && !spinning) doSpin(); }, turboOn?300:900);
+      } else if(!inFreeSpin && balance<actualStake()){
+        autoSpinOn=false; document.getElementById('autoBtn').classList.remove('on');
+      }
+    }
+  }
+}
+
+async function dgServerBuy(api){
+  if(spinning) return;
+  spinning=true; dgBtns(true);
+  try{
+    const res=await dgPost(api,'/buy-bonus',{betAmount:bet, requestId:dgReqId()});
+    dgSetBalance(api,res.balance); totalWin=0;
+    setMsg(`БОНУС КУПЛЕН ЗА ${dgFmt(res.cost||bet*100)}!`,'mg');
+    sfx('fsstart'); updateUI();
+    spinning=false;
+    await triggerFreeSpins((res.round&&res.round.freeSpinsLeft)||15);
+  }catch(e){
+    setMsg(String((e&&e.message)||'ОШИБКА ПОКУПКИ').slice(0,60),'sc');
+    spinning=false; dgBtns(false); updateUI();
+  }
+}
+
+async function dgResume(){
+  const api=dgApi(); if(!api) return;
+  try{
+    const st=await api.request('/games/drunkard-gate/state');
+    dgSetBalance(api,st.balance); updateUI();
+    const rd=st.round;
+    if(rd && rd.freeSpinsLeft>0 && !inFreeSpin && !spinning){
+      totalWin=0;
+      await showBonusStart(rd.freeSpinsLeft,{sub:'ПРОДОЛЖАЕМ БОНУС',label:'ОСТАЛОСЬ ФРИСПИНОВ'});
+      inFreeSpin=true; freeSpins=rd.freeSpinsLeft; fsGlobalMult=rd.globalMult||0;
+      stopBg(); schedMusic(true); updateUI();
+      setTimeout(doSpin, 400);
+    }
+  }catch(e){}
+}
+
+function dgJackpotUI(){
+  if(document.getElementById('dgJp')) return;
+  const st=document.createElement('style');
+  st.textContent='#dgJp{position:fixed;top:8px;left:50%;transform:translateX(-50%);z-index:60;display:flex;align-items:center;gap:6px;padding:4px 12px;border-radius:999px;background:linear-gradient(135deg,rgba(120,53,15,.92),rgba(146,64,14,.92));border:1px solid #fbbf24;box-shadow:0 0 14px rgba(251,191,36,.45);font:900 11px/1.2 system-ui,sans-serif;color:#fde68a;letter-spacing:1px;pointer-events:none}#dgJp b{color:#fff;font-size:13px;letter-spacing:0}#dgJpWin{position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;flex-direction:column;background:radial-gradient(circle,rgba(120,53,15,.95),rgba(0,0,0,.94));color:#fde68a;text-align:center;font-family:system-ui,sans-serif;cursor:pointer}#dgJpWin.show{display:flex}#dgJpWin .t{font-size:34px;font-weight:900;letter-spacing:4px;text-shadow:0 0 22px #fbbf24;animation:dgJpP 1s ease-in-out infinite}#dgJpWin .a{font-size:46px;font-weight:900;color:#fff;margin:14px 0;text-shadow:0 0 26px #f59e0b}#dgJpWin .s{font-size:12px;opacity:.75}@keyframes dgJpP{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}';
+  document.head.appendChild(st);
+  const d=document.createElement('div'); d.id='dgJp'; d.innerHTML='💰 ДЖЕКПОТ <b id="dgJpAmt">—</b>'; d.style.display='none';
+  document.body.appendChild(d);
+  const w=document.createElement('div'); w.id='dgJpWin'; w.innerHTML='<div class="t">ДЖЕКПОТ!</div><div class="a" id="dgJpWinAmt"></div><div class="s">Нажмите, чтобы продолжить</div>';
+  document.body.appendChild(w);
+}
+function dgSetJackpot(n){ dgJackpotUI(); const d=document.getElementById('dgJp'); d.style.display='flex'; document.getElementById('dgJpAmt').textContent=dgFmt(n)+' GC'; }
+function dgJackpotFromRes(res){ if(res && res.jackpot && typeof res.jackpot.pool==='number') dgSetJackpot(res.jackpot.pool); }
+function dgShowJackpotWin(amount){
+  dgJackpotUI();
+  return new Promise(res=>{
+    const w=document.getElementById('dgJpWin');
+    document.getElementById('dgJpWinAmt').textContent='+'+dgFmt(amount)+' GC';
+    w.classList.add('show'); sfx('mega'); doConfetti(160);
+    const done=()=>{ w.removeEventListener('click',done); w.classList.remove('show'); res(); };
+    setTimeout(()=>w.addEventListener('click',done),700);
+  });
+}
+async function dgPollJackpot(){
+  const api=dgApi(); if(!api) return;
+  try{ const j=await api.request('/games/drunkard-gate/jackpot'); if(j && typeof j.amount==='number') dgSetJackpot(j.amount); }catch(e){}
+}
+setTimeout(()=>{ dgPollJackpot(); dgResume(); }, 900);
+setInterval(dgPollJackpot, 15000);
+
+
 function showBonusStart(count, opts){
   opts = opts || {};
   return new Promise(res=>{
@@ -1934,6 +2153,7 @@ document.getElementById('bcNo').onclick=()=>{
 document.getElementById('bcYes').onclick=()=>{
   document.getElementById('buyConfirmOverlay').classList.remove('show');
   if(spinning) return;
+  { const api=dgApi(); if(api){ dgServerBuy(api); return; } }
   const cost=bet*100;
   if(balance<cost){ setMsg(`НУЖНО ${cost} ДЛЯ ПОКУПКИ БОНУСА`,'sc'); return; }
   addSharedBalance(-cost); totalWin=0;

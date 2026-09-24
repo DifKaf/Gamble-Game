@@ -19,6 +19,7 @@ import { adminRoutes } from './routes/admin.js'
 import { exchangeRoutes } from './routes/exchange.js'
 import { depositRoutes } from './routes/deposit.js'
 import { telegramBotRoutes, startTelegramBot } from './bot/chatCommands.js'
+import { resolveBotInfo } from './utils/referrals.js'
 import { ensurePlayerIds } from './utils/ensurePlayerIds.js'
 import { ensureFeatureTables } from './utils/ensureFeatureTables.js'
 import { ensureIndexes } from './utils/ensureIndexes.js'
@@ -62,3 +63,4 @@ scheduleRetention(app.log)
 await app.listen({port:Number(process.env.PORT||4000),host:'0.0.0.0'})
 // Визитка игрока в чате: «баланс», «бал», «статистика», «профиль», «bal», «balance».
 void startTelegramBot(app.log)
+void resolveBotInfo()

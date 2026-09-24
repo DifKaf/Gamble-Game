@@ -2,7 +2,7 @@ import { FastifyInstance } from 'fastify'
 import { z } from 'zod'
 import { prisma } from '../db.js'
 import { getAuthUser } from '../auth/getUser.js'
-import { attachReferral, referralStats, payReferralMilestones } from '../utils/referrals.js'
+import { attachReferral, referralStats, payReferralMilestones, resolveBotInfo } from '../utils/referrals.js'
 
 const REASONS: Record<string, string> = {
 	invalid_code: 'Некорректный код приглашения',
@@ -17,6 +17,7 @@ export async function referralRoutes(app: FastifyInstance) {
 	// Статистика приглашений + доначисление бонусов за оборот друзей.
 	app.get('/', { preHandler: [(app as any).authenticate] }, async (request) => {
 		const user = await getAuthUser(request)
+		await resolveBotInfo()
 		let milestones = { paid: 0, count: 0 }
 		try { milestones = await payReferralMilestones(user.id) } catch (err: any) {
 			request.log?.warn({ err }, 'referral milestones skipped')

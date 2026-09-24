@@ -62,6 +62,19 @@ export function withCustomEmoji(text: string): string {
 	return out
 }
 
+// Убирает эмодзи из текста уведомления («💸 Вам пришёл перевод» → «Вам пришёл перевод»).
+// Вернуть эмодзи можно переменной TELEGRAM_NOTIFY_EMOJI=true.
+export function stripEmoji(text: string): string {
+	return String(text)
+		.replace(/[\u{1F1E6}-\u{1F1FF}]/gu, '')
+		.replace(/[#*0-9]\uFE0F?\u20E3/gu, '')
+		.replace(/(?:\p{Extended_Pictographic}|\p{Emoji_Modifier})(?:\uFE0F|\u200D|\p{Emoji_Modifier})*/gu, '')
+		.replace(/[\uFE0F\u200D]/g, '')
+		.replace(/[ \t]{2,}/g, ' ')
+		.replace(/^[ \t]+/gm, '')
+		.replace(/[ \t]+$/gm, '')
+}
+
 async function postMessage(token: string, chatId: string, text: string) {
 	const res = await fetch(TELEGRAM_API + token + '/sendMessage', {
 		method: 'POST',
@@ -75,6 +88,7 @@ export async function sendTelegramMessage(telegramId: string | bigint | number, 
 	const token = botToken()
 	if (!token || telegramId == null || telegramId === '') return false
 	const chatId = String(telegramId)
+	if (String(process.env.TELEGRAM_NOTIFY_EMOJI || 'false') !== 'true') text = stripEmoji(text)
 	try {
 		const rich = withCustomEmoji(text)
 		const body = await postMessage(token, chatId, rich)

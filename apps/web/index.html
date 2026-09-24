@@ -2473,9 +2473,7 @@ html,body{margin:0!important;min-width:0!important;background:#050505!important;
     var box=document.getElementById('referralBox'); if(!box) return;
     var pid=resolvePlayerId()||'—';
     box.innerHTML='<div class="quest-reset" style="margin-top:0;">Приглашайте игроков и получайте бонусы за их активность. Серверные данные временно недоступны.</div>'+
-      '<div class="quest-reset">За каждого приглашённого начисляется 250 GC.</div><div class="ref-link-row"><div class="ref-link" id="refLinkText">'+escapeHtml((location.origin||'')+location.pathname+'?ref='+pid)+'</div><button class="btn btn-gold" id="refCopyBtn" style="flex:0 0 auto;">Копировать</button></div>'+
-      '<div class="ref-stats"><div class="ref-stat"><b>0</b><small>ПРИГЛАШЕНО</small></div><div class="ref-stat"><b>0</b><small>ЗАРАБОТАНО GC</small></div></div>'+
-      '<div class="quest-reset">'+escapeHtml(reason||'Попробуйте позже — приложение продолжит работать.')+'</div>';
+      '<div class="quest-reset">За каждого приглашённого начисляется 250 GC.</div><div class="ref-link-row"><div class="ref-link" id="refLinkText">'+escapeHtml('Ссылка появится после подключения к серверу')+'</div>';
   }
 
   async function loadReferrals(){
@@ -7482,7 +7480,8 @@ input.input::placeholder,textarea.input::placeholder{color:#64748b!important;}
   // ---------- меню профиля ----------
   var ITEMS=[
     ['settings','⚙️','Настройки','Звук, тема, язык и вибрация'],
-    ['share','↗️','Поделиться профилем','Показать свой профиль друзьям'],
+    ['promo','🎟️','Создать промокод','Раздайте GC друзьям по коду'],
+    ['admin','🛠️','Админка','Управление игроками и балансами'],
     ['privacy','🔒','Политика конфиденциальности','Как мы работаем с вашими данными'],
     ['terms','📜','Правила и условия','Условия использования'],
     ['support','💬','Поддержка','Помощь и споры'],
@@ -7500,7 +7499,8 @@ input.input::placeholder,textarea.input::placeholder{color:#64748b!important;}
       if(!it) return;
       var a=it.getAttribute('data-gg-act');
       if(a==='settings'){ if(window.showScreen) showScreen('settings'); }
-      else if(a==='share'){ var b=document.getElementById('profileShareBtn'); if(b) b.click(); }
+      else if(a==='promo'){ if(window.showScreen) showScreen('promo-create'); }
+      else if(a==='admin'){ if(window.showScreen) showScreen('admin'); }
       else { ggOpenDoc(a); }
     });
   }
@@ -8061,6 +8061,7 @@ body.slot-open #dgFullscreenClose{z-index:2147483500!important}
   function openTopup(e){
     if(e){ e.preventDefault(); e.stopPropagation(); }
     try{ if(window.Telegram && Telegram.WebApp && Telegram.WebApp.HapticFeedback) Telegram.WebApp.HapticFeedback.impactOccurred('light'); }catch(_){}
+    if(window.ggOpenDeposit){ window.ggOpenDeposit(); return; }
     var navBtn = document.querySelector('.nav-btn[data-nav="wallet"]');
     if(navBtn) navBtn.click();
     setTimeout(function(){
@@ -8075,6 +8076,135 @@ body.slot-open #dgFullscreenClose{z-index:2147483500!important}
     if(b) openTopup(e);
   }, true);
   window.openTopup = openTopup;
+})();
+</script>
+
+<style id="gg-v10-style">
+/* плюс в закреплённой плашке */
+.gg-topbar .gg-tb-bal{align-items:center!important}
+.gg-tb-plus{flex:0 0 24px;width:24px;height:24px;margin:0 -4px 0 8px;padding:0;border:0;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;background:linear-gradient(135deg,#34d399,#10b981);box-shadow:0 3px 10px rgba(16,185,129,.45);transition:transform .1s ease}
+.gg-tb-plus svg{width:14px;height:14px;fill:none;stroke:#fff;stroke-width:3.2;stroke-linecap:round}
+.gg-tb-plus:active{transform:scale(.88)}
+.gg-tb-av,.gameHeaderAvatar{cursor:pointer}
+/* старые кнопки профиля — теперь в меню */
+#screen-profile #openAdminBtn,#screen-profile #togglePromoCreator,#screen-profile .profile-share{display:none!important}
+#ggProfMenu .gg-prof-item[data-gg-act="admin"].gg-hide{display:none!important}
+/* кнопка пополнения в кошельке */
+.gg-dep-entry{display:flex;align-items:center;gap:14px;width:100%;margin-top:16px;padding:16px;border-radius:18px;border:1px solid rgba(52,211,153,.35);background:linear-gradient(135deg,rgba(16,185,129,.18),rgba(42,163,239,.14));color:#fff;text-align:left;cursor:pointer}
+.gg-dep-entry .ic{width:44px;height:44px;border-radius:14px;flex:0 0 auto;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#2aa3ef,#1b7fd1);font-size:22px}
+.gg-dep-entry b{display:block;font-size:16px}
+.gg-dep-entry small{display:block;opacity:.7;font-size:12.5px;margin-top:2px}
+.gg-dep-entry .go{margin-left:auto;padding:8px 14px;border-radius:12px;background:#10b981;font-weight:800;font-size:13px}
+.gg-dep-entry:active{transform:scale(.985)}
+/* отдельное окно пополнения */
+#screen-deposit .dep-hero{margin:4px 0 14px;padding:18px;border-radius:20px;background:radial-gradient(120% 140% at 0% 0%,rgba(42,163,239,.35),transparent 60%),linear-gradient(135deg,#14202e,#101620);border:1px solid rgba(42,163,239,.28)}
+#screen-deposit .dep-hero .lbl{font-size:12px;opacity:.7;text-transform:uppercase;letter-spacing:.08em;font-weight:800}
+#screen-deposit .dep-hero .bal{font-size:28px;font-weight:900;margin-top:4px}
+#screen-deposit .dep-hero .bal small{font-size:14px;color:#5fe08a;margin-left:4px}
+#screen-deposit .dep-hero .via{display:flex;align-items:center;gap:8px;margin-top:10px;font-size:12.5px;opacity:.85}
+#screen-deposit .dep-panel{margin-top:0!important;border-radius:20px}
+#screen-deposit .dep-head{display:none!important}
+#screen-deposit .dep-sub{font-size:13px;font-weight:800;opacity:.75;margin:2px 0 10px}
+#screen-deposit .dep-presets{display:grid!important;grid-template-columns:repeat(3,1fr);gap:10px!important;margin:0 0 12px!important;flex-wrap:initial!important}
+#screen-deposit .dep-presets button{display:flex!important;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:70px;padding:10px 6px!important;border-radius:16px!important;border:1px solid rgba(255,255,255,.1)!important;background:rgba(255,255,255,.05)!important;color:#fff!important;font-size:17px!important;font-weight:900!important;cursor:pointer;transition:transform .08s ease,border-color .15s ease}
+#screen-deposit .dep-presets button small{font-size:11.5px;font-weight:700;color:#7dd3fc;opacity:.95}
+#screen-deposit .dep-presets button.active{border-color:#2aa3ef!important;background:linear-gradient(135deg,rgba(42,163,239,.28),rgba(16,185,129,.18))!important;box-shadow:0 0 0 1px #2aa3ef inset}
+#screen-deposit .dep-presets button:active{transform:scale(.96)}
+#screen-deposit .dep-presets button.gg-custom-btn{font-size:13.5px!important;color:#cfe9d8!important;border-style:dashed!important}
+#screen-deposit .dep-presets button.gg-custom-btn.active{color:#fff!important}
+#screen-deposit .gg-custom-wrap{display:none}
+#screen-deposit .gg-custom-wrap.open{display:block}
+#screen-deposit .gg-custom-wrap .input{font-size:18px;font-weight:800}
+#screen-deposit .dep-gets{display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding:12px 14px;border-radius:14px;background:rgba(16,185,129,.12);font-size:13.5px;opacity:1}
+#screen-deposit .dep-gets b{font-size:18px;color:#5fe08a}
+#screen-deposit #depBtn{min-height:52px;font-size:16px;font-weight:900;border-radius:16px}
+#screen-deposit .dep-rate{font-size:12px;opacity:.65;margin:0 0 10px}
+#screen-deposit .dep-note{margin-top:12px;font-size:12px;opacity:.6;text-align:center}
+</style>
+<script id="gg-v10-script">
+(function(){
+  var PLUS='<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>';
+  function go(name){ try{ (window.showScreen||window.ggShowScreen)(name); }catch(e){} }
+  function haptic(){ try{ Telegram.WebApp.HapticFeedback.impactOccurred('light'); }catch(e){} }
+  function rateUsd(){ var r=document.getElementById('depRate'); var m=r&&(r.textContent||'').replace(',', '.').match(/(\d+(?:\.\d+)?)\s*\$/); var v=m?Number(m[1]):0.12; return v>0?v:0.12; }
+  function gcFor(usd){ return Math.floor(Math.round(usd*100)*10000*1000/Math.round(rateUsd()*1000000)); }
+  function fmt(n){ return Math.floor(Number(n)||0).toLocaleString('ru-RU'); }
+
+  function buildDepositScreen(){
+    var panel=document.getElementById('depPanel'); var wallet=document.getElementById('screen-wallet');
+    if(!panel||!wallet) return false;
+    if(document.getElementById('screen-deposit')) return true;
+    var sec=document.createElement('section'); sec.id='screen-deposit'; sec.className='screen';
+    sec.innerHTML='<div class="game-header"><button class="back-btn" id="ggDepBack">←</button><h2>Пополнение</h2></div>'+
+      '<div class="dep-hero"><div class="lbl">Ваш баланс</div><div class="bal"><span id="ggDepBal">0</span><small>GC</small></div>'+
+      '<div class="via">💎 Оплата через CryptoBot · <span id="ggDepAssets">USDT · TON · BTC</span></div></div>';
+    wallet.parentNode.insertBefore(sec, wallet.nextSibling);
+    // в кошельке на месте панели — кнопка-вход
+    var entry=document.createElement('button'); entry.type='button'; entry.className='gg-dep-entry'; entry.id='ggDepEntry';
+    entry.innerHTML='<span class="ic">💎</span><span><b>Пополнить баланс</b><small>Через CryptoBot · USDT, TON, BTC</small></span><span class="go">Пополнить</span>';
+    panel.parentNode.insertBefore(entry, panel);
+    entry.addEventListener('click', function(){ haptic(); openDeposit(); });
+    sec.appendChild(panel);
+    // перестраиваем содержимое панели
+    var presets=document.getElementById('depPresets'); var amount=document.getElementById('depAmount');
+    var sub=document.createElement('div'); sub.className='dep-sub'; sub.textContent='Выберите сумму';
+    presets.parentNode.insertBefore(sub, presets);
+    var custom=document.createElement('button'); custom.type='button'; custom.className='gg-custom-btn'; custom.textContent='Ввести свою сумму'; presets.appendChild(custom);
+    var wrap=document.createElement('div'); wrap.className='gg-custom-wrap'; wrap.id='ggDepCustom';
+    var label=amount.previousElementSibling; amount.parentNode.insertBefore(wrap, amount);
+    if(label&&label.classList.contains('field-label')){ label.textContent='Своя сумма, $ (от 0.1 до 1000):'; wrap.appendChild(label); }
+    wrap.appendChild(amount); amount.placeholder='Например, 5';
+    var note=document.createElement('div'); note.className='dep-note'; note.textContent='После оплаты GC придут автоматически';
+    panel.appendChild(note);
+    custom.addEventListener('click', function(){
+      haptic(); wrap.classList.add('open'); custom.classList.add('active');
+      presets.querySelectorAll('[data-usd]').forEach(function(b){ b.classList.remove('active'); });
+      amount.value=''; amount.dispatchEvent(new Event('input')); setTimeout(function(){ try{ amount.focus(); }catch(e){} },50);
+    });
+    presets.querySelectorAll('[data-usd]').forEach(function(b){ b.addEventListener('click', function(){ custom.classList.remove('active'); wrap.classList.remove('open'); }); });
+    amount.addEventListener('input', function(){ if(wrap.classList.contains('open')) presets.querySelectorAll('[data-usd]').forEach(function(b){ b.classList.remove('active'); }); });
+    document.getElementById('ggDepBack').addEventListener('click', function(){ haptic(); go(backTo||'wallet'); });
+    labelPresets();
+    return true;
+  }
+  function labelPresets(){
+    document.querySelectorAll('#depPresets [data-usd]').forEach(function(b){
+      var u=Number(b.getAttribute('data-usd'));
+      b.innerHTML=u+' $<small>'+fmt(gcFor(u))+' GC</small>';
+    });
+  }
+  var backTo='wallet';
+  function openDeposit(){
+    if(!buildDepositScreen()){ var nb=document.querySelector('.nav-btn[data-nav="wallet"]'); if(nb) nb.click(); return; }
+    var act=document.querySelector('.screen.active'); var id=act&&act.id?act.id.replace(/^screen-/,''):'wallet';
+    if(id!=='deposit') backTo=id;
+    labelPresets();
+    var a=document.getElementById('depAssets'), a2=document.getElementById('ggDepAssets'); if(a&&a2) a2.textContent=a.textContent;
+    var b=document.getElementById('ggBalAmt')||document.getElementById('walletBalance'); var bb=document.getElementById('ggDepBal');
+    if(b&&bb) bb.textContent=(b.textContent||'0').replace(/GC/i,'').trim();
+    go('deposit');
+  }
+  window.ggOpenDeposit=openDeposit;
+
+  function addPlus(){
+    var bal=document.querySelector('#ggTopBar .gg-tb-bal'); if(!bal||bal.querySelector('.gg-tb-plus')) return;
+    var btn=document.createElement('button'); btn.type='button'; btn.className='gg-tb-plus'; btn.setAttribute('aria-label','Пополнить'); btn.innerHTML=PLUS;
+    btn.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); haptic(); openDeposit(); });
+    bal.appendChild(btn);
+  }
+  // аватарка игрока → профиль
+  document.addEventListener('click', function(e){
+    var t=e.target&&e.target.closest&&e.target.closest('.gameHeaderAvatar,#ggBalAv,.gg-tb-av');
+    if(!t) return; e.preventDefault(); e.stopPropagation(); haptic(); go('profile');
+  }, true);
+  // «Админка» в меню видна только админам
+  function syncAdmin(){
+    var it=document.querySelector('#ggProfMenu [data-gg-act="admin"]'); var orig=document.getElementById('openAdminBtn');
+    if(it) it.classList.toggle('gg-hide', !orig || orig.classList.contains('hidden'));
+  }
+  function boot(){ try{ addPlus(); }catch(e){} try{ buildDepositScreen(); }catch(e){} try{ syncAdmin(); }catch(e){} }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot); else boot();
+  setTimeout(boot,800); setTimeout(boot,2000); setInterval(function(){ try{ addPlus(); syncAdmin(); }catch(e){} },1500);
 })();
 </script>
 </body>

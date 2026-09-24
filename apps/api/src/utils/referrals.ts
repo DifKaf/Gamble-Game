@@ -33,17 +33,37 @@ export function inviteCode(user: { playerId?: number | null; id: string }) {
 	return `ref_${publicPlayerId(user as any)}`
 }
 
+// Юзернейм бота берём из TELEGRAM_BOT_USERNAME, а если её нет — у самого Telegram по токену (getMe).
+// Так ссылка всегда открывает мини-приложение в Telegram, а не сайт.
+let botInfo: { username: string; mainApp: boolean } | null = null
+let botInfoAt = 0
+export async function resolveBotInfo() {
+	if (botInfo && Date.now() - botInfoAt < 6 * 60 * 60 * 1000) return botInfo
+	const token = String(process.env.TELEGRAM_BOT_TOKEN || '').trim()
+	if (!token) return botInfo
+	try {
+		const res = await fetch('https://api.telegram.org/bot' + token + '/getMe')
+		const body: any = await res.json().catch(() => ({}))
+		if (body?.ok && body.result?.username) {
+			botInfo = { username: String(body.result.username), mainApp: Boolean(body.result.has_main_web_app) }
+			botInfoAt = Date.now()
+		}
+	} catch {}
+	return botInfo
+}
+
 export function inviteLink(user: { playerId?: number | null; id: string }) {
-	const bot = String(process.env.TELEGRAM_BOT_USERNAME || '').replace(/^@/, '').trim()
+	const bot = (String(process.env.TELEGRAM_BOT_USERNAME || '').replace(/^@/, '').trim()) || botInfo?.username || ''
 	const code = inviteCode(user)
-	const appName = String(process.env.TELEGRAM_APP_NAME || '').trim()
-	const origin = String(process.env.FRONTEND_ORIGIN || '').replace(/\/$/, '').trim()
+	const appName = String(process.env.TELEGRAM_APP_NAME || '').replace(/^\/+|\/+$/g, '').trim()
 	const TG_BASE = String.fromCharCode(104,116,116,112,115) + "://t.me/"
 	if (bot) {
+		// t.me/<bot>/<app>?startapp=… — открывает конкретное Mini App;
+		// t.me/<bot>?startapp=… — открывает главное Mini App бота (настраивается в @BotFather).
 		const base = appName ? TG_BASE + bot + "/" + appName : TG_BASE + bot
 		return { url: `${base}?startapp=${code}`, code, configured: true }
 	}
-	if (origin) return { url: `${origin}?ref=${code}`, code, configured: true }
+	// Никогда не отдаём ссылку на сайт: она открывается в браузере, а не в Telegram.
 	return { url: code, code, configured: false }
 }
 

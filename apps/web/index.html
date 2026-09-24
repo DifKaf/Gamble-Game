@@ -8360,32 +8360,12 @@ html body .gg-global-bar,html body.gg-profile-open .gg-global-bar{border-bottom:
 html body .gg-global-bar::before,html body .gg-global-bar::after{display:none!important;animation:none!important;}
 @media (max-width:899px){html body .gg-global-bar{border-bottom:0!important;}}
 </style>
-<style id="gg-chip-sidebar">
-/* v15c: плашка баланса внизу левого меню (ПК) */
+<style id="gg-topbar-sidebar">
+/* v15d: плашка игрока (аватар, ник, ID, баланс, +) перенесена вниз левого меню на ПК. Внешний вид тот же. */
 @media (min-width:900px){
-  body > .gg-global-chip.gg-chip-side{position:fixed!important;top:auto!important;right:auto!important;left:12px!important;bottom:16px!important;transform:none!important;
-    width:212px!important;max-width:212px!important;height:auto!important;min-height:52px!important;box-sizing:border-box!important;padding:8px 8px 8px 10px!important;
-    display:flex!important;align-items:center!important;justify-content:space-between!important;gap:8px!important;
-    background:#1a1c25!important;border:1px solid #2a2d3a!important;border-radius:14px!important;box-shadow:none!important;
-    z-index:1004!important;pointer-events:auto!important;}
-  body > .gg-global-chip.gg-chip-side b{max-width:none!important;}
-  body.slot-open > .gg-global-chip.gg-chip-side,body.gg-profile-open > .gg-global-chip.gg-chip-side{display:none!important;}
-  .bottom-nav{padding-bottom:90px!important;}
+  html body #ggTopBar.gg-topbar{top:auto!important;right:auto!important;left:12px!important;bottom:16px!important;width:212px!important;max-width:212px!important;z-index:1004!important;}
+  html body .bottom-nav{padding-bottom:80px!important;}
 }
 </style>
-<script id="gg-chip-sidebar-js">
-(function(){
-  var chip=null,home=null,mq=window.matchMedia('(min-width:900px)');
-  function place(){
-    chip=chip||document.querySelector('.gg-global-chip'); if(!chip) return;
-    if(!home) home=chip.parentNode;
-    if(mq.matches){ if(chip.parentNode!==document.body){ document.body.appendChild(chip); } chip.classList.add('gg-chip-side'); }
-    else { chip.classList.remove('gg-chip-side'); if(home && chip.parentNode!==home) home.appendChild(chip); }
-  }
-  if(mq.addEventListener) mq.addEventListener('change',place); else mq.addListener(place);
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',place); else place();
-  setTimeout(place,1500);
-})();
-</script>
 </body>
 </html>

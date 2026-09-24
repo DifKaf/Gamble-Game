@@ -204,6 +204,10 @@ body{
   background:rgba(255,100,50,.25);border:1.5px solid rgba(255,100,50,.4);
   transition:all .3s;
 }
+.scatter-bar{align-items:center;background:rgba(10,4,20,.82);border:1px solid rgba(255,100,50,.35);border-radius:999px;padding:3px 9px}
+.scatter-bar .sc-cap{font-size:8px;font-weight:900;letter-spacing:1px;color:#fdba74;margin-right:3px;white-space:nowrap}
+.scatter-bar .sc-num{font-size:9px;font-weight:900;color:#fff;margin-left:2px}
+.scatter-bar.full{border-color:#ff9060;box-shadow:0 0 12px rgba(255,100,50,.6)}
 .sc-dot.lit{background:#ff6432;border-color:#ff9060;box-shadow:0 0 8px rgba(255,100,50,.8)}
 /* Controls */
 .controls{display:flex;gap:7px;width:100%;max-width:700px;align-items:stretch}
@@ -1181,6 +1185,8 @@ function updateScatterBar(count){
   const bar=document.getElementById('scBar');
   const dots=bar.querySelectorAll('.sc-dot');
   dots.forEach((d,i)=>d.classList.toggle('lit',i<count));
+  const lb=document.getElementById('scLbl'); if(lb) lb.textContent=Math.min(count,4)+'/4';
+  bar.classList.toggle('full',count>=4);
 }
 
 // ===================================================================
@@ -1484,10 +1490,12 @@ function actualStake(){ return anteBetOn ? Math.round(bet*1.25) : bet; }
 
 function updateScatterDots(){
   const bar=document.getElementById('scBar');
-  bar.innerHTML='';
+  bar.innerHTML='<span class="sc-cap">СТАКАНЫ ДО ФРИСПИНОВ</span>';
+  bar.title='Скаттеры (стаканы) на поле: 4 и больше = 15 фриспинов';
   for(let i=0;i<4;i++){
     const d=document.createElement('div'); d.className='sc-dot'; bar.appendChild(d);
   }
+  const lb=document.createElement('span'); lb.id='scLbl'; lb.className='sc-num'; lb.textContent='0/4'; bar.appendChild(lb);
 }
 updateScatterDots();
 

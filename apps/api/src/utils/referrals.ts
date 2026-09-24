@@ -42,7 +42,7 @@ export async function resolveBotInfo() {
 	const token = String(process.env.TELEGRAM_BOT_TOKEN || '').trim()
 	if (!token) return botInfo
 	try {
-		const res = await fetch('https://api.telegram.org/bot' + token + '/getMe')
+		const res = await fetch('https://api.telegram.org/bot' + token + '/getMe', { signal: AbortSignal.timeout(2500) })
 		const body: any = await res.json().catch(() => ({}))
 		if (body?.ok && body.result?.username) {
 			botInfo = { username: String(body.result.username), mainApp: Boolean(body.result.has_main_web_app) }
@@ -348,5 +348,16 @@ export async function referralStats(userId: string) {
 		totalEarned: earned,
 		inviter,
 		friends: list
+	}
+}
+
+
+// Публичные данные бота для построения ссылки на клиенте.
+export async function publicBotInfo() {
+	const env = String(process.env.TELEGRAM_BOT_USERNAME || '').replace(/^@/, '').trim()
+	const info = env ? null : await resolveBotInfo()
+	return {
+		username: env || info?.username || null,
+		appName: String(process.env.TELEGRAM_APP_NAME || '').replace(/^\/+|\/+$/g, '').trim() || null
 	}
 }

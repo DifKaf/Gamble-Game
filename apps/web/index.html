@@ -1138,6 +1138,12 @@ html,body{margin:0!important;min-width:0!important;background:#050505!important;
 #screen-exchange .panel{padding:12px!important;margin-top:0!important;border-radius:16px!important;}
 </style>
 
+<script id="gg-chipfmt">
+window.ggChipFmt=function(n){ n=Math.round(Number(n)||0); var a=Math.abs(n);
+  function f(x,s){ var r=x>=100?Math.round(x):(Math.round(x*10)/10); return String(r).replace('.',',')+s; }
+  if(a>=1e9) return f(n/1e9,'B'); if(a>=1e6) return f(n/1e6,'M'); if(a>=1e4) return f(n/1e3,'K'); return String(n); };
+var ggChipFmt=window.ggChipFmt;
+</script>
 </head>
 <body>
 <div id="app">
@@ -1382,7 +1388,7 @@ html,body{margin:0!important;min-width:0!important;background:#050505!important;
         </div>
         <div class="baccarat-bet-top">
           <div class="baccarat-bet-input-wrap">
-            <input type="number" inputmode="numeric" min="10" max="5000000" step="1" id="diceCustomBet" value="10">
+            <input type="number" inputmode="numeric" min="10" max="5000000" step="1" id="diceCustomBet" min="10" inputmode="numeric" value="10">
             <span>GC</span>
             <div class="baccarat-bet-step"><button type="button" id="diceMinusBtn">−</button><button type="button" id="dicePlusBtn">+</button></div>
           </div>
@@ -1419,7 +1425,7 @@ html,body{margin:0!important;min-width:0!important;background:#050505!important;
         <div class="limbo-presets" id="limboPresets"><button type="button" data-t="1.5">1.5×</button><button type="button" data-t="2">2×</button><button type="button" data-t="5">5×</button><button type="button" data-t="10">10×</button><button type="button" data-t="100">100×</button></div>
         <div class="baccarat-bet-top">
           <div class="baccarat-bet-input-wrap">
-            <input type="number" inputmode="numeric" min="10" max="5000000" step="1" id="limboCustomBet" value="10">
+            <input type="number" inputmode="numeric" min="10" max="5000000" step="1" id="limboCustomBet" min="10" inputmode="numeric" value="10">
             <span>GC</span>
             <div class="baccarat-bet-step"><button type="button" id="limboMinusBtn">−</button><button type="button" id="limboPlusBtn">+</button></div>
           </div>
@@ -1452,7 +1458,7 @@ html,body{margin:0!important;min-width:0!important;background:#050505!important;
           </div>
           <div class="baccarat-bet-top">
             <div class="baccarat-bet-input-wrap">
-              <input type="number" inputmode="numeric" min="10" max="5000000" step="1" id="coinCustomBet" value="10">
+              <input type="number" inputmode="numeric" min="10" max="5000000" step="1" id="coinCustomBet" min="10" inputmode="numeric" value="10">
               <span>GC</span>
               <div class="baccarat-bet-step"><button type="button" id="coinMinusBtn">−</button><button type="button" id="coinPlusBtn">+</button></div>
             </div>
@@ -1487,7 +1493,7 @@ html,body{margin:0!important;min-width:0!important;background:#050505!important;
         </div>
         <div class="baccarat-bet-top">
           <div class="baccarat-bet-input-wrap">
-            <input type="number" inputmode="numeric" min="10" max="5000000" step="1" id="rouletteCustomBet" value="10">
+            <input type="number" inputmode="numeric" min="10" max="5000000" step="1" id="rouletteCustomBet" min="10" inputmode="numeric" value="10">
             <span>GC</span>
             <div class="baccarat-bet-step"><button type="button" id="rouletteMinusBtn">−</button><button type="button" id="roulettePlusBtn">+</button></div>
           </div>
@@ -1518,7 +1524,7 @@ html,body{margin:0!important;min-width:0!important;background:#050505!important;
         </div>
         <div class="baccarat-bet-top">
           <div class="baccarat-bet-input-wrap">
-            <input type="number" inputmode="numeric" min="10" max="5000000" step="1" id="minesCustomBet" value="10">
+            <input type="number" inputmode="numeric" min="10" max="5000000" step="1" id="minesCustomBet" min="10" inputmode="numeric" value="10">
             <span>GC</span>
             <div class="baccarat-bet-step"><button type="button" id="minesMinusBtn">−</button><button type="button" id="minesPlusBtn">+</button></div>
           </div>
@@ -1558,7 +1564,7 @@ html,body{margin:0!important;min-width:0!important;background:#050505!important;
       <div class="panel" id="bjBetPanel">
         <div class="baccarat-bet-top">
           <div class="baccarat-bet-input-wrap">
-            <input type="number" inputmode="numeric" min="10" max="5000000" step="1" id="bjCustomBet" value="10">
+            <input type="number" inputmode="numeric" min="10" max="5000000" step="1" id="bjCustomBet" min="10" inputmode="numeric" value="10">
             <span>GC</span>
             <div class="baccarat-bet-step"><button type="button" id="bjMinusBtn">−</button><button type="button" id="bjPlusBtn">+</button></div>
           </div>
@@ -1603,7 +1609,7 @@ html,body{margin:0!important;min-width:0!important;background:#050505!important;
         <div class="baccarat-live-bet-card">
           <div class="baccarat-bet-top">
             <div class="baccarat-bet-input-wrap">
-              <input type="number" inputmode="numeric" min="10" max="5000000" step="1" id="baccaratCustomBet" value="10">
+              <input type="number" inputmode="numeric" min="10" max="5000000" step="1" id="baccaratCustomBet" min="10" inputmode="numeric" value="10">
               <span>GC</span>
               <div class="baccarat-bet-step"><button type="button" id="baccaratMinusBtn">−</button><button type="button" id="baccaratPlusBtn">+</button></div>
             </div>
@@ -2469,9 +2475,25 @@ html,body{margin:0!important;min-width:0!important;background:#050505!important;
   }
 
 
+  var ggRefRetry=0;
+  function ggBuildRefLink(bot, app, pid){ if(!bot||!pid||pid==='—') return ''; return 'https://t.me/'+String(bot).replace(/^@/,'')+(app?'/'+app:'')+'?startapp=ref_'+String(pid).replace(/[^0-9]/g,''); }
   function renderReferralsFallback(reason){
     var box=document.getElementById('referralBox'); if(!box) return;
     var pid=resolvePlayerId()||'—';
+    var cached=''; try{ cached=localStorage.getItem('gg_ref_link')||''; }catch(_){}
+    function show(link){
+      box.innerHTML='<div class="quest-reset" style="margin-top:0;">Приглашайте игроков и получайте бонусы за их активность.</div>'+
+        '<div class="quest-reset">За каждого приглашённого начисляется 250 GC.</div><div class="ref-link-row"><div class="ref-link" id="refLinkText">'+escapeHtml(link)+'</div>'+
+        '<button class="btn btn-blue" type="button" id="ggRefCopyFb">Копировать</button></div>';
+      var b=document.getElementById('ggRefCopyFb'); if(b) b.onclick=function(){ try{ navigator.clipboard.writeText(link); showToast('Ссылка скопирована','success'); }catch(_){ } };
+    }
+    if(cached){ show(cached); }
+    else {
+      box.innerHTML='<div class="quest-reset" style="margin-top:0;">Получаем вашу реферальную ссылку…</div>';
+      apiRequest('/referrals/bot').then(function(b){ var l=ggBuildRefLink(b&&b.username, b&&b.appName, pid); if(l){ try{ localStorage.setItem('gg_ref_link',l); }catch(_){} if(!referralData) show(l); } }).catch(function(){});
+    }
+    if(ggRefRetry<4){ ggRefRetry++; setTimeout(function(){ if(!referralData) loadReferrals(); }, 2500*ggRefRetry); }
+    return;
     box.innerHTML='<div class="quest-reset" style="margin-top:0;">Приглашайте игроков и получайте бонусы за их активность. Серверные данные временно недоступны.</div>'+
       '<div class="quest-reset">За каждого приглашённого начисляется 250 GC.</div><div class="ref-link-row"><div class="ref-link" id="refLinkText">'+escapeHtml('Ссылка появится после подключения к серверу')+'</div>';
   }
@@ -2480,11 +2502,13 @@ html,body{margin:0!important;min-width:0!important;background:#050505!important;
     if(!backendReady){
       var waitBox = document.getElementById('referralBox');
       if(waitBox && !referralData) waitBox.innerHTML = '<div class="quest-reset">Подключаемся к серверу...</div>';
+      try{ if(typeof initBackendAuth==='function') initBackendAuth().then(function(){ if(backendReady && !referralData) loadReferrals(); }).catch(function(){ renderReferralsFallback(); }); }catch(_){}
       return;
     }
     try{
       var data = await apiRequest('/referrals');
       referralData = data;
+      try{ if(data && data.link && /^https:\/\/t\.me\//.test(data.link)) localStorage.setItem('gg_ref_link', data.link); }catch(_){}
       if(typeof data.balance === 'number'){ backendBalance = data.balance; applyBackendBalanceToUI(); }
       if(data.milestonesPaid && data.milestonesPaid.paid){
         showToast('Бонус за активность друзей: +' + fmt(data.milestonesPaid.paid) + ' GC','success');
@@ -3039,16 +3063,31 @@ html,body{margin:0!important;min-width:0!important;background:#050505!important;
     }};
   }
 
+  function ggMarkBet(el, min){ if(!el) return; var raw=String(el.value||'').trim(); var v=Math.floor(Number(raw)); el.classList.toggle('gg-bet-bad', raw!=='' && (!isFinite(v) || v<min)); }
+  function ggCheckBet(el, min, max){
+    var raw=String(el && el.value || '').trim(); var v=Math.floor(Number(raw));
+    if(raw==='' || !isFinite(v) || v<min){
+      if(el){ el.classList.add('gg-bet-bad'); el.classList.remove('gg-bet-shake'); void el.offsetWidth; el.classList.add('gg-bet-shake'); }
+      try{ showToast('Минимальная ставка — '+min+' GC','error'); }catch(_){}
+      try{ haptic('error'); }catch(_){}
+      throw new Error('Минимальная ставка — '+min+' GC');
+    }
+    if(v>max){ try{ showToast('Максимальная ставка — '+fmt(max)+' GC','error'); }catch(_){} if(el) el.classList.add('gg-bet-bad'); throw new Error('max bet'); }
+    if(el) el.classList.remove('gg-bet-bad');
+    return v;
+  }
   function wireBetStepTools(inputId, minusId, plusId, target, min, max){
     var el = document.getElementById(inputId);
-    function getVal(){ var v = Math.floor(Number(el && el.value) || min); return Math.max(min, Math.min(max, v)); }
-    function setVal(v){ if(el) el.value = Math.max(min, Math.min(max, Math.floor(v||min))); }
-    var minusBtn = document.getElementById(minusId); if(minusBtn) minusBtn.addEventListener('click', function(){ setVal(getVal()-10); });
-    var plusBtn = document.getElementById(plusId); if(plusBtn) plusBtn.addEventListener('click', function(){ setVal(getVal()+10); });
+    function peekVal(){ var v = Math.floor(Number(el && el.value) || min); return Math.max(min, Math.min(max, v)); }
+    function getVal(){ return ggCheckBet(el, min, max); }
+    function setVal(v){ if(el){ el.value = Math.max(min, Math.min(max, Math.floor(v||min))); el.classList.remove('gg-bet-bad'); } }
+    if(el) el.addEventListener('input', function(){ ggMarkBet(el, min); });
+    var minusBtn = document.getElementById(minusId); if(minusBtn) minusBtn.addEventListener('click', function(){ setVal(peekVal()-10); });
+    var plusBtn = document.getElementById(plusId); if(plusBtn) plusBtn.addEventListener('click', function(){ setVal(peekVal()+10); });
     document.querySelectorAll('[data-bet-tool][data-target="'+target+'"]').forEach(function(btn){
-      btn.addEventListener('click', function(){ var cur=getVal(); setVal(btn.getAttribute('data-bet-tool')==='half' ? Math.floor(cur/2) : cur*2); });
+      btn.addEventListener('click', function(){ var cur=peekVal(); setVal(btn.getAttribute('data-bet-tool')==='half' ? Math.floor(cur/2) : cur*2); });
     });
-    return { get:getVal, set:setVal };
+    return { get:getVal, set:setVal, peek:peekVal };
   }
 
   function buildCustomCountControl(containerId, customInputId, values, defaultVal, min, max, onChange){
@@ -3471,7 +3510,7 @@ html,body{margin:0!important;min-width:0!important;background:#050505!important;
     if(!tEl || !btn) return;
     var playing = false;
     function target(){ var v = Number(tEl.value); if(!isFinite(v)) v = 2; return Math.min(1000, Math.max(1.01, Math.floor(v*100)/100)); }
-    function refresh(){ var t = target(); cEl.value = (99/t).toFixed(2) + '%'; profitEl.textContent = Math.floor(limboBetCtl.get()*t); }
+    function refresh(){ var t = target(); cEl.value = (99/t).toFixed(2) + '%'; profitEl.textContent = Math.floor(limboBetCtl.peek()*t); }
     tEl.addEventListener('input', refresh); tEl.addEventListener('change', function(){ tEl.value = target().toFixed(2); refresh(); });
     if(betEl){ betEl.addEventListener('input', refresh); }
     document.querySelectorAll('[data-target="limbo"],#limboMinusBtn,#limboPlusBtn').forEach(function(b){ b.addEventListener('click', function(){ setTimeout(refresh, 0); }); });
@@ -3888,7 +3927,7 @@ html,body{margin:0!important;min-width:0!important;background:#050505!important;
     var outsideMap = {low:'o1', even:'o2', red:'o3', black:'o4', odd:'o5', high:'o6'};
     Object.keys(outsideMap).forEach(function(v){ var cell=grid.querySelector('[data-outside="'+v+'"]'); if(cell) cell.style.gridArea = outsideMap[v]; });
     function clearBoard(){ grid.querySelectorAll('.roulette-num-btn,.roulette-outside-btn').forEach(function(b){ b.classList.remove('active'); var old=b.querySelector('.roulette-chip-on-board'); if(old) old.remove(); }); }
-    function putRouletteChip(btn){ var amount = rouletteBetCtl ? rouletteBetCtl.get() : 0; var chip=document.createElement('span'); chip.className='roulette-chip-on-board'; chip.textContent=fmt(amount); btn.appendChild(chip); }
+    function putRouletteChip(btn){ var amount = rouletteBetCtl ? rouletteBetCtl.get() : 0; var chip=document.createElement('span'); chip.className='roulette-chip-on-board'; chip.textContent=ggChipFmt(amount); chip.title=fmt(amount)+' GC'; btn.appendChild(chip); }
     grid.querySelectorAll('.roulette-num-btn').forEach(function(btn){ btn.addEventListener('click', function(){ rouletteSelectedNumber = parseInt(btn.getAttribute('data-num'),10); rouletteSelectedOutside = null; rouletteOptCtl.set(null); placeRouletteBetFromBoard(btn); }); });
     grid.querySelectorAll('.roulette-outside-btn').forEach(function(btn){ btn.addEventListener('click', function(){ rouletteSelectedNumber = null; rouletteSelectedOutside = btn.getAttribute('data-outside'); rouletteOptCtl.set(null); placeRouletteBetFromBoard(btn); }); });
   }
@@ -3952,11 +3991,11 @@ html,body{margin:0!important;min-width:0!important;background:#050505!important;
       var oldChip = btn.querySelector('.roulette-chip-on-board');
       if(oldChip) oldChip.textContent = fmt(existing.amount);
       else {
-        var chip=document.createElement('span'); chip.className='roulette-chip-on-board'; chip.textContent=fmt(existing.amount); btn.appendChild(chip);
+        var chip=document.createElement('span'); chip.className='roulette-chip-on-board'; chip.textContent=ggChipFmt(existing.amount); chip.title=fmt(existing.amount)+' GC'; btn.appendChild(chip);
       }
       btn.classList.add('active');
     } else {
-      var chip=document.createElement('span'); chip.className='roulette-chip-on-board'; chip.textContent=fmt(amount); btn.appendChild(chip); btn.classList.add('active');
+      var chip=document.createElement('span'); chip.className='roulette-chip-on-board'; chip.textContent=ggChipFmt(amount); chip.title=fmt(amount)+' GC'; btn.appendChild(chip); btn.classList.add('active');
       roulettePendingBets.push({amount:amount,payload:payload,key:key});
     }
     haptic('light'); startRouletteCountdownIfNeeded();
@@ -4482,11 +4521,11 @@ html,body{margin:0!important;min-width:0!important;background:#050505!important;
   var baccaratBetsClosed=false;
   function setBaccaratSide(v){ baccaratSelected=v; document.querySelectorAll('#baccaratOptions [data-val]').forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-val')===v); }); }
   setBaccaratSide('player');
-  var baccaratBetCtl = { get:function(){ var el=document.getElementById('baccaratCustomBet'); var v=Math.floor(Number(el && el.value)||10); return Math.max(10, Math.min(5000000, v)); } };
-  function setBaccaratBetAmount(v){ var el=document.getElementById('baccaratCustomBet'); if(el) el.value=Math.max(10, Math.min(5000000, Math.floor(v||10))); }
-  document.querySelectorAll('[data-bac-tool]').forEach(function(btn){ btn.addEventListener('click', function(){ var cur=baccaratBetCtl.get(); setBaccaratBetAmount(btn.getAttribute('data-bac-tool')==='half' ? Math.floor(cur/2) : cur*2); }); });
-  var bacMinus=document.getElementById('baccaratMinusBtn'); if(bacMinus) bacMinus.addEventListener('click', function(){ setBaccaratBetAmount(baccaratBetCtl.get()-10); });
-  var bacPlus=document.getElementById('baccaratPlusBtn'); if(bacPlus) bacPlus.addEventListener('click', function(){ setBaccaratBetAmount(baccaratBetCtl.get()+10); });
+  var baccaratBetCtl = { get:function(){ return ggCheckBet(document.getElementById('baccaratCustomBet'),10,5000000); }, peek:function(){ var el=document.getElementById('baccaratCustomBet'); var v=Math.floor(Number(el && el.value)||10); return Math.max(10, Math.min(5000000, v)); } }; (function(){ var el=document.getElementById('baccaratCustomBet'); if(el) el.addEventListener('input',function(){ ggMarkBet(el,10); }); })();
+  function setBaccaratBetAmount(v){ var el=document.getElementById('baccaratCustomBet'); if(el){ el.value=Math.max(10, Math.min(5000000, Math.floor(v||10))); el.classList.remove('gg-bet-bad'); } }
+  document.querySelectorAll('[data-bac-tool]').forEach(function(btn){ btn.addEventListener('click', function(){ var cur=baccaratBetCtl.peek(); setBaccaratBetAmount(btn.getAttribute('data-bac-tool')==='half' ? Math.floor(cur/2) : cur*2); }); });
+  var bacMinus=document.getElementById('baccaratMinusBtn'); if(bacMinus) bacMinus.addEventListener('click', function(){ setBaccaratBetAmount(baccaratBetCtl.peek()-10); });
+  var bacPlus=document.getElementById('baccaratPlusBtn'); if(bacPlus) bacPlus.addEventListener('click', function(){ setBaccaratBetAmount(baccaratBetCtl.peek()+10); });
   function renderBaccaratChips(){
     [['player','bacChipPlayer'],['tie','bacChipTie'],['banker','bacChipBanker']].forEach(function(x){ var el=document.getElementById(x[1]); var amount=baccaratPendingBets[x[0]]||0; if(el){ el.textContent=amount?fmt(amount):''; el.classList.toggle('show', amount>0); } });
   }
@@ -7268,70 +7307,10 @@ input.input::placeholder,textarea.input::placeholder{color:#64748b!important;}
 #screen-profile .profile-shot{background:transparent!important;box-shadow:none!important;padding-top:20px!important;min-height:auto!important;}
 #screen-profile #openAdminBtn,#screen-profile #togglePromoCreator{background:linear-gradient(135deg,#0ea5e9,#6366f1)!important;border:0!important;color:#fff!important;box-shadow:0 12px 30px rgba(37,99,235,.28)!important;border-radius:16px!important;}
 /* --- плашка уровня кликабельная --- */
-#ggLevelPill,#screen-profile .profile-level-badge{cursor:pointer!important;}
-#ggLevelPill{transition:transform .12s}#ggLevelPill:active{transform:scale(.96)}
-/* --- Модалка Gamble Pass --- */
-.ggbp-ov{position:fixed;inset:0;z-index:99999;background:rgba(4,6,12,.72);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);display:flex;align-items:flex-end;justify-content:center;padding:0}
-.ggbp{width:100%;max-width:460px;max-height:88vh;overflow:auto;background:#0b1120;border:1px solid #223049;border-radius:24px 24px 0 0;padding:18px 18px calc(28px + env(safe-area-inset-bottom));box-shadow:0 -24px 70px rgba(0,0,0,.6)}
-@media(min-width:560px){.ggbp-ov{align-items:center}.ggbp{border-radius:24px}}
-.ggbp h2{margin:0 0 4px;font-size:24px;font-weight:950;color:#fff}
-.ggbp .sub{color:#94a3b8;font-size:13px;font-weight:700;margin-bottom:16px}
-.ggbp-cur{display:flex;align-items:center;gap:14px;padding:14px;border-radius:18px;background:linear-gradient(135deg,rgba(14,165,233,.18),rgba(99,102,241,.14));border:1px solid rgba(125,211,252,.2);margin-bottom:12px}
-.ggbp-cur .lv{width:56px;height:56px;flex:0 0 56px;border-radius:16px;background:linear-gradient(135deg,#38bdf8,#a78bfa);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:950;color:#06121f}
-.ggbp-cur b{font-size:18px;color:#fff;display:block}.ggbp-cur small{color:#9fb0c6;font-weight:700}
-.ggbp-bar{height:10px;border-radius:99px;background:#16203a;overflow:hidden;margin:2px 0 6px}
-.ggbp-bar>i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#38bdf8,#a78bfa)}
-.ggbp-prog{color:#9fb0c6;font-size:12px;font-weight:800;margin-bottom:16px}
-.ggbp-h{font-weight:900;color:#fff;margin:6px 0 10px;font-size:15px}
-.ggbp-tier{display:flex;align-items:center;gap:12px;padding:12px;border-radius:16px;border:1px solid #1e2a41;background:#0e1626;margin-bottom:8px}
-.ggbp-tier.done{border-color:rgba(56,189,248,.4);background:rgba(56,189,248,.08)}
-.ggbp-tier .n{width:40px;height:40px;flex:0 0 40px;border-radius:12px;background:#16203a;display:flex;align-items:center;justify-content:center;font-weight:950;color:#cbd5e1}
-.ggbp-tier.done .n{background:linear-gradient(135deg,#38bdf8,#a78bfa);color:#06121f}
-.ggbp-tier b{color:#fff;font-size:14px;display:block}.ggbp-tier small{color:#94a3b8;font-weight:700}
-.ggbp-tier .chk{margin-left:auto;font-weight:900;color:#38bdf8;font-size:18px}
-.ggbp-x{position:absolute;top:14px;right:14px;border:0;background:#16203a;color:#fff;width:38px;height:38px;border-radius:50%;font-size:20px;font-weight:900;cursor:pointer}
 </style>
 <script>
 (function(){
   'use strict';
-  var TIERS=[
-    {lv:1,t:'Новичок',r:'Доступ к P2P-маркету и ежедневным бонусам'},
-    {lv:2,t:'Игрок',r:'+5% к ежедневному бонусу'},
-    {lv:3,t:'Бронза',r:'Бронзовая рамка аватара'},
-    {lv:5,t:'Серебро',r:'Ускоренный кэшбэк + серебряная рамка'},
-    {lv:8,t:'Золото',r:'Золотая рамка + бонус 10 000 GC'},
-    {lv:12,t:'Платина',r:'Приоритет в P2P + бонус 25 000 GC'},
-    {lv:20,t:'Алмаз',r:'Алмазный бейдж + бонус 100 000 GC'},
-    {lv:35,t:'Легенда',r:'Легендарное оформление профиля'},
-    {lv:50,t:'Мифик',r:'Мифический статус + макс. привилегии'}
-  ];
-  function E(x){return String(x==null?'':x).replace(/[&<>"']/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]})}
-  function curLevel(){var el=document.getElementById('profileLevel');var n=el?parseInt((el.textContent||'1').replace(/[^0-9]/g,''),10):1;return n>0?n:1;}
-  function close(){var o=document.getElementById('ggBpOv');if(o)o.remove();}
-  window.ggCloseBattlePass=close;
-  function open(){
-    close();
-    var lv=curLevel();
-    var next=null;for(var i=0;i<TIERS.length;i++){if(TIERS[i].lv>lv){next=TIERS[i];break;}}
-    if(!next)next=TIERS[TIERS.length-1];
-    var pct=Math.max(6,Math.min(100,Math.round((lv/(next.lv||lv))*100)));
-    var rows=TIERS.map(function(t){var done=lv>=t.lv;return '<div class="ggbp-tier'+(done?' done':'')+'"><div class="n">'+t.lv+'</div><div><b>'+E(t.t)+'</b><small>'+E(t.r)+'</small></div>'+(done?'<span class="chk">\u2713</span>':'')+'</div>';}).join('');
-    var ov=document.createElement('div');ov.className='ggbp-ov';ov.id='ggBpOv';
-    ov.innerHTML='<div class="ggbp"><button class="ggbp-x" id="ggBpX">\u00d7</button>'
-      +'<h2>\u2618 Gamble Pass</h2>'
-      +'<div class="sub">\u0418\u0433\u0440\u0430\u0439\u0442\u0435, \u043f\u043e\u0432\u044b\u0448\u0430\u0439\u0442\u0435 \u0443\u0440\u043e\u0432\u0435\u043d\u044c \u0438 \u043e\u0442\u043a\u0440\u044b\u0432\u0430\u0439\u0442\u0435 \u043d\u0430\u0433\u0440\u0430\u0434\u044b</div>'
-      +'<div class="ggbp-cur"><div class="lv">'+lv+'</div><div><b>\u0423\u0440\u043e\u0432\u0435\u043d\u044c '+lv+'</b><small>\u0423\u0440\u043e\u0432\u0435\u043d\u044c \u0440\u0430\u0441\u0442\u0451\u0442 \u0437\u0430 \u0441\u044b\u0433\u0440\u0430\u043d\u043d\u044b\u0435 \u0441\u0442\u0430\u0432\u043a\u0438: +1 \u0443\u0440\u043e\u0432\u0435\u043d\u044c \u0437\u0430 \u043a\u0430\u0436\u0434\u044b\u0435 5 \u0438\u0433\u0440</small></div></div>'
-      +'<div class="ggbp-bar"><i style="width:'+pct+'%"></i></div>'
-      +'<div class="ggbp-prog">\u0421\u043b\u0435\u0434\u0443\u044e\u0449\u0430\u044f \u043d\u0430\u0433\u0440\u0430\u0434\u0430: \u00ab'+E(next.t)+'\u00bb (\u0443\u0440. '+next.lv+')</div>'
-      +'<div class="ggbp-h">\u041d\u0430\u0433\u0440\u0430\u0434\u044b \u0437\u0430 \u0443\u0440\u043e\u0432\u043d\u0438</div>'+rows
-      +'</div>';
-    document.body.appendChild(ov);
-    ov.addEventListener('click',function(e){if(e.target===ov)close();});
-    var x=document.getElementById('ggBpX');if(x)x.onclick=close;
-  }
-  window.ggOpenBattlePass=open;
-  document.addEventListener('click',function(ev){var t=ev.target&&ev.target.closest&&ev.target.closest('#ggLevelPill,.profile-level-badge');if(t){ev.preventDefault();ev.stopPropagation();open();}},true);
-
   // ---- единый обработчик создания объявления P2P ----
   function ggEnsureCreateMsg(){
     var box=document.getElementById('ggCreateMsg');
@@ -8207,5 +8186,25 @@ body.slot-open #dgFullscreenClose{z-index:2147483500!important}
   setTimeout(boot,800); setTimeout(boot,2000); setInterval(function(){ try{ addPlus(); syncAdmin(); }catch(e){} },1500);
 })();
 </script>
+<style id="gg-v11-style">
+/* ошибка ставки */
+input.gg-bet-bad{border-color:#ef4444!important;box-shadow:0 0 0 2px rgba(239,68,68,.35)!important;color:#fecaca!important}
+@keyframes ggShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-5px)}40%{transform:translateX(5px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
+input.gg-bet-shake{animation:ggShake .35s ease}
+/* фишки рулетки — чёткие на мобильных */
+#screen-roulette .roulette-chip-on-board,#screen-roulette #rouletteNumberGrid .roulette-chip-on-board{
+  position:absolute!important;inset:0!important;margin:auto!important;transform:none!important;
+  width:max-content!important;min-width:26px!important;max-width:calc(100% - 2px)!important;height:20px!important;
+  padding:0 6px!important;box-sizing:border-box!important;border-radius:999px!important;
+  background:#ffd23f!important;border:1.5px solid #fff!important;color:#111!important;
+  font:900 11px/17px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif!important;letter-spacing:0!important;
+  text-shadow:none!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:clip!important;
+  display:flex!important;align-items:center!important;justify-content:center!important;
+  box-shadow:0 2px 5px rgba(0,0,0,.55)!important;z-index:9!important;pointer-events:none!important;
+  -webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums;filter:none!important;backface-visibility:hidden}
+#screen-roulette #rouletteNumberGrid button{overflow:visible!important}
+@media(max-width:430px){#screen-roulette .roulette-chip-on-board,#screen-roulette #rouletteNumberGrid .roulette-chip-on-board{height:18px!important;min-width:22px!important;padding:0 4px!important;font-size:10.5px!important;line-height:15px!important}}
+#ggLevelPill{cursor:default!important}
+</style>
 </body>
 </html>

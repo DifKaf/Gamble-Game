@@ -4,6 +4,7 @@ import { applyBalanceChange } from '../wallet/wallet.js'
 import { publicPlayerId, parsePlayerId } from './playerId.js'
 import { ensureFeatureTables } from './ensureFeatureTables.js'
 import { weekRange } from './weeklyStats.js'
+import { sendTelegramMessage } from './telegram.js'
 
 function isMissingRelation(err: any) {
 	const msg = String(err?.message || err || '')
@@ -22,8 +23,8 @@ async function ready() {
 //
 // Приглашающий получает бонус сразу и второй бонус, когда новичок наберёт
 // оборот (чтобы не было выгодно плодить пустые аккаунты ради регистрационного бонуса).
-const INVITER_BONUS = BigInt(Number(process.env.REFERRAL_BONUS_INVITER || 0))
-const INVITEE_BONUS = BigInt(Number(process.env.REFERRAL_BONUS_INVITEE || 0))
+const INVITER_BONUS = BigInt(Math.max(0, Math.floor(Number(process.env.REFERRAL_BONUS_INVITER ?? 250) || 0)))
+const INVITEE_BONUS = BigInt(Math.max(0, Math.floor(Number(process.env.REFERRAL_BONUS_INVITEE ?? 100) || 0)))
 const WEEK_SHARE_PCT = Math.max(0, Number(process.env.REFERRAL_WEEK_SHARE_PCT || 0.5))
 // Привязать приглашение можно только в первые часы после регистрации,
 // иначе старые игроки будут «приглашать» друг друга ради бонусов.
@@ -157,6 +158,7 @@ export async function attachReferral(userId: string, rawCode: unknown): Promise<
 		if (String(err?.code) === 'P2002') return { ok: false, reason: 'already_attached', bonus: 0 }
 		throw err
 	}
+	notifyInviter(referrer, user, Number(INVITER_BONUS))
 
 	return {
 		ok: true,
@@ -270,7 +272,65 @@ export async function payReferralMilestones(referrerId: string) {
 
 export type ReferralStats = Awaited<ReturnType<typeof referralStats>>
 
+
+function notifyInviter(referrer: any, friend: any, bonus: number) {
+	try {
+		if (!referrer?.telegramId) return
+		const name = friend?.username ? '@' + friend.username : (friend?.firstName || 'Игрок')
+		const safe = String(name).replace(/[<>&]/g, '')
+		const text = 'По вашей ссылке зарегистрировался ' + safe + (bonus > 0 ? '\nНачислено: +' + bonus.toLocaleString('ru-RU') + ' GC' : '')
+		sendTelegramMessage(referrer.telegramId, text).catch(() => {})
+	} catch {}
+}
+
+// Доплата бонусов по приглашениям, которые привязались, когда бонус был 0 GC.
+// Строка «захватывается» условным UPDATE, поэтому двойной выплаты не будет.
+export async function settleReferralBonuses(userId: string) {
+	if (INVITER_BONUS <= 0n && INVITEE_BONUS <= 0n) return
+	await ready()
+	let rows: any[] = []
+	try {
+		rows = (await prisma.$queryRawUnsafe(
+			`SELECT "id","referrerId","referredId" FROM "Referral" WHERE ("referrerId" = $1 OR "referredId" = $1) AND "registrationBonus" = 0 LIMIT 100`,
+			userId
+		)) as any[]
+	} catch (err) {
+		if (!isMissingRelation(err)) throw err
+		return
+	}
+	for (const row of rows) {
+		try {
+			const paid = await prisma.$transaction(async (tx) => {
+				const claimed = await tx.$executeRawUnsafe(
+					`UPDATE "Referral" SET "registrationBonus" = $2 WHERE "id" = $1 AND "registrationBonus" = 0`,
+					row.id,
+					INVITER_BONUS > 0n ? INVITER_BONUS : 1n
+				)
+				if (Number(claimed) !== 1) return false
+				if (INVITER_BONUS > 0n) {
+					await applyBalanceChange({ tx, userId: row.referrerId, amount: INVITER_BONUS, type: 'BONUS', source: 'referral-signup', metadata: { referredId: row.referredId, late: true } })
+				}
+				if (INVITEE_BONUS > 0n) {
+					const got = await tx.walletTransaction.findFirst({ where: { userId: row.referredId, source: 'referral-welcome' } })
+					if (!got) await applyBalanceChange({ tx, userId: row.referredId, amount: INVITEE_BONUS, type: 'BONUS', source: 'referral-welcome', metadata: { referrerId: row.referrerId, late: true } })
+				}
+				return true
+			})
+			if (paid) {
+				const [ref, fr] = await Promise.all([
+					prisma.user.findUnique({ where: { id: row.referrerId } }),
+					prisma.user.findUnique({ where: { id: row.referredId } })
+				])
+				notifyInviter(ref, fr, Number(INVITER_BONUS))
+			}
+		} catch (err: any) {
+			console.warn('settleReferralBonuses failed', err?.message || err)
+		}
+	}
+}
+
 export async function referralStats(userId: string) {
+	try { await settleReferralBonuses(userId) } catch {}
 	const user = await prisma.user.findUniqueOrThrow({ where: { id: userId } })
 	const link = inviteLink(user)
 	await ready()
@@ -342,7 +402,20 @@ export async function referralStats(userId: string) {
 		}
 	})
 
+	let walletEarned = 0
+	let weekEarned = 0
+	try {
+		const agg = await prisma.walletTransaction.aggregate({ where: { userId, source: { in: ['referral-signup', 'referral-week'] } }, _sum: { amount: true } })
+		walletEarned = Number(agg._sum?.amount || 0)
+		const wk = await prisma.walletTransaction.aggregate({ where: { userId, source: { in: ['referral-signup', 'referral-week'] }, createdAt: { gte: start, lt: end } }, _sum: { amount: true } })
+		weekEarned = Number(wk._sum?.amount || 0)
+	} catch {}
+	earned = Math.max(earned, walletEarned)
+	const activeCount = list.filter((f) => f.wagered > 0).length
+
 	return {
+		activeCount,
+		weekEarned,
 		link: link.url,
 		code: link.code,
 		configured: link.configured,

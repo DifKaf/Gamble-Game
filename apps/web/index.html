@@ -1170,6 +1170,16 @@ var ggChipFmt=window.ggChipFmt;
 .gg-atr-mid{display:flex;flex-direction:column;align-items:center;gap:2px}.gg-atr-mid small{font-size:10px;opacity:.6;white-space:nowrap}
 .gg-atr-amt{font-weight:900;color:#facc15;font-size:13px;white-space:nowrap}.gg-atr-arrow{opacity:.6}
 </style>
+<style id="gg-v12-ref">
+.gg-ref-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:0 0 4px}
+.gg-ref-stat{padding:12px 8px;border-radius:14px;text-align:center;background:rgba(148,163,184,.08);border:1px solid rgba(148,163,184,.18)}
+.gg-ref-stat b{display:block;font-size:18px;font-weight:900;color:#e6edf7;white-space:nowrap}
+.gg-ref-stat small{display:block;margin-top:2px;font-size:11px;text-transform:uppercase;letter-spacing:.05em;opacity:.65}
+.gg-ref-stat.gold{background:linear-gradient(135deg,rgba(250,204,21,.16),rgba(234,179,8,.06));border-color:rgba(250,204,21,.45)}
+.gg-ref-stat.gold b{color:#facc15}
+.gg-ref-week{margin-top:6px;font-size:12px;opacity:.85;text-align:center}.gg-ref-week b{color:#4ade80}
+@media(max-width:380px){.gg-ref-stat b{font-size:15px}}
+</style>
 </head>
 <body>
 <div id="app">
@@ -2040,7 +2050,7 @@ var ggChipFmt=window.ggChipFmt;
     try{
       var auth;
       if(tg && tg.initData){
-        var startParam = (tg && tg.initDataUnsafe && tg.initDataUnsafe.start_param) || '';
+        var startParam = (tg && tg.initDataUnsafe && tg.initDataUnsafe.start_param) || (function(){ try{ return new URLSearchParams(location.search).get('tgWebAppStartParam') || new URLSearchParams(String(location.hash||'').replace(/^#/,'')).get('tgWebAppStartParam') || ''; }catch(_){ return ''; } })();
         auth = await apiRequest('/auth/telegram', { method:'POST', body:JSON.stringify({ initData: tg.initData, startParam: startParam }) });
         if(auth && auth.referral && auth.referral.bonus) showToast('Бонус за приглашение: +' + fmt(auth.referral.bonus) + ' GC','success');
       } else if(backendToken){
@@ -2481,7 +2491,11 @@ var ggChipFmt=window.ggChipFmt;
     var d = referralData;
     var rw = d.rewards || {};
     var html = [];
-    html.push('<div class="quest-reset" style="margin-top:0;">За друга по ссылке вы получаете ' + String(rw.weekSharePct || 0.5).replace('.', ',') + '% от его ставок за неделю. Бонус начисляется автоматически.</div>');
+    html.push('<div class="gg-ref-stats"><div class="gg-ref-stat"><b>' + fmt(d.invitedCount || 0) + '</b><small>Приглашено</small></div>'
+      + '<div class="gg-ref-stat gold"><b>' + fmt(d.totalEarned || 0) + ' GC</b><small>Заработано</small></div>'
+      + '<div class="gg-ref-stat"><b>' + fmt(d.activeCount || 0) + '</b><small>Играют</small></div></div>');
+    if(d.weekEarned) html.push('<div class="gg-ref-week">За эту неделю: <b>+' + fmt(d.weekEarned) + ' GC</b></div>');
+    html.push('<div class="quest-reset" style="margin-top:10px;">За каждого друга: <b>+' + fmt(rw.inviter || 0) + ' GC</b> вам' + (rw.invitee ? ' и <b>+' + fmt(rw.invitee) + ' GC</b> другу' : '') + ', плюс ' + String(rw.weekSharePct || 0.5).replace('.', ',') + '% от его ставок каждую неделю. Начисляется автоматически.</div>');
     if(d.link){
       html.push('<div class="ref-link-row"><div class="ref-link" id="refLinkText">' + escapeHtml(d.link) + '</div>'
         + '<button class="btn btn-gold" id="refCopyBtn" style="flex:0 0 auto;">Копировать</button></div>');
@@ -2491,8 +2505,6 @@ var ggChipFmt=window.ggChipFmt;
       if(d.code) html.push('<div class="ref-link-row"><div class="ref-link" id="refLinkText">Код: ' + escapeHtml(d.code) + '</div>'
         + '<button class="btn btn-gold" id="refCopyBtn" style="flex:0 0 auto;">Копировать</button></div>');
     }
-    html.push('<div class="ref-stats"><div class="ref-stat"><b>' + fmt(d.invitedCount || 0) + '</b><small>ПРИГЛАШЕНО</small></div>'
-      + '<div class="ref-stat"><b>' + fmt(d.totalEarned || 0) + '</b><small>ЗАРАБОТАНО GC</small></div></div>');
     if(d.inviter){
       var invName = d.inviter.username ? '@' + d.inviter.username : (d.inviter.name || 'Игрок');
       html.push('<div class="quest-reset">Вас пригласил: ' + escapeHtml(invName) + ' (ID: ' + escapeHtml(String(d.inviter.playerId || '—')) + ')</div>');
@@ -2515,7 +2527,7 @@ var ggChipFmt=window.ggChipFmt;
     var cached=''; try{ cached=localStorage.getItem('gg_ref_link')||''; }catch(_){}
     function show(link){
       box.innerHTML='<div class="quest-reset" style="margin-top:0;">Приглашайте игроков и получайте бонусы за их активность.</div>'+
-        '<div class="quest-reset">За каждого приглашённого начисляется 250 GC.</div><div class="ref-link-row"><div class="ref-link" id="refLinkText">'+escapeHtml(link)+'</div>'+
+        '<div class="quest-reset">За каждого друга: +250 GC вам и +100 GC другу.</div><div class="ref-link-row"><div class="ref-link" id="refLinkText">'+escapeHtml(link)+'</div>'+
         '<button class="btn btn-blue" type="button" id="ggRefCopyFb">Копировать</button></div>';
       var b=document.getElementById('ggRefCopyFb'); if(b) b.onclick=function(){ try{ navigator.clipboard.writeText(link); showToast('Ссылка скопирована','success'); }catch(_){ } };
     }
@@ -2527,7 +2539,7 @@ var ggChipFmt=window.ggChipFmt;
     if(ggRefRetry<4){ ggRefRetry++; setTimeout(function(){ if(!referralData) loadReferrals(); }, 2500*ggRefRetry); }
     return;
     box.innerHTML='<div class="quest-reset" style="margin-top:0;">Приглашайте игроков и получайте бонусы за их активность. Серверные данные временно недоступны.</div>'+
-      '<div class="quest-reset">За каждого приглашённого начисляется 250 GC.</div><div class="ref-link-row"><div class="ref-link" id="refLinkText">'+escapeHtml('Ссылка появится после подключения к серверу')+'</div>';
+      '<div class="quest-reset">За каждого друга: +250 GC вам и +100 GC другу.</div><div class="ref-link-row"><div class="ref-link" id="refLinkText">'+escapeHtml('Ссылка появится после подключения к серверу')+'</div>';
   }
 
   async function loadReferrals(){

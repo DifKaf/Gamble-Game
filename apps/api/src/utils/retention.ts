@@ -27,14 +27,21 @@ export async function pruneOldRows(log?: Log) {
 	const info = (msg: string) => (log ? log.info(msg) : console.log(msg))
 	const warn = (msg: string) => (log ? log.warn(msg) : console.warn(msg))
 
-	const days = Math.max(Number(process.env.RETENTION_DAYS || 30), 3)
-	const sessionDays = Math.max(Number(process.env.SESSION_RETENTION_DAYS || 7), 1)
-	const cutoff = new Date(Date.now() - days * 86400000)
+	// Railway Pro: диска хватает, поэтому по умолчанию храним полгода истории.
+	// RETENTION_DAYS=0 — не удалять историю ставок вовсе.
+	const days = Number(process.env.RETENTION_DAYS ?? 180)
+	const sessionDays = Math.max(Number(process.env.SESSION_RETENTION_DAYS || 30), 1)
+	if (!Number.isFinite(days) || days <= 0) {
+		info('retention: выключена (RETENTION_DAYS=0)')
+		return
+	}
+	if (days < 3) warn('retention: RETENTION_DAYS меньше 3 — используем 3')
+	const cutoff = new Date(Date.now() - Math.max(days, 3) * 86400000)
 	const sessionCutoff = new Date(Date.now() - sessionDays * 86400000)
 
 	try {
 		// Ставки и выигрыши старше RETENTION_DAYS. ctid-батчи вместо одного огромного
-		// DELETE, чтобы не держать длинную блокировку на 0.25 vCPU.
+		// DELETE, чтобы не держать длинную блокировку таблицы.
 		const wallet = await deleteInBatches(
 			`DELETE FROM "WalletTransaction" WHERE ctid IN (
 				SELECT ctid FROM "WalletTransaction"
@@ -77,7 +84,9 @@ export async function pruneOldRows(log?: Log) {
 
 /** Запускает очистку на старте и дальше раз в сутки. */
 export function scheduleRetention(log?: Log) {
-	void pruneOldRows(log)
+	// Не нагружаем базу в первые минуты после деплоя — очистка стартует чуть позже.
+	const first = setTimeout(() => void pruneOldRows(log), 5 * 60 * 1000)
+	if (typeof first.unref === 'function') first.unref()
 	const timer = setInterval(() => void pruneOldRows(log), 24 * 60 * 60 * 1000)
 	if (typeof timer.unref === 'function') timer.unref()
 	return timer

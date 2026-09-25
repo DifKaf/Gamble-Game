@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto'
 import type { FastifyInstance } from 'fastify'
 import { prisma } from '../db.js'
 import { weeklyStats } from '../utils/weeklyStats.js'
@@ -8,9 +9,11 @@ import { withCustomEmoji } from '../utils/telegram.js'
 // «bal» или «balance» — бот отвечает визитной карточкой игрока.
 //
 // Как бот получает сообщения (TELEGRAM_UPDATES_MODE):
-//   polling (по умолчанию) — бот сам забирает сообщения у Telegram, ничего настраивать не нужно;
-//   webhook — Telegram присылает сообщения на POST /telegram/webhook
-//             (нужны TELEGRAM_WEBHOOK_URL и TELEGRAM_WEBHOOK_SECRET);
+//   auto (по умолчанию) — webhook, если у сервиса есть публичный домен Railway, иначе polling;
+//   polling — бот сам забирает сообщения у Telegram (удобно локально);
+//   webhook — Telegram присылает сообщения на POST /telegram/webhook. URL берётся из
+//             TELEGRAM_WEBHOOK_URL или RAILWAY_PUBLIC_DOMAIN, секрет — из TELEGRAM_WEBHOOK_SECRET
+//             или автоматически выводится из токена бота;
 //   off     — функция выключена.
 //
 // ВАЖНО для групп: у бота должен быть выключен Privacy Mode (@BotFather → /setprivacy → Disable)
@@ -28,9 +31,35 @@ function botToken() {
 	return String(process.env.TELEGRAM_BOT_TOKEN || '').trim()
 }
 
+// Публичный домен сервиса. Railway сам кладёт его в RAILWAY_PUBLIC_DOMAIN.
+function publicBaseUrl(): string {
+	const explicit = String(process.env.PUBLIC_API_URL || '').trim().replace(/\/+$/, '')
+	if (explicit) return explicit
+	const domain = String(process.env.RAILWAY_PUBLIC_DOMAIN || '').trim()
+	return domain ? `https://${domain}` : ''
+}
+
+function webhookUrl(): string {
+	const explicit = String(process.env.TELEGRAM_WEBHOOK_URL || '').trim()
+	if (explicit) return explicit
+	const base = publicBaseUrl()
+	return base ? `${base}/telegram/webhook` : ''
+}
+
+// Если секрет не задан, выводим его из токена бота: он одинаковый на всех репликах
+// и после каждого деплоя, а посторонним неизвестен.
+function webhookSecret(): string {
+	const explicit = String(process.env.TELEGRAM_WEBHOOK_SECRET || '').trim()
+	if (explicit) return explicit
+	const token = botToken()
+	return token ? createHash('sha256').update(`gg-webhook:${token}`).digest('hex').slice(0, 48) : ''
+}
+
+// auto (по умолчанию): webhook, если у сервиса есть публичный домен (Railway), иначе polling.
 function mode(): 'polling' | 'webhook' | 'off' {
-	const m = String(process.env.TELEGRAM_UPDATES_MODE || 'polling').trim().toLowerCase()
-	return m === 'webhook' || m === 'off' ? m : 'polling'
+	const m = String(process.env.TELEGRAM_UPDATES_MODE || 'auto').trim().toLowerCase()
+	if (m === 'webhook' || m === 'off' || m === 'polling') return m
+	return webhookUrl() ? 'webhook' : 'polling'
 }
 
 // Если задан список чатов — отвечаем только в них (плюс личка с ботом).
@@ -143,7 +172,7 @@ export async function handleTelegramUpdate(update: any, log?: any) {
 export async function telegramBotRoutes(app: FastifyInstance) {
 	app.post('/webhook', async (req, rep) => {
 		if (mode() !== 'webhook') return rep.code(404).send({ ok: false })
-		const secret = String(process.env.TELEGRAM_WEBHOOK_SECRET || '')
+		const secret = webhookSecret()
 		if (!secret || req.headers['x-telegram-bot-api-secret-token'] !== secret) return rep.code(401).send({ ok: false })
 		// Отвечаем Telegram сразу, карточку шлём в фоне.
 		void handleTelegramUpdate(req.body, app.log)
@@ -153,16 +182,21 @@ export async function telegramBotRoutes(app: FastifyInstance) {
 
 let polling = false
 
+/** Останавливает polling при выключении сервиса (деплой на Railway шлёт SIGTERM). */
+export function stopTelegramBot() {
+	polling = false
+}
+
 export async function startTelegramBot(log: any) {
 	if (!botToken()) { log.info('TELEGRAM_BOT_TOKEN не задан — команды в чате выключены'); return }
 	const m = mode()
 	if (m === 'off') return
 	if (m === 'webhook') {
-		const url = String(process.env.TELEGRAM_WEBHOOK_URL || '').trim()
-		const secret = String(process.env.TELEGRAM_WEBHOOK_SECRET || '').trim()
-		if (!url || !secret) { log.warn('Режим webhook: нужны TELEGRAM_WEBHOOK_URL и TELEGRAM_WEBHOOK_SECRET'); return }
-		const r = await tg('setWebhook', { url, secret_token: secret, allowed_updates: ['message'] }).catch(() => null)
-		log.info({ ok: r?.ok, description: r?.description }, 'Telegram webhook')
+		const url = webhookUrl()
+		const secret = webhookSecret()
+		if (!url || !secret) { log.warn('Режим webhook: нужен публичный домен (RAILWAY_PUBLIC_DOMAIN) или TELEGRAM_WEBHOOK_URL'); return }
+		const r = await tg('setWebhook', { url, secret_token: secret, allowed_updates: ['message'], drop_pending_updates: false }).catch(() => null)
+		log.info({ ok: r?.ok, description: r?.description, url }, 'Telegram webhook')
 		return
 	}
 	// polling: не ломаем чужой webhook, если он уже настроен у бота.

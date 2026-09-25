@@ -4,6 +4,9 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
 <title>Gamble Game</title>
+<link rel="preconnect" href="https://gamble-game-production.up.railway.app" crossorigin>
+<link rel="dns-prefetch" href="https://gamble-game-production.up.railway.app">
+<script>try{fetch("https://gamble-game-production.up.railway.app/health",{mode:"no-cors",cache:"no-store"}).catch(function(){});}catch(e){}</script>
 <meta name="theme-color" content="#2A1454" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
@@ -5472,6 +5475,23 @@ var ggChipFmt=window.ggChipFmt;
   }
   HOME_RAILS.forEach(function(r){ fillRail(r.id, r.games); });
   renderHomeRecent();
+
+  // Сразу показываем сохранённые данные игрока из кэша, не дожидаясь ответа сервера
+  function renderCachedPlayer(){
+    try{
+      var cu = backendUser; if(!cu) return;
+      var name = cu.firstName || cu.username || 'Игрок';
+      var photoUrl = cu.photoUrl || '';
+      var bal = (typeof cu.balance==='number') ? cu.balance : (Number(backendBalance)||0);
+      var full = formatBackendBalance(bal) + ' GC';
+      var plain = formatBackendBalance(bal);
+      ['heroName','walletName','profileName'].forEach(function(id){ var el=document.getElementById(id); if(el) el.textContent=name; });
+      ['heroBalance','walletBalance','profileBalance'].forEach(function(id){ var el=document.getElementById(id); if(el) el.textContent=full; });
+      var top=document.getElementById('balanceValue'); if(top) top.textContent=plain;
+      ['heroAvatar','walletAvatar','profileAvatar','baccaratHeaderAvatar'].forEach(function(id){ try{ setAvatarEl(id, photoUrl||'👤'); }catch(_){} });
+    }catch(e){}
+  }
+  renderCachedPlayer();
 
   initBackendAuth();
   renderAll();

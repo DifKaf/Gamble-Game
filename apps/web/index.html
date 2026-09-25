@@ -2077,6 +2077,7 @@ var ggChipFmt=window.ggChipFmt;
       applyBackendBalanceToUI();
       saveState();
       setInterval(function(){ if(backendReady) applyBackendBalanceToUI(); }, 1000);
+      if(!window.__ggKeepAlive){ window.__ggKeepAlive = setInterval(function(){ try{ fetch(API_URL + '/health', { mode:'no-cors', cache:'no-store' }).catch(function(){}); }catch(e){} }, 60000); }
       refreshMiniGameHistories(true); loadLeaderboardFromBackend();
       if(typeof loadWeekly==='function') loadWeekly();
       if(typeof refreshWeeklyStats==='function') refreshWeeklyStats();
